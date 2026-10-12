@@ -745,6 +745,47 @@ including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
   (`--days`). Its profiles are kept, like memory.
 - Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.
 
+## Terra webhook payloads
+
+`kickoffdb_terra_payload_days`, `kickoffdb_terra_payload_get`,
+`kickoffdb_terra_scopes_export` and `kickoffdb_terra_scopes_export_status`
+read the raw Terra webhook archive (`kickoff-terra-event-payloads-production`,
+us-west-1). Code is in `mcps/kickoff-db/terra-payloads.mjs`, with tests
+against a fake S3 in `test/terra-payloads.test.mjs`.
+
+**Why it exists.** A wearable connection's granted scopes are not stored in
+the database. They exist only in the payloads, as `user.scopes`.
+
+**The data.**
+- The bucket keeps 30 days (lifecycle rule `expire-terra-payloads`): about
+  3.8 TB and 6.2M objects.
+- Encryption is SSE-S3, so the policy needs no KMS statement.
+- Keys look like `production/<YYYY-MM-DD>/<uuid>.json`.
+- Every payload pairs a Kickoff client id (`user.reference_id`) with health
+  data.
+
+**Walls.**
+- The bucket, the `production/` prefix and the key shape are fixed in code
+  before any request is made.
+- IAM grants `s3:ListBucket` on prefix `production/*` and `s3:GetObject` on
+  `production/*` only (`iam/zdr-harness-policy.json`, statements
+  `ListTerraEventPayloads` and `ReadTerraEventPayloads`).
+- A single payload read is capped at 5 MB.
+
+**The scopes export.**
+- It reads newest day first and smallest objects first, keeping each Terra
+  user's latest provider, scopes, active flag and last event.
+- It stops at `target_users`, `max_objects` (default 50,000), or after
+  `saturation` objects in a row bring no new user. It never downloads the
+  bucket.
+- It writes a `ts_<id>.jsonl` export (kept until archived) and returns stats
+  only.
+- Scopes are always empty for APPLE, MYFITNESSPAL, CRONOMETER, PELOTON and
+  COROS.
+
+Stored data rows stay database questions (`terra_users`,
+`client_integration_*`).
+
 ## Exports
 
 Since 2026-10-12 the `exports` MCP (`mcps/exports/`) manages everything the

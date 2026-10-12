@@ -53,6 +53,19 @@
       "Effect": "Allow",
       "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
       "Resource": "arn:aws:ssm:*:*:session/${aws:username}-*"
+    },
+    {
+      "Sid": "ListTerraEventPayloads",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::kickoff-terra-event-payloads-production",
+      "Condition": { "StringLike": { "s3:prefix": ["production/*"] } }
+    },
+    {
+      "Sid": "ReadTerraEventPayloads",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::kickoff-terra-event-payloads-production/production/*"
     }
   ]
 }

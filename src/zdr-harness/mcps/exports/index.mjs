@@ -19,7 +19,7 @@ const SUPPORTED_PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05']
 const kinds = KINDS.map((k) => k.kind)
 
 const selection = {
-  ids: { type: 'array', items: { type: 'string' }, description: 'export ids from exports_list (tx_…, fp_…, sp_…, rv_…), up to 5000' },
+  ids: { type: 'array', items: { type: 'string' }, description: 'export ids from exports_list (tx_…, ts_…, fp_…, sp_…, rv_…), up to 5000' },
   select: {
     type: 'object',
     description: 'instead of ids: every export matching all given filters',
@@ -34,7 +34,7 @@ const TOOLS = [
     name: 'list',
     title: 'List exports',
     description:
-      'List the harness exports (transcript exports, fixture packages, source pages, review files) with id, kind, status (active/archived), absolute path, size, file count, last change, and for archived ones the date they will be deleted. Never returns contents. Exports are kept until archived; an archived export is deleted ' +
+      'List the harness exports (transcript exports, Terra scopes exports, fixture packages, source pages, review files) with id, kind, status (active/archived), absolute path, size, file count, last change, and for archived ones the date they will be deleted. Never returns contents. Exports are kept until archived; an archived export is deleted ' +
       `${ARCHIVE_DAYS} days after archiving. To hand an export to Taylor, give him its path and \`open -R "<path>"\`.`,
     inputSchema: { type: 'object', properties: { kind: { type: 'string', enum: kinds }, status: { type: 'string', enum: ['all', 'active', 'archived'] }, limit: { type: 'number' } }, additionalProperties: false },
     annotations: { readOnlyHint: true },

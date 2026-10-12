@@ -22,6 +22,7 @@ function fixture() {
   writeFileSync(join(root, 'operational-review', 'latest-analyst-response.json'), '{}')
   mkdirSync(join(root, 'fixture-approvals'), { recursive: true })
   writeFileSync(join(root, 'fixture-approvals', `fp_${hex(24, 'c')}.json`), '{}')
+  writeFileSync(join(root, `ts_${hex(8, '9')}.jsonl`), '{}\n')
   writeFileSync(join(root, 'notes.txt'), 'unmanaged')
   return root
 }
@@ -30,7 +31,7 @@ const ids = (r) => r.items.map((i) => i.id).sort()
 test('list: every managed kind, sizes, unmanaged reported, no contents', () => {
   const root = fixture()
   const r = list(root)
-  assert.deepEqual(ids(r), [`fp_${hex(24, 'c')}`, 'rv_latest-analyst-response', `sp_${hex(24, 'd')}`, `tx_${hex(8, 'a')}`, `tx_${hex(8, 'b')}`].sort())
+  assert.deepEqual(ids(r), [`fp_${hex(24, 'c')}`, 'rv_latest-analyst-response', `sp_${hex(24, 'd')}`, `ts_${hex(8, '9')}`, `tx_${hex(8, 'a')}`, `tx_${hex(8, 'b')}`].sort())
   const fp = r.items.find((i) => i.kind === 'fixture-package')
   assert.equal(fp.files, 2)
   assert.deepEqual(r.unmanaged, ['notes.txt'])

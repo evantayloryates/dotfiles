@@ -22,6 +22,7 @@ export const KINDS = [
   { kind: 'transcripts', prefix: 'tx_', id: /^tx_[a-f0-9]{8}$/, dir: '', file: (id) => `${id}.jsonl`, fromName: (n) => (/^tx_[a-f0-9]{8}\.jsonl$/.test(n) ? n.slice(0, -6) : null), isDir: false },
   { kind: 'fixture-package', prefix: 'fp_', id: /^fp_[a-f0-9]{24}$/, dir: 'fixture-packages', file: (id) => id, fromName: (n) => (/^fp_[a-f0-9]{24}$/.test(n) ? n : null), isDir: true },
   { kind: 'source-page', prefix: 'sp_', id: /^sp_[a-f0-9]{24}$/, dir: 'fixture-source-pages', file: (id) => `${id}.json`, fromName: (n) => (/^sp_[a-f0-9]{24}\.json$/.test(n) ? n.slice(0, -5) : null), isDir: false },
+  { kind: 'terra-scopes', prefix: 'ts_', id: /^ts_[a-f0-9]{8}$/, dir: '', file: (id) => `${id}.jsonl`, fromName: (n) => (/^ts_[a-f0-9]{8}\.jsonl$/.test(n) ? n.slice(0, -6) : null), isDir: false },
   { kind: 'review', prefix: 'rv_', id: /^rv_[a-z0-9][a-z0-9-]{0,63}$/, dir: 'operational-review', file: (id) => `${id.slice(3)}.json`, fromName: (n) => (/^[a-z0-9][a-z0-9-]{0,63}\.json$/.test(n) ? `rv_${n.slice(0, -5)}` : null), isDir: false },
 ]
 const KNOWN_TOP = new Set(['.state', 'fixture-approvals', ...KINDS.map((k) => k.dir).filter(Boolean)])
@@ -148,7 +149,7 @@ export function list(rootIn, { kind, status = 'all', limit = 500, now = Date.now
       })
     }
   }
-  const unmanaged = existsSync(root) ? readdirSync(root).filter((n) => !KNOWN_TOP.has(n) && !KINDS[0].fromName(n)) : []
+  const unmanaged = existsSync(root) ? readdirSync(root).filter((n) => !KNOWN_TOP.has(n) && !KINDS.some((k) => !k.dir && k.fromName(n))) : []
   items.sort((a, b) => (a.modified < b.modified ? 1 : -1))
   const n = Math.max(1, Math.min(Number(limit) || 500, 5000))
   return { root, total: items.length, shown: Math.min(n, items.length), items: items.slice(0, n), unmanaged }

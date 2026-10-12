@@ -20,6 +20,7 @@
 // Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0.
 // The database driver is mysql2, pinned into ~/.zdr-harness/opt like OpenCode.
 
+import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -85,6 +86,14 @@ const TRANSCRIPT_PRACTICE = `Choosing how many transcripts to read (quality per 
 - Checking a classification: read 3-5 per label of interest, low and medium confidence first.
 - One full transcript costs this conversation roughly 6-12k tokens; classifying one costs a fraction of that.
   Say how many you read and how you chose them.`
+const TERRA_PRACTICE = `Terra webhook payloads (bucket ${TERRA_BUCKET}, last 30 days only): the raw events
+Terra sends for each wearable connection. Use them for what the database does not keep: a connection's granted
+scopes (user.scopes), raw webhook events and fields dropped on save. Stored rows (terra_users, client_integration_*)
+are database questions: use query. terra_payload_days counts objects and bytes per day (no bodies);
+terra_payload_get reads one payload (bounded); terra_scopes_export writes each Terra user's latest provider,
+scopes, active flag and last event to a ts_ file in exports and returns stats only. Scopes are always empty for
+APPLE (HealthKit hides read permissions), MYFITNESSPAL, CRONOMETER, PELOTON and COROS: report them as "not
+reported", never as "no scopes". Every payload pairs a client id with health data.`
 const EXPORT_CONCURRENCY = 48
 const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
 
@@ -290,7 +299,9 @@ capped at ${MAX_ROWS} rows / ${Math.round(MAX_RESULT_BYTES / 1000)} KB: a statem
 Results note a planned full scan over ${SCAN_NOTE_ROWS.toLocaleString()} rows.
 Prefer aggregates and LIMIT; the replica also serves the product.
 
-${TRANSCRIPT_PRACTICE}`
+${TRANSCRIPT_PRACTICE}
+
+${TERRA_PRACTICE}`
 
 async function guide() {
   return GUIDE + '\n\nCall Guidance fixtures: fixture_package stages ten transformed customer bundles and reports inside protected ZDR exports. It validates declared joins and hashes; it does not deidentify or certify source parity. Release requires a separately operator-written manifest-hash-bound qualified review receipt, and writes only to /Users/taylor/Desktop/zdr-dump. Never return package contents through the bridge.'
@@ -914,12 +925,112 @@ const TOOLS = [
     inputSchema: { type: 'object', properties: { export_id: { type: 'string' }, wait_seconds: { type: 'number' } }, required: ['export_id'], additionalProperties: false },
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
+  {
+    name: 'terra_payload_days',
+    title: 'Count Terra webhook payloads by day',
+    description: 'Raw Terra (wearable) webhook payloads in S3, last 30 days: objects and bytes per day, no bodies. days (1-31, default 3, newest first) or one day (YYYY-MM-DD). Use for scopes, raw webhook events or fields the database drops; stored data rows are in the database (terra_users, client_integration_*).',
+    inputSchema: { type: 'object', properties: { days: { type: 'number' }, day: { type: 'string' }, max_pages_per_day: { type: 'number', description: 'default 50 pages of 1000, max 400' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_payload_get',
+    title: 'Read one Terra webhook payload',
+    description: 'Read one raw Terra webhook payload by key production/<YYYY-MM-DD>/<uuid>.json (bounded: max_chars default 20000, max 80000; page with offset). PHI: pairs a client id with health data; answer rule applies.',
+    inputSchema: { type: 'object', properties: { key: { type: 'string' }, max_chars: { type: 'number' }, offset: { type: 'number' } }, required: ['key'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_scopes_export',
+    title: 'Export each Terra user\'s latest scopes to a file',
+    description: 'Scan Terra webhook payloads newest day first, smallest objects first, and write each Terra user\'s latest provider, granted scopes, active flag and last event to a ts_ file in exports. Returns stats only. Stops at target_users (pass the terra_users count), max_objects (default 50000), or after saturation objects in a row add no new user (default 5000). Never downloads the whole bucket.',
+    inputSchema: { type: 'object', properties: { days: { type: 'number', description: '1-31, default 30' }, max_objects: { type: 'number' }, target_users: { type: 'number' }, saturation: { type: 'number' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_scopes_export_status',
+    title: 'Wait for a Terra scopes export',
+    description: 'Wait (up to 90 s) for a terra_scopes_export job, then return its file path and stats.',
+    inputSchema: { type: 'object', properties: { job_id: { type: 'string' }, wait_seconds: { type: 'number' } }, required: ['job_id'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
 ]
+
+// ---------------------------------------------------------------------------
+// Terra webhook payloads (S3, read-only, production/ prefix only). See
+// terra-payloads.mjs.
+
+
+function terra() {
+  try {
+    return terraClient({ region: REGION, accessKeyId: ACCESS_KEY_ID, secretAccessKey: SECRET_ACCESS_KEY, sessionToken: SESSION_TOKEN })
+  } catch (e) {
+    throw new ToolError(e.message)
+  }
+}
+const terraErr = (e) => (e instanceof TerraError ? new ToolError(e.message) : e)
+
+async function terraPayloadDays({ days, day, max_pages_per_day } = {}) {
+  const list = day !== undefined ? [day] : recentDays(checkLimit(days, 3, 31, 'days'))
+  const cap = checkLimit(max_pages_per_day, 50, 400, 'max_pages_per_day')
+  try {
+    const rows = await dayCounts(terra(), list, { maxPagesPerDay: cap })
+    return JSON.stringify({ days: rows.map((r) => ({ ...r, mb: Math.round(r.bytes / 1e5) / 10 })), note: rows.some((r) => !r.complete) ? `incomplete days stopped at ${cap} pages of 1,000 objects; raise max_pages_per_day (max 400) for a full count` : undefined }, null, 1)
+  } catch (e) {
+    throw terraErr(e)
+  }
+}
+
+async function terraPayloadGet({ key, max_chars, offset } = {}) {
+  const n = checkLimit(max_chars, 20_000, 80_000, 'max_chars')
+  try {
+    const r = await readPayload(terra(), key, { maxChars: n, offset: Number(offset) || 0 })
+    return `${r.key} (${r.bytes} bytes, ${r.total_chars} chars; showing from ${r.offset}${r.more ? `, more: offset ${r.offset + n}` : ''})\n${r.text}`
+  } catch (e) {
+    throw terraErr(e)
+  }
+}
+
+const terraJobs = new Map()
+async function terraScopesExport({ days, max_objects, target_users, saturation } = {}) {
+  const job = { id: `tj_${randomBytes(4).toString('hex')}`, state: 'running', started: Date.now(), progress: { fetched: 0, users: 0, day: null } }
+  const opts = {
+    days: recentDays(checkLimit(days, 30, 31, 'days')),
+    maxObjects: checkLimit(max_objects, 50_000, 500_000, 'max_objects'),
+    targetUsers: target_users === undefined ? undefined : checkInt(target_users, 'target_users'),
+    saturation: checkLimit(saturation, 5000, 100_000, 'saturation'),
+  }
+  const client = terra()
+  terraJobs.set(job.id, job)
+  log(`terra scopes export ${job.id}: ${opts.days.length} days, max ${opts.maxObjects} objects`)
+  job.promise = scopesExport(client, opts, (p) => { job.progress = p })
+    .then(({ rows, stats }) => {
+      const { id, path } = writeScopesFile(EXPORT_DIR, rows)
+      Object.assign(job, { state: 'done', export_id: id, path, stats, finished: Date.now() })
+    })
+    .catch((e) => Object.assign(job, { state: 'failed', error: e instanceof TerraError ? e.message : `internal error (${e.code || e.name})`, finished: Date.now() }))
+  return terraScopesStatus({ job_id: job.id, wait_seconds: 60 })
+}
+
+async function terraScopesStatus({ job_id, wait_seconds } = {}) {
+  const job = terraJobs.get(job_id)
+  if (!job) throw new ToolError(`No Terra scopes export "${job_id}" in this server session (jobs do not survive a harness restart).`)
+  const until = Date.now() + Math.max(0, Math.min(90, Number(wait_seconds ?? 45))) * 1000
+  while (job.state === 'running' && Date.now() < until) await new Promise((r) => setTimeout(r, 250))
+  if (job.state === 'running') return `Terra scopes export ${job.id} running: ${job.progress.fetched.toLocaleString()} payloads read, ${job.progress.users.toLocaleString()} users so far (day ${job.progress.day ?? '…'}).\nNext: terra_scopes_export_status {"job_id": "${job.id}"}`
+  if (job.state === 'failed') return `Terra scopes export ${job.id} failed: ${job.error}`
+  const s = job.stats
+  return [
+    `Terra scopes export ${job.export_id} done in ${((job.finished - job.started) / 1000).toFixed(1)}s: ${s.users.toLocaleString()} Terra users from ${s.objects_fetched.toLocaleString()} payloads (${(s.bytes_fetched / 1e6).toFixed(1)} MB${s.failed ? `, ${s.failed} unreadable` : ''}). Stopped: ${s.stop_reason}.`,
+    `File: ${job.path} (one JSON line per Terra user: user_id, reference_id (Kickoff client id), provider, scopes, scopes_reported, active, last_event_type, last_event_day, last_webhook_update). It is an export: it stays until archived (exports_archive).`,
+    `By provider (users / with scopes reported): ${Object.entries(s.by_provider).sort((a, b) => b[1].users - a[1].users).map(([k, v]) => `${k} ${v.users}/${v.with_scopes}`).join(', ')}.`,
+    'Only users with an event in the scanned window appear. Apply the answer rule before reporting any of this outside the harness.',
+  ].join('\n')
+}
 
 const HANDLERS = { fixture_facts: args => { try { return fixtureFacts(args) } catch { throw new ToolError('fixture_facts_arguments_invalid') } }, fixture_source_page: fixtureSourcePage, fixture_context: args => { try { return fixtureContext(args) } catch { throw new ToolError('fixture_context_unavailable') } }, fixture_call_number: fixtureCallNumber, fixture_package: (args) => {
   try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
   catch (err) { throw new ToolError(err.message) }
-}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus }
+}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus }
 
 // ---------------------------------------------------------------------------
 // MCP stdio loop

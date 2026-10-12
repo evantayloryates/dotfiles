@@ -92,3 +92,19 @@ and is not readable):
 | `ssm:StartSession` | bot host; `SSM-SessionManagerRunShell` | implicitDeny |
 | `rds:DescribeDBInstances` | the read replica | implicitDeny |
 | `kms:Decrypt` | the archive key | implicitDeny in the simulator (no `kms:ViaService` context); proven by the real S3 read |
+
+## v3: Terra webhook payloads (2026-10-12)
+
+Adds two statements to `zdr-harness-policy.json`. They are in the file but
+not yet applied (applying needs Taylor's authorization):
+
+| Sid | What | Why it is safe |
+|---|---|---|
+| `ListTerraEventPayloads` | `s3:ListBucket` on `kickoff-terra-event-payloads-production`, condition `s3:prefix` like `production/*` | Lists keys and sizes under the production prefix only |
+| `ReadTerraEventPayloads` | `s3:GetObject` on `kickoff-terra-event-payloads-production/production/*` | Read only, one prefix; SSE-S3, so no KMS grant |
+
+Apply it the same way as before (`aws iam put-user-policy --user-name
+zdr-harness-logs --policy-name read-production-lambda-logs --policy-document
+file://…/zdr-harness-policy.json`). Then read it back with
+`aws iam get-user-policy` and diff it against the file.
+
