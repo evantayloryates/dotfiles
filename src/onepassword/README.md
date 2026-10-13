@@ -351,6 +351,16 @@ Deployed hashes, signature, parser state and advancing heartbeat verified;
 repair or additional authorization wake was warranted. Unlock and any required
 native consent remain human actions; pre-lock account successes are historical.
 
+The [October 13 midday incident](autofixes/oct-13-12p/summary.md) observed
+generic exit 1 for both accounts at 12:38 and 12:45 Eastern; independent
+metadata-only checks succeeded at 12:41, and the normal keepalive round cleared
+the episode at 12:52 without a repair or agent-requested auth wake.
+Deployed hashes, signature, timestamped lock parsing and an advancing heartbeat
+verified with unchanged broker/keepalive identities. Generic failures alone do
+not establish authorization expiry or a broker crash. A successful manual smoke
+check does not update keepalive's stored account status; read the next scheduled
+round separately before claiming that its fault episode has cleared.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

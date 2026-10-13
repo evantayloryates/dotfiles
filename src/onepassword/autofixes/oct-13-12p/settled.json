@@ -1,0 +1,59 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-13T16:54:30.502Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "33a99e2977f1c9d1ae0fb6c7ed733deba6284d4de81d2c1c40d67d9644004e14"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "d9ef74565e1825bb128533d2bf3655313793a1a233059c9a7f672ab89d9f7003"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "7156ed22dc48b1cf7fcb5242c1ab6974f9554dd841e47855c8358d4c47ecaa68"
+    },
+    {
+      "name": "artifacts/diagnostic-db7de38b-291c-458d-82ea-5eb0feb8220d.json",
+      "sha256": "299a45596af658b370077d0c9f0fbd3a688b4e104b27826eafabcdd5a014ad20"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "1df5cad32c09ad3328a99474c61778918f0a966f86d5d43242f5cb57a03495e7"
+    },
+    {
+      "name": "artifacts/identity-check.json",
+      "sha256": "4739192383d959189ab94d415e1eabd7a31452b7b2e0f4ea48b7eea64420b14e"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "d74693d5cafff39f5af7951b61af65fba47965f49f23d23a1562baf658cfe439"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "95a3052925e584c9c7a833cda4df11fb3001754793a1a6cf833bc2d479b469ca"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "d462b4282d285655f51cf2387fdd93a73a996886488299fb376ee55021a95255"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "6baad8c4fc7f0df10c7a8b1c57437ea6748c3964940a67ea7c53bd4f00593c6b"
+    },
+    {
+      "name": "artifacts/recent-events.json",
+      "sha256": "57c8f28a8e626a533d54968c44e9815e9b65a80c211a339c14c69c6160495939"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "877a798d11f4a9d0ab33a9ebe57c199a52a3ae410a7c06d74e23627f061933d4"
+    },
+    {
+      "name": "artifacts/report-review.json",
+      "sha256": "a2a76fd60001096e9c866744a155ae0af940643f1ebad95996a605020b4b4ab6"
+    }
+  ],
+  "reportSha256": "206c15f9462b4dc4d71b69b9d62ffb65612a229bfcf7edca8fa4c5f5f2dfe0b4"
+}

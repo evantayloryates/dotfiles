@@ -1,0 +1,23 @@
+[
+  {
+    "check": "version",
+    "exit": 0,
+    "seconds": 0.2,
+    "stdout": "discarded",
+    "stderr": "discarded"
+  },
+  {
+    "check": "slot0",
+    "exit": 0,
+    "seconds": 1.1,
+    "stdout": "discarded",
+    "stderr": "discarded"
+  },
+  {
+    "check": "slot1",
+    "exit": 0,
+    "seconds": 1.09,
+    "stdout": "discarded",
+    "stderr": "discarded"
+  }
+]

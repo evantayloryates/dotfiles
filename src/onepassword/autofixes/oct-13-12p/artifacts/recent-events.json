@@ -1,0 +1,92 @@
+[
+  {
+    "ts": "2026-10-13T12:24:07-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.99,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-13T12:24:08-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.79,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-13T12:31:15-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 2.39,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-13T12:31:17-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 1.89,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-13T12:38:22-0400",
+    "event": "keepalive",
+    "status": "error",
+    "seconds": 0.27,
+    "exit": 1,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-13T12:38:22-0400",
+    "event": "fault_started",
+    "episode": "38b1f18e-73c8-4803-ba70-285da5d2af42"
+  },
+  {
+    "ts": "2026-10-13T12:38:22-0400",
+    "event": "keepalive",
+    "status": "error",
+    "seconds": 0.15,
+    "exit": 1,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-13T12:45:27-0400",
+    "event": "keepalive",
+    "status": "error",
+    "seconds": 0.27,
+    "exit": 1,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-13T12:45:27-0400",
+    "event": "keepalive",
+    "status": "error",
+    "seconds": 0.16,
+    "exit": 1,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-13T12:52:32-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.78,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-13T12:52:33-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.57,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-13T12:52:33-0400",
+    "event": "fault_resolved",
+    "episode": "38b1f18e-73c8-4803-ba70-285da5d2af42"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "bothReportsInspected": true,
+  "htmlContentMatchesReport": true,
+  "allLocalLinksResolve": true,
+  "oneMainAndHeading": true,
+  "responsiveViewport": true,
+  "humanAndTechnicalSections": true,
+  "reviewMethod": "Static HTML content, structure, responsive CSS and link inspection; no browser or Computer Use under quarantine."
+}

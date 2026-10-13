@@ -1,0 +1,10 @@
+{
+  "files": [
+    "test_autofix.mjs",
+    "test_autofix_archive.mjs",
+    "test_recovery_dispatch.mjs"
+  ],
+  "exit": 0,
+  "seconds": 0.35,
+  "summary": []
+}

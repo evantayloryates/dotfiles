@@ -1,0 +1,9 @@
+{
+  "brokerIdentityPreserved": true,
+  "keepalivePidPreserved": true,
+  "heartbeatBefore": "2026-10-13T12:41:04-0400",
+  "heartbeatAfter": "2026-10-13T12:53:54-0400",
+  "heartbeatAdvanced": true,
+  "authenticatedMetadataChecksPassed": true,
+  "regularKeepaliveRecovered": true
+}
