@@ -942,7 +942,7 @@ const TOOLS = [
   {
     name: 'terra_scopes_export',
     title: 'Export each Terra user\'s latest scopes to a file',
-    description: 'Scan Terra webhook payloads newest day first, smallest objects first, and write each Terra user\'s latest provider, granted scopes, active flag and last event to a ts_ file in exports. Returns stats only. Stops at target_users (pass the terra_users count), max_objects (default 50000), or after saturation objects in a row add no new user (default 5000). Never downloads the whole bucket.',
+    description: 'Scan Terra webhook payloads newest day first, smallest objects first, and write each Terra user\'s latest provider, granted scopes, active flag and last event to a ts_ file in exports. Returns stats only. Stops at target_users (connections expected to have an event in the window, e.g. terra_users with a webhook update in the last 30 days; the all-time terra_users count includes connections that will never appear), max_objects (default 50000), or after saturation objects in a row add no new user (default 5000). Never downloads the whole bucket.',
     inputSchema: { type: 'object', properties: { days: { type: 'number', description: '1-31, default 30' }, max_objects: { type: 'number' }, target_users: { type: 'number' }, saturation: { type: 'number' } }, additionalProperties: false },
     annotations: { readOnlyHint: true, openWorldHint: true },
   },

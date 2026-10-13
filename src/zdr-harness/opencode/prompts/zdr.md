@@ -195,8 +195,9 @@ Questions about Terra or wearable connections that the database cannot
 answer go here: granted scopes and permissions, raw webhook events, fields
 dropped on save (last 30 days only). Stored rows (`terra_users`,
 `client_integration_*`) are database questions: use `kickoffdb_query`.
-`terra_payload_days` counts per day; `terra_scopes_export` (pass the
-`terra_users` count as `target_users`) writes each user's latest scopes to a
+`terra_payload_days` counts per day; `terra_scopes_export` (pass as
+`target_users` the connections with a webhook update in the last 30 days, not
+the all-time `terra_users` count; raise `max_objects` for full coverage) writes each user's latest scopes to a
 `ts_` export and returns stats; `terra_payload_get` reads one payload. Scopes
 are never reported for APPLE, MYFITNESSPAL, CRONOMETER, PELOTON and COROS:
 say "not reported", not "none". Payloads are PHI (client id plus health data).
