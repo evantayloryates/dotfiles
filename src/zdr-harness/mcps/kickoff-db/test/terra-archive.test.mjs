@@ -204,3 +204,16 @@ test('logs hold counts and codes only', async (t) => {
   for (const leak of ['u1', 'u2', 'ref-', 'GARMIN', 'heartrate', uuid(1)]) assert.ok(!text.includes(leak), `log leaks ${leak}`)
   assert.ok(readFileSync(new URL('../terra-archive.mjs', import.meta.url), 'utf8').includes('statfsSync'), 'disk guard present')
 })
+
+test('a dropped connection while listing retries the page instead of skipping the day', async (t) => {
+  const { o } = world()
+  const s3 = await fakeS3(o)
+  t.after(() => s3.server.close())
+  let drops = 2
+  const flaky = { ...s3.client, listPage: async (d, tok) => { if (drops-- > 0) throw new Error('S3 is not reachable (UND_ERR_SOCKET)'); return s3.client.listPage(d, tok) } }
+  const lines = []
+  const r = await runArchive({ db: tmpDb(), client: flaky, log: (e) => lines.push(e), now: NOW, days: DAYS, runId: 'tr_ls' })
+  assert.equal(r.done, 6)
+  assert.equal(lines.filter((l) => l.event === 'list_retry').length, 2)
+  assert.equal(lines.filter((l) => l.event === 'list_error').length, 0)
+})

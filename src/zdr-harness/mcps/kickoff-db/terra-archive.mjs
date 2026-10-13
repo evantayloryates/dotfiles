@@ -171,7 +171,16 @@ export async function runArchive({ db, client, log = () => {}, now = Date.now(),
     let token, n = 0
     if (!settledListing) try {
       do {
-        const page = await client.listPage(day, token)
+        // A dropped connection retries the page, not the whole day.
+        let page
+        for (let attempt = 0; ; attempt++) {
+          try { page = await client.listPage(day, token); break } catch (e) {
+            if (attempt >= 4 || !TRANSIENT.test(e.message)) throw e
+            s.retries++
+            log({ event: 'list_retry', day, attempt: attempt + 1, error: e.message.slice(0, 80) })
+            await sleep(Math.min(16_000, 1000 * 2 ** attempt) * (0.5 + Math.random()))
+          }
+        }
         tx(() => { for (const it of page.items) { const r = q.addKey.run(it.key, day, it.size, it.modified); s.keys_new += Number(r.changes) } })
         n += page.items.length
         token = page.next
