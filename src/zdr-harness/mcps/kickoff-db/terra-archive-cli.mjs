@@ -19,7 +19,7 @@
 // rates and error codes only, never keys' contents or ids.
 
 import { spawn } from 'node:child_process'
-import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, statfsSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { archiveStatus, finishRun, latestStates, openArchive, runArchive, runLogger } from './terra-archive.mjs'
 import { terraClient, writeScopesFile } from './terra-payloads.mjs'
@@ -158,10 +158,20 @@ function status() {
       open: s.open.map((x) => `${x.day} ${x.done}/${x.listed}${x.failed ? ` (${x.failed} failed)` : ''}`),
       archived: `${d.done ?? 0} payloads, ${d.failed ?? 0} failed, ${d.missing ?? 0} missing; ${s.users} users, ${s.states} scope states, ${s.conn_events} connection events`,
       last_run: runs(1)[0] || null,
+      disk: diskUse(),
     }
   } finally {
     db.close()
   }
+}
+
+// Archive file sizes (database + WAL) and free space on its volume.
+function diskUse() {
+  const mb = (p) => { try { return statSync(p).size / 1e6 } catch { return 0 } }
+  const db = mb(DB_PATH), wal = mb(`${DB_PATH}-wal`)
+  let free = null
+  try { const f = statfsSync(ARCHIVE_DIR); free = (f.bavail * f.bsize) / 1e9 } catch {}
+  return `db ${db.toFixed(0)} MB, wal ${wal.toFixed(0)} MB, ${free == null ? '?' : free.toFixed(1)} GB free`
 }
 
 function runs(n = 10) {
