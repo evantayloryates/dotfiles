@@ -157,6 +157,18 @@ def evaluate(gate, value, expected=None, max_age_ms=3000):
     raise VerificationError('unsupported_gate')
 
 
+def failed_predicate(gate, summary):
+    """Explain a timeout from typed observations; never infer lock or cable."""
+    if gate in ('host-idle', 'idle'):
+        for key, reason in (('hostIdle', 'host_cleanup_pending'),
+                            ('deviceFeedbackKnown', 'native_feedback_unavailable'),
+                            ('nativeLeaseOff', 'native_lease_off_unconfirmed'),
+                            ('nativeIndicatorOff', 'native_indicator_off_unconfirmed')):
+            if summary.get(key) is False:
+                return reason
+    return 'condition_not_met' if summary else None
+
+
 class Verifier:
     def __init__(self, state=STATE, exchange_fn=exchange, clock=time.monotonic, sleep=time.sleep):
         self.state, self.exchange, self.clock, self.sleep = Path(state), exchange_fn, clock, sleep
@@ -272,7 +284,9 @@ class Verifier:
                        'development_device_required', 'command_identity_unknown', 'command_identity_changed',
                        'observation_failed', 'observation_not_confirmed', 'lease_required', 'unknown_command',
                        'response_incomplete', 'response_limit', 'response_shape', 'request_rejected'}
+            predicate = failed_predicate(gate, summary) if safe == 'deadline_exceeded' else None
             return {'version': 1, 'gate': gate, 'status': 'failed', 'reason': safe if safe in allowed else 'transport_or_shape_error',
+                    **({'failedPredicate': predicate} if predicate else {}),
                     'attempts': attempts, 'elapsedMs': round((self.clock() - start) * 1000), 'observation': summary}
 
 

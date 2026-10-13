@@ -25,7 +25,8 @@ export async function openManagedWeb(b,args={}){
   note('provider.selected',{op:'managed_browser_open',provider,kind:args.browser,reason});
   const result=await (provider==='reflected'?openReflectedWeb(b,args):openAppWeb(b,{...args,enrollmentTransport:provider==='paired'?'paired':args.transport==='app'?'app':'auto'}));
   note('browser.open_completed',{provider,kind:args.browser,session:result.sessionId,page:result.page,
-    outcome:result.ok===true?'verified':result.inputSent===false?'refused':'unknown',reason:typeof result.reason==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(result.reason)?result.reason:undefined,level:result.ok?'info':'warn'});
+    outcome:result.ok===true?'verified':result.inputSent===false?'refused':'unknown',phase:result.phase,errorCode:result.launchReason,
+    reason:typeof result.reason==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(result.reason)?result.reason:undefined,level:result.ok?'info':'warn'});
   return result;
 }
 
@@ -39,16 +40,21 @@ export async function openAppWeb(b,{browser,profile='app',path:route='/dev/ios-a
     const launch=await b.webEnroll({browser,profile,path:route,transport:enrollmentTransport});
     if(!launch.ok)return {...launch,replay:false};
     if(launch.launch?.ok===false&&launch.launch.inputSent===false)return {...launch,ok:false,inputSent:false,reason:launch.launch.reason||'browser_launch_refused',replay:false};
-    const until=Date.now()+15000;let page;
+    const until=Date.now()+15000;let page,lastMatches=[];
     while(Date.now()<until){
       const inventory=await b.webPages();
       if(!inventory.ok)return {ok:false,reason:'launched_page_inventory_unavailable',launch:launch.launch,replay:false};
       const matches=inventory.pages?.filter(p=>!prior.has(p.id)&&p.browser===browser&&p.visible&&p.ready&&p.ageMs<3000)||[];
+      lastMatches=inventory.pages?.filter(p=>p.browser===browser)||[];
       if(matches.length===1){page=matches[0];break;}
       if(matches.length>1)return {ok:false,reason:'browser_page_ambiguous',replay:false};
       await new Promise(resolve=>setTimeout(resolve,250));
     }
-    if(!page)return {ok:false,reason:'fresh_launched_page_unconfirmed',launch:launch.launch,replay:false};
+    if(!page)return {ok:false,reason:'fresh_launched_page_unconfirmed',phase:'page_readiness',
+      outcome:'unknown',inputSent:launch.launch?.inputSent??'unknown',
+      launchReason:launch.launch?.reason,launchPhase:launch.launch?.phase,launch:launch.launch,
+      recovery:{observedBrowserPages:lastMatches.length,readyVisiblePages:lastMatches.filter(p=>p.ready&&p.visible&&p.ageMs<3000).length,newDocumentObserved:lastMatches.some(p=>!prior.has(p.id))},
+      next:'Inspect ios_web_pages and the independent display. Reuse a ready intended page with ios_web_begin after checking its identity. No accepted/unknown launch is replayed or switched to another transport.',replay:false};
     const begun=await b.begin({surface:'web',page:page.id,threadId,rollout,claudeOwner});session=begun.sessionId;
     if(paired)b.session(session).pairedManagedHome=true;
     else b.session(session).appManagedHome=true;

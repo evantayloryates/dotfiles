@@ -318,6 +318,7 @@ def main():
         print(json.dumps({'ok':True,'scope':result['scope']}))
         _signal('observer.completed', outcome='completed', stage=r.get('_phase','validation'))
     except Exception as e:
+        r['_phase']=r.get('_failurePhase',r.get('_phase','validation'))
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
         if isinstance(e,ValueError) and str(e) in {'fixed_developer_transport_required','usb_recovery_read_only_screen_or_capabilities_required','fixed_usb_device_not_enumerated','observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_browser_launch_required','fixed_home_shortcut_required','fixed_wifi_shortcut_required','experimental_ax_native_tab_required','fixed_ax_native_tab_required','bounded_ax_element_required','ax_native_surface_changed','ax_native_cleanup_unconfirmed','fixed_foreground_target_required','foreground_cleanup_unconfirmed','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
@@ -327,7 +328,9 @@ def main():
         if r.get('_axPressSent') in (True,'unknown'):sent=r['_axPressSent']
         _signal('observer.failed', outcome='unknown' if sent in (True,'unknown') else 'failed',
                 reason=code, stage=r.get('_phase','validation'), errorName=failure_type, level='error')
-        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':sent}))
+        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),
+            **({'cleanupReason':r['_cleanupFailure']} if r.get('_cleanupFailure')=='foreground_cleanup_unconfirmed' else {}),
+            'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':sent}))
         sys.exit(1)
 
 if __name__=='__main__':main()

@@ -54,6 +54,9 @@ permissions only (the token cannot post, react or edit). Its main purpose is
 **#rd-bugs-and-feature-requests** (`C0ALR9F5NQP`, private): R&D bug reports
 and feature requests. Other agents are told to read that channel only through
 this harness, because reports can name clients and describe their health.
+**#bugsby-beta** (`C0B7MV8HHRT`, private) is in scope the same way (Taylor,
+2026-10-13): beta bug reports, read here only. Read it with the same tools
+(`in:#bugsby-beta` for search).
 
 - Read with `slackuser_slack_read_channel` / `slackuser_slack_read_thread`
   (channel `C0ALR9F5NQP`); search with `slackuser_slack_search_public_and_private`

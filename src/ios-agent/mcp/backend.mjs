@@ -224,7 +224,10 @@ export class Backend {
     const r = await this.run('doctor', connectivity?['--connectivity']:[], undefined, 55000);
     if (!r.value || typeof r.value.hostPrerequisitesReady !== 'boolean') return {ok: false, reason: 'host_diagnosis_unavailable'};
     const value = safe(r.value);
-    return {...value, ok: r.ok && value.hostPrerequisitesReady, failedChecks: Object.entries(value.checks || {}).filter(([,v]) => v !== true).map(([k]) => k),
+    const failedChecks=Object.entries(value.checks || {}).filter(([,v]) => v !== true).map(([k]) => k);
+    for(const check of failedChecks)note('host.check_failed',{reason:check,outcome:'failed',level:'warn'});
+    return {...value, ok: r.ok && value.hostPrerequisitesReady, failedChecks,
+      ...(!r.ok||!value.hostPrerequisitesReady?{reason:'host_prerequisites_incomplete'}:{}),
       next: 'Host checks do not establish phone readiness. Use connectivity=true for actual fixed-phone USB detection, one tailnet ping, fixed developer TCP endpoint status and lease-free bridge readiness. Inspect evidence before requesting phone setup.'};
   }
   async stackEnsure({timeout = 60} = {}) {
@@ -342,8 +345,10 @@ export class Backend {
     const source = runtimeKey(await this.status().catch(() => null));
     let learningEvidence = {available: false};
     if (source && source === before) learningEvidence = await this.learning('observe', {receipt, source}).catch(() => ({available: false}));
-    note('verification.completed',{action:gate,session:sessionId,outcome:receipt.status==='passed'?'verified':'failed',level:receipt.status==='passed'?'info':'warn'});
-    return {artifactId: a.id, receipt, learningEvidence};
+    const reason=receipt.status==='passed'?undefined:reasonCode(receipt.failedPredicate)||reasonCode(receipt.reason)||'verification_failed';
+    note('verification.completed',{action:gate,session:sessionId,outcome:receipt.status==='passed'?'verified':'failed',reason,level:receipt.status==='passed'?'info':'warn'});
+    return {artifactId: a.id, receipt, learningEvidence,...(reason?{reason,
+      next:gate==='idle'?'idle requires fresh native DEV feedback. For browser/system cleanup, use host-idle for host ownership, then verify page glow/media and Home separately. Do not reopen DEV merely to pass idle.':'Inspect the failed predicate and current ownership/runtime before another changed-condition attempt.'}:{})};
   }
   observationDirectory() {
     const dir = path.join(this.state, 'mcp-observations');
@@ -810,9 +815,9 @@ export class Backend {
             const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
             const result=await this.run('provider',[],{kind:'browser-launch',browser:browser==='ios-safari'?'safari':'chrome',profile,url:sourceURL,serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:receipt.file},26000);
             this.session(owner.id);
-            if(!result.ok||result.value?.ok!==true||!fs.existsSync(receipt.file))launch={ok:false,outcome:'unknown',reason:result.value?.reason||'developer_launch_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};
+            if(!result.ok||result.value?.ok!==true||!fs.existsSync(receipt.file))launch={ok:false,outcome:'unknown',reason:result.value?.reason||'developer_launch_unconfirmed',phase:reasonCode(result.value?.phase),cleanupReason:reasonCode(result.value?.cleanupReason),inputSent:result.value?.inputSent??'unknown',replay:false};
             else launch={ok:true,...safe(JSON.parse(fs.readFileSync(receipt.file,'utf8')).result),replay:false};
-            note('browser.launch_completed',{provider:'paired',kind:browser,outcome:launch.ok?'accepted':launch.inputSent===false?'refused':'unknown',reason:reasonCode(launch.reason),level:launch.ok?'info':'warn'});
+            note('browser.launch_completed',{provider:'paired',kind:browser,outcome:launch.ok?'accepted':launch.inputSent===false?'refused':'unknown',reason:reasonCode(launch.reason),phase:launch.phase,level:launch.ok?'info':'warn'});
           }finally{fs.rmSync(receipt.file,{force:true});this.artifacts.delete(receipt.id);}
         }finally{await this.end(reservation.sessionId);}
         return {ok:true,profile,launchFile:a.file,expiresIn:300,launch,next:'Enrollment was created; inspect launch outcome, then ios_web_pages for actual page readiness. Accepted or unknown URL delivery must not be replayed. The private launch file contains the expiring enrollment fragment; do not log it.'};
@@ -977,6 +982,12 @@ export class Backend {
         }
         return {...release, indicatorOff:true,receipt,learningEvidence,...(appCleanup?{appCleanup}:{}),...(appCleanup?.homeRequested===false?{ok:false,next:'Control and glow ended; Home remains unconfirmed. Inspect the current owner/transport without replaying input.'}:{})};
       }
+      // A fresh replacement runtime cannot acknowledge the old document's
+      // cleanup. Waiting unchanged only wastes the seven-second grace period.
+      // Preserve unconfirmed and send no Home into the replacement document.
+      if(pages.ok&&p&&Number.isFinite(p.ageMs)&&p.ageMs>=0&&p.ageMs<3000&&
+          ['browser','boot','version'].every(k=>typeof p[k]==='string'&&p[k]&&typeof s.webRuntime?.[k]==='string'&&s.webRuntime[k])&&
+          feedback==='page_runtime_changed')break;
       await new Promise(resolve => setTimeout(resolve, 250));
     }
     note('browser.cleanup_unconfirmed',{session:id,page,outcome:'unknown',reason:'fresh_indicator_off_feedback_missing',state:feedback,level:'warn'});

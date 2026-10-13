@@ -11,7 +11,7 @@ const ROOT = process.env.IOS_AGENT_SIGNAL_STATE_DIR || path.join(os.homedir(), '
 const DIR = path.join(ROOT, 'signals');
 const FILE_BYTES = 128 * 1024, TOTAL_BYTES = 2 * 1024 * 1024, MAX_FILES = 256;
 const MAX_AGE = 7 * 86400 * 1000, ROTATE_AGE = 86400 * 1000;
-const ids = new Set(['traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream','documentId','observedDocumentId','frameLoaderId']);
+const ids = new Set(['connectionId','traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream','documentId','observedDocumentId','frameLoaderId']);
 const aliases = {operation:'op',document:'documentId',observedDocument:'observedDocumentId',frameLoader:'frameLoaderId',receiverFailure:'errorCode',windowMs:'durationMs',droppedEvents:'dropCount',trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId',source:'stage',sourceStreamId:'sourceStream',sourceBootId:'bootId',attempts:'attemptCount',routeName:'route',previousRouteName:'previousRoute',operationName:'op',errorCount:'count'};
 const words = new Set(['tool','action','op','kind','surface','transport','provider','strategy','stage','phase','state','fromState','toState','outcome','reason','code','version','errorName','errorCode','route','previousRoute']);
 const numeric = new Set(['durationMs','count','participants','sent','received','drops','gaps','attemptCount','retryCount','acceptedCount','failedCount','frameCount','signalCount','dropCount','droppedCount','truncatedCount','sourceAtMs','sourceSeq','bytes','domainCount','eventCount','cleanupFailures','nodeCount','edgeCount','workerCount','workersInitialized']);
@@ -176,16 +176,38 @@ function summarize(rows,maxBytes,storage) {
   const bad=rows.filter(r=>r.level!=='info'||['failed','rejected','unknown','not_executed','refused'].includes(r.outcome));
   const commands=rows.filter(r=>r.event==='browser.command.terminal');
   const mcp=rows.filter(r=>r.scope==='mcp'&&r.event==='request.admitted');
+  // A request can have many correlated provider/browser rows. Count only one
+  // MCP terminal per trace, never treat every warning as another failed action.
+  const seen=new Set(),terminal=rows.filter(r=>{
+    if(r.scope!=='mcp'||!['request.completed','request.failed','request.refused'].includes(r.event))return false;
+    const key=r.traceId||r.id;if(seen.has(key))return false;seen.add(key);return true;
+  });
+  const groups=new Map(),failures=new Map();
+  for(const r of terminal){
+    const tool=r.tool||'unknown',g=groups.get(tool)||{tool,calls:0,failed:0,unknown:0,pending:0,durations:[]};
+    g.calls++;if(['failed','refused','rejected'].includes(r.outcome))g.failed++;if(r.outcome==='unknown')g.unknown++;if(r.outcome==='pending')g.pending++;
+    if(Number.isFinite(r.durationMs))g.durations.push(r.durationMs);groups.set(tool,g);
+    if(['failed','refused','rejected','unknown'].includes(r.outcome)){
+      const reason=r.reason||'reason_unavailable',key=tool+'|'+reason;
+      const f=failures.get(key)||{tool,reason,count:0};f.count++;failures.set(key,f);
+    }
+  }
+  const operations={terminalRequests:terminal.length,distinctConnections:new Set(terminal.map(r=>r.connectionId).filter(Boolean)).size,
+    requestsWithoutConnection:terminal.filter(r=>!r.connectionId).length,
+    tools:[...groups.values()].sort((a,b)=>b.calls-a.calls).slice(0,12).map(({durations,...g})=>{durations.sort((a,b)=>a-b);return {...g,...(durations.length?{p50Ms:durations[Math.floor((durations.length-1)*.5)],p95Ms:durations[Math.ceil(durations.length*.95)-1],maxMs:durations.at(-1)}:{})};}),
+    failures:[...failures.values()].sort((a,b)=>b.count-a.count).slice(0,12)};
   const summary={retainedRecords:rows.length,from:rows.at(-1)?.time||null,to:rows[0]?.time||null,
     levels:counts('level'),scopes:counts('scope'),outcomes:counts('outcome'),
     browserCommands:commands.length,uncorrelatedBrowserCommands:commands.filter(r=>!r.traceId).length,
-    admittedMcpRequests:mcp.length,notableRecords:bad.length,storage};
+    admittedMcpRequests:mcp.length,notableRecords:bad.length,storage,operations};
   const lines=[`Retained signals=${rows.length} from=${summary.from||'none'} to=${summary.to||'none'}`,
     `levels ${Object.entries(summary.levels).map(([k,v])=>k+'='+v).join(' ')}; browserCommands=${commands.length} withoutTrace=${summary.uncorrelatedBrowserCommands}; admittedMcp=${mcp.length}`,
     'Counts describe retained records, not unique operations; missing traces do not prove non-execution.'];
   const events=[...rows.reduce((m,r)=>{const k=eventLabel(r);m.set(k,(m.get(k)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1]).slice(0,12);
   lines.push('events '+events.map(([k,v])=>k+'='+v).join(' '));
   lines.push(`store files=${storage.retainedFiles}/${storage.fileLimit} bytes=${storage.retainedBytes}/${storage.byteLimit} maxAgeDays=${storage.maxAgeDays}; bounded history, not completeness proof`);
+  lines.push(`MCP terminalRequests=${operations.terminalRequests} connections=${operations.distinctConnections} withoutConnection=${operations.requestsWithoutConnection}; retained traces only`);
+  for(const g of operations.tools.slice(0,6))lines.push(`${g.tool} calls=${g.calls} failed=${g.failed} unknown=${g.unknown} pending=${g.pending}${g.maxMs===undefined?'':` p50Ms=${g.p50Ms} p95Ms=${g.p95Ms} maxMs=${g.maxMs}`}`);
   for(const r of bad.slice(0,8))lines.push(`${r.time} ${eventLabel(r)} outcome=${r.outcome||r.level}${r.reason?' reason='+display(r.reason,'reason'):''}${r.traceId?' trace='+display(r.traceId,'traceId'):''}`);
   let text=lines.join('\n'),truncated=false;
   if(Buffer.byteLength(text)>maxBytes){const chars=Array.from(text);while(chars.length&&Buffer.byteLength(chars.join('')+' …')>maxBytes)chars.pop();text=chars.join('')+' …';truncated=true;}
@@ -216,7 +238,7 @@ export function readSignals(options = {}) {
           if (r.v!==1 || !scopes.has(r.scope) || !levels.has(r.level) || typeof r.event!=='string' || r.event.length>64 || !/^[a-z][a-z0-9_]*(?:[.-][a-z0-9_]+)*$/.test(r.event) || typeof r.time!=='string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(r.time) || !/^[a-f0-9]{16}$/.test(r.id)) continue;
           if (cursor && cursorKey(r)>=cursor) continue;
           if (options.scope && r.scope!==options.scope || options.level && r.level!==options.level || options.event && !r.event.startsWith(options.event) || options.tool && r.tool!==options.tool) continue;
-          if (options.sessionId && r.sessionId!==options.sessionId || options.traceId && r.traceId!==options.traceId) continue;
+          if (options.sessionId && r.sessionId!==options.sessionId || options.traceId && r.traceId!==options.traceId || options.connectionId && r.connectionId!==options.connectionId) continue;
           if (options.since && r.time < options.since) continue;
           rows.push({...r, ...clean(r)});
         } catch { /* Ignore torn or malformed rows. */ }

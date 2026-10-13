@@ -65,9 +65,22 @@ things.
   totals and upload dates are aggregates and go out normally.
 - Any grouping of fewer than 11 people: merge it into "other" or say "fewer than
   11". This follows CMS's cell-size policy. Percentages or totals that let such a
-  cell be derived count as the cell itself.
+  cell be derived count as the cell itself. One exception, below.
 - Anything that, combined with what the asker already told you, would single out
   one person, even when each part looks harmless alone.
+
+**Small cells are allowed when no health information is at stake** (Taylor,
+2026-10-13). Report exact counts, however small, only when all three hold:
+1. The asker defined the cohort (they gave the ids or the list); you did not
+   discover it.
+2. Every attribute reported is operational: app version or build, OS or
+   platform, device manufacturer or model, error or crash counts per error
+   class, or yes/no "used feature X since date Y" for bug verification.
+3. Nothing new comes back about who anyone is: no names, emails, ids the asker
+   did not give, or per-person rows. Counts only.
+The 11-floor still applies to any cohort defined by a health or insurance
+attribute (diagnosis, insurance, meals, workouts, wellness), to every cohort you
+found yourself, and to any answer carrying health content.
 
 ### When the answer needs something you cannot send
 
@@ -139,6 +152,9 @@ permissions only (the token cannot post, react or edit). Its main purpose is
 **#rd-bugs-and-feature-requests** (`C0ALR9F5NQP`, private): R&D bug reports
 and feature requests. Other agents are told to read that channel only through
 this harness, because reports can name clients and describe their health.
+**#bugsby-beta** (`C0B7MV8HHRT`, private) is in scope the same way (Taylor,
+2026-10-13): beta bug reports, read here only. Read it with the same tools
+(`in:#bugsby-beta` for search).
 
 - Read with `slackuser_slack_read_channel` / `slackuser_slack_read_thread`
   (channel `C0ALR9F5NQP`); search with `slackuser_slack_search_public_and_private`

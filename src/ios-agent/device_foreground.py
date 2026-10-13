@@ -72,6 +72,11 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
         _signal('foreground.observation', outcome='verified' if matched else 'unconfirmed',
                 reason=evidence['foregroundReason'])
         return value,evidence
+    except BaseException:
+        # Cleanup must not relabel a launch/connect failure as a cleanup-stage
+        # failure. The outer observer reports the original dispatch phase.
+        r['_failurePhase']=r.get('_phase','foreground_observation')
+        raise
     finally:
         if task:
             task.cancel();await asyncio.gather(task,return_exceptions=True)
@@ -86,4 +91,8 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
             except Exception as error:cleanup_errors.append(error)
         if cleanup_errors:
             _signal('foreground.cleanup', outcome='unconfirmed', reason='foreground_cleanup_unconfirmed')
-            raise ValueError('foreground_cleanup_unconfirmed') from cleanup_errors[0]
+            if '_failurePhase' in r:
+                r['_cleanupFailure']='foreground_cleanup_unconfirmed'
+            else:
+                r['_failurePhase']='foreground_monitor_cleanup'
+                raise ValueError('foreground_cleanup_unconfirmed') from cleanup_errors[0]

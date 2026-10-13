@@ -5,13 +5,13 @@ import {fileURLToPath} from 'node:url';
 
 const usage = `ios-agent-signals [--scope mcp|browser|host|native|kck-native|kck-web|kck-call]
   [--event prefix] [--level info|warn|error] [--tool ios_name]
-  [--trace exact-id] [--session exact-id] [--since UTC-ISO-time]
+  [--trace exact-id] [--session exact-id] [--connection 16-hex-id] [--since UTC-ISO-time]
   [--after cursor] [--limit 1..100] [--bytes 256..24000] [--summary] [--json]
 Newest first. --after reads the next older page. No phone control or lease.`;
 export function parseSignalOptions(argv) {
   const options = {}; let json = false, help = false;
   const names = {'--scope':'scope','--event':'event','--level':'level','--tool':'tool',
-    '--trace':'traceId','--session':'sessionId','--since':'since','--after':'after','--limit':'limit','--bytes':'maxBytes'};
+    '--trace':'traceId','--session':'sessionId','--connection':'connectionId','--since':'since','--after':'after','--limit':'limit','--bytes':'maxBytes'};
   for (let i=0; i<argv.length; i++) {
     const flag=argv[i];
     if (flag==='--json') {json=true;continue;}
@@ -33,6 +33,7 @@ export function parseSignalOptions(argv) {
   if (options.event&&!/^[a-z][a-z0-9_.-]{0,63}$/.test(options.event)) throw Error('invalid_signal_event');
   if (options.tool&&!/^ios_[a-z_]{1,64}$/.test(options.tool)) throw Error('invalid_signal_tool');
   for (const k of ['traceId','sessionId']) if (options[k]&&!/^[A-Za-z0-9_.:-]{1,96}$/.test(options[k])) throw Error('invalid_signal_id');
+  if(options.connectionId&&!/^[a-f0-9]{16}$/.test(options.connectionId))throw Error('invalid_signal_id');
   if (options.after&&!/^[A-Za-z0-9_-]{1,160}$/.test(options.after)) throw Error('invalid_signal_cursor');
   if (options.since&&(!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(options.since)||!Number.isFinite(Date.parse(options.since)))) throw Error('invalid_signal_time');
   return {options,json,help};

@@ -400,8 +400,10 @@ through the sign-in-only Slack app **ZDR Harness** (`A0C714R33A8`; no bot,
 nothing installed into channels; 1Password personal → Kickoff "ZDR Harness
 Slack app"; secret in `.env` as `KICKOFF_SLACK_MCP_CLIENT_SECRET`). Its first
 job is the private channel #rd-bugs-and-feature-requests (`C0ALR9F5NQP`);
-Claude Code, Codex and Cursor are told to read that channel only through
-`zdr_ask`.
+#bugsby-beta (`C0B7MV8HHRT`, private) was added 2026-10-13 under the same
+rule. Claude Code, Codex and Cursor are told to read both channels only
+through `zdr_ask`. A new channel needs no new token: the token reads any
+channel Taylor is in, so adding one is a prompt and routing-rule change.
 
 - **Read-only at the token, not just the allowlist.** OpenCode's own sign-in
   ignores `oauth.scope` and asks for every MCP scope, writes included, and
