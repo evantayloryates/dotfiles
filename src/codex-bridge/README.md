@@ -62,10 +62,19 @@ started on demand). The managed daemon is its own copy of the CLI under
 quits. Uninstalling ChatGPT.app breaks the bridge; quitting it does not.
 
 When the app updates itself, the next bridge connect sees a newer bundled
-CLI and restarts the daemon on it (observed: 0.158 → 0.159 on the same
-check). That restart drops any turn another session has running on the
-daemon; `preflight` after an app update confirms the runtime paths still
-resolve.
+CLI and upgrades the daemon with `codex app-server daemon update --from-cli
+--yes`, which copies the bundled CLI into `releases/local-<hash>`, pins
+`current` to it and relaunches the daemon (verified 2026-10-13: 0.158 →
+0.162, Computer Use working on it). A plain `daemon restart` cannot do
+this: it relaunches whatever `current` pins, so the daemon stayed on 0.158
+and was restarted on every connect. The upgrade drops connections to the
+daemon, so the bridge first counts running turns on it (loaded threads
+whose status is `active`) and defers while any run or the count fails. It
+tries once per bundled version: `~/.local/state/codex-bridge/daemon-upgrade-<version>.json`
+is claimed exclusively before the attempt and keeps the outcome; if the
+upgrade does not take, the bridge logs one line and uses the daemon as it
+is from then on. Delete that file to allow another attempt. `preflight`
+after an app update confirms the runtime paths still resolve.
 
 ## Register with Claude Code
 
@@ -240,8 +249,11 @@ node scripts/smoke.mjs        # end-to-end through the MCP launcher
 ```
 
 The bridge prefers the managed daemon (`codex app-server daemon`), starting
-it if needed and restarting it when its version differs from the bundled CLI
-(a stale daemon after an app update would serve an old protocol). If the
+it if needed and upgrading it to the bundled CLI's build when it is older
+(a stale daemon after an app update would serve an old protocol; see "The
+Codex app does not need to be open" for the once-per-version and
+running-turn rules). A daemon newer than the bundled CLI, or any binary
+outside an app bundle, never touches the shared daemon. If the
 daemon cannot be reached it spawns a private `codex app-server --listen
 stdio://` child in its own process group and kills the group on exit. Logs:
 stderr of the MCP server, plus `~/.local/state/codex-bridge/app-server.stderr.log`
