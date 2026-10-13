@@ -948,3 +948,21 @@ Use ios_system_begin timeoutSeconds=25 for a cold runner (range0..30, default10)
 kind=permission reads the native alert once, then reads the hierarchy once only when that alert is confirmed absent. The response records inspectionPath=alert|tree-fallback and retains normal fresh snapshot/target refs. Failed/unknown alert reads do not fall back. Authentication alerts remain observation-only; ordinary exact observed Allow actions are already authorized in Taylor's DEV workflows. A failed inspection invalidates the previous snapshot until a fresh successful observation. No automatic permission acceptance, input replay, passcode handling or Mirroring runtime dependency is added.
 
 For a browser detour: web end home=false → system begin/permission inspect → observed input → system end home=false → web begin on the SAME enrolled page. Verify actual media acquisition, then continue. End finally, verify runnerStopped, media release, glow/ownership and Home separately.
+
+### 1.10.5 consumer updates
+
+Record `connectionId` from `ios_guide`; use it with `ios_signals view=summary`
+for per-connection terminal counts, reasons and bounded latency groups. Catalog
+and signals-only discovery are quiet. Refresh the harness connection at idle
+for the optional filter/schema and latest guide; never terminate another owner.
+
+`ios_verify gate=idle` means native DEV feedback as well as host cleanup. For
+browser/system workflows use `gate=host-idle`, then verify page glow/media/Home
+separately. A failed receipt's `failedPredicate` explains a typed timeout while
+its original `reason` remains intact. Do not reopen DEV just to pass native idle.
+
+A failed managed browser open carries launchReason/launchPhase, delivery
+uncertainty and bounded recovery counts. Inspect the existing page catalog and
+independent display; explicitly begin on the intended ready page when justified.
+Never replay an accepted/unknown launch. Fresh document replacement during end
+returns unconfirmed promptly; it does not authorize Home into the new document.

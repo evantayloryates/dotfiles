@@ -139,3 +139,37 @@ provider.selected for managed_browser_open includes the chosen lane and fixed se
 Passing verification has no failure reason. A cold owned runner's unavailable /status is a coalesced system.startup_wait outcome=pending at info level; non-startup provider errors and expired startup still warn. system.runner_ready carries the owning session, elapsed startup duration and status-read count. system.session_requested is dispatched; only an unconfirmed creation response is unknown. Concurrent startup inspections share one in-flight continuation and cannot send duplicate session creation. system.inspection_completed includes permission/alert/tree kind, alert/tree-fallback stage, read duration and visible-node count without labels or content.
 
 Short-lived clients now share the same2MiB/7-day limits across up to256 private writer files, instead of32. This reduces premature evidence loss from process churn without increasing payload or byte retention. An idle writer whose file was pruned starts a new private file before its next append. The count, byte or age bound can still expire evidence early; neither summary nor row count promises a complete history. Summary includes storage.retainedFiles/retainedBytes and fixed limits (for the whole store, regardless of filters), so agents can see count/byte pressure. Save a bounded evidence snapshot before analysis and compare its count to the consumer's saved summary.
+
+## 1.10.5: cross-session usage and discovery churn
+
+Catalog-only connections and signals-only readers do not emit connection.started.
+The first ordinary tool call creates it. This removes the observed 222 singleton
+files from future catalog churn without raising retention bounds. Old bounded
+history may already have been pruned; no completeness guarantee is added.
+
+Record connectionId from ios_guide. Filter ios_signals connectionId=... or use
+`ios-agent-signals --connection <16-hex-id> --summary --json`. The same fixed ID
+travels through Node/Python request context; it identifies one MCP connection,
+not a person or every reconnect in a consumer workflow. Old rows lacking it stay
+visible and are counted as requestsWithoutConnection.
+
+summary.operations deduplicates retained MCP request.completed/failed/refused
+by traceId (legacy rows without trace use row ID). It reports terminalRequests,
+distinctConnections, requestsWithoutConnection, and at most 12 tool groups and
+12 failure groups. Tool groups carry calls/failed/unknown/pending and P50/P95/max
+milliseconds where durations exist. Quantiles describe retained completed reads,
+not complete service SLOs; unknown delivery is separate from confirmed failure.
+Text displays up to six tool groups, followed by bounded notable records.
+
+Managed-open failures preserve phase=page_readiness and underlying launchReason
+as errorCode in signals. Provider launch retains its original failure phase;
+secondary cleanup failures do not overwrite the first error. A readiness timeout
+never replays a launch or chooses another lane. Fresh replacement-document
+cleanup ends its obsolete wait immediately and stays explicitly unconfirmed.
+
+Native idle receipts retain deadline_exceeded and add failedPredicate when the
+last typed observation identifies the missing condition. Browser/system callers
+should use host-idle for host ownership and independently inspect page glow,
+media release and Home. host.check_failed names each failed fixed prerequisite;
+request completion has host_prerequisites_incomplete. No credentials or request
+payloads are added.

@@ -1,0 +1,30 @@
+{
+  "version": "1.10.5",
+  "from": "1.10.4",
+  "scope": "Personal DEV service",
+  "changes": [
+    "Quiet discovery-only connections",
+    "Connection-correlated usage summaries and CLI/MCP filter",
+    "Exact host and native idle failure predicates",
+    "Preserved launch versus cleanup phase and explicit non-replay recovery",
+    "Prompt unconfirmed cleanup when a fresh replacement document cannot acknowledge old state"
+  ],
+  "verification": {
+    "distinctNode": 45,
+    "python": 42,
+    "javascriptSyntax": 6,
+    "pythonSyntax": 5,
+    "jsonParses": 2,
+    "actualCatalogInvocations": 20,
+    "catalogSignalFiles": 0,
+    "freshMcpPassed": true,
+    "physicalReadOnlyProviderPassed": true,
+    "workerSourceVerified": true,
+    "idleCleanupVerified": true
+  },
+  "boundaries": [
+    "Full requested 24h unavailable: retained snapshot covers about 8h",
+    "Apple Safari launch root cause not established as fixed",
+    "No new authentication exemption, cellular qualification or staging work"
+  ]
+}
