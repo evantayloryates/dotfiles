@@ -980,7 +980,9 @@ export class Backend {
           catch{appCleanup={homeRequested:false,homeVerified:false,reason:'home_owner_or_transport_unavailable',replay:false};}
           note('browser.home_cleanup_completed',{session:id,outcome:appCleanup.homeRequested?'accepted':'unknown',dispatched:appCleanup.homeRequested===true?true:undefined,verified:false,reason:reasonCode(appCleanup.reason),level:appCleanup.homeRequested?'info':'warn'});
         }
-        return {...release, indicatorOff:true,receipt,learningEvidence,...(appCleanup?{appCleanup}:{}),...(appCleanup?.homeRequested===false?{ok:false,next:'Control and glow ended; Home remains unconfirmed. Inspect the current owner/transport without replaying input.'}:{})};
+        return {...release, indicatorOff:true,receipt,learningEvidence,
+          next:'Browser ownership and glow ended. Use ios_verify gate=host-idle for host cleanup; verify media release and Home separately. Native idle requires DEV feedback and is not required for browser cleanup.',
+          ...(appCleanup?{appCleanup}:{}),...(appCleanup?.homeRequested===false?{ok:false,next:'Control and glow ended; Home remains unconfirmed. Inspect the current owner/transport without replaying input.'}:{})};
       }
       // A fresh replacement runtime cannot acknowledge the old document's
       // cleanup. Waiting unchanged only wastes the seven-second grace period.

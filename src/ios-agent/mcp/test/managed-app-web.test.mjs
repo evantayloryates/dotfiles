@@ -43,7 +43,7 @@ for(const active of [true,false])test(`managed app end ${active?'releases glow t
   b.webPages=async()=>{events.push('indicator-off');return {ok:true,pages:[{id:'page',indicator:false,ageMs:0,...s.webRuntime}]}};
   b.deviceHome=async()=>{assert.equal(b.sessions.size,0);events.push('home');return {ok:true}};
   const [a,c]=await Promise.all([b.webEnd(sessionId),b.webEnd(sessionId)]);
-  assert(a.indicatorOff);assert.deepEqual(c,a);
+  assert(a.indicatorOff);assert.deepEqual(c,a);assert.match(a.next,/gate=host-idle/);assert(!a.next.includes('gate=idle '));
   assert.deepEqual(events,active?['release','indicator-off','home']:['release','indicator-off']);
  }finally{await b.close();fs.rmSync(state,{recursive:true,force:true})}
 });

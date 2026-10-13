@@ -7,7 +7,8 @@
     "Connection-correlated usage summaries and CLI/MCP filter",
     "Exact host and native idle failure predicates",
     "Preserved launch versus cleanup phase and explicit non-replay recovery",
-    "Prompt unconfirmed cleanup when a fresh replacement document cannot acknowledge old state"
+    "Prompt unconfirmed cleanup when a fresh replacement document cannot acknowledge old state",
+    "Browser cleanup recommends host-idle instead of inherited native idle"
   ],
   "verification": {
     "distinctNode": 45,
@@ -20,7 +21,10 @@
     "freshMcpPassed": true,
     "physicalReadOnlyProviderPassed": true,
     "workerSourceVerified": true,
-    "idleCleanupVerified": true
+    "idleCleanupVerified": true,
+    "physicalSafariLaunchReadinessDomCleanupPassed": true,
+    "independentHomeDisplayVerified": true,
+    "finalCleanupGuidanceFixturesPassed": true
   },
   "boundaries": [
     "Full requested 24h unavailable: retained snapshot covers about 8h",
