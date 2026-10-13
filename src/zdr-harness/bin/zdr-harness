@@ -61,6 +61,12 @@ Usage: zdr-harness <command>
                    store is never pruned.
   exports list|archive|unarchive|delete|prune [ids…|--kind k --status s --before ISO] [--dry-run]
                    Manage exports (bulk, idempotent; never reads contents)
+  terra-archive run|start|stop|status|runs|log|export [flags]
+                   Incremental archive of the Terra webhook payloads (S3 keeps
+                   30 days): 4 KB header per payload, scope history, connection
+                   events. Resumable and idempotent; the LaunchAgent
+                   com.taylor.zdr-harness-terra-archive runs it twice a day.
+                   See README "Terra archive".
   approve <fixture-package-id> --clearance <ref> [--baseline-cleared]
                    Write the root-owned release receipt for a finalized fixture
                    package. Asks you to type the id and for macOS admin
@@ -715,6 +721,18 @@ case "${1:-}" in
   exports)
     shift
     ZDR_HARNESS_EXPORT_DIR="${ZH}/exports" exec "${PROJECT_DIR}/mcps/exports-mcp" "$@"
+    ;;
+  terra-archive)
+    shift
+    load_secrets
+    [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]] || die "terra-archive: KICKOFF_ZDR_AWS_ACCESS_KEY_ID is empty"
+    . "${PROJECT_DIR}/../lib/resolve-binary.sh"
+    # Only the S3 key and paths reach the runner, never the rest of the secrets.
+    exec env -i HOME="$HOME" PATH="/usr/bin:/bin" ZDR_HARNESS_ROOT="$ZH" ZDR_HARNESS_EXPORT_DIR="${ZH}/exports" \
+      KICKOFF_ZDR_AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" \
+      KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
+      KICKOFF_ZDR_AWS_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" \
+      "$(resolve_binary node)" --no-warnings=ExperimentalWarning "${PROJECT_DIR}/mcps/kickoff-db/terra-archive-cli.mjs" "$@"
     ;;
   approve)
     shift

@@ -51,7 +51,7 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
   const host = endpoint ? new URL(endpoint).host : `${TERRA_BUCKET}.s3.${region}.amazonaws.com`
   const base = endpoint ? endpoint.replace(/\/$/, '') : `https://${host}`
 
-  async function request(path, params = {}) {
+  async function request(path, params = {}, extraHeaders = {}) {
     const query = Object.keys(params)
       .sort()
       .map((k) => `${enc(k)}=${enc(params[k])}`)
@@ -70,7 +70,7 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
     headers.authorization = `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${scope}, SignedHeaders=${names.join(';')}, Signature=${signature}`
     let res
     try {
-      res = await fetchImpl(`${base}${path}${query ? `?${query}` : ''}`, { headers })
+      res = await fetchImpl(`${base}${path}${query ? `?${query}` : ''}`, { headers: { ...headers, ...extraHeaders } })
     } catch (err) {
       throw new TerraError(`S3 is not reachable (${err.cause?.code || err.message})`)
     }
@@ -115,7 +115,16 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
     return buf
   }
 
-  return { listPage, get }
+  // The first `bytes` of an object (HTTP Range; the range header is not part
+  // of the signature, which S3 accepts). Returns { buf, total }.
+  async function head(key, bytes) {
+    checkKey(key)
+    const res = await request(`/${key.split('/').map(enc).join('/')}`, {}, { range: `bytes=0-${bytes - 1}` })
+    const total = Number(((res.headers.get('content-range') || '').split('/')[1]) || res.headers.get('content-length') || 0)
+    return { buf: Buffer.from(await res.arrayBuffer()), total }
+  }
+
+  return { listPage, get, head }
 }
 
 // ---- per-day counts (metadata only)
@@ -262,4 +271,61 @@ export function writeScopesFile(exportDir, rows) {
   }
   renameSync(tmp, path)
   return { id, path }
+}
+
+// Pull complete top-level fields out of the start of a JSON object that may be
+// cut off. Returns { fields: {name: value}, complete: bool }: a field appears
+// only once its whole value is inside `text`.
+export function topLevelFields(text, wanted) {
+  const out = {}
+  let i = text.indexOf('{')
+  if (i < 0) return { fields: out, complete: false }
+  i++
+  const n = text.length
+  const skipWs = () => { while (i < n && /\s/.test(text[i])) i++ }
+  const readString = () => {
+    const start = i
+    i++
+    while (i < n) {
+      if (text[i] === '\\') i += 2
+      else if (text[i] === '"') { i++; return text.slice(start, i) }
+      else i++
+    }
+    return null
+  }
+  const skipValue = () => {
+    skipWs()
+    if (i >= n) return null
+    const start = i
+    if (text[i] === '"') return readString() === null ? null : text.slice(start, i)
+    if (text[i] === '{' || text[i] === '[') {
+      let depth = 0
+      while (i < n) {
+        const ch = text[i]
+        if (ch === '"') { if (readString() === null) return null; continue }
+        if (ch === '{' || ch === '[') depth++
+        else if (ch === '}' || ch === ']') { depth--; if (depth === 0) { i++; return text.slice(start, i) } }
+        i++
+      }
+      return null
+    }
+    while (i < n && !/[,}\s]/.test(text[i])) i++
+    return i < n ? text.slice(start, i) : null
+  }
+  for (;;) {
+    skipWs()
+    if (i >= n) return { fields: out, complete: false }
+    if (text[i] === '}') return { fields: out, complete: true }
+    if (text[i] === ',') { i++; continue }
+    if (text[i] !== '"') return { fields: out, complete: false }
+    const rawKey = readString()
+    if (rawKey === null) return { fields: out, complete: false }
+    skipWs()
+    if (text[i] !== ':') return { fields: out, complete: false }
+    i++
+    const v = skipValue()
+    if (v === null) return { fields: out, complete: false }
+    const key = JSON.parse(rawKey)
+    if (wanted.includes(key)) { try { out[key] = JSON.parse(v) } catch { return { fields: out, complete: false } } }
+  }
 }
