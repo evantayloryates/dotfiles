@@ -90,6 +90,15 @@ export async function daemonRestart(bin) {
   return lastJsonLine(stdout) || { status: 'unknown', raw: stdout }
 }
 
+// `restart` relaunches whatever ~/.codex/packages/app-server-daemon/current
+// pins, so it can never move the daemon to a newer build. `update --from-cli`
+// copies this CLI's package into releases/local-<hash>, pins `current` to it
+// and brings the daemon up on it; `--yes` skips the interactive prompt.
+export async function daemonUpdate(bin) {
+  const { stdout } = await run(bin, ['app-server', 'daemon', 'update', '--from-cli', '--yes'], { timeoutMs: 180_000 })
+  return lastJsonLine(stdout) || { status: 'unknown', raw: stdout }
+}
+
 // The control socket is a symlink into /private/tmp/codex-daemon-<uid>/<hash>.
 // Connect to the target: the symlink path is long, and macOS caps AF_UNIX
 // paths at 104 bytes.
