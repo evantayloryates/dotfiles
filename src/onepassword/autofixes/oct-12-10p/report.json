@@ -1,0 +1,29 @@
+{
+  "outcome": "no_change",
+  "headline": "Transient CLI failures recovered; no broker repair needed",
+  "summary": "Both accounts returned exit 1 in regular keepalive rounds at 22:38, 22:46 and 22:53 Eastern on October 12. Both succeeded at 23:00:14/15, and keepalive resolved this episode. Independent metadata-only checks then succeeded. The broker remained running throughout the observed incident.",
+  "cause": "The observed fault was a transient CLI metadata-call failure, not an observed broker crash, parser regression or stalled watchdog. The retained generic error category and exit 1 do not identify the underlying cause or prove an authorization failure. No new prompt was recorded during recovery; last recorded prompts remained from earlier in the day. Current bounded log parsing reports unlocked, matching keepalive. Its older visible last-lock event differs from the preserved historical state after log rotation; this alone is not a parser regression.",
+  "resolution": "No code change is warranted for the verified recovered service. No implementation was modified or installed, no process was restarted, and no auth wake or additional approval notification was requested. Only incident evidence and README guidance were added.",
+  "verification": "44 Python tests passed across keepalive, recovery, broker isolation, activation and agent guidance; 37 Node settlement/archive/dispatch tests passed. Source and deployed worker/keepalive SHA-256 hashes match, the running keepalive source hash matches, and bundle signature verification returned 0. Absolute bin/op version and both account-scoped vault-list checks returned 0 with stdout/stderr discarded. Broker PID/session 1051 and /dev/ttys000, plus keepalive PID 1055, were preserved. Heartbeat advanced from 23:00:56 to 23:01:56; final snapshot age was 12 seconds. Exact incident title, dotfiles cwd, Pinned section, strongest advertised gpt-6-astra model and high effort were read back. Evidence is in artifacts/.",
+  "activation": "Existing installed code remains running. Nothing is staged and no activation or user action is required for this recovered incident. Future native authentication prompts still require Taylor; recovery owns notification-click auth wakes.",
+  "limitations": "The underlying reason for the transient CLI exit 1 is not retained by the sanitized logs and is not asserted. Successful metadata checks establish access at verification time, not future availability. Physical notification clicking and native consent UI were not exercised. Archive scheduling is not proof of archive completion; the deferred helper records a private native readback receipt.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md with this recovered incident and the limit on interpreting generic exit 1. Existing agent-contract.md already covers the required permission and delivery boundaries; no contract change or guidance sync was needed.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-3e35013b-5ccc-4877-bdb6-d507872b6e31.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/recent-events.json",
+    "artifacts/release-gate.json",
+    "artifacts/report-review.json"
+  ]
+}

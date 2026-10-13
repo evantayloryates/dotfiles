@@ -1,5 +1,12 @@
 {
   "exit": 0,
-  "seconds": 0.37,
-  "summary": []
+  "summary": [
+    "# tests 37",
+    "# suites 0",
+    "# pass 37",
+    "# fail 0",
+    "# cancelled 0",
+    "# skipped 0",
+    "# todo 0"
+  ]
 }

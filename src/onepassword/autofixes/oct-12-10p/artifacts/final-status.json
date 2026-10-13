@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-13T03:02:09.106618+00:00",
+  "broker": {
+    "pid": 1051,
+    "session": 1051,
+    "tty": "/dev/ttys000",
+    "executable": "/opt/homebrew/bin/op"
+  },
+  "keepalive": {
+    "pid": 1055,
+    "updated": "2026-10-12T23:01:56-0400",
+    "started": "2026-10-11T14:25:10-0400",
+    "source_sha256": "74b0f48c3f3f1a03f3efde949c1c834e1c93f1373219585568c3da90f3d3f0f7",
+    "app_locked": false,
+    "console_locked": false
+  },
+  "diagnostics": {
+    "broker_alive": true,
+    "keepalive_age_seconds": 12,
+    "app_locked": false,
+    "episode": "7561e8be63ffcdd4684b4a9247392bd42a32fae5ca6f560f555ac70a42a6c67e",
+    "console_locked": false,
+    "kind": "authorization_or_unknown",
+    "accounts": [
+      {
+        "slot": 0,
+        "status": "ok",
+        "last_ok": 1791860414,
+        "last_prompt": 1791817935
+      },
+      {
+        "slot": 1,
+        "status": "ok",
+        "last_ok": 1791860415,
+        "last_prompt": 1791817937
+      }
+    ]
+  },
+  "brokerIdentityPreserved": true,
+  "keepaliveIdentityPreserved": true,
+  "heartbeatAdvanced": true,
+  "processMetadata": [
+    "1055   928 ??       /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+    " 1051   928 ttys000  /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python"
+  ]
+}

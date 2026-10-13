@@ -326,6 +326,14 @@ skipped while locked. Earlier successful account statuses do not establish
 current authorization after a lock. Leave the unlock and any native consent to
 Taylor, with recovery owning the authorization wake.
 
+The [October 12 evening incident](autofixes/oct-12-10p/summary.md) recorded
+three regular keepalive rounds with exit 1 for both accounts, followed by
+successful calls and fault resolution at 23:00 Eastern without repair. Fresh
+metadata-only checks succeeded for both accounts; deployed hashes, parser state,
+heartbeat and process identities verified. It settled without a code change.
+The retained generic error category does not establish authorization expiry,
+network failure or another exact cause; do not infer one from exit 1 alone.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

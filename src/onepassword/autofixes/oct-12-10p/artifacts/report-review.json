@@ -1,0 +1,7 @@
+{
+  "all_report_fields_in_html": true,
+  "all_report_fields_in_markdown": true,
+  "all_links_resolve": true,
+  "responsive_layout_present": true,
+  "visual_browser_test": "Not performed; quarantine respected. Inspected HTML content, links and responsive layout rules."
+}
