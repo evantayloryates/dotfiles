@@ -2,7 +2,7 @@
 // raw Terra webhook payloads hold, built before the bucket's 30-day lifecycle
 // deletes them.
 //
-// The bucket gets ~190k objects and ~126 GB a day, so this never mirrors it.
+// A day of payloads is far more than this Mac's free disk, so this never mirrors it.
 // For every payload it reads only the first 4 KB (HTTP Range; the header and
 // the `user` block always sit there, checked on 400 objects across the size
 // range) and keeps:
@@ -21,7 +21,7 @@
 // throttling, timeouts or connection errors; failed keys retry next run.
 
 import { DatabaseSync } from 'node:sqlite'
-import { appendFileSync, mkdirSync, statfsSync } from 'node:fs'
+import { appendFileSync, chmodSync, mkdirSync, statfsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { recentDays, topLevelFields, TerraError } from './terra-payloads.mjs'
 
@@ -35,6 +35,7 @@ const MAX_ATTEMPTS = 5
 export function openArchive(path) {
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 })
   const db = new DatabaseSync(path)
+  try { chmodSync(path, 0o600) } catch {}
   db.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA synchronous = NORMAL;
@@ -54,14 +55,15 @@ export function openArchive(path) {
 // ---- adaptive concurrency (AIMD)
 
 export class Throttle {
-  constructor({ start = 32, min = 4, max = 128 } = {}) {
-    Object.assign(this, { limit: start, min, max, active: 0, okStreak: 0, changes: [] })
+  constructor({ start = 32, min = 4, max = 128, onChange = () => {} } = {}) {
+    Object.assign(this, { limit: start, min, max, active: 0, okStreak: 0, changes: [], onChange })
   }
   ok() {
     if (++this.okStreak >= 200 && this.limit < this.max) {
       this.limit = Math.min(this.max, this.limit + 8)
       this.okStreak = 0
       this.changes.push(['up', this.limit])
+      this.onChange('up', this.limit)
     }
   }
   backoff(reason) {
@@ -70,6 +72,7 @@ export class Throttle {
     if (next !== this.limit) {
       this.limit = next
       this.changes.push([`down:${reason}`, next])
+      this.onChange(`down:${reason}`, next)
     }
   }
 }
@@ -113,7 +116,7 @@ export async function runArchive({ db, client, log = () => {}, now = Date.now(),
   const deadline = Date.now() + maxMinutes * 60_000 // wall clock; `now` only fixes which days count
   const today = new Date(now).toISOString().slice(0, 10)
   const sealBefore = new Date(now - overlapDays * 86_400_000).toISOString().slice(0, 10)
-  const throttle = new Throttle({ start: startConcurrency, max: maxConcurrency })
+  const throttle = new Throttle({ start: startConcurrency, max: maxConcurrency, onChange: (dir, limit) => log({ event: 'concurrency', dir, limit }) })
   const s = { run_id: runId, days_listed: 0, keys_new: 0, done: 0, failed: 0, missing: 0, retries: 0, throttles: 0, bytes_read: 0, sealed: [], stop: 'all days current' }
   db.prepare("INSERT OR REPLACE INTO runs (run_id, started, status, trigger) VALUES (?, ?, 'running', ?)").run(runId, new Date(now).toISOString(), trigger)
 
@@ -255,7 +258,6 @@ export async function runArchive({ db, client, log = () => {}, now = Date.now(),
   }
   timeLeft()
   if (stopWhy) s.stop = stopWhy
-  for (const [dir, limit] of throttle.changes.slice(-20)) log({ event: 'concurrency', dir, limit })
   s.concurrency_changes = throttle.changes.length
   s.final_concurrency = throttle.limit
   s.today = today

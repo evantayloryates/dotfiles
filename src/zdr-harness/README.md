@@ -786,6 +786,54 @@ the database. They exist only in the payloads, as `user.scopes`.
 Stored data rows stay database questions (`terra_users`,
 `client_integration_*`).
 
+## Terra archive
+
+The bucket deletes payloads after 30 days, and a day of them is larger than
+this Mac's free disk. The archive keeps the part only the payloads hold, for
+good, in `~/.zdr-harness/archives/terra-payloads/archive.db` (SQLite, 700/600;
+it holds Terra user ids, Kickoff reference ids and connection events, so treat
+it like an export). Code: `mcps/kickoff-db/terra-archive.mjs` (engine),
+`terra-archive-cli.mjs` (runner), tests in `test/terra-archive.test.mjs`.
+
+**What it keeps.** For every payload it reads only the first 4 KB (HTTP
+Range); the `type` and `user` block always sit there, with a 64 KB and then a
+full read as fallbacks.
+- `user_states`: one row per distinct provider, scopes and active state of a
+  connection, with first and last seen. This is the scope history.
+- `user_day`: events and bytes per user, day and event type.
+- `conn_events`: connection events in full (auth, deauth, user_reauth,
+  permission_change, connection_error, access_revoked).
+- Health data itself is not kept; stored rows are in the database already.
+
+**How a run works.**
+- Oldest unfinished day first, because it expires first.
+- Each day is listed, then only keys not yet done are fetched. Days inside the
+  overlap window (default 3) are re-listed on every run to catch late keys.
+- A day older than the window with nothing pending is sealed: its key list is
+  dropped and it is never listed again.
+- Concurrency starts at 32, grows by 8 after 200 straight successes up to 128,
+  and halves on SlowDown, 5xx, 429 or connection errors. Each request retries
+  3 times with jittered backoff; a key that still fails is retried on the next
+  runs and counted as failed after 5.
+- A run stops cleanly at its time budget, under 15 GB free disk, or on
+  SIGTERM, and the next run resumes where it stopped. One run at a time (PID
+  lock in the archive directory).
+- AccessDenied stops the run at once with the IAM pointer.
+
+**Running it.**
+- The LaunchAgent `com.taylor.zdr-harness-terra-archive` runs it at 04:15 and
+  16:15 with a 120-minute budget (`src/launchd/`).
+- `zdr-harness terra-archive status | runs | log [run_id] | start | stop | run [--max-minutes N --overlap-days N --days d1,d2] | export`.
+- Harness tools: `terra_archive_status`, `terra_archive_start`,
+  `terra_archive_scopes_export` (writes a `ts_` export).
+
+**Watching it.** Every run writes `~/.zdr-harness/logs/terra-archive/<run_id>.jsonl`:
+start, each day listed, progress per 2,000 objects (rate, retries, throttles,
+concurrency), concurrency changes, sealed days, and an end line with the
+summary and stop reason. Logs hold counts, days and error codes only, never
+ids. `terra-archive runs` gives one line per run, which is the place to spot
+a needed change (repeated throttling, a budget that never finishes, failures).
+
 ## Exports
 
 Since 2026-10-12 the `exports` MCP (`mcps/exports/`) manages everything the

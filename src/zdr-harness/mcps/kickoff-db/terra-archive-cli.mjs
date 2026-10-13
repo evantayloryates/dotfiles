@@ -80,6 +80,7 @@ function client() {
 }
 
 async function run(o) {
+  process.umask(0o077) // database, WAL and logs: owner only
   const runId = `tr_${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}_${process.pid}`
   if (!takeLock(runId)) {
     const h = lockHolder()
@@ -127,7 +128,10 @@ function start(argv) {
   if (h) return { result: 'already_running', run_id: h.run_id, pid: h.pid, since: h.started }
   mkdirSync(LOG_DIR, { recursive: true, mode: 0o700 })
   const out = openSync(join(LOG_DIR, 'detached.log'), 'a', 0o600)
-  const child = spawn(process.execPath, [new URL(import.meta.url).pathname, 'run', ...argv], { detached: true, stdio: ['ignore', out, out], env: process.env })
+  // The runner gets the S3 key and paths only, never the caller's other secrets.
+  const env = { HOME: process.env.HOME, PATH: '/usr/bin:/bin', ZDR_HARNESS_ROOT: ZH, ZDR_HARNESS_EXPORT_DIR: EXPORT_DIR }
+  for (const k of ['KICKOFF_ZDR_AWS_ACCESS_KEY_ID', 'KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY', 'KICKOFF_ZDR_AWS_SESSION_TOKEN', 'KICKOFF_ZDR_AWS_REGION', 'ZDR_TERRA_ARCHIVE_DIR', 'ZDR_TERRA_ARCHIVE_LOG_DIR']) if (process.env[k]) env[k] = process.env[k]
+  const child = spawn(process.execPath, ['--no-warnings=ExperimentalWarning', new URL(import.meta.url).pathname, 'run', ...argv], { detached: true, stdio: ['ignore', out, out], env })
   child.unref()
   return { result: 'started', pid: child.pid, note: 'status: terra-archive status; logs: terra-archive log' }
 }
@@ -147,7 +151,14 @@ function status() {
     const running = lockHolder()
     let live = null
     if (running) live = tailLog(running.run_id, 1)[0] || null
-    return { running: running ? { ...running, last: live } : null, ...s, open: s.open.map((d) => `${d.day} ${d.done}/${d.listed}${d.failed ? ` (${d.failed} failed)` : ''}`) }
+    const d = s.days
+    return {
+      running: running ? `${running.run_id} (pid ${running.pid}) since ${running.started}; last: ${live || '-'}` : null,
+      sealed: d.sealed ? `${d.sealed} days, ${d.first_sealed} .. ${d.last_sealed}` : 'none',
+      open: s.open.map((x) => `${x.day} ${x.done}/${x.listed}${x.failed ? ` (${x.failed} failed)` : ''}`),
+      archived: `${d.done ?? 0} payloads, ${d.failed ?? 0} failed, ${d.missing ?? 0} missing; ${s.users} users, ${s.states} scope states, ${s.conn_events} connection events`,
+      last_run: runs(1)[0] || null,
+    }
   } finally {
     db.close()
   }

@@ -201,6 +201,10 @@ the all-time `terra_users` count; raise `max_objects` for full coverage) writes 
 `ts_` export and returns stats; `terra_payload_get` reads one payload. Scopes
 are never reported for APPLE, MYFITNESSPAL, CRONOMETER, PELOTON and COROS:
 say "not reported", not "none". Payloads are PHI (client id plus health data).
+The Terra archive keeps scope history, daily event counts and connection
+events past the 30 days and updates itself twice a day: prefer
+`terra_archive_scopes_export` for scopes, `terra_archive_status` for coverage.
+Start a run (`terra_archive_start`) only to catch up sooner; never poll it.
 
 ## Exports (`exports_*`)
 

@@ -20,6 +20,7 @@
 // Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0.
 // The database driver is mysql2, pinned into ~/.zdr-harness/opt like OpenCode.
 
+import { exportStates as terraArchiveExport, runs as terraArchiveRuns, start as terraArchiveStartRun, status as terraArchiveStatusRead } from './terra-archive-cli.mjs'
 import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
@@ -93,7 +94,11 @@ are database questions: use query. terra_payload_days counts objects and bytes p
 terra_payload_get reads one payload (bounded); terra_scopes_export writes each Terra user's latest provider,
 scopes, active flag and last event to a ts_ file in exports and returns stats only. Scopes are always empty for
 APPLE (HealthKit hides read permissions), MYFITNESSPAL, CRONOMETER, PELOTON and COROS: report them as "not
-reported", never as "no scopes". Every payload pairs a client id with health data.`
+reported", never as "no scopes". Every payload pairs a client id with health data.
+The Terra archive keeps what the bucket would lose after 30 days: per payload its type and user block (provider,
+scopes, active), as a scope history per user, per-user daily event counts, and connection events in full. It runs
+on its own twice a day; terra_archive_status shows coverage, terra_archive_scopes_export writes each user's latest
+archived state to a ts_ export (all archived days, not only the last 30). Prefer it over terra_scopes_export.`
 const EXPORT_CONCURRENCY = 48
 const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
 
@@ -947,6 +952,27 @@ const TOOLS = [
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
+    name: 'terra_archive_status',
+    title: 'Terra archive coverage and runs',
+    description: 'Coverage of the Terra webhook archive (sealed day range, open days with progress, totals), whether a run is live, and the last runs one line each. Aggregate only.',
+    inputSchema: { type: 'object', properties: { runs: { type: 'number', description: 'past runs to list, default 5, max 30' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'terra_archive_start',
+    title: 'Start a Terra archive run',
+    description: 'Start a background archive run now (idempotent: reports the live run if one is going). Runs also start on their own twice a day; use this only to catch up sooner. Returns at once; check terra_archive_status later, not in a loop.',
+    inputSchema: { type: 'object', properties: { max_minutes: { type: 'number', description: 'budget, default 120, max 240' } }, additionalProperties: false },
+    annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: true },
+  },
+  {
+    name: 'terra_archive_scopes_export',
+    title: 'Export latest scopes from the Terra archive',
+    description: "Write each Terra user's latest archived provider, scopes and active flag (with when that state was first and last seen) to a ts_ file in exports. Returns the path and a row count only.",
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
     name: 'terra_scopes_export_status',
     title: 'Wait for a Terra scopes export',
     description: 'Wait (up to 90 s) for a terra_scopes_export job, then return its file path and stats.',
@@ -990,6 +1016,27 @@ async function terraPayloadGet({ key, max_chars, offset } = {}) {
   }
 }
 
+// The Terra archive (terra-archive.mjs) runs as its own detached process under
+// a lock, so a harness restart never kills it. These tools only read its
+// aggregate state, start a run, or export from it.
+function terraArchiveStatus({ runs } = {}) {
+  const n = Math.max(1, Math.min(Number(runs) || 5, 30))
+  return JSON.stringify({ ...terraArchiveStatusRead(), last_run: undefined, runs: terraArchiveRuns(n) }, null, 1)
+}
+function terraArchiveStart({ max_minutes } = {}) {
+  if (!ACCESS_KEY_ID) throw new ToolError('No AWS credentials for S3 in this harness (KICKOFF_ZDR_AWS_ACCESS_KEY_ID).')
+  const m = Math.max(1, Math.min(Number(max_minutes) || 120, 240))
+  return JSON.stringify(terraArchiveStartRun(['--max-minutes', String(m), '--trigger', 'harness']))
+}
+function terraArchiveScopes() {
+  try {
+    const r = terraArchiveExport()
+    return `Wrote ${r.users} users to ${r.id} (${r.path}). Hand Taylor the path; he opens it with: ${r.open}`
+  } catch (e) {
+    throw new ToolError(e.message)
+  }
+}
+
 const terraJobs = new Map()
 async function terraScopesExport({ days, max_objects, target_users, saturation } = {}) {
   const job = { id: `tj_${randomBytes(4).toString('hex')}`, state: 'running', started: Date.now(), progress: { fetched: 0, users: 0, day: null } }
@@ -1030,7 +1077,7 @@ async function terraScopesStatus({ job_id, wait_seconds } = {}) {
 const HANDLERS = { fixture_facts: args => { try { return fixtureFacts(args) } catch { throw new ToolError('fixture_facts_arguments_invalid') } }, fixture_source_page: fixtureSourcePage, fixture_context: args => { try { return fixtureContext(args) } catch { throw new ToolError('fixture_context_unavailable') } }, fixture_call_number: fixtureCallNumber, fixture_package: (args) => {
   try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
   catch (err) { throw new ToolError(err.message) }
-}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus }
+}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus, terra_archive_status: terraArchiveStatus, terra_archive_start: terraArchiveStart, terra_archive_scopes_export: terraArchiveScopes }
 
 // ---------------------------------------------------------------------------
 // MCP stdio loop
