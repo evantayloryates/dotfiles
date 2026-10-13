@@ -1,0 +1,20 @@
+{
+  "recentChallengeTimesUtc": [],
+  "accounts": [
+    {
+      "slot": 0,
+      "status": "prompt_timeout",
+      "intervalSeconds": 840.0,
+      "lastOk": "2026-10-12T23:07:20-0400",
+      "lastSuccessfulPrompt": "2026-10-12T11:12:15-0400"
+    },
+    {
+      "slot": 1,
+      "status": "ok_queued",
+      "intervalSeconds": 420.0,
+      "lastOk": "2026-10-12T23:15:43-0400",
+      "lastSuccessfulPrompt": "2026-10-12T11:12:17-0400"
+    }
+  ],
+  "interpretation": "prompt_timeout is emitted only when CLI stderr contains authorization timeout; last_prompt tracks successful prompted calls, not failed challenges. The personal failure occurred about 12 hours after its previous successful prompt; this is consistent with renewal but does not prove the exact expiry trigger."
+}

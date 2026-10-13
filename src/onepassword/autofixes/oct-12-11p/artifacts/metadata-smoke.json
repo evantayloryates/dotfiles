@@ -1,0 +1,6 @@
+{
+  "versionExit": 0,
+  "seconds": 0.19,
+  "outputDiscarded": true,
+  "authenticatedCalls": "Skipped: personal prompt_timeout requires human consent; recovery owns auth wake. Existing keepalive evidence is evaluated separately."
+}

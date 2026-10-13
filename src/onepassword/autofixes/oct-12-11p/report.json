@@ -1,0 +1,29 @@
+{
+  "outcome": "no_change",
+  "headline": "Broker verified; personal-account authorization timed out",
+  "summary": "At 23:15 Eastern the personal-account keepalive returned an authorization timeout after 60.12 seconds. The other account succeeded at 23:15:43. The broker and watchdog remain running; personal-account authorization remains unverified and may require Taylor to complete native consent.",
+  "cause": "The personal CLI call reported authorization timeout, independently of parser/watchdog health. Its previous successful prompted call was at 11:12:15 Eastern, approximately twelve hours earlier, consistent with renewal but not proof of the exact expiry trigger. No recent challenge was found in the bounded application-log tails, so visible prompt presentation is not established. The parser agrees with persisted unlocked state; the heartbeat advanced and deployed code matches source.",
+  "resolution": "No implementation change is warranted. The existing timeout classification and 14-minute backoff behaved as designed; the second account succeeded. No broker restart, installation, auth wake, credential read or permission change was performed. Updated README incident guidance to distinguish timeout, successful-prompt timestamps and per-account authorization.",
+  "verification": "44 focused synthetic Python tests passed (keepalive, recovery, broker, activation and agent guidance); all three Node test files exited successfully. Source/deployed worker and keepalive hashes match, running keepalive hash matches, and codesign verification exited 0. A bounded absolute-wrapper --version smoke exited 0 with stdout/stderr discarded. Parser and persisted lock state agree; heartbeat advanced; broker PID 1051/session 1051/PTY /dev/ttys000 and keepalive PID 1055 were preserved. Exact chat title, Pinned section, dotfiles cwd, strongest advertised gpt-6-astra model and high reasoning were read back.",
+  "activation": "Existing signed broker and keepalive remain running unchanged. Nothing is applied or staged; no service load or restart is needed.",
+  "limitations": "Personal-account authorization is not restored or proven. Taylor must handle any native Touch ID/macOS consent when presented; recovery owns the auth wake. Authenticated smoke calls were skipped to avoid a competing retry. The timeout does not prove a prompt appeared, and its exact renewal trigger remains uncertain. Successful other-account metadata and version output do not establish personal-account readiness. No Computer Use or Claude UI checks were performed.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md with this incident and last_prompt/per-account evidence limits. Shared agent-contract.md and autofixes/AGENTS.md already require human consent and recovery-owned wakes; no contract change or guidance sync was needed.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/authorization-check.json",
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-8044875a-047d-4e12-9ce2-65cbf1ed5c4d.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/recent-events.json",
+    "artifacts/release-gate.json"
+  ]
+}

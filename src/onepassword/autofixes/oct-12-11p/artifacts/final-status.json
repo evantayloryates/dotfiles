@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-13T03:17:22.027229+00:00",
+  "broker": {
+    "pid": 1051,
+    "session": 1051,
+    "tty": "/dev/ttys000",
+    "executable": "/opt/homebrew/bin/op"
+  },
+  "keepalive": {
+    "pid": 1055,
+    "started": "2026-10-11T14:25:10-0400",
+    "updated": "2026-10-12T23:17:04-0400",
+    "source_sha256": "74b0f48c3f3f1a03f3efde949c1c834e1c93f1373219585568c3da90f3d3f0f7",
+    "app_locked": false,
+    "console_locked": false
+  },
+  "brokerIdentityPreserved": true,
+  "keepaliveIdentityPreserved": true,
+  "heartbeatAdvanced": true,
+  "diagnostics": {
+    "broker_alive": true,
+    "keepalive_age_seconds": 17,
+    "app_locked": false,
+    "episode": "22dc9294-006d-4d15-96b4-5975bc8c0599",
+    "console_locked": false,
+    "kind": "authorization_or_unknown",
+    "accounts": [
+      {
+        "slot": 0,
+        "status": "prompt_timeout",
+        "last_ok": 1791860840,
+        "last_prompt": 1791817935
+      },
+      {
+        "slot": 1,
+        "status": "ok_queued",
+        "last_ok": 1791861343,
+        "last_prompt": 1791817937
+      }
+    ]
+  }
+}

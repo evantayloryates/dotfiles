@@ -1,0 +1,13 @@
+{
+  "reviewed": [
+    "summary.html",
+    "summary.md"
+  ],
+  "contentMatchesReport": true,
+  "allLocalLinksResolve": true,
+  "layoutReview": "Inspected generated HTML structure and responsive CSS: bounded width, viewport, wrapping artifact links, separate human summary and open technical disclosure. No live UI/rendering used under quarantine.",
+  "sourceHashes": {
+    "summary.html": "f674bb51dacdf1e914d43cdc717f8cd1bda3245fc16eda5532800cd778435c66",
+    "summary.md": "a9b12ecc6c64cf760c9ed0190fa3e9a6a74515ec5122bcdca240a67e8225dcab"
+  }
+}

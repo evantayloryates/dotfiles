@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ],
+  "cwd": ".",
+  "exit": 0,
+  "seconds": 0.35,
+  "summary": [],
+  "synthetic": true
+}

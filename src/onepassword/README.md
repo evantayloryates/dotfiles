@@ -334,6 +334,16 @@ heartbeat and process identities verified. It settled without a code change.
 The retained generic error category does not establish authorization expiry,
 network failure or another exact cause; do not infer one from exit 1 alone.
 
+The [October 12 late authorization incident](autofixes/oct-12-11p/summary.md)
+recorded a personal-account CLI authorization timeout while the other account
+succeeded. Deployed hashes, parser state, heartbeat and broker/keepalive identities
+verified; no code change was warranted. Personal-account backoff increased to
+14 minutes. `last_prompt` records successful prompted calls, not failed challenges:
+the roughly twelve-hour timing is consistent with renewal but does not prove
+its trigger or that a prompt appeared. A successful version check and another
+account's success do not establish personal-account authorization. Leave native
+consent to Taylor and the auth wake to recovery; do not add an agent retry loop.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

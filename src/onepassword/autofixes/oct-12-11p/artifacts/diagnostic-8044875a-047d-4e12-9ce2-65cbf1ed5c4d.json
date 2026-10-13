@@ -1,0 +1,23 @@
+{
+  "broker_alive": true,
+  "keepalive_age_seconds": 0,
+  "app_locked": false,
+  "episode": "22dc9294-006d-4d15-96b4-5975bc8c0599",
+  "console_locked": false,
+  "kind": "authorization_or_unknown",
+  "accounts": [
+    {
+      "slot": 0,
+      "status": "prompt_timeout",
+      "last_ok": 1791860840,
+      "last_prompt": 1791817935
+    },
+    {
+      "slot": 1,
+      "status": "ok",
+      "last_ok": 1791860841,
+      "last_prompt": 1791817937
+    }
+  ],
+  "releaseAuthorized": false
+}

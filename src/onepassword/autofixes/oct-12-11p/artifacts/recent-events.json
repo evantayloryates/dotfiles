@@ -1,0 +1,77 @@
+{
+  "windowSeconds": 1800,
+  "events": [
+    {
+      "ts": "2026-10-12T22:53:08-0400",
+      "event": "keepalive",
+      "status": "error",
+      "seconds": 1.29,
+      "exit": 1,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T22:53:09-0400",
+      "event": "keepalive",
+      "status": "error",
+      "seconds": 1.19,
+      "exit": 1,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T23:00:14-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.9,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T23:00:15-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.88,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T23:00:15-0400",
+      "event": "fault_resolved"
+    },
+    {
+      "ts": "2026-10-12T23:07:20-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.58,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T23:07:21-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.68,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T23:15:25-0400",
+      "event": "keepalive",
+      "status": "prompt_timeout",
+      "seconds": 60.12,
+      "exit": 1,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T23:15:25-0400",
+      "event": "fault_started"
+    },
+    {
+      "ts": "2026-10-12T23:15:43-0400",
+      "event": "keepalive",
+      "status": "ok_queued",
+      "seconds": 17.77,
+      "exit": 0,
+      "slot": 1
+    }
+  ]
+}
