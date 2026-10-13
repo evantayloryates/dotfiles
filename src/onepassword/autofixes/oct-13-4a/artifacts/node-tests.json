@@ -1,0 +1,16 @@
+{
+  "files": [
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ],
+  "reporter": "tap",
+  "exit_code": 0,
+  "counts": {
+    "tests": 37,
+    "pass": 37,
+    "fail": 0
+  },
+  "output_saved": false,
+  "collector_note": "Initial collector expected TAP from the default reporter; rerun explicitly selects TAP."
+}

@@ -344,6 +344,13 @@ its trigger or that a prompt appeared. A successful version check and another
 account's success do not establish personal-account authorization. Leave native
 consent to Taylor and the auth wake to recovery; do not add an agent retry loop.
 
+The [October 13 app-lock incident](autofixes/oct-13-4a/summary.md) confirmed a
+real lock at 04:14:49 Eastern with the broker and keepalive still running.
+Deployed hashes, signature, parser state and advancing heartbeat verified;
+81 targeted synthetic tests and a version-only wrapper check passed. No software
+repair or additional authorization wake was warranted. Unlock and any required
+native consent remain human actions; pre-lock account successes are historical.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

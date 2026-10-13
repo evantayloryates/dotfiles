@@ -1,0 +1,28 @@
+{
+  "outcome": "no_change",
+  "headline": "1Password is locked; no broker repair is needed",
+  "summary": "The alert followed a timestamped 1Password lock at 04:14:49 Eastern on October 13. Both accounts had successful keepalive calls shortly before the lock, at 04:12:46 and 04:13:07. The broker remained alive and keepalive suppressed authenticated calls while locked.",
+  "cause": "The bounded application-log parser found the latest lock event at 2026-10-13T08:14:49.189+00:00, matching current keepalive state. No parser regression, stalled watchdog or broker crash was observed. The reason 1Password locked is not established. Historical account successes do not prove current authorization after a lock.",
+  "resolution": "No code change is warranted. No live implementation, installation, broker or keepalive process, permission or auth-wake state was changed. Lock/rotation, authorization/backoff, recovery-gate and isolated broker tests passed. Only incident evidence and documentation were added.",
+  "verification": "44 Python tests and 37 Node tests passed. Source/deployed worker and keepalive hashes match, running keepalive hash and build stamp match, and bundle signature verifies. The absolute bin/op --version wrapper exited 0 with stdout/stderr discarded. Heartbeat advanced from 04:16:09 to 04:16:49; its final age was 2.1 seconds. Broker PID/session 1051, /dev/ttys000 and keepalive PID 1055 were preserved. The exact title, dotfiles cwd, Pinned section, strongest advertised gpt-6-astra model and high effort were read back. Evidence collectors were corrected for the default Node reporter and Python timestamp parsing; final collection succeeded.",
+  "activation": "Existing installed code remains running. Nothing is staged and no activation command is required. Taylor must unlock 1Password before authenticated work can resume and approve any native consent personally. Recovery owns any notification-click auth wake; this incident added no retry loop.",
+  "limitations": "Authenticated account checks were skipped while the app was locked. Post-unlock authorization, physical notification clicks and native prompt behavior were not tested. Settlement closes the software diagnosis; it does not unlock the app or establish current account authorization. Report review uses static HTML/Markdown inspection because live Computer Use is quarantined.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Added this verified app-lock incident to README.md. Existing agent-contract.md and autofixes/AGENTS.md already cover the required lock, release and authorization boundaries; neither required a change or guidance sync.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-881172be-8a1f-4bda-b3c1-7ebeaee3947b.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/report-review.json"
+  ]
+}

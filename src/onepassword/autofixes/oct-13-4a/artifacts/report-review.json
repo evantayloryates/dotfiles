@@ -1,0 +1,8 @@
+{
+  "content_inspected": true,
+  "html_and_markdown_agree": true,
+  "local_links_resolve": true,
+  "static_layout_review": "Responsive viewport, bounded width, wrapping evidence links, human next action and open technical details inspected. No live UI used.",
+  "visual_render_performed": false,
+  "settlement_scope": "software diagnosis only; unlock and authorization not claimed"
+}
