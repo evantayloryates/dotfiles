@@ -89,7 +89,7 @@ export class Bridge {
       serviceName: `codex-bridge:${session}`,
     }
     if (roster === 'trim') {
-      const t = trimmedRoster()
+      const t = trimmedRoster({ log: (m) => this.log(m) })
       p.config = t.config
       p.disabledPluginIds = t.disabledPluginIds
       this.log(`trimmed roster: disabled ${t.disabledServers.length} MCP servers and ${t.disabledPluginIds.length} plugins`)

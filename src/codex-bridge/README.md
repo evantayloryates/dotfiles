@@ -225,6 +225,9 @@ from about 3 s to about 1 s per new thread and uncached prompt tokens for a
 one-step read from 22k to 7k, with no capability lost for desktop work.
 Pass `mcp_roster: "full"` on the call that creates a session's thread when
 Codex should also have Slack, Gmail, Notion, Playwright and the rest.
+Server names are read as TOML keys, so bare, `"quoted"` (dots included)
+and `'literal'` names in `[mcp_servers.<name>]` are all disabled by the
+name Codex uses; a header the bridge cannot parse is skipped and logged.
 
 ## Ops
 
