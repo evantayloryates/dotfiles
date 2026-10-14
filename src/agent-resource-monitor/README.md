@@ -377,3 +377,23 @@ The existing event relay coalesces rotations into one incident and the hourly
 evaluation reviews new evidence as a fallback. Queue acceptance is not receipt.
 See [thrash-strategy.md](thrash-strategy.md) for thresholds, the hypothesis
 ledger, measured verification and attribution/delivery limits.
+
+### Audit archive indexing
+
+`archive_scan.py` maintains a private metadata-only index for
+`/Users/taylor/src/docs/html/resource-usage-audit/update-archive.py`, invoked by
+the existing `build.py`. It preserves the last-seen grouping and rolling
+seven-day coverage rule while reading only appended complete JSONL rows.
+Inode/birth/prefix/size checks detect replaced or truncated files; a mapping
+digest invalidates the index when `usage-identity.py` changes. Partial trailing
+rows are retried. Retention removes derived entries only when their source is
+already absent; this helper never deletes source evidence.
+
+The first natural captures identified a chat-owned audit rebuild reading
+1,360 MiB with 11.7 observed CPU seconds after a pressure peak. It did not cause
+that onset. After one initial index pass, the actual configured Python 3.14
+build completed in 0.082 seconds, reading 1.04 MiB of appended rows rather than
+rescanning 1.77 GB. This is an observed warm run, not a controlled CPU benchmark.
+The index/cache lock lives beside the audit as `.archive-scan-cache.json`;
+verification is recorded in `archive-scan-verification.json`. No daemon reload
+or application/workload change is required for this build-only improvement.

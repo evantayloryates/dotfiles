@@ -106,3 +106,24 @@ replayed blindly. The actual transport attempt found its existing daemon
 unavailable. Immediate callbacks are degraded; captures remain local and the
 existing hourly fallback is active with the updated investigation instructions.
 No shared daemon was started or restarted to work around that condition.
+
+## First natural windows and observer load
+
+The October 13 21:01–22:30 EDT windows remain one unrecovered incident. Fresh
+guest stats identify dev-container growth and activity, while later host Node
+lint/test waves add transient multi-GiB footprints. Keep the per-window findings
+beside each capture; a prior idle guest snapshot cannot exclude later activity.
+Exact allocation/fault ownership remains unproven. VM stack attempts hit time
+or output bounds; the bounded partial-output candidate remains prepared, not
+installed, and does not justify a permissions change.
+
+The 22:12 window also caught our own `build.py` reading 1,360 MiB and using 11.7
+observed CPU seconds. Its first observed sample followed the paging peak by
+35 seconds, so this is avoidable observer load rather than onset evidence.
+The archive last-seen step now uses `archive_scan.py` to read only new complete
+rows while preserving historical grouping and coverage. Actual warm build:
+0.082 seconds and 1.04 MiB of appended rows after one initial index pass.
+The Memory Cleaner checkpoint also retains complete-line file cursors to avoid
+re-reading old session history during its next evaluation. Continue measuring
+analysis overhead alongside the watcher itself. No workload was altered to
+obtain these observations or the indexing improvement.
