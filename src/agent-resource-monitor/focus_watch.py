@@ -23,6 +23,7 @@ import watcher
 ROOT = watcher.data_root() / 'focus'
 VERSION = 1
 IDENTITY_POLICY = 'resource-priority-v1'
+DIAGNOSTIC_POLICY = 'late-stack-v1'
 INTERVAL = 5.
 DENSE_INTERVAL = 2.
 WINDOW = 90.
@@ -234,28 +235,45 @@ def stack_frames(output):
 
 
 def diagnostics(path, targets, include_docker=True):
-    result = dict(timestamp=monitor.now(), stacks=[], limitation=LIMITS)
+    result = dict(timestamp=monitor.now(), stacks=[], limitation=LIMITS,
+                  diagnostic_policy=DIAGNOSTIC_POLICY)
     for p in targets[:2]:
+        attempted_at = monitor.now()
         current = monitor.Usage()
         lib = ctypes.CDLL('/usr/lib/libproc.dylib')
         if lib.proc_pid_rusage(p['pid'], 2, ctypes.byref(current)) != 0 or current.start != p['start_ticks']:
-            result['stacks'].append(dict(pid=p['pid'], status='exited_or_changed_or_inaccessible'))
+            result['stacks'].append(dict(pid=p['pid'], start_ticks=p['start_ticks'],
+                                        timestamp=attempted_at, status='exited_or_changed_or_inaccessible'))
             continue
         r = watcher.run(['/usr/bin/sample', str(p['pid']), '1', '10'], timeout=4, limit=256*1024)
         frames = stack_frames(r.get('output',''))
         result['stacks'].append(dict(pid=p['pid'], start_ticks=p['start_ticks'], exe=p['exe'],
+                                    timestamp=attempted_at,
                                     status='captured' if frames else r['status'] if r['status']!='ok' else 'no_frames',
                                     frames=frames, duration_ms=r['duration_ms'], truncated=r.get('truncated',False)))
     docker = next((x for x in ('/usr/local/bin/docker','/opt/homebrew/bin/docker') if Path(x).exists()), None)
     if docker and include_docker:
         r = watcher.run([docker,'stats','--no-stream','--format','{{json .}}'], timeout=3, limit=65536)
         result['docker'] = {k:v for k,v in r.items() if k!='output'}
+        result['docker']['timestamp'] = monitor.now()
         if r['status']=='ok':
             try:
                 result['docker']['containers'] = [{k:v for k,v in json.loads(l).items() if k in
                     ('ID','Name','CPUPerc','MemUsage','MemPerc','BlockIO','PIDs')} for l in r.get('output','').splitlines()][:30]
             except ValueError:
                 result['docker']['status'] = 'invalid'
+    # Evidence runs diagnostic jobs serially. A later stack job must retain the
+    # earlier Docker snapshot and all prior attempts, including failures.
+    try:
+        previous = json.loads((path/'diagnostics.json').read_text())
+    except FileNotFoundError:
+        previous = None
+    if previous is not None:
+        result['updated_at'] = result['timestamp']
+        result['timestamp'] = previous['timestamp']
+        result['stacks'] = previous.get('stacks', []) + result['stacks']
+        if 'docker' not in result and 'docker' in previous:
+            result['docker'] = previous['docker']
     watcher.write_json(path/'diagnostics.json', result)
 
 
@@ -270,9 +288,12 @@ class Evidence:
         self.hot = {}
         self.previous_hot = set()
         self.diagnostic_thread = None
+        self.docker_requested = False
+        self.stack_attempted = set()
         self.bytes = 0
         watcher.write_json(self.path/'metadata.json', dict(version=VERSION, incident=incident,
-                           started_at=monitor.now(), interval_seconds=DENSE_INTERVAL, prelude_seconds=120, limits=LIMITS))
+                           started_at=monitor.now(), interval_seconds=DENSE_INTERVAL, prelude_seconds=120,
+                           diagnostic_policy=DIAGNOSTIC_POLICY, limits=LIMITS))
         for row in prelude:
             self.append(row, prelude=True)
 
@@ -302,13 +323,29 @@ class Evidence:
         current_hot = {lifetime(p) for p in row['processes'] if (p.get('cpu_percent') or 0)>=40}
         self.hot = {key:self.hot.get(key,0)+1 if key in self.previous_hot else 1 for key in current_hot}
         self.previous_hot = current_hot
-        if not prelude and self.diagnostic_thread is None:
-            candidates = sorted([p for p in row['processes'] if self.hot.get(lifetime(p),0)>=3 and p.get('start_ticks') is not None and p['pid']!=os.getpid()],
-                                key=lambda p:p.get('cpu_percent') or 0, reverse=True)[:2]
-            if candidates or time.monotonic()-self.started >= 30:
-                self.diagnostic_thread = threading.Thread(target=diagnostics,args=(self.path,candidates),daemon=True)
-                self.diagnostic_thread.start()
+        if not prelude:
+            self.schedule_diagnostics(row)
         return True
+
+    def schedule_diagnostics(self, row):
+        if self.diagnostic_thread is not None and self.diagnostic_thread.is_alive():
+            return
+        remaining = 2-len(self.stack_attempted)
+        candidates = sorted([p for p in row['processes']
+                             if self.hot.get(lifetime(p),0)>=3
+                             and p.get('start_ticks') is not None and p['pid']!=os.getpid()
+                             and lifetime(p) not in self.stack_attempted],
+                            key=lambda p:p.get('cpu_percent') or 0, reverse=True)[:remaining]
+        include_docker = not self.docker_requested and (bool(candidates) or time.monotonic()-self.started >= 30)
+        if not candidates and not include_docker:
+            return
+        # Reserve attempts before launch: timeout, exit and PID changes all count
+        # against the same two-attempt budget. Docker runs once per window.
+        self.stack_attempted.update(lifetime(p) for p in candidates)
+        self.docker_requested |= include_docker
+        self.diagnostic_thread = threading.Thread(target=diagnostics, args=(self.path,candidates),
+                                                   kwargs=dict(include_docker=include_docker), daemon=True)
+        self.diagnostic_thread.start()
 
     def report(self, state):
         ranks = {}
@@ -321,6 +358,8 @@ class Evidence:
                      pressure_peak={k:max((r['pressure'][k] for r in self.rows if r.get('pressure',{}).get(k) is not None),default=None)
                                     for k in ('paging_mib_s','swap_out_mib_s','compressor_mib_s')},
                      diagnostics='diagnostics.json' if (self.path/'diagnostics.json').exists() else 'not yet captured',
+                     diagnostic_policy=DIAGNOSTIC_POLICY, stack_attempts_reserved=len(self.stack_attempted),
+                     docker_requested=self.docker_requested,
                      limits=LIMITS,
                      totals_note='Observed totals cover retained selected intervals only; not whole-lifetime totals. Prelude excluded from totals.',
                      next_tests=['Compare birth/exit chronology with the pressure slope and per-lifetime deltas.',
@@ -398,6 +437,7 @@ def watch(args):
                 pressure=row['pressure'],trigger_reasons=decision['reasons'],
                 cpu_delta_covered=raw['cpu_delta_covered'],io_delta_covered=raw['io_delta_covered'],
                 identity_policy=IDENTITY_POLICY,identity_lookups=raw.get('identity_lookups'),source_sha256=source_sha256,
+                diagnostic_policy=DIAGNOSTIC_POLICY,
                 host_cpu=raw['host_cpu'],collection_ms=raw['collection_ms'],next_interval_seconds=interval,bytes_retained=storage,
                 policy=dict(baseline_seconds=INTERVAL,dense_seconds=DENSE_INTERVAL,window_seconds=WINDOW,
                             cooldown_seconds=COOLDOWN,budget_bytes=BUDGET,stacks_per_window=2),limits=LIMITS))

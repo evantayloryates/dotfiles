@@ -47,6 +47,11 @@ recorder and BTLE watcher keep their current processes and captures intact.
    one-second unprivileged stack attempts per window. Only symbol/count frames
    are saved; no prompts, command strings, thread names or user file paths.
    Failed/changed/exited targets are recorded and not escalated automatically.
+   Policy `late-stack-v1` schedules serial diagnostic jobs: the Docker snapshot
+   at 30 seconds does not close later stack eligibility. Attempts are reserved
+   before launch and limited to two across the entire window, including failed
+   attempts; each PID/start lifetime is attempted once. Later stacks preserve
+   the earlier Docker result and attempt records, with separate timestamps.
 6. Docker stats are asynchronous, output-bounded and time-bounded. Failure is
    explicit; stale container memory is never presented as current attribution.
 7. Persistent pressure permits another bounded window after 15 minutes.
@@ -155,3 +160,34 @@ Next: compare identity completeness on the next natural hot/growing worker wave.
 Actual attribution gains remain unverified until that event. Census timeouts
 and the separate unapplied VM partial-stack-output candidate remain distinct
 limits; neither warrants changing workloads or permissions.
+
+## Late diagnostic timing correction — October 14
+
+The 12:26 EDT window confirmed a timing gap: Docker diagnostics started at
+31.8 seconds with no hot target. Yarn PID 54153 became eligible later, but the
+single existing diagnostic thread prevented any further stack selection.
+Replay of the actual retained window selects that Yarn lifetime at 74.3 seconds
+with the correction, while preserving one Docker job and the two-attempt stack
+budget. Replay uses mocked workers and makes no native probes; it proves target
+selection, not that a future stack will succeed or establish causality.
+
+The regression suite covers late work after Docker, serial scheduling, failed
+attempt budgets, PID reuse, missing identity, self/prelude exclusions, result
+merging, symbol privacy, and the existing real worker/stack test. Pressure-based
+growth/page-in target selection and partial VM stack retention remain separate,
+unapplied candidates. The timing correction retains the current CPU gate and
+read-only sampling bounds. Live load evidence belongs in the private focus
+checkpoint and audit, including the observer PID/source hash and preserved
+incident/cooldown/workload lifetimes.
+
+Live load verified at 13:08:15 EDT: observer PID 9339 exited gracefully between
+windows, and PID 50056 reports `late-stack-v1` with the expected source hash
+across advancing samples. Incident/capture/cooldown state and checked app,
+Docker, recorder and BTLE watcher lifetimes were preserved. The verification
+sample covered 845 CPU/I/O deltas across 1,050 processes, with 20 identity probes
+and 747.6 ms collection at an adaptive 7.48-second cadence. This is wall time,
+not a controlled overhead benchmark. All 46 tests passed. The handover is a
+monitoring gap and resets the two-minute in-memory prelude, not incident recovery.
+Proof: `data/agent_resource_monitor/focus/diagnostic-timing-live-verification-20261014.json`.
+Next: inspect stack attempts and timestamps in the next natural late-work window;
+timeouts, output bounds and exact causal attribution remain unresolved.

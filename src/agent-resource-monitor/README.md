@@ -371,6 +371,13 @@ Docker stats help distinguish retained memory from active work.
 Identity probes prioritize hot/growing workers and their immediate parents
 within the existing 20-probe budget. Status exposes `identity_policy`,
 `identity_lookups` and the startup `source_sha256` for live-load verification.
+Diagnostic policy `late-stack-v1` keeps stack eligibility open throughout the
+window after the one-time Docker snapshot. Jobs run serially, with at most two
+stack attempts across all jobs and no retry of the same PID/start lifetime.
+Late stacks append to `diagnostics.json`, preserving the earlier Docker result
+and failed attempts. Each stack and Docker snapshot has its own timestamp.
+Timeouts and PID changes consume the budget; the worker revalidates lifetimes
+immediately before sampling. Status and capture reports expose the policy.
 
 Install with `agent-resource-monitor install-focus`; inspect with
 `agent-resource-monitor focus-status`. Installation leaves loaded recorders

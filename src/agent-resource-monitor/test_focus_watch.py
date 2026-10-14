@@ -18,6 +18,94 @@ def proc(pid=1,start=10,**kw):
                 owner_evidence=None,script_names=[],**kw)
 
 class Focus(unittest.TestCase):
+    def test_late_worker_after_docker_snapshot_serial_jobs_and_attempt_budget(self):
+        jobs = []
+        clock = [0.]
+        class Thread:
+            def __init__(self, target, args, kwargs, daemon):
+                self.args = args; self.kwargs = kwargs; self.running = False
+                jobs.append(self)
+            def start(self): self.running = True
+            def is_alive(self): return self.running
+        def row(*processes):
+            return dict(timestamp='fixture', processes=list(processes), interval_seconds=2,
+                        pressure=dict(paging_mib_s=150))
+        with tempfile.TemporaryDirectory() as d, patch.object(f.threading,'Thread',Thread), \
+             patch.object(f.time,'monotonic',side_effect=lambda:clock[0]):
+            e = f.Evidence(Path(d),'fixture',[])
+            clock[0] = 30
+            e.append(row(proc(pid=7,cpu_percent=2)))
+            self.assertEqual(len(jobs),1)
+            self.assertEqual(jobs[0].args[1],[])
+            self.assertTrue(jobs[0].kwargs['include_docker'])
+            # A hot worker arrives after Docker was requested; busy jobs cannot overlap.
+            for tick in (36,38,40):
+                clock[0] = tick; e.append(row(proc(pid=7,cpu_percent=210)))
+            self.assertEqual(len(jobs),1)
+            jobs[0].running = False
+            clock[0] = 42; e.append(row(proc(pid=7,cpu_percent=234)))
+            self.assertEqual(len(jobs),2)
+            self.assertEqual(jobs[1].args[1][0]['pid'],7)
+            self.assertFalse(jobs[1].kwargs['include_docker'])
+            jobs[1].running = False
+            # The same lifetime is never retried, even when the attempt failed.
+            for tick in (44,46,48):
+                clock[0] = tick; e.append(row(proc(pid=7,cpu_percent=250)))
+            self.assertEqual(len(jobs),2)
+            # PID reuse gets its own streak and can consume the one remaining attempt.
+            for tick in (50,52):
+                clock[0] = tick; e.append(row(proc(pid=7,start=11,cpu_percent=250)))
+            self.assertEqual(len(jobs),2)
+            clock[0] = 54; e.append(row(proc(pid=7,start=11,cpu_percent=250)))
+            self.assertEqual(len(jobs),3)
+            jobs[2].running = False
+            for tick in (56,58,60):
+                clock[0] = tick; e.append(row(proc(pid=8,cpu_percent=300)))
+            self.assertEqual(len(jobs),3)
+            e.report('captured')
+            report = json.loads((e.path/'analysis.json').read_text())
+            self.assertEqual(report['stack_attempts_reserved'],2)
+            self.assertEqual(report['diagnostic_policy'],'late-stack-v1')
+
+    def test_prelude_missing_identity_and_self_never_start_stack_jobs(self):
+        with tempfile.TemporaryDirectory() as d, patch.object(f.threading,'Thread') as thread:
+            e = f.Evidence(Path(d),'fixture',[])
+            e.started = time.monotonic()
+            for _ in range(4):
+                e.append(dict(timestamp='fixture',processes=[proc(pid=7,cpu_percent=200)]),prelude=True)
+            self.assertFalse(thread.called)
+            for _ in range(4):
+                e.append(dict(timestamp='fixture',processes=[proc(pid=7,start=None,cpu_percent=200),
+                                                            proc(pid=os.getpid(),cpu_percent=200)]))
+            self.assertFalse(thread.called)
+            self.assertFalse(e.stack_attempted)
+
+    def test_later_stack_merge_preserves_docker_and_failed_attempt(self):
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)
+            previous=dict(timestamp='original',stacks=[dict(pid=6,status='timeout')],
+                          docker=dict(timestamp='docker-time',status='ok',containers=[]))
+            f.watcher.write_json(path/'diagnostics.json',previous)
+            class Lib:
+                def proc_pid_rusage(self,pid,version,ptr):
+                    ptr._obj.start=10
+                    return 0
+            with patch.object(f.ctypes,'CDLL',return_value=Lib()), \
+                 patch.object(f.watcher,'run',return_value=dict(status='ok',output='  + 3 safeSymbol\n',
+                                                               duration_ms=1,truncated=False)) as run:
+                f.diagnostics(path,[proc(pid=7)],include_docker=False)
+                result=json.loads((path/'diagnostics.json').read_text())
+                self.assertEqual(result['timestamp'],'original')
+                self.assertEqual(result['docker'],previous['docker'])
+                self.assertEqual([x['pid'] for x in result['stacks']],[6,7])
+                self.assertEqual(result['stacks'][1]['status'],'captured')
+                self.assertEqual(run.call_count,1)
+                # Lifetime revalidation happens in the actual diagnostic worker.
+                f.diagnostics(path,[proc(pid=8,start=99)],include_docker=False)
+                result=json.loads((path/'diagnostics.json').read_text())
+                self.assertEqual(result['stacks'][-1]['status'],'exited_or_changed_or_inaccessible')
+                self.assertEqual(run.call_count,1)
+
     def test_identity_budget_prioritizes_hot_births_ancestry_and_pid_reuse(self):
         class Census:
             reuse = False
@@ -127,6 +215,7 @@ class Focus(unittest.TestCase):
             class Thread:
                 def __init__(self,**kwargs):pass
                 def start(self):pass
+                def is_alive(self):return False
             class Machine:
                 def sample(self):
                     return dict(timestamp=f.monitor.now(),monotonic=clock[0],processes=[proc(cpu_percent=20)],
