@@ -35,6 +35,14 @@ recorder and BTLE watcher keep their current processes and captures intact.
 4. Keep top counters, births/exits and their ancestors, with bounded launch-ID
    metadata. PID + process start identifies a lifetime. Missing/protected
    counters remain missing; counter resets never turn into fabricated spikes.
+   Identity policy `resource-priority-v1` uses the same 20-probe census budget:
+   rank uncached processes by CPU, growth, reads, page-ins and footprint,
+   reserving up to four probes for immediate ancestors of the hottest unknowns.
+   This addresses hot workers being skipped behind low-PID births. Status and
+   captured rows expose the policy and probe count; status records the source
+   hash loaded at startup. It does not fix census timeouts or identify swap
+   ownership. The synthetic 2,000-process regression covers a hot high PID,
+   ancestor lookup, full counter coverage and PID reuse without stale identity.
 5. Sustained >=40% CPU over three selected intervals permits at most two
    one-second unprivileged stack attempts per window. Only symbol/count frames
    are saved; no prompts, command strings, thread names or user file paths.
@@ -127,3 +135,23 @@ The Memory Cleaner checkpoint also retains complete-line file cursors to avoid
 re-reading old session history during its next evaluation. Continue measuring
 analysis overhead alongside the watcher itself. No workload was altered to
 obtain these observations or the indexing improvement.
+
+## Identity capture improvement loaded October 14
+
+Taylor authorized the tested identity-priority improvement and observer-only
+reload. All 43 tests passed with `/usr/bin/python3`. The current capture finished
+before graceful SIGTERM and a launchd kickstart without forced termination.
+At 01:42:25 EDT, new observer PID 9339 reported `resource-priority-v1` and the
+expected startup source hash across advancing samples: 785 processes, 618
+CPU/I/O deltas, 20 identity probes, 104.8 ms collection at a five-second cadence.
+This is an observed sample, not a controlled overhead benchmark.
+
+The active incident, all prior capture paths and last-capture cooldown epoch
+were identical across handover. Checked app, Docker, recorder, BTLE watcher and
+Memory Cleaner lifetimes were unchanged. The in-memory prelude warms again for
+120 seconds; the observer handover is a monitoring gap, not recovery. Verification
+is private at `data/agent_resource_monitor/focus/identity-priority-live-verification-20261014.json`.
+Next: compare identity completeness on the next natural hot/growing worker wave.
+Actual attribution gains remain unverified until that event. Census timeouts
+and the separate unapplied VM partial-stack-output candidate remain distinct
+limits; neither warrants changing workloads or permissions.

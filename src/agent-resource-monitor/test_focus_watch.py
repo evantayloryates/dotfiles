@@ -18,6 +18,60 @@ def proc(pid=1,start=10,**kw):
                 owner_evidence=None,script_names=[],**kw)
 
 class Focus(unittest.TestCase):
+    def test_identity_budget_prioritizes_hot_births_ancestry_and_pid_reuse(self):
+        class Census:
+            reuse = False
+
+            def proc_pidpath(self, pid, buf, size):
+                buf.value = b'/fixture/node'
+                return len(buf.value)
+
+            def proc_pid_rusage(self, pid, version, ptr):
+                u = ptr._obj
+                u.start = pid + (10000 if self.reuse and pid == 1999 else 0)
+                u.user = 10_000_000_000 if pid == 1999 else 10
+                u.footprint = 3*1024**3 if pid == 1999 else 1024**2
+                u.read_bytes = 1000
+                u.pageins = 10
+                return 0
+
+        machine = object.__new__(f.FastMac)
+        machine.proc = Census()
+        machine.cache = {}
+        machine.timebase = 1.
+        machine.last = dict(monotonic=time.monotonic()-5, processes=[
+            proc(i, start=i, cpu_ns=0, footprint_bytes=1024**2,
+                 read_bytes=0, write_bytes=0, pageins=0) for i in range(1,2001)])
+        machine.host_cpu = lambda: dict(status='ok', idle_pct=50, system_pct=20)
+        calls = []
+
+        def procargs(pid):
+            calls.append(pid)
+            return ['node','/fixture/task.cjs'], {'CLAUDE_CODE_SESSION_ID':'fixture-'+str(machine.proc.reuse)}
+
+        machine.procargs = procargs
+        census = '\n'.join(f'{i} {1900 if i == 1999 else 0} 1024' for i in range(1,2001))
+        with patch.object(f.watcher,'run',return_value=dict(status='ok',output=census)):
+            first = machine.sample()
+            target = next(p for p in first['processes'] if p['pid'] == 1999)
+            self.assertEqual(len(calls),20)
+            self.assertIn(1999,calls)
+            self.assertIn(1900,calls)
+            self.assertEqual(target['script_names'],['task.cjs'])
+            self.assertEqual(target['owner'],'fixture-False')
+            self.assertEqual(first['cpu_delta_covered'],2000)
+            self.assertEqual(first['io_delta_covered'],2000)
+            machine.proc.reuse = True
+            calls.clear()
+            second = machine.sample()
+            target = next(p for p in second['processes'] if p['pid'] == 1999)
+            self.assertLessEqual(len(calls),20)
+            self.assertIn(1999,calls)
+            self.assertEqual(target['owner'],'fixture-True')
+            self.assertIsNone(target.get('cpu_percent'))
+            self.assertIsNone(target.get('footprint_delta_bytes'))
+            self.assertNotIn((1999,1999,'/fixture/node'),machine.cache)
+
     def test_lifetime_reset_and_missing_counters(self):
         a=proc(cpu_ns=100,read_bytes=100,write_bytes=10,pageins=3,footprint_bytes=20)
         b=proc(cpu_ns=200,read_bytes=200,write_bytes=30,pageins=5,footprint_bytes=40)

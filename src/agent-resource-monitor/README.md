@@ -368,6 +368,9 @@ paging, compressor churn or high host CPU starts a bounded 90-second window
 at a target two-second cadence. Collection backs off when slow. Lifetimes,
 launch ancestry, births/exits, limited stack symbols and bounded asynchronous
 Docker stats help distinguish retained memory from active work.
+Identity probes prioritize hot/growing workers and their immediate parents
+within the existing 20-probe budget. Status exposes `identity_policy`,
+`identity_lookups` and the startup `source_sha256` for live-load verification.
 
 Install with `agent-resource-monitor install-focus`; inspect with
 `agent-resource-monitor focus-status`. Installation leaves loaded recorders

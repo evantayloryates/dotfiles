@@ -5,6 +5,7 @@ from collections import deque
 import ctypes
 import datetime as dt
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -21,6 +22,7 @@ import watcher
 
 ROOT = watcher.data_root() / 'focus'
 VERSION = 1
+IDENTITY_POLICY = 'resource-priority-v1'
 INTERVAL = 5.
 DENSE_INTERVAL = 2.
 WINDOW = 90.
@@ -71,6 +73,7 @@ class FastMac(monitor.Mac):
         rows = []
         identities = 0
         live = set()
+        paths = {}
         for line in raw.get('output', '').splitlines()[:4096]:
             try:
                 pid, ppid, rss = map(int, line.split())
@@ -85,19 +88,44 @@ class FastMac(monitor.Mac):
             if available:
                 key = (pid, u.start, exe)
                 live.add(key)
-                if key not in self.cache and identities < 20:
-                    argv, env = self.procargs(pid)
-                    self.cache[key] = monitor.identity(exe, argv, env)
-                    identities += 1
+                paths[key] = exe
                 p.update(self.cache.get(key, {}))
                 p.update(cpu_ns=(u.user+u.system)*self.timebase, footprint_bytes=u.footprint,
                          read_bytes=u.read_bytes, write_bytes=u.write_bytes, pageins=u.pageins)
             rows.append(p)
-        monitor.resolve_ancestry(rows)
         elapsed = start-self.last['monotonic'] if self.last else 0
         old = {lifetime(p):p for p in self.last['processes']} if self.last else {}
         for p in rows:
             p.update(deltas(p, old.get(lifetime(p)), elapsed))
+        # Select identity probes after cheap counters, within the existing budget.
+        exe_by_pid = {key[0]:key[2] for key in paths}
+        eligible = [p for p in rows if p['start_ticks'] is not None
+                    and (p['pid'], p['start_ticks'], exe_by_pid[p['pid']]) not in self.cache]
+        def priority(p):
+            return max((p.get('cpu_percent') or 0)/40,
+                       max(0,p.get('footprint_delta_bytes') or 0)/(256*monitor.MIB),
+                       (p.get('read_mib_s') or 0)/32,
+                       (p.get('pageins_s') or 0)/2048,
+                       (p.get('footprint_bytes') or 0)/(2*1024*monitor.MIB))
+        ordered = sorted(eligible, key=lambda p:(-priority(p),p['pid']))
+        # Reserve up to four probes for immediate ancestors of the hottest unknowns.
+        by_pid = {p['pid']:p for p in eligible}
+        chosen = ordered[:16]
+        chosen_pids = {p['pid'] for p in chosen}
+        for p in ordered[:4]:
+            parent = by_pid.get(p['ppid'])
+            if parent and parent['pid'] not in chosen_pids and len(chosen)<20:
+                chosen.append(parent); chosen_pids.add(parent['pid'])
+        for p in ordered:
+            if len(chosen)>=20: break
+            if p['pid'] not in chosen_pids:
+                chosen.append(p); chosen_pids.add(p['pid'])
+        for p in chosen:
+            key=(p['pid'],p['start_ticks'],exe_by_pid[p['pid']])
+            argv, env = self.procargs(p['pid'])
+            self.cache[key] = monitor.identity(paths[key],argv,env)
+            p.update(self.cache[key]); identities += 1
+        monitor.resolve_ancestry(rows)
         self.cache = {k:v for k,v in self.cache.items() if k in live}
         result = dict(timestamp=monitor.now(), monotonic=start, processes=rows,
                       interval_seconds=elapsed,
@@ -106,7 +134,7 @@ class FastMac(monitor.Mac):
                       host_cpu=self.host_cpu(),
                       collection_ms=1000*(time.monotonic()-start),
                       health=raw['status'] if not raw.get('truncated') else 'truncated',
-                      identity_lookups=identities)
+                      identity_lookups=identities, identity_policy=IDENTITY_POLICY)
         self.last = result
         return result
 
@@ -322,6 +350,7 @@ def watch(args):
             d = json.loads(capture.read_text())
             if d.get('state')=='capturing':
                 d.update(state='observer_interrupted', updated_at=monitor.now());watcher.write_json(capture,d)
+        source_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         machine = FastMac(); prelude = deque(maxlen=60); previous = None; prev_pressure = None
         stopped = threading.Event()
         signal.signal(signal.SIGTERM,lambda *_:stopped.set());signal.signal(signal.SIGINT,lambda *_:stopped.set())
@@ -368,6 +397,7 @@ def watch(args):
                 pressure_source=p['source'],pressure_timestamp=p['timestamp'],process_count=row['process_count'],
                 pressure=row['pressure'],trigger_reasons=decision['reasons'],
                 cpu_delta_covered=raw['cpu_delta_covered'],io_delta_covered=raw['io_delta_covered'],
+                identity_policy=IDENTITY_POLICY,identity_lookups=raw.get('identity_lookups'),source_sha256=source_sha256,
                 host_cpu=raw['host_cpu'],collection_ms=raw['collection_ms'],next_interval_seconds=interval,bytes_retained=storage,
                 policy=dict(baseline_seconds=INTERVAL,dense_seconds=DENSE_INTERVAL,window_seconds=WINDOW,
                             cooldown_seconds=COOLDOWN,budget_bytes=BUDGET,stacks_per_window=2),limits=LIMITS))
