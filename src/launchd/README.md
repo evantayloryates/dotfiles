@@ -266,3 +266,22 @@ The signal closes the incident as `observer_stopped`, not `recovered`.
 Private incident folders live in `$DOTFILES_DATA_DIR/agent_resource_monitor/sessions/`.
 See [the monitor guide](../agent-resource-monitor/README.md) for thresholds,
 bounded storage, evidence, status and pause instructions.
+
+## `com.taylor.claude-tmp-gc`
+
+Claude Code keeps each session's scratchpad and background-task output under
+`$CLAUDE_CODE_TMPDIR` (default `/tmp`). macOS empties `/private/tmp` at every
+boot, so a reboot used to wipe every open session's scratchpad. `.env` now sets
+`CLAUDE_CODE_TMPDIR=/Users/taylor/.cache/claude-tmp` (bridged to GUI apps by
+`com.taylor.mcp-tokens`; quit and reopen Claude to pick it up), and this agent
+does the cleanup instead, daily at 04:40:
+
+- a session directory (`claude-<uid>/<project>/<session-id>/`) goes once nothing
+  in it **and** its transcript `~/.claude/projects/<project>/<session-id>.jsonl`
+  has changed for 30 days, so resuming an archived session keeps its scratchpad;
+- loose files under `claude-<uid>/` go after 30 idle days.
+
+`claude-tmp-gc.sh --dry-run` lists what it would remove; `--days N` (7 or more)
+changes the window. It refuses any root outside `~/.cache`. Log:
+`~/Library/Logs/claude-tmp-gc.log`. Transcripts themselves are kept for a year
+(`cleanupPeriodDays: 365` in `~/.claude/settings.json`).

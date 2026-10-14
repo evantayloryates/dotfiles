@@ -87,6 +87,8 @@ bash "$DOTFILES_DIR/install_wallpaper.sh"
 #     so GUI apps (Claude desktop, which don't read ~/.zshenv) inherit them.
 #   - com.taylor.docker-prune: periodic safe Docker cleanup (no-ops when Docker
 #     is down).
+#   - com.taylor.claude-tmp-gc: daily 30-day cleanup of Claude Code scratchpads
+#     (CLAUDE_CODE_TMPDIR moves them out of /tmp so reboots keep them).
 #   - com.taylor.keyrepeat: re-apply the persisted key-repeat preference to the
 #     live HID system at each login (the live store resets every boot).
 # No-op on Linux/devcontainers.
@@ -101,7 +103,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
 
   UID_NUM=$(id -u)
   mkdir -p "$HOME/Library/LaunchAgents"
-  for LA_LABEL in com.taylor.mcp-tokens com.taylor.docker-prune com.taylor.keyrepeat; do
+  for LA_LABEL in com.taylor.mcp-tokens com.taylor.docker-prune com.taylor.keyrepeat com.taylor.claude-tmp-gc; do
     LA_SRC="$DOTFILES_DIR/src/launchd/$LA_LABEL.plist"
     LA_DEST="$HOME/Library/LaunchAgents/$LA_LABEL.plist"
     if [[ ! -f "$LA_SRC" ]]; then

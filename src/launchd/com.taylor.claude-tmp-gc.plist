@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Daily: removes Claude Code scratchpads and task output under
+    ~/.cache/claude-tmp (CLAUDE_CODE_TMPDIR, set in dotfiles/.env) once both the
+    directory and its session transcript have been idle for 30 days. See
+    claude-tmp-gc.sh and README.md. Logs to ~/Library/Logs/claude-tmp-gc.log.
+  -->
+  <key>Label</key>
+  <string>com.taylor.claude-tmp-gc</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/dotfiles/src/launchd/claude-tmp-gc.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>4</integer>
+    <key>Minute</key>
+    <integer>40</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/Library/Logs/claude-tmp-gc.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/Library/Logs/claude-tmp-gc.log</string>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>
