@@ -30,7 +30,7 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { __kitsrc; clear; __alias_nudge rl; source "$HOME/dotfiles/src/index.sh"                        ;} # Note: `src` is the ~/src pathfunc; nudges toward rl when typed in full (alias_nudge.sh)
 rl      () { reload "$@"                                                                                  ;} # 
-touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1"; else /usr/bin/touch "$@"; fi ;} #
+touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1" && __touch_copy "$1"; else /usr/bin/touch "$@"; fi ;} # Note: one path → creates parent dirs, copies the resolved path (touch.sh)
 
 
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
