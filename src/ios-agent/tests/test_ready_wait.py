@@ -24,6 +24,13 @@ class ReadyWaitTests(unittest.TestCase):
         for value in (-1,56,True):
             with self.assertRaises(Rejected):self.b.control({'op':'ready_wait','timeoutSeconds':value})
 
+    def test_idle_timeout_names_launch_but_another_owner_never_does(self):
+        idle=self.b.control({'op':'ready_wait','timeoutSeconds':0})
+        self.assertEqual(idle['reason'],'no_fresh_foreground_bridge');self.assertIn('ios_device_launch target=kickoff-dev',idle['next'])
+        self.b.lease={'id':'other','thread':'other','turn':'other','expires':self.b.clock()+100}
+        busy=self.b.control({'op':'ready_wait','timeoutSeconds':0})
+        self.assertEqual(busy['reason'],'another_owner');self.assertNotIn('ios_device_launch',busy['next'])
+
     def test_any_with_browser_filter_cannot_return_native(self):
         self.b.device_request({'op':'hello','device':'phone','bundle':'com.dev.kudos.fit','boot':'boot','feedback':{'foreground':True}})
         self.assertFalse(self.b.control({'op':'ready_wait','browser':'ios-safari','timeoutSeconds':0})['readyToAcquire'])

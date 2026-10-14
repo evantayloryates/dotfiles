@@ -966,3 +966,19 @@ uncertainty and bounded recovery counts. Inspect the existing page catalog and
 independent display; explicitly begin on the intended ready page when justified.
 Never replay an accepted/unknown launch. Fresh document replacement during end
 returns unconfirmed promptly; it does not authorize Home into the new document.
+
+### 1.10.6 consumer updates
+
+A reachable phone sitting on its Home Screen is drivable; it just has no
+foreground DEV app or enrolled page yet. `ios_doctor connectivity=true` now says
+so: when the tailnet ping answers (including a DERP-relayed pong, which
+`tailscale ping --c=1` reports with exit 1) or the paired developer endpoint
+accepts TCP, `next` names the launch instead of "No working route is
+established". Native: `ios_device_launch target=kickoff-dev` →
+`ios_wait_ready surface=native` → `ios_begin`. Browser: `ios_web_open`.
+
+`ios_begin` refusals with `app_not_ready` or `device_not_connected` (no DEV
+registration yet, including right after a worker restart) keep that code as the
+first content line and add `structuredContent.next` (and a `next=` text line)
+naming the same launch sequence; `web_page_not_ready` points to `ios_web_open`. An idle `ios_wait_ready` timeout adds the launch hint; a wait
+behind another owner never suggests launching.

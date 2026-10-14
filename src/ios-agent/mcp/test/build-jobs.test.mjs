@@ -6,7 +6,7 @@ test('build schema only dispatches fixed durable job actions and never acquires 
  const seen=[];const b=new Backend({run:async(kind,args,input)=>{seen.push({kind,args,input});return {ok:true,value:{ok:true,jobId:'f'.repeat(32),state:input.action==='start'?'started':'completed',installed:false}};}});
  const {server}=createServer(b),[ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'build-job-test',version:'1'});await c.connect(ct);
  try{
-  const resources=(await c.listResources()).resources;assert.equal(resources.length,9);assert(resources.some(r=>r.uri==='ios-agent://native-build'));
+  const resources=(await c.listResources()).resources;assert.equal(resources.length,11);assert(resources.some(r=>r.uri==='ios-agent://native-build'));
   const guide=await c.readResource({uri:'ios-agent://native-build'});assert(guide.contents[0].text.includes('Installation is still separate'));
   for(const a of [{action:'install'},{action:'retry'},{action:'start',jobId:'a'.repeat(32)},{action:'status',jobId:'../escape'}])assert((await c.callTool({name:'ios_build',arguments:a})).isError);
   assert.equal(seen.length,0);

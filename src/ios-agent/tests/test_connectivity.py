@@ -85,5 +85,28 @@ class ConnectivityTests(unittest.TestCase):
                 self.assertIs(ping_phone(CONFIG['address']), expected)
 
 
+    def test_relayed_pong_with_nonzero_exit_is_reachable(self):
+        # Observed 2026-10-14: tailscale --c=1 exits 1 after a DERP pong.
+        relayed = b'pong from iphone (100.64.1.2) via DERP(nyc) in 56ms\n'
+        with patch('connectivity.subprocess.run', return_value=CompletedProcess([], 1, relayed, b'direct connection not established\n')):
+            self.assertIs(ping_phone(CONFIG['address']), True)
+
+    def test_reachable_phone_without_foreground_app_points_to_launch_not_waiting(self):
+        online = {'Peer': {'fixed': {'TailscaleIPs': ['100.64.1.2'], 'Online': True}}}
+        for ping in (True, None):
+            with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=False), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=online), patch('connectivity.ping_phone', return_value=ping), patch('connectivity.request', return_value={'readyToAcquire': False, 'reason': 'no_fresh_foreground_bridge'}):
+                value = diagnose('/private-fixture')
+            self.assertIn('ios_device_launch target=kickoff-dev', value['next'])
+            self.assertIn('ios_web_open', value['next'])
+            self.assertNotIn('No working route', value['next'])
+            self.assertEqual(value['lockState'], 'unknown')
+            self.assertFalse(value['phoneInputSent'])
+
+    def test_unreachable_phone_still_reports_no_route(self):
+        with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=False), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=PEER), patch('connectivity.ping_phone', return_value=False), patch('connectivity.developer_endpoint_tcp', return_value='timeout'), patch('connectivity.request', return_value={'readyToAcquire': False}):
+            value = diagnose('/private-fixture')
+        self.assertIn('No working route', value['next'])
+
+
 if __name__ == '__main__':
     unittest.main()

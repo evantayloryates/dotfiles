@@ -58,7 +58,9 @@ def ping_phone(address):
                             capture_output=True, timeout=4)
     # A failed binary/configuration lookup is unknown, not a negative ping.
     text = result.stdout[:8192].decode('utf-8', errors='replace')
-    if result.returncode == 0 and 'pong from ' in text:
+    # A pong is reachability whatever the exit code: with --c=1 tailscale exits
+    # 1 after a DERP-relayed pong ("direct connection not established").
+    if 'pong from ' in text:
         return True
     if 'timed out' in text.lower() or 'timeout waiting for' in text.lower() or 'no matching peer' in text.lower():
         return False
@@ -85,6 +87,13 @@ def peer_status():
     if value.returncode or len(value.stdout) > 2 * 1024 * 1024:
         raise ValueError('tailnet_inventory_unavailable')
     return json.loads(value.stdout)
+
+
+# Reachable phone, no foreground app/page: the next step is a launch, not
+# waiting. Without it an idle Home Screen reads as an undrivable phone.
+LAUNCH_NEXT = ('Phone answers over the paired tailnet, but no Kickoff DEV app or enrolled page is foreground. '
+               'Native: ios_device_launch target=kickoff-dev, then ios_wait_ready surface=native, then ios_begin. '
+               'Browser: ios_web_open (it launches the page). Lock state remains unknown until a launch reports foregroundVerified.')
 
 
 def diagnose(state):
@@ -145,9 +154,11 @@ def diagnose(state):
     elif result['bridgeReason'] == 'another_owner':
         result['next'] = 'Wait for the current owner. Do not launch, repair or request phone changes.'
     elif result['tailnetPingSucceeded'] is True:
-        result['next'] = 'Tailnet answered. Inspect the paired launch route or wait for a foreground bridge; lock state remains unknown.'
+        result['next'] = LAUNCH_NEXT
     elif result['usbAttached'] is True:
         result['next'] = 'Fixed phone is detected on USB. Inspect the paired developer channel; after Wi-Fi-Off use Runner Wi-Fi On, then verify connectivity. Do not request cable reconnection.'
+    elif result['developerEndpointTCP'] == 'accepted':
+        result['next'] = LAUNCH_NEXT
     else:
         result['next'] = 'No working route is established by these reads. Wait for availability; after Wi-Fi-Off restore Wi-Fi through an available paired route. Do not infer lock, cellular state, an unplugged cable or a defective cable. A negative USB inventory alone does not justify a cable request.'
     return result

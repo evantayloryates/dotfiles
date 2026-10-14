@@ -23,6 +23,13 @@ const safeErrors = new Set(['request_cancelled_before_dispatch', 'cancelled_clea
   'web_page_not_ready', 'web_session_required', 'device_not_connected', 'device_already_leased', 'frontend_cleanup_in_progress', 'owner_not_active',
   'owner_not_current_active_turn', 'lease_required', 'command_in_flight', 'session_closed', 'owned_baseline_required',
   'physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','system_tree_unavailable','system_app_changed']);
+// Next step for refusals whose code alone strands the caller.
+const launchNative = 'ios_device_launch target=kickoff-dev, then ios_wait_ready surface=native, then ios_begin. ios_doctor connectivity=true separates the route from readiness. Do not infer lock.';
+const errorNext = {
+  app_not_ready: `No foreground Kickoff DEV runtime verified ready within 12 seconds; the lease was released. If DEV is not foreground: ${launchNative}`,
+  device_not_connected: `No Kickoff DEV app has registered with the host (it is not foreground, or the worker restarted since). Nothing was sent to the phone. ${launchNative}`,
+  web_page_not_ready: 'No visible ready enrolled page matches. ios_web_open launches and acquires the DEV page; ios_web_pages lists current documents.',
+};
 const result = (value, request) => {
   const correlated=request?{...value,signalRequestId:request}:value;
   return {content: [{type: 'text', text: JSON.stringify(correlated)}], structuredContent: correlated,
@@ -110,8 +117,9 @@ export function createServer(backend = new Backend()) {
             errorName:String(error?.name||'Error').slice(0,80),message:String(error?.message||'').slice(0,300),
             stack:String(error?.stack||'').split('\n').slice(1,4).join('\n').slice(0,600),
             durationMs:Math.round(performance.now()-started),level:'error'});
-          return {content: [{type: 'text', text: code},...(request?[{type:'text',text:`signalRequestId=${request}`}]:[])],
-            ...(request?{structuredContent:{ok:false,reason:code,signalRequestId:request}}:{}),isError: true};
+          const next=errorNext[code];
+          return {content: [{type: 'text', text: code},...(request?[{type:'text',text:`signalRequestId=${request}`}]:[]),...(next?[{type:'text',text:`next=${next}`}]:[])],
+            ...(request?{structuredContent:{ok:false,reason:code,...(next?{next}:{}),signalRequestId:request}}:{}),isError: true};
         } finally { ctx.signal.removeEventListener('abort', cancel); busy = false; }
       };
       // A failed diagnostics context must not prevent dispatch or leave busy set.

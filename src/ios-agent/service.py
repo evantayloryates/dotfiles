@@ -309,7 +309,7 @@ class Broker:
                             pid,p=max(pages,key=lambda item:item[1]['seen'])
                             return {'readyToAcquire':True,'surface':'web','page':pid,'browser':p['browser'],'boot':p.get('boot'),'ageMs':int((self.clock()-p['seen'])*1000),'leaseAcquired':False,'next':'ios_web_begin performs owned state verification. Availability can change before acquisition.'}
                     remaining=until-time.monotonic()
-                    if remaining<=0:return {'readyToAcquire':False,'reason':'another_owner' if not idle else 'no_fresh_foreground_bridge','lockState':'unknown','leaseAcquired':False,'next':'Continue ios_wait_ready while waiting for this task. No physical cause or user action is inferred.'}
+                    if remaining<=0:return {'readyToAcquire':False,'reason':'another_owner' if not idle else 'no_fresh_foreground_bridge','lockState':'unknown','leaseAcquired':False,'next':'Continue ios_wait_ready while waiting for this task. No physical cause or user action is inferred.'+('' if not idle else ' If nothing else will foreground the target, launch it first: ios_device_launch target=kickoff-dev (native) or ios_web_open (browser).')}
                     self.cv.wait(min(remaining,1))
             if isinstance(op, str) and op.startswith("web_"):
                 return self.web.control(request)

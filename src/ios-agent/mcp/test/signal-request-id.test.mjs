@@ -58,3 +58,30 @@ test('busy refusal reports its own request ID without changing the first error l
     assert.notEqual(waited.structuredContent.signalRequestId,busy.structuredContent.signalRequestId);
   }finally{release();await close();}
 });
+
+test('app_not_ready names the launch step without changing the first error line',async()=>{
+  const backend={begin:async()=>{throw Error('app_not_ready');}};
+  const {client,close}=await connected(backend);
+  try{
+    const refused=await client.callTool({name:'ios_begin',arguments:{}});
+    assert.equal(refused.isError,true);
+    assert.equal(refused.content[0].text,'app_not_ready');
+    assert.equal(refused.content[1].text,`signalRequestId=${refused.structuredContent.signalRequestId}`);
+    assert.match(refused.structuredContent.next,/ios_device_launch target=kickoff-dev/);
+    assert.equal(refused.content[2].text,`next=${refused.structuredContent.next}`);
+    assert.equal(refused.structuredContent.reason,'app_not_ready');
+  }finally{await close();}
+});
+
+test('a native begin with no registered DEV app also names the launch step',async()=>{
+  const backend={begin:async()=>{throw Error('device_not_connected');}};
+  const {client,close}=await connected(backend);
+  try{
+    const refused=await client.callTool({name:'ios_begin',arguments:{}});
+    assert.equal(refused.content[0].text,'device_not_connected');
+    assert.match(refused.structuredContent.next,/ios_device_launch target=kickoff-dev/);
+    backend.begin=async()=>{throw Error('end_existing_session_first');};
+    const other=await client.callTool({name:'ios_begin',arguments:{}});
+    assert.equal(other.structuredContent.next,undefined);assert.equal(other.content.length,2);
+  }finally{await close();}
+});

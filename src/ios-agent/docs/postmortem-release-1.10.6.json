@@ -1,0 +1,27 @@
+{
+ "version": "1.10.6",
+ "from": "1.10.5",
+ "scope": "Personal DEV service",
+ "symptom": "Unlocked iPhone on Tailscale read as undrivable: ios_doctor next said no working route; ios_begin failed with bare app_not_ready",
+ "rootCauses": [
+  "connectivity.ping_phone required exit 0, but tailscale ping --c=1 exits 1 after a DERP-relayed pong, so tailnetPingSucceeded was null",
+  "ios_doctor next ignored developerEndpointTCP=accepted and fell through to 'No working route is established... Wait for availability' when no DEV app or page was foreground",
+  "ios_begin (app_not_ready, or device_not_connected after a worker restart) and idle ios_wait_ready gave no launch step when the phone was on its Home Screen"
+ ],
+ "changes": [
+  "DERP pong counts as reachability",
+  "doctor next names the native and browser launch sequence when the phone is reachable without a foreground bridge",
+  "app_not_ready, device_not_connected and web_page_not_ready carry structured next",
+  "idle wait_ready timeout names the launch; another-owner wait does not",
+  "stale tool/resource count assertions updated to 42/11"
+ ],
+ "notChanged": [
+  "transport, lease, launch and input code paths",
+  "lock inference: still unknown"
+ ],
+ "verification": {
+  "node": "254/254",
+  "python": "331/331",
+  "reproducedBeforeFix": true
+ }
+}
