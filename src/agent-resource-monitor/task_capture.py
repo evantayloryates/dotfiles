@@ -3,7 +3,7 @@ import os
 import re
 import shlex
 
-POLICY = 'early-task-guest-v1'
+POLICY = 'guest-task-lineage-v2'
 TOOLS = {'yarn', 'npm', 'npx', 'pnpm', 'eslint', 'tsc', 'tsserver', 'jest', 'vitest',
          'mocha', 'tsx', 'ts-node', 'next', 'webpack', 'vite', 'turbo', 'prettier',
          'lint-staged', 'husky', 'node-gyp', 'rollup', 'esbuild', 'babel', 'metro', 'nx'}
@@ -13,6 +13,24 @@ EXECUTABLES = TOOLS | {'node', 'nodejs', 'python', 'python3', 'java', 'bun', 'de
 TASK = re.compile(r'^(?:test|lint|typecheck|check|build|dev|start|format|precommit|pre-commit|'
                   r'postinstall|install|prepare|validate|verify|compile)(?::[a-z0-9_-]{1,40}){0,3}$')
 FLAGS = {'--noEmit', '--watch', '--check', '--runInBand', '--coverage', '--fix', '--no-cache'}
+
+
+def framework_entrypoint(value):
+    """Recognize fixed package entrypoints, never arbitrary script basenames."""
+    path = value.replace('\\', '/')
+    signatures = {
+        '/node_modules/next/dist/compiled/jest-worker/processChild.js':
+            dict(tool='next', role='process-worker', worker_kind='jest-worker'),
+        '/node_modules/next/dist/server/lib/start-server.js': dict(tool='next', role='server-start'),
+        '/node_modules/jest-worker/build/workers/processChild.js':
+            dict(tool='jest-worker', role='process-worker', worker_kind='jest-worker'),
+        '/node_modules/jest-worker/build/workers/threadChild.js':
+            dict(tool='jest-worker', role='thread-worker', worker_kind='jest-worker'),
+        '/node_modules/piscina/dist/worker.js': dict(tool='piscina', role='thread-worker'),
+        '/node_modules/vitest/dist/worker.js': dict(tool='vitest', role='test-worker'),
+    }
+    return next((dict(identity) for suffix, identity in signatures.items()
+                 if path.endswith(suffix)), None)
 
 
 def tool_name(value):
@@ -46,7 +64,11 @@ def identify(argv):
                 return dict(tool='node', mode='unresolved')
         if not args:
             return dict(tool='node', mode='unresolved')
-        tool = tool_name(args[0]); args = args[1:]
+        entrypoint = args[0]
+        framework = framework_entrypoint(entrypoint)
+        if framework:
+            return framework
+        tool = tool_name(entrypoint); args = args[1:]
         if not tool:
             return dict(tool='node', mode='unrecognized_entrypoint')
     if not tool:
@@ -69,6 +91,36 @@ def identify(argv):
     return out
 
 
+def guest_identity(command, argv):
+    # Next rewrites its process title, removing the original Node entrypoint.
+    # Require the entire supported title; do not search arbitrary arguments.
+    if re.fullmatch(r'next-server(?: \(v\d+(?:\.\d+){1,3}(?:-[a-z0-9.-]{1,40})?\))?', command):
+        return dict(tool='next', role='server'), 'process-title'
+    identity = identify(argv)
+    return identity, 'structural-argv' if identity else None
+
+
+def task_context(proc, by_pid):
+    """Bounded same-snapshot ancestry; parent task is context, not worker identity."""
+    current = proc; seen = {proc['pid']}; nearest = None
+    for distance in range(1, 5):
+        parent = by_pid.get(current['ppid'])
+        if not parent or parent['pid'] in seen or parent['elapsed_seconds'] < current['elapsed_seconds']:
+            break
+        seen.add(parent['pid'])
+        identity = parent.get('task_identity')
+        if identity and 'mode' not in identity:
+            candidate = dict(ancestor_pid=parent['pid'], ancestor_ppid=parent['ppid'],
+                             ancestor_elapsed_seconds=parent['elapsed_seconds'], distance=distance,
+                             identity=identity, evidence='same-snapshot-ancestry')
+            if identity.get('task'):
+                return candidate
+            if nearest is None:
+                nearest = candidate
+        current = parent
+    return nearest
+
+
 def parse_top(output):
     rows = []; malformed = 0
     lines = output.splitlines()
@@ -86,9 +138,10 @@ def parse_top(output):
             if not argv:
                 raise ValueError('missing executable')
             base = os.path.basename(argv[0])
+            identity, evidence = guest_identity(command, argv)
             rows.append(dict(pid=pid,ppid=ppid,rss_bytes=rss*1024,cpu_lifetime_percent=cpu,
                              elapsed_seconds=elapsed,exe=base if base in EXECUTABLES else 'other',
-                             task_identity=identify(argv)))
+                             task_identity=identity, identity_evidence=evidence))
         except (ValueError,TypeError):
             malformed += 1
     # Preserve leading CPU/RSS workers and bounded parents. No argv survives.
@@ -97,16 +150,26 @@ def parse_top(output):
         for p in sorted(rows,key=lambda x:x[metric],reverse=True)[:8]:
             chosen[p['pid']] = p
     by_pid = {p['pid']:p for p in rows}
+    # Resolve from the already bounded census before pruning. A named launcher
+    # may not itself rank high enough for the 24 retained process rows.
+    for p in chosen.values():
+        p['task_context'] = task_context(p, by_pid)
     for p in list(chosen.values()):
         for _ in range(4):
             parent = by_pid.get(p['ppid'])
             if not parent or parent['pid'] in chosen or len(chosen)>=24:
                 break
             chosen[parent['pid']] = parent; p = parent
+    for p in chosen.values():
+        if 'task_context' not in p:
+            p['task_context'] = task_context(p, by_pid)
     return dict(process_count=len(rows),rows_considered=min(len(lines)-1,2048),
                 row_limit_hit=len(lines)>2049,malformed_rows=malformed,
                 processes=list(chosen.values())[:24],
-                limits='CPU is a lifetime average, RSS is a point snapshot. Guest PIDs/elapsed time are not host PID/start identities or swap ownership. Arguments, environment and paths are not retained.')
+                identity_covered=sum(bool(p.get('task_identity')) and 'mode' not in p['task_identity'] for p in chosen.values()),
+                task_context_covered=sum(bool(p.get('task_context')) for p in chosen.values()),
+                named_task_context_covered=sum(bool((p.get('task_context') or {}).get('identity',{}).get('task')) for p in chosen.values()),
+                limits='CPU is a lifetime average, RSS is a point snapshot. Guest PIDs/elapsed time are not host PID/start identities or swap ownership. Parent task context is provenance, not proof of the worker task. Unknown identities stay unknown. Arguments, environment and paths are not retained.')
 
 
 def guest_rankings(docker, containers, run, now):

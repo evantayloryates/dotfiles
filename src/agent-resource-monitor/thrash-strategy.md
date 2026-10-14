@@ -290,3 +290,50 @@ coverage can still be missing during OS stalls; pressure-only windows now retain
 the event and diagnostic status under those conditions rather than silently
 waiting for census success.
 Proof: `data/agent_resource_monitor/focus/pressure-loop-live-verification-20261014.json`.
+
+## Guest worker identity and task ancestry — October 14
+
+Natural guest rankings retained large `other` workers beneath Next.js and
+unrecognized Node entrypoints. A bounded read-only snapshot confirmed that
+Next rewrites some worker titles to `next-server (v...)`, removing the original
+Node entrypoint. `guest-task-lineage-v2` recognizes that exact title and fixed
+Next/Jest-worker/Piscina/Vitest package entrypoints. It saves fixed tool/role
+labels only; versions, arbitrary script basenames, paths and raw arguments are
+excluded. A generic Jest-worker library label does not establish a Jest test.
+
+Each selected guest process also receives a separate `task_context` from the
+already collected snapshot: at most four parent hops, preferring the nearest
+named Yarn/npm/pnpm task over a generic tool ancestor. Parent PID, elapsed age,
+distance and evidence source are retained. Cycles and parents younger than
+their children stop resolution. Context can survive process-row pruning, but
+never replaces the worker's own identity or proves that it executed the parent
+task. Unknown workers remain explicitly unknown. Guest PID and elapsed time are
+snapshot provenance, not host lifetime IDs or swap ownership.
+
+This uses the existing Docker top output, with no additional commands, guest
+filesystem reads, Docker exec or retries. Limits remain two containers, two
+seconds and 256 KiB each, 2,048 considered rows, 24 saved processes each, four
+ancestry hops, two native stack attempts, 90-second windows, 15-minute cooldown,
+8 MiB per window, 256 MiB retained budget and 5 GiB free-disk reserve. Test and live load
+evidence belongs in `focus/guest-lineage-live-verification-20261014.json` and
+the audit. Compare exact identities/context in the next natural window; a
+read-only smoke snapshot is not proof of incident causality.
+
+Live load verified at 15:45:11 EDT: observer PID 18333 exited gracefully between
+completed windows and diagnostics; PID 81333 reports `guest-task-lineage-v2`,
+matching helper/source hashes and advancing independent pressure heartbeats.
+Incident state, cooldown and checked app, Docker, recorder and BTLE watcher
+lifetimes were preserved. A later census covered 1,025 CPU/I/O deltas across
+1,220 processes; collection took 726.6 ms with 7.29-second census backoff while
+the pressure control tick took 3.13 ms. These are observed wall times, not a
+controlled overhead benchmark. Prelude warms for 120 seconds after handover.
+
+All nine task-parser tests pass. The full suite passed 61 of 62 tests; its
+existing real native-stack fixture reached the unchanged four-second timeout
+during severe host pressure and was cleaned up. No retry was made while that
+condition persisted, and no timeout or capture limits were widened. All new
+identity/ancestry tests, privacy/caps/timeout tests, independent-pressure and
+backoff/cooldown tests passed. A real bounded Docker snapshot increased
+recognized identities from six to eight and retained contexts for `yarn build`,
+`yarn build:scripts` and `yarn start:development`. Native frame availability and
+unknown task identities remain conditional. Raw argv was not saved.
