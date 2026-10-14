@@ -87,20 +87,43 @@ def route_names(mobile):
 def verify_local_backend(container):
     # Read process provenance inside the existing container. Secrets never leave
     # this short consumer; no database connections or environment dumps occur.
-    script = r'''
+    # Only the server listening on :4000 (the backend the phone reaches) and its
+    # own launcher/worker family are judged; see backend_guard.mjs.
+    guard = (Path(__file__).parent / 'backend_guard.mjs').read_text().replace('export function', 'function')
+    script = guard + r'''
 const fs = require('fs');
-const matches = fs.readdirSync('/proc').filter(p => /^\d+$/.test(p)).flatMap(p => {
+const local = p => {
   try {
-    const argv = fs.readFileSync(`/proc/${p}/cmdline`, 'utf8').split('\0');
-    if (!argv.some(a => /(?:^|\/)\.webpack\/server\.development\.js$/.test(a))) return [];
     const env = Object.fromEntries(fs.readFileSync(`/proc/${p}/environ`, 'utf8').split('\0').filter(Boolean).map(s => {const i=s.indexOf('=');return [s.slice(0,i),s.slice(i+1)];}));
     const u = new URL(env.DATABASE_URL);
-    return [{local: env.APP_ENV === 'development' && env.KICKOFF_LOCAL_DATABASE_ONLY === '1' && env.KICKOFF_SKIP_REMOTE_SECRETS === '1' && env.DB_DISABLE_SSL === 'true' && u.protocol === 'mysql:' && u.hostname === 'db' && (!u.port || u.port === '3306') && u.pathname === '/kudos_development' && !u.search && (!env.MODIFIED_URL || env.MODIFIED_URL === env.DATABASE_URL) && fs.readlinkSync(`/proc/${p}/cwd`) === '/workspaces/kickoff/node'}];
-  } catch { return []; }
-});
-// The guarded offline server can fork workers. Every matching worker must
-// retain the exact local contract; multiple safe workers are not ambiguity.
-process.stdout.write(JSON.stringify({verified: matches.length > 0 && matches.every(p => p.local)}));
+    return env.APP_ENV === 'development' && env.KICKOFF_LOCAL_DATABASE_ONLY === '1' && env.KICKOFF_SKIP_REMOTE_SECRETS === '1' && env.DB_DISABLE_SSL === 'true' && u.protocol === 'mysql:' && u.hostname === 'db' && (!u.port || u.port === '3306') && u.pathname === '/kudos_development' && !u.search && (!env.MODIFIED_URL || env.MODIFIED_URL === env.DATABASE_URL) && fs.readlinkSync(`/proc/${p}/cwd`) === '/workspaces/kickoff/node';
+  } catch { return false; }
+};
+const inodes = new Set();
+for (const f of ['/proc/net/tcp', '/proc/net/tcp6']) {
+  try {
+    for (const line of fs.readFileSync(f, 'utf8').split('\n').slice(1)) {
+      const c = line.trim().split(/\s+/);
+      if (c.length > 9 && c[3] === '0A' && c[1].endsWith(':0FA0')) inodes.add(c[9]);
+    }
+  } catch {}
+}
+const records = [], listeners = [];
+for (const p of fs.readdirSync('/proc').filter(v => /^\d+$/.test(v))) {
+  try {
+    const args = fs.readFileSync(`/proc/${p}/cmdline`, 'utf8').split('\0').filter(Boolean);
+    const parent = fs.readFileSync(`/proc/${p}/stat`, 'utf8').match(/^\d+ \(.*\) \S+ (\d+)/)?.[1];
+    const server = args.some(a => /(?:^|\/)\.webpack\/server\.development\.js$/.test(a));
+    records.push({pid: p, parent, args, local: server ? local(p) : false});
+    if (inodes.size) {
+      for (const fd of fs.readdirSync(`/proc/${p}/fd`)) {
+        const m = /^socket:\[(\d+)\]$/.exec(fs.readlinkSync(`/proc/${p}/fd/${fd}`));
+        if (m && inodes.has(m[1])) { listeners.push(p); break; }
+      }
+    }
+  } catch {}
+}
+process.stdout.write(JSON.stringify({verified: verifyGuardedBackend(records, listeners)}));
 '''
     run = subprocess.run(["docker", "exec", "-i", container, "node", "-"], input=script.encode(), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=10)
     if run.returncode or json.loads(run.stdout).get("verified") is not True:
