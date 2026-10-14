@@ -533,7 +533,27 @@ tunnel_session() {
   )
   if [[ "$mode" == foreground ]]; then
     printf '%s tunnel: opening 127.0.0.1:%s via %s\n' "$(date '+%F %T')" "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$TUNNEL_TARGET_INSTANCE"
-    exec "${cmd[@]}"
+    # Watch the session's own output. When SSM fails to (re)start the data
+    # channel ("Cannot perform start session: ... broken pipe", 2026-10-14) the
+    # aws process stays alive and the local port stays open, so nothing upstream
+    # notices and every connection times out. On that line, end the session and
+    # exit non-zero so launchd's KeepAlive opens a fresh one.
+    local fifo="${RUN_DIR}/tunnel.fifo" apid line
+    rm -f "$fifo"; mkfifo -m 600 "$fifo"
+    "${cmd[@]}" >"$fifo" 2>&1 &
+    apid=$!
+    trap 'tunnel_kill_tree "$apid"; rm -f "$fifo"' EXIT
+    trap 'exit 0' TERM INT
+    while IFS= read -r line; do
+      printf '%s\n' "$line"
+      case "$line" in
+        *"Cannot perform start session"*)
+          printf '%s tunnel: session broken; restarting it\n' "$(date '+%F %T')"
+          exit 1 ;;
+      esac
+    done <"$fifo"
+    wait "$apid" 2>/dev/null
+    exit $?
   fi
   nohup "${cmd[@]}" >>"$TUNNEL_LOG" 2>&1 &
   printf '%s' "$!" > "$TUNNEL_PID_FILE"
@@ -566,7 +586,9 @@ tunnel_owner() {
   lpid="$(tunnel_listener)"; [[ -n "$lpid" ]] || { printf 'none'; return; }
   ppid="$(ps -o ppid= -p "$lpid" 2>/dev/null | tr -d ' ')"
   lname="$(ps -o comm= -p "$lpid" 2>/dev/null)"
-  if [[ -n "$ppid" && "$ppid" == "$(tunnel_launchd_pid)" ]]; then printf 'launchd'
+  local gppid lpid_job; gppid="$(ps -o ppid= -p "$ppid" 2>/dev/null | tr -d ' ')"; lpid_job="$(tunnel_launchd_pid)"
+  # launchd's job is the watching shell; aws is its child and the plugin aws's child.
+  if [[ -n "$ppid" && -n "$lpid_job" && ( "$ppid" == "$lpid_job" || "$gppid" == "$lpid_job" ) ]]; then printf 'launchd'
   elif [[ -n "$ppid" && "$ppid" == "$(tunnel_pid || true)" ]]; then printf 'pid %s' "$ppid"
   elif [[ "$lname" == *session-manager-plugin* && "$ppid" == 1 ]]; then printf 'orphan'
   else printf 'other (%s pid %s)' "$lname" "$lpid"; fi
