@@ -119,7 +119,7 @@ the all-time `terra_users` count; raise `max_objects` for full coverage) writes 
 are never reported for APPLE, MYFITNESSPAL, CRONOMETER, PELOTON and COROS:
 say "not reported", not "none". Payloads are PHI (client id plus health data).
 The Terra archive keeps scope history, daily event counts and connection
-events past the 30 days and updates itself twice a day: prefer
+events past the 30 days and keeps itself current: prefer
 `terra_archive_scopes_export` for scopes, `terra_archive_status` for coverage.
 Start a run (`terra_archive_start`) only to catch up sooner; never poll it.
 

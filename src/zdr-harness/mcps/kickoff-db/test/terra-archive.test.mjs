@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { archiveStatus, latestStates, openArchive, runArchive, summarizeObject, Throttle } from '../terra-archive.mjs'
+import { archiveStatus, decideTick, latestStates, openArchive, reconcileCrashed, runArchive, summarizeObject, Throttle } from '../terra-archive.mjs'
 import { terraClient, topLevelFields } from '../terra-payloads.mjs'
 
 const uuid = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
@@ -216,4 +216,110 @@ test('a dropped connection while listing retries the page instead of skipping th
   assert.equal(r.done, 6)
   assert.equal(lines.filter((l) => l.event === 'list_retry').length, 2)
   assert.equal(lines.filter((l) => l.event === 'list_error').length, 0)
+})
+
+// ---- resilience
+
+// A client whose every request fails like a dead network until `up()` is called.
+function outageClient(base, { downFor = Infinity } = {}) {
+  let down = true
+  let calls = 0
+  const fail = async () => { throw new Error('S3 is not reachable (ENETUNREACH)') }
+  const gate = (fn) => async (...a) => { calls++; if (down && calls <= downFor) return fail(); down = false; return fn(...a) }
+  return { client: { listPage: gate(base.listPage), head: gate(base.head), get: gate(base.get) }, up: () => { down = false } }
+}
+
+test('an outage mid-day pauses the run, keeps every payload pending, and resumes when S3 answers', async (t) => {
+  const o = {}
+  for (let i = 1; i <= 60; i++) o[key('2026-10-11', i)] = { body: body('activity', `u${i % 5}`, 'GARMIN', 'activity'), modified: '2026-10-11T01:00:00.000Z' }
+  const s3 = await fakeS3(o, { pageSize: 100 })
+  t.after(() => s3.server.close())
+  const db = tmpDb()
+  // List works, then the network is down until the run has probed it twice.
+  let lists = 0
+  const c = {
+    listPage: async (d, tok) => { if (++lists === 1 || lists > 3) return s3.client.listPage(d, tok); throw new Error('S3 is not reachable (ENETUNREACH)') },
+    head: async (k, b) => { if (lists <= 3) throw new Error('S3 is not reachable (ENETUNREACH)'); return s3.client.head(k, b) },
+    get: s3.client.get,
+  }
+  const lines = []
+  const r = await runArchive({ db, client: c, log: (e) => lines.push(e), now: NOW, days: ['2026-10-11'], runId: 'tr_o', probeMs: 100, outageMinutes: 1, startConcurrency: 8 })
+  assert.equal(r.done, 60, 'every payload archived after the outage')
+  assert.equal(r.failed, 0, 'no attempt spent on the outage')
+  assert.ok(r.outages >= 1)
+  assert.ok(lines.some((l) => l.event === 'outage_start') && lines.some((l) => l.event === 'outage_end'))
+  assert.equal(db.prepare("SELECT MAX(attempts) a FROM keys").get().a, 1, 'only the successful attempt counted')
+})
+
+test('an outage longer than outageMinutes ends the run as "network down" with nothing lost', async (t) => {
+  const { o } = world()
+  const s3 = await fakeS3(o)
+  t.after(() => s3.server.close())
+  const db = tmpDb()
+  const { client } = outageClient(s3.client)
+  const r = await runArchive({ db, client, log: () => {}, now: NOW, days: DAYS, runId: 'tr_down', probeMs: 50, outageMinutes: 0.01 })
+  assert.match(r.stop, /^network down/)
+  assert.equal(r.failed, 0)
+  // Back online: the next run picks up everything.
+  const r2 = await runArchive({ db, client: s3.client, log: () => {}, now: NOW, days: DAYS, runId: 'tr_up' })
+  assert.equal(r2.done, 6)
+})
+
+test('a key that keeps failing on the network while others succeed is counted failed, not deferred forever', async (t) => {
+  const { o } = world()
+  const s3 = await fakeS3(o)
+  t.after(() => s3.server.close())
+  const db = tmpDb()
+  const badKey = key('2026-10-01', 2)
+  const c = { ...s3.client, head: async (k, b) => { if (k === badKey) throw new Error('S3 is not reachable (ECONNRESET)'); return s3.client.head(k, b) } }
+  const r = await runArchive({ db, client: c, log: () => {}, now: NOW, days: ['2026-10-01'], runId: 'tr_k', probeMs: 20, outageMinutes: 1 })
+  assert.equal(r.done, 2)
+  assert.equal(r.failed, 1, 'gave up on the one key after its deferrals')
+})
+
+test('a stalled socket times out instead of hanging', async (t) => {
+  const { createServer: cs } = await import('node:http')
+  const server = cs(() => {}) // accepts, never answers
+  await new Promise((r) => server.listen(0, '127.0.0.1', r))
+  t.after(() => { server.closeAllConnections?.(); server.close() })
+  const c = terraClient({ accessKeyId: 'AKIATEST', secretAccessKey: 's', endpoint: `http://127.0.0.1:${server.address().port}`, timeoutMs: 200 })
+  const t0 = Date.now()
+  await assert.rejects(c.head(key('2026-10-11', 1), 4096), /not reachable/)
+  assert.ok(Date.now() - t0 < 2000)
+})
+
+test('decideTick: runs only when behind, backs off after trouble, waits out a full disk', () => {
+  const db = tmpDb()
+  const now = Date.parse('2026-10-14T12:00:00Z')
+  const H = 3_600_000
+  const seal = (days) => { for (const d of days) db.prepare('INSERT OR REPLACE INTO days (day, sealed) VALUES (?, 1)').run(d) }
+  const addRun = (id, ago, status, summary) => db.prepare('INSERT INTO runs (run_id, started, finished, status, trigger, summary) VALUES (?, ?, ?, ?, ?, ?)').run(id, new Date(now - ago - 60_000).toISOString(), new Date(now - ago).toISOString(), status, 'tick', JSON.stringify(summary))
+  const window = Array.from({ length: 27 }, (_, i) => new Date(now - (i + 4) * 86_400_000).toISOString().slice(0, 10))
+
+  assert.match(decideTick(db, { now }).reason, /catching up: 27 unsealed days/)
+  seal(window)
+  assert.equal(decideTick(db, { now }).reason, 'first complete pass')
+  addRun('r1', 1 * H, 'ok', { stop: 'all days current' })
+  assert.deepEqual(decideTick(db, { now }), { run: false, reason: 'current: last complete pass 60 min ago' })
+  assert.match(decideTick(db, { now: now + 6 * H }).reason, /^refresh/)
+  assert.match(decideTick(db, { now, freeGb: 3 }).reason, /disk floor/)
+
+  addRun('r2', 0.1 * H, 'ok', { stop: 'network down (no answer from S3 for 20 min)' })
+  assert.match(decideTick(db, { now }).reason, /backing off after 1 troubled run/)
+  assert.match(decideTick(db, { now: now + 0.2 * H }).reason, /^retry after 1/)
+  addRun('r3', 0.05 * H, 'crashed', { stop: 'watchdog: no progress for 10 min' })
+  const two = decideTick(db, { now: now + 0.4 * H })
+  assert.equal(two.run, false, '2nd trouble waits 30 min')
+  assert.equal(decideTick(db, { now: now + 0.6 * H }).run, true)
+  addRun('r4', 0.01 * H, 'failed', { error: 'S3 AccessDenied on the Terra payload bucket' })
+  assert.match(decideTick(db, { now: now + 2 * H }).reason, /AccessDenied/)
+  assert.equal(decideTick(db, { now: now + 2 * H }).run, false, 'AccessDenied waits 6 h')
+})
+
+test('reconcileCrashed marks runs a dead process left running', () => {
+  const db = tmpDb()
+  db.prepare("INSERT INTO runs (run_id, started, status) VALUES ('old', '2026-10-14T01:00:00Z', 'running'), ('me', '2026-10-14T02:00:00Z', 'running')").run()
+  assert.equal(reconcileCrashed(db, 'me'), 1)
+  assert.equal(db.prepare("SELECT status FROM runs WHERE run_id = 'old'").get().status, 'crashed')
+  assert.equal(db.prepare("SELECT status FROM runs WHERE run_id = 'me'").get().status, 'running')
 })

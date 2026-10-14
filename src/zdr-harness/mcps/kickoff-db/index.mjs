@@ -97,7 +97,7 @@ APPLE (HealthKit hides read permissions), MYFITNESSPAL, CRONOMETER, PELOTON and 
 reported", never as "no scopes". Every payload pairs a client id with health data.
 The Terra archive keeps what the bucket would lose after 30 days: per payload its type and user block (provider,
 scopes, active), as a scope history per user, per-user daily event counts, and connection events in full. It runs
-on its own twice a day; terra_archive_status shows coverage, terra_archive_scopes_export writes each user's latest
+on its own whenever it falls behind (checked every 30 min); terra_archive_status shows health and coverage, terra_archive_scopes_export writes each user's latest
 archived state to a ts_ export (all archived days, not only the last 30). Prefer it over terra_scopes_export.`
 const EXPORT_CONCURRENCY = 48
 const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
@@ -961,7 +961,7 @@ const TOOLS = [
   {
     name: 'terra_archive_start',
     title: 'Start a Terra archive run',
-    description: 'Start a background archive run now (idempotent: reports the live run if one is going). Runs also start on their own twice a day; use this only to catch up sooner. Returns at once; check terra_archive_status later, not in a loop.',
+    description: 'Start a background archive run now (idempotent: reports the live run if one is going). Runs also start on their own whenever the archive falls behind (checked every 30 minutes); use this only to catch up sooner. Returns at once; check terra_archive_status later, not in a loop.',
     inputSchema: { type: 'object', properties: { max_minutes: { type: 'number', description: 'budget, default 120, max 240' } }, additionalProperties: false },
     annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: true },
   },

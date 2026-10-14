@@ -61,11 +61,12 @@ Usage: zdr-harness <command>
                    store is never pruned.
   exports list|archive|unarchive|delete|prune [ids…|--kind k --status s --before ISO] [--dry-run]
                    Manage exports (bulk, idempotent; never reads contents)
-  terra-archive run|start|stop|status|runs|log|export [flags]
+  terra-archive tick|run|start|stop|status|runs|log|export [flags]
                    Incremental archive of the Terra webhook payloads (S3 keeps
                    30 days): 4 KB header per payload, scope history, connection
                    events. Resumable and idempotent; the LaunchAgent
-                   com.taylor.zdr-harness-terra-archive runs it twice a day.
+                   com.taylor.zdr-harness-terra-archive ticks every 30 min and
+                   runs only when the archive is behind.
                    See README "Terra archive".
   approve <fixture-package-id> --clearance <ref> [--baseline-cleared]
                    Write the root-owned release receipt for a finalized fixture

@@ -3,42 +3,31 @@
 <plist version="1.0">
 <dict>
   <!--
-    Keeps the Terra webhook archive current: S3 deletes payloads after 30 days,
-    so each run archives every day it has not finished, oldest first, and
-    re-lists the newest 3 days for late keys. Runs are resumable and idempotent;
-    a run that hits its 120-minute budget or the 15 GB free-disk floor stops
-    cleanly and the next one continues. Twice a day so a missed run (asleep,
-    offline) costs nothing. See src/zdr-harness/README.md "Terra archive".
-    NOTE: launchd does not expand ~ or $HOME.
+    Keeps the Terra webhook archive current. S3 deletes payloads after 30 days.
+    Every 30 minutes (and at login) launchd runs `terra-archive tick`, which
+    decides from the archive's own state whether there is work: catching up
+    unsealed days, a refresh when the last complete pass is over 6 h old, or a
+    retry after trouble with backoff (15 min, 30, 60 ... 4 h). When the archive
+    is current the tick exits at once with no network call. Runs resume from
+    committed progress after a crash, reboot, sleep or outage; caffeinate keeps
+    the Mac awake only while a tick is running.
+    See src/zdr-harness/README.md "Terra archive". launchd does not expand ~.
   -->
   <key>Label</key>
   <string>com.taylor.zdr-harness-terra-archive</string>
   <key>ProgramArguments</key>
   <array>
+    <string>/usr/bin/caffeinate</string>
+    <string>-i</string>
     <string>/bin/bash</string>
     <string>/Users/taylor/src/github/dotfiles/src/zdr-harness/bin/zdr-harness</string>
     <string>terra-archive</string>
-    <string>run</string>
-    <string>--max-minutes</string>
-    <string>120</string>
-    <string>--trigger</string>
-    <string>launchd</string>
+    <string>tick</string>
   </array>
-  <key>StartCalendarInterval</key>
-  <array>
-    <dict>
-      <key>Hour</key>
-      <integer>4</integer>
-      <key>Minute</key>
-      <integer>15</integer>
-    </dict>
-    <dict>
-      <key>Hour</key>
-      <integer>16</integer>
-      <key>Minute</key>
-      <integer>15</integer>
-    </dict>
-  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>1800</integer>
   <key>LowPriorityIO</key>
   <true/>
   <key>Nice</key>

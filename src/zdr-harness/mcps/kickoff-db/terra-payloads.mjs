@@ -46,12 +46,14 @@ export function recentDays(n, now = Date.now()) {
 
 // A tiny SigV4 S3 client bound to the one bucket. `endpoint` and `fetchImpl`
 // exist for tests only.
-export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey, sessionToken, fetchImpl = fetch, endpoint } = {}) {
+export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey, sessionToken, fetchImpl = fetch, endpoint, timeoutMs = 30_000 } = {}) {
   if (!accessKeyId || !secretAccessKey) throw new TerraError('No AWS credentials for S3: set KICKOFF_ZDR_AWS_ACCESS_KEY_ID and KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY')
   const host = endpoint ? new URL(endpoint).host : `${TERRA_BUCKET}.s3.${region}.amazonaws.com`
   const base = endpoint ? endpoint.replace(/\/$/, '') : `https://${host}`
 
-  async function request(path, params = {}, extraHeaders = {}) {
+  // Every request has a deadline covering headers and body: a stalled socket
+  // (sleep, Wi-Fi change, dead proxy) fails as a network error instead of hanging.
+  async function request(path, params = {}, extraHeaders = {}, ms = timeoutMs) {
     const query = Object.keys(params)
       .sort()
       .map((k) => `${enc(k)}=${enc(params[k])}`)
@@ -70,9 +72,9 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
     headers.authorization = `AWS4-HMAC-SHA256 Credential=${accessKeyId}/${scope}, SignedHeaders=${names.join(';')}, Signature=${signature}`
     let res
     try {
-      res = await fetchImpl(`${base}${path}${query ? `?${query}` : ''}`, { headers: { ...headers, ...extraHeaders } })
+      res = await fetchImpl(`${base}${path}${query ? `?${query}` : ''}`, { headers: { ...headers, ...extraHeaders }, signal: AbortSignal.timeout(ms) })
     } catch (err) {
-      throw new TerraError(`S3 is not reachable (${err.cause?.code || err.message})`)
+      throw new TerraError(`S3 is not reachable (${err.cause?.code || err.name || err.message})`)
     }
     if (!res.ok) {
       const text = await res.text()
@@ -93,7 +95,7 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
   async function listPage(day, token) {
     const params = { 'list-type': '2', prefix: `${TERRA_PREFIX}${checkDay(day)}/`, 'max-keys': '1000' }
     if (token) params['continuation-token'] = token
-    const xml = await (await request('/', params)).text()
+    const xml = await bodyOf(request('/', params, {}, timeoutMs * 2), (r) => r.text())
     const items = []
     for (const m of xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)) {
       const key = (m[1].match(/<Key>([^<]+)<\/Key>/) || [])[1]
@@ -110,7 +112,7 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
     const res = await request(`/${key.split('/').map(enc).join('/')}`)
     const len = Number(res.headers.get('content-length') || 0)
     if (len > MAX_GET_BYTES) throw new TerraError(`payload is ${len} bytes; over the ${MAX_GET_BYTES}-byte limit`)
-    const buf = Buffer.from(await res.arrayBuffer())
+    const buf = Buffer.from(await bodyOf(res, (r) => r.arrayBuffer()))
     if (buf.length > MAX_GET_BYTES) throw new TerraError(`payload is over the ${MAX_GET_BYTES}-byte limit`)
     return buf
   }
@@ -121,7 +123,17 @@ export function terraClient({ region = 'us-west-1', accessKeyId, secretAccessKey
     checkKey(key)
     const res = await request(`/${key.split('/').map(enc).join('/')}`, {}, { range: `bytes=0-${bytes - 1}` })
     const total = Number(((res.headers.get('content-range') || '').split('/')[1]) || res.headers.get('content-length') || 0)
-    return { buf: Buffer.from(await res.arrayBuffer()), total }
+    return { buf: Buffer.from(await bodyOf(res, (r) => r.arrayBuffer())), total }
+  }
+
+  // A body read cut by the deadline or a dropped socket is a network error too.
+  async function bodyOf(res, read) {
+    try {
+      return await read(await res)
+    } catch (err) {
+      if (err instanceof TerraError) throw err
+      throw new TerraError(`S3 is not reachable (${err.cause?.code || err.name || err.message})`)
+    }
   }
 
   return { listPage, get, head }

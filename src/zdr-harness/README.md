@@ -815,25 +815,52 @@ full read as fallbacks.
   dropped and it is never listed again.
 - Concurrency starts at 32, grows by 8 after 200 straight successes up to 128,
   and halves on SlowDown, 5xx, 429 or connection errors. Each request retries
-  3 times with jittered backoff; a key that still fails is retried on the next
-  runs and counted as failed after 5.
+  3 times with jittered backoff. A key that fails for any other reason gets one
+  try per run and is counted failed after 5 runs.
 - A run stops cleanly at its time budget, under 15 GB free disk, or on
   SIGTERM, and the next run resumes where it stopped. One run at a time (PID
   lock in the archive directory).
 - AccessDenied stops the run at once with the IAM pointer.
 
+**What it survives (2026-10-14).** Every commit is a SQLite transaction, so a
+run can die at any point and lose at most the batch in flight.
+- *Network outage:* every request has a 30 s deadline (60 s for a list page),
+  headers and body included, so a stalled socket fails instead of hanging. A
+  payload still failing on the network after its retries is deferred, left
+  pending with no attempt counted. When nothing gets through, the run pauses
+  and probes S3 (15 s, 30 s … 5 min), resumes when it answers and resets
+  concurrency, and ends as "network down" after 20 minutes without an answer.
+  A key that keeps failing while others succeed counts as failed after 3
+  deferrals, so one bad object cannot loop.
+- *Crash, kill, sleep, reboot:* the lock records the boot session and its
+  process, so a lock left by a dead process or a previous boot is ignored. A
+  run left "running" is marked crashed by the next run or tick. A watchdog
+  ends a run that makes no progress for 10 minutes; the next tick resumes it.
+- *Repeated trouble:* troubled runs (failed, crashed, network down, watchdog)
+  back off 15 min, 30, 60 … up to 4 h, and 6 h after AccessDenied, which
+  needs a human.
+
 **Running it.**
-- The LaunchAgent `com.taylor.zdr-harness-terra-archive` runs it at 04:15 and
-  16:15 with a 120-minute budget (`src/launchd/`).
-- `zdr-harness terra-archive status | runs | log [run_id] | start | stop | run [--max-minutes N --overlap-days N --days d1,d2] | export`.
+- The LaunchAgent `com.taylor.zdr-harness-terra-archive` runs
+  `terra-archive tick` every 30 minutes and at login, under `caffeinate -i`
+  (`src/launchd/`). The tick decides from the archive itself (`decideTick` in
+  `terra-archive.mjs`): it runs when days are unsealed (catching up), when the
+  last complete pass is over 6 h old (refresh), or when a backoff has expired,
+  each with a 120-minute budget. Otherwise it exits in well under a second
+  with no network call, so a current archive costs nothing.
+- `zdr-harness terra-archive status | runs | log [run_id] | tick | start | stop | run [--max-minutes N --overlap-days N --days d1,d2] | export`.
+  `status` leads with a `health` line: current, due, running, backing off
+  (with the next try), paused at the disk floor, or "scheduler silent" when no
+  tick has run for 2 h.
 - Harness tools: `terra_archive_status`, `terra_archive_start`,
   `terra_archive_scopes_export` (writes a `ts_` export).
 
 **Watching it.** Every run writes `~/.zdr-harness/logs/terra-archive/<run_id>.jsonl`:
 start, each day listed, progress per 2,000 objects (rate, retries, throttles,
 concurrency), concurrency changes, sealed days, and an end line with the
-summary and stop reason. Logs hold counts, days and error codes only, never
-ids. `terra-archive runs` gives one line per run, which is the place to spot
+summary and stop reason, plus outage, watchdog and reconcile events. The last
+tick's decision is in `tick.json` beside them. Logs hold counts, days and error
+codes only, never ids, and are kept 30 days. `terra-archive runs` gives one line per run, which is the place to spot
 a needed change (repeated throttling, a budget that never finishes, failures).
 
 ## Exports
