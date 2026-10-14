@@ -371,6 +371,12 @@ Docker stats help distinguish retained memory from active work.
 Identity probes prioritize hot/growing workers and their immediate parents
 within the existing 20-probe budget. Status exposes `identity_policy`,
 `identity_lookups` and the startup `source_sha256` for live-load verification.
+Policy `early-task-v1` reserves up to eight of those probes for newborn Node
+lifetimes, then fills the remaining priority/ancestor slots. Task identity
+recognizes extensionless tools such as `tsc` and `eslint`, plus allowlisted
+Yarn/npm/pnpm task identifiers and boolean flags. Inline code, unknown task
+names, forwarded arguments, workspace names and paths are excluded. Captured
+parents retain task identity so short workers can be traced through Yarn.
 Diagnostic policy `late-stack-v1` keeps stack eligibility open throughout the
 window after the one-time Docker snapshot. Jobs run serially, with at most two
 stack attempts across all jobs and no retry of the same PID/start lifetime.
@@ -378,6 +384,16 @@ Late stacks append to `diagnostics.json`, preserving the earlier Docker result
 and failed attempts. Each stack and Docker snapshot has its own timestamp.
 Timeouts and PID changes consume the budget; the worker revalidates lifetimes
 immediately before sampling. Status and capture reports expose the policy.
+After the one Docker snapshot, `early-task-guest-v1` requests read-only
+`docker top` rankings from at most two busy/large containers. Each request has
+a two-second/256 KiB cap, considers at most 2,048 rows and saves at most 24
+CPU/RSS workers and parents. No `docker exec`, guest file reads or workload
+processes are introduced. Arguments are parsed transiently into the same safe
+task schema and discarded. CPU is a lifetime average and RSS is a snapshot;
+these do not measure guest swap ownership or host physical disk traffic.
+Timeouts, truncation and partial coverage stay explicit; no retries occur.
+Status records `task_capture_policy`, `task_capture_sha256` and identity
+coverage so the helper loaded by the observer can be verified independently.
 
 Install with `agent-resource-monitor install-focus`; inspect with
 `agent-resource-monitor focus-status`. Installation leaves loaded recorders

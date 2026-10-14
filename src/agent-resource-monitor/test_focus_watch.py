@@ -18,6 +18,63 @@ def proc(pid=1,start=10,**kw):
                 owner_evidence=None,script_names=[],**kw)
 
 class Focus(unittest.TestCase):
+    def test_docker_diagnostic_integrates_guest_rankings_once_and_bounds_calls(self):
+        stats='\n'.join(json.dumps(dict(ID=f'{i:012x}',CPUPerc=f'{i}%',MemUsage=f'{i}GiB / 12GiB')) for i in range(1,4))
+        def run(args,**kw):
+            if args[1]=='stats':output=stats
+            else:
+                self.assertEqual(args[1],'top')
+                self.assertEqual(kw,dict(timeout=2,limit=256*1024))
+                output='PID PPID RSS %CPU ELAPSED COMMAND\n7 0 1024 50.0 3 node /private/yarn.js run test:gateway --token SECRET\n'
+            return dict(status='ok',returncode=0,output=output,duration_ms=1,truncated=False)
+        with tempfile.TemporaryDirectory() as d, patch.object(f.Path,'exists',return_value=True), \
+             patch.object(f.watcher,'run',side_effect=run) as runner:
+            f.diagnostics(Path(d),[],include_docker=True)
+            result=json.loads((Path(d)/'diagnostics.json').read_text())
+            self.assertEqual(runner.call_count,3)
+            self.assertEqual(len(result['guest_processes']['containers']),2)
+            self.assertEqual(result['guest_processes']['containers'][0]['processes'][0]['task_identity']['task'],'test:gateway')
+            self.assertNotIn('SECRET',json.dumps(result))
+            self.assertNotIn('/private/',json.dumps(result))
+
+    def test_early_node_identity_uses_existing_budget_and_survives_report(self):
+        class Census:
+            def proc_pidpath(self,pid,buf,size):
+                buf.value=b'/fixture/node' if pid==33 else b'/fixture/python3'
+                return len(buf.value)
+            def proc_pid_rusage(self,pid,version,ptr):
+                u=ptr._obj;u.start=pid;u.user=0
+                u.footprint=1024**2 if pid==33 else 2*1024**3
+                return 0
+        m=object.__new__(f.FastMac);m.proc=Census();m.cache={};m.timebase=1.
+        m.last=dict(monotonic=time.monotonic()-5,processes=[proc(i,start=i,cpu_ns=0,footprint_bytes=0) for i in range(1,33)])
+        m.host_cpu=lambda:dict(status='ok',idle_pct=90)
+        calls=[]
+        def args(pid):
+            calls.append(pid)
+            return ['node','/private/node_modules/.bin/tsc','--noEmit','SECRET'],{}
+        m.procargs=args
+        with patch.object(f.watcher,'run',return_value=dict(status='ok',output='\n'.join(f'{i} 0 1024' for i in range(1,34)))):
+            row=m.sample()
+        self.assertIn(33,calls);self.assertEqual(len(calls),20)
+        worker=next(x for x in row['processes'] if x['pid']==33)
+        self.assertEqual(worker['task_identity'],dict(tool='tsc',flags=['--noEmit']))
+        with tempfile.TemporaryDirectory() as d:
+            e=f.Evidence(Path(d),'fixture',[])
+            selected=f.select(row,dict(processes=[proc(i,start=i) for i in range(1,33)]))
+            selected['pressure']=dict(paging_mib_s=0)
+            e.append(selected)
+            early=json.loads((e.path/'samples.jsonl').read_text().splitlines()[0])
+            self.assertEqual(next(p for p in early['processes'] if p['pid']==33)['task_identity']['tool'],'tsc')
+            # Once the newborn becomes hot, the same early identity reaches
+            # the ranked report as well as its already-persisted birth row.
+            worker['cpu_percent']=200
+            e.append(selected);report=e.report('captured')
+            self.assertNotIn('SECRET',json.dumps(report))
+            saved=[p for rank in report['rankings'].values() for p in rank if p['pid']==33]
+            self.assertTrue(saved)
+            self.assertEqual(saved[0]['task_identity']['tool'],'tsc')
+
     def test_late_worker_after_docker_snapshot_serial_jobs_and_attempt_budget(self):
         jobs = []
         clock = [0.]
@@ -84,7 +141,8 @@ class Focus(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path=Path(d)
             previous=dict(timestamp='original',stacks=[dict(pid=6,status='timeout')],
-                          docker=dict(timestamp='docker-time',status='ok',containers=[]))
+                          docker=dict(timestamp='docker-time',status='ok',containers=[]),
+                          guest_processes=dict(status='ok',containers=[]))
             f.watcher.write_json(path/'diagnostics.json',previous)
             class Lib:
                 def proc_pid_rusage(self,pid,version,ptr):
@@ -97,6 +155,7 @@ class Focus(unittest.TestCase):
                 result=json.loads((path/'diagnostics.json').read_text())
                 self.assertEqual(result['timestamp'],'original')
                 self.assertEqual(result['docker'],previous['docker'])
+                self.assertEqual(result['guest_processes'],previous['guest_processes'])
                 self.assertEqual([x['pid'] for x in result['stacks']],[6,7])
                 self.assertEqual(result['stacks'][1]['status'],'captured')
                 self.assertEqual(run.call_count,1)
@@ -292,7 +351,13 @@ class Focus(unittest.TestCase):
     def test_live_tagged_short_worker_cpu_io_and_provenance(self):
         with tempfile.TemporaryDirectory() as d:
             env=dict(os.environ,AGENT_RESOURCE_THREAD_ID='00000000-0000-4000-8000-000000000001')
-            child=subprocess.Popen([sys.executable,'-c','import time,pathlib; p=pathlib.Path(__import__("sys").argv[1]); end=time.monotonic()+12\nwhile time.monotonic()<end: p.write_bytes(b"x"*65536)',str(Path(d)/'fixture')],env=env)
+            # Bound our fixture's writes; after measuring deltas, let only this
+            # owned worker sleep so profiling does not add a disk stress test.
+            gate=Path(d)/'sample-phase'
+            child=subprocess.Popen([sys.executable,'-c',
+                'import time,pathlib,sys; p=pathlib.Path(sys.argv[1]); gate=pathlib.Path(sys.argv[2]); end=time.monotonic()+12\n'
+                'while time.monotonic()<end and not gate.exists():\n p.write_bytes(b"x"*65536); sum(range(10000)); time.sleep(.02)\n'
+                'time.sleep(12)',str(Path(d)/'fixture'),str(gate)],env=env)
             try:
                 m=f.FastMac();a=m.sample();time.sleep(.2);b=m.sample()
                 # Identity lookups are budgeted; seed only this known test child's metadata.
@@ -302,6 +367,8 @@ class Focus(unittest.TestCase):
                 self.assertEqual(identity['owner'],env['AGENT_RESOURCE_THREAD_ID'])
                 self.assertNotIn(str(Path(d)/'fixture'),json.dumps(f.select(b,a)))
                 self.assertEqual(b['host_cpu']['status'],'ok')
+                gate.touch()
+                time.sleep(.05)
                 f.diagnostics(Path(d),[key],include_docker=False)
                 stack=json.loads((Path(d)/'diagnostics.json').read_text())['stacks'][0]
                 self.assertEqual(stack['status'],'captured',stack)

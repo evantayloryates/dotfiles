@@ -191,3 +191,51 @@ monitoring gap and resets the two-minute in-memory prelude, not incident recover
 Proof: `data/agent_resource_monitor/focus/diagnostic-timing-live-verification-20261014.json`.
 Next: inspect stack attempts and timestamps in the next natural late-work window;
 timeouts, output bounds and exact causal attribution remain unresolved.
+
+## Early task identity and guest rankings — October 14
+
+The first natural late stack targeted a Yarn descendant 51 seconds after the
+initial diagnostic job. Its footprint grew from 0.25 to 1.74 GiB; it exited
+during sampling and returned no usable frames. Later windows also show active
+Docker work and a dev guest near 8 GiB. This narrows workload families but leaves
+the exact short task and guest process distribution uncertain.
+
+`early-task-v1` reserves eight slots within the existing twenty identity probes
+for new Node lifetimes, before those workers become hot or disappear. The safe
+task schema identifies known extensionless launchers, approved task identifiers
+and a small boolean-flag allowlist. Unknown input and inline code remain unknown;
+raw argv, environment, workspace names, paths and forwarded values are excluded.
+Parent rows and ranked reports preserve the identity with PID/start provenance.
+
+`early-task-guest-v1` adds one bounded guest ranking phase after Docker stats:
+at most two containers, two seconds and 256 KiB per container, 2,048 considered
+process rows and 24 retained hot/large processes and parents. It uses Docker top,
+without Docker exec, guest filesystem reads, workload mutation or retries.
+Guest CPU is a lifetime average; RSS/elapsed time are point measurements rather
+than host PID/start identity, physical I/O, or swap ownership. Later stack jobs
+preserve these snapshots and their own timestamps. Combined with the existing
+two stack attempts, diagnostic command time is bounded to 15 seconds per window;
+full process collection remains serial and backs off independently.
+
+Regression coverage includes early low-footprint births amid larger processes,
+PID reuse, missing identity, task/path/inline privacy, process ranking/ancestry,
+timeout/truncation/row/output limits, two-container caps and diagnostic merging.
+The real stack fixture now rate-limits its own writes and sleeps after measuring
+CPU/I/O deltas, avoiding an unbounded test write loop during host pressure.
+Live helper/source hashes and scoped workload-preservation evidence are recorded
+in the private task/guest release artifact and audit. Exact natural-event task
+attribution remains to be confirmed from subsequent captures.
+
+Live load verified at 14:05:05 EDT: observer PID 50056 exited gracefully between
+completed captures and diagnostic jobs; PID 49669 reports `early-task-v1`,
+`early-task-guest-v1`, and matching observer/helper hashes across advancing
+samples. Incident/capture/cooldown state and checked app, Docker, recorder and
+BTLE watcher lifetimes were preserved. The verification sample had 944 CPU/I/O
+deltas across 1,158 processes, 20 identity probes and 701.6 ms collection at an
+adaptive 7.02-second cadence. Named host tasks were absent in that particular
+sample; unknown identities remain explicit. This is wall time, not an overhead
+benchmark. All 53 tests passed. An integrated read-only Docker smoke captured
+48 dev-guest processes and one database process, with recognized Yarn tasks
+`start:server:development` and `build:server:development` plus Webpack tooling.
+The observer handover resets the two-minute prelude and is not recovery.
+Proof: `data/agent_resource_monitor/focus/task-guest-live-verification-20261014.json`.

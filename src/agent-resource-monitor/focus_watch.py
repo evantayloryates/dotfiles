@@ -19,10 +19,11 @@ import uuid
 
 import monitor
 import watcher
+import task_capture
 
 ROOT = watcher.data_root() / 'focus'
 VERSION = 1
-IDENTITY_POLICY = 'resource-priority-v1'
+IDENTITY_POLICY = 'early-task-v1'
 DIAGNOSTIC_POLICY = 'late-stack-v1'
 INTERVAL = 5.
 DENSE_INTERVAL = 2.
@@ -111,9 +112,17 @@ class FastMac(monitor.Mac):
         ordered = sorted(eligible, key=lambda p:(-priority(p),p['pid']))
         # Reserve up to four probes for immediate ancestors of the hottest unknowns.
         by_pid = {p['pid']:p for p in eligible}
-        chosen = ordered[:16]
+        # Reserve some of the same twenty probes for new Node lifetimes before
+        # their worker argv can disappear. Remaining slots still favor hot work.
+        fresh_nodes = [p for p in ordered if p['exe']=='node' and lifetime(p) not in old]
+        chosen = fresh_nodes[:8]
         chosen_pids = {p['pid'] for p in chosen}
-        for p in ordered[:4]:
+        for p in ordered:
+            if len(chosen)>=16: break
+            if p['pid'] not in chosen_pids:
+                chosen.append(p); chosen_pids.add(p['pid'])
+        chosen_pids = {p['pid'] for p in chosen}
+        for p in chosen[:4]:
             parent = by_pid.get(p['ppid'])
             if parent and parent['pid'] not in chosen_pids and len(chosen)<20:
                 chosen.append(parent); chosen_pids.add(parent['pid'])
@@ -125,6 +134,7 @@ class FastMac(monitor.Mac):
             key=(p['pid'],p['start_ticks'],exe_by_pid[p['pid']])
             argv, env = self.procargs(p['pid'])
             self.cache[key] = monitor.identity(paths[key],argv,env)
+            self.cache[key]['task_identity'] = task_capture.identify(argv)
             p.update(self.cache[key]); identities += 1
         monitor.resolve_ancestry(rows)
         self.cache = {k:v for k,v in self.cache.items() if k in live}
@@ -135,7 +145,10 @@ class FastMac(monitor.Mac):
                       host_cpu=self.host_cpu(),
                       collection_ms=1000*(time.monotonic()-start),
                       health=raw['status'] if not raw.get('truncated') else 'truncated',
-                      identity_lookups=identities, identity_policy=IDENTITY_POLICY)
+                      identity_lookups=identities, identity_policy=IDENTITY_POLICY,
+                      task_capture_policy=task_capture.POLICY,
+                      task_identity_covered=sum(bool(p.get('task_identity')) for p in rows),
+                      task_names_covered=sum(bool((p.get('task_identity') or {}).get('task')) for p in rows))
         self.last = result
         return result
 
@@ -161,7 +174,7 @@ def select(row, previous=None):
                 break
             seen.add(parent['pid']); chosen[lifetime(parent)] = parent; p = parent
     def brief(p):
-        return {k:p.get(k) for k in ('pid','ppid','start_ticks','exe','role','owner','owner_evidence','script_names')}
+        return {k:p.get(k) for k in ('pid','ppid','start_ticks','exe','role','owner','owner_evidence','script_names','task_identity')}
     return {k:v for k,v in row.items() if k!='processes'} | dict(
         process_count=len(rows), processes=list(chosen.values())[:120],
         births=[brief(p) for p in born[:40]], birth_count=len(born),
@@ -236,7 +249,7 @@ def stack_frames(output):
 
 def diagnostics(path, targets, include_docker=True):
     result = dict(timestamp=monitor.now(), stacks=[], limitation=LIMITS,
-                  diagnostic_policy=DIAGNOSTIC_POLICY)
+                  diagnostic_policy=DIAGNOSTIC_POLICY, task_capture_policy=task_capture.POLICY)
     for p in targets[:2]:
         attempted_at = monitor.now()
         current = monitor.Usage()
@@ -262,6 +275,11 @@ def diagnostics(path, targets, include_docker=True):
                     ('ID','Name','CPUPerc','MemUsage','MemPerc','BlockIO','PIDs')} for l in r.get('output','').splitlines()][:30]
             except ValueError:
                 result['docker']['status'] = 'invalid'
+        if result['docker']['status']=='ok':
+            result['guest_processes'] = task_capture.guest_rankings(
+                docker,result['docker'].get('containers',[]),watcher.run,monitor.now)
+        else:
+            result['guest_processes'] = dict(status='not_run_stats_unavailable',policy=task_capture.POLICY)
     # Evidence runs diagnostic jobs serially. A later stack job must retain the
     # earlier Docker snapshot and all prior attempts, including failures.
     try:
@@ -272,8 +290,9 @@ def diagnostics(path, targets, include_docker=True):
         result['updated_at'] = result['timestamp']
         result['timestamp'] = previous['timestamp']
         result['stacks'] = previous.get('stacks', []) + result['stacks']
-        if 'docker' not in result and 'docker' in previous:
-            result['docker'] = previous['docker']
+        for key in ('docker','guest_processes'):
+            if key not in result and key in previous:
+                result[key] = previous[key]
     watcher.write_json(path/'diagnostics.json', result)
 
 
@@ -293,7 +312,7 @@ class Evidence:
         self.bytes = 0
         watcher.write_json(self.path/'metadata.json', dict(version=VERSION, incident=incident,
                            started_at=monitor.now(), interval_seconds=DENSE_INTERVAL, prelude_seconds=120,
-                           diagnostic_policy=DIAGNOSTIC_POLICY, limits=LIMITS))
+                           diagnostic_policy=DIAGNOSTIC_POLICY, task_capture_policy=task_capture.POLICY, limits=LIMITS))
         for row in prelude:
             self.append(row, prelude=True)
 
@@ -308,7 +327,9 @@ class Evidence:
         for p in row['processes']:
             key = lifetime(p)
             peak = self.peaks.setdefault(key, {k:p.get(k) for k in
-                    ('pid','ppid','start_ticks','exe','role','owner','owner_evidence','script_names')})
+                    ('pid','ppid','start_ticks','exe','role','owner','owner_evidence','script_names','task_identity')})
+            if p.get('task_identity'):
+                peak['task_identity'] = p['task_identity']
             if p.get('owner'):
                 peak.update(owner=p['owner'], owner_evidence=p['owner_evidence'])
             for metric in ('cpu_percent','read_mib_s','write_mib_s','pageins_s','footprint_bytes','rss_bytes','footprint_delta_bytes'):
@@ -359,6 +380,7 @@ class Evidence:
                                     for k in ('paging_mib_s','swap_out_mib_s','compressor_mib_s')},
                      diagnostics='diagnostics.json' if (self.path/'diagnostics.json').exists() else 'not yet captured',
                      diagnostic_policy=DIAGNOSTIC_POLICY, stack_attempts_reserved=len(self.stack_attempted),
+                     task_capture_policy=task_capture.POLICY,
                      docker_requested=self.docker_requested,
                      limits=LIMITS,
                      totals_note='Observed totals cover retained selected intervals only; not whole-lifetime totals. Prelude excluded from totals.',
@@ -390,6 +412,7 @@ def watch(args):
             if d.get('state')=='capturing':
                 d.update(state='observer_interrupted', updated_at=monitor.now());watcher.write_json(capture,d)
         source_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        task_capture_sha256 = hashlib.sha256(Path(task_capture.__file__).read_bytes()).hexdigest()
         machine = FastMac(); prelude = deque(maxlen=60); previous = None; prev_pressure = None
         stopped = threading.Event()
         signal.signal(signal.SIGTERM,lambda *_:stopped.set());signal.signal(signal.SIGINT,lambda *_:stopped.set())
@@ -438,6 +461,8 @@ def watch(args):
                 cpu_delta_covered=raw['cpu_delta_covered'],io_delta_covered=raw['io_delta_covered'],
                 identity_policy=IDENTITY_POLICY,identity_lookups=raw.get('identity_lookups'),source_sha256=source_sha256,
                 diagnostic_policy=DIAGNOSTIC_POLICY,
+                task_capture_policy=task_capture.POLICY,task_capture_sha256=task_capture_sha256,
+                task_identity_covered=raw.get('task_identity_covered'),task_names_covered=raw.get('task_names_covered'),
                 host_cpu=raw['host_cpu'],collection_ms=raw['collection_ms'],next_interval_seconds=interval,bytes_retained=storage,
                 policy=dict(baseline_seconds=INTERVAL,dense_seconds=DENSE_INTERVAL,window_seconds=WINDOW,
                             cooldown_seconds=COOLDOWN,budget_bytes=BUDGET,stacks_per_window=2),limits=LIMITS))
