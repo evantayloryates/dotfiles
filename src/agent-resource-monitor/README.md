@@ -395,6 +395,24 @@ Timeouts, truncation and partial coverage stay explicit; no retries occur.
 Status records `task_capture_policy`, `task_capture_sha256` and identity
 coverage so the helper loaded by the observer can be verified independently.
 
+Policy `independent-pressure-v1` evaluates fresh shared pressure and its own
+cheap host CPU counters every two seconds. One census worker runs independently
+at the existing five/two-second target and completion-based ten-times-duration
+backoff. A blocked scan cannot block pressure decisions, window deadlines or
+heartbeats, and a second scan is never launched while it is in flight.
+The VM fallback also has only one asynchronous worker; stale readings remain
+unavailable. Capture entry no longer requires a successful process census.
+
+Pressure-only rows have `census_sample_available=false`, empty process lists,
+and null process/counter/collection measurements. Completed census intervals
+are appended once; repeated pressure ticks cannot duplicate CPU/I/O totals or
+manufacture recovery. Reviewers must distinguish `pressure_health` from
+`census_health`, census age/backoff and control-loop freshness, and filter null
+collection values when summarizing scan overhead. Reports count census and
+pressure-only samples separately. The same 90-second window, 15-minute cooldown,
+storage reserve/budgets and diagnostic limits apply. Graceful observer shutdown
+drains owned workers before exit; never start a replacement while they remain.
+
 Install with `agent-resource-monitor install-focus`; inspect with
 `agent-resource-monitor focus-status`. Installation leaves loaded recorders
 and workloads running. Data is private under `data/agent_resource_monitor/focus`.

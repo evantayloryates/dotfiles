@@ -239,3 +239,54 @@ benchmark. All 53 tests passed. An integrated read-only Docker smoke captured
 `start:server:development` and `build:server:development` plus Webpack tooling.
 The observer handover resets the two-minute prelude and is not recovery.
 Proof: `data/agent_resource_monitor/focus/task-guest-live-verification-20261014.json`.
+
+## Independent pressure loop — October 14
+
+After that release, a process census timed out with 14.1 seconds collection
+and 141 seconds backoff during an observed 887 MiB/s paging burst. Offline replay
+confirmed that gaps above 30 seconds repeatedly reset onset counters. The gate
+was also waiting for a successful census before creating a window. This is a
+capture blind spot; it does not identify the workload causing the pressure.
+
+`independent-pressure-v1` evaluates fresh pressure every two seconds with a
+separate cheap host CPU counter history. Full censuses run in one worker with
+the original five/two-second targets and completion-based ten-times-duration
+backoff. There are no replacement workers while a scan is blocked. Fresh BTLE
+pressure is reused; when unavailable, a separate single-flight VM fallback
+cannot block the control loop and its stale output is rejected.
+
+The unchanged two-distinct-reading gate can open a bounded window without a
+successful census. Pressure-only rows explicitly mark missing process data;
+completed census intervals are retained once, never replayed into totals.
+Missing census rows do not reset valid hot-lifetime streaks; actual census gaps
+over 30 seconds reset stack eligibility. Missing/stale pressure or actual
+control-loop gaps still block recovery. CPU-only decisions use the independent
+host counter history, not old census CPU. No 90-second window, 15-minute cooldown,
+storage cap/reserve, identity budget or diagnostic limit is weakened.
+
+Status exposes pressure versus census health, in-flight state, sample time/age,
+backoff/next due and control-loop wall time. A fresh pressure heartbeat is not
+proof of process attribution. Review pressure-only and census sample counts
+separately; filter null collection/counter values. Census intervals can straddle
+capture boundaries. On shutdown, owned census/fallback workers drain before
+exit, retaining the singleton across handover rather than abandoning scans.
+
+Tests include a real blocked worker with no duplicate launches and 140-second
+reported backoff, a real threaded watch that completes a pressure-only window
+while the worker is blocked, and deterministic timeout/backoff/cooldown/storage/
+recovery tests. Separate coverage checks stale VM fallback, host CPU/recovery
+gates, missing identities, serial diagnostics and counter de-duplication.
+
+Live load verified at 14:31:00 EDT: PID 49669 exited gracefully between captures,
+and PID 18333 reports `independent-pressure-v1` with matching observer/helper
+hashes and advancing two-second pressure heartbeats. Incident/capture/cooldown
+state and checked app, Docker, recorder and BTLE watcher lifetimes were preserved.
+The control-loop wall measurement was 0.92 ms in the verification sample, while
+the separate first census took 170.3 ms across 1,144 processes. First-census
+deltas were warming; subsequent census counters are verified separately. These
+are observed wall times, not a controlled overhead benchmark. All 58 tests pass.
+The handover resets the two-minute prelude and is not recovery. Process-level
+coverage can still be missing during OS stalls; pressure-only windows now retain
+the event and diagnostic status under those conditions rather than silently
+waiting for census success.
+Proof: `data/agent_resource_monitor/focus/pressure-loop-live-verification-20261014.json`.

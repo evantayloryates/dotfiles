@@ -25,6 +25,8 @@ ROOT = watcher.data_root() / 'focus'
 VERSION = 1
 IDENTITY_POLICY = 'early-task-v1'
 DIAGNOSTIC_POLICY = 'late-stack-v1'
+PRESSURE_POLICY = 'independent-pressure-v1'
+PRESSURE_INTERVAL = 2.
 INTERVAL = 5.
 DENSE_INTERVAL = 2.
 WINDOW = 90.
@@ -151,6 +153,95 @@ class FastMac(monitor.Mac):
                       task_names_covered=sum(bool((p.get('task_identity') or {}).get('task')) for p in rows))
         self.last = result
         return result
+
+
+class HostCPU:
+    """A separate cheap host counter history, never shared with census worker."""
+    def __init__(self):
+        self.lib = ctypes.CDLL('/usr/lib/libSystem.B.dylib', use_errno=True)
+        self.host_previous = None
+
+    sample = FastMac.host_cpu
+
+
+class SingleFlight:
+    """One worker, no replacement/retry while blocked; completion-based backoff."""
+    def __init__(self, collect):
+        self.collect = collect
+        self.thread = None
+        self.result = None
+        self.started = None
+        self.completed = None
+        self.duration = 0.
+        self.next_due = 0.
+        self.launches = 0
+
+    def _run(self):
+        try:
+            self.result = self.collect()
+        except Exception:
+            self.result = dict(health='scan_error', processes=[])
+        finally:
+            self.completed = time.monotonic()
+            self.duration = max(0,self.completed-self.started,(self.result.get('collection_ms') or 0)/1000)
+            self.result.setdefault('collection_ms',self.duration*1000)
+            self.result.setdefault('timestamp',monitor.now())
+
+    def poll(self, tick, interval, launch=True):
+        result = None
+        if self.thread is not None and not self.thread.is_alive():
+            result = self.result
+            self.result = None
+            self.thread = None
+        if self.completed is not None:
+            self.next_due = self.completed+max(interval,self.duration*10)
+        if launch and self.thread is None and tick>=self.next_due:
+            self.started = tick
+            self.thread = threading.Thread(target=self._run,daemon=False)
+            self.launches += 1
+            self.thread.start()
+        return result
+
+    def in_flight(self):
+        return self.thread is not None and self.thread.is_alive()
+
+    def drain(self):
+        # Only our own worker is joined. Never abandon it and start a second
+        # census during observer handover, even when an OS call overruns.
+        if self.thread is not None:
+            self.thread.join()
+
+
+class PressureReader:
+    def __init__(self, root):
+        self.root = root
+        self.previous = None
+        self.latest_local = None
+        def fallback():
+            row = watcher.light_sample(self.previous)
+            self.previous = row
+            return row
+        self.fallback = SingleFlight(fallback)
+
+    def poll(self, tick):
+        shared = None
+        try:
+            raw = json.loads((self.root.parent/'btle/status.json').read_text())['pressure']
+            if raw.get('available') and 0<=time.time()-monitor.epoch(raw['timestamp'])<15:
+                shared = dict(raw,source='btle-shared')
+        except (OSError,ValueError,KeyError):
+            pass
+        local = self.fallback.poll(tick,INTERVAL,launch=shared is None)
+        if local is not None:
+            self.latest_local = local if local.get('available') else None
+        if shared is not None:
+            return shared
+        if self.latest_local and 0<=time.time()-monitor.epoch(self.latest_local['timestamp'])<15:
+            return dict(self.latest_local,source='local-fallback')
+        return dict(timestamp=monitor.now(),available=False,source='unavailable')
+
+    def drain(self):
+        self.fallback.drain()
 
 
 def select(row, previous=None):
@@ -312,7 +403,8 @@ class Evidence:
         self.bytes = 0
         watcher.write_json(self.path/'metadata.json', dict(version=VERSION, incident=incident,
                            started_at=monitor.now(), interval_seconds=DENSE_INTERVAL, prelude_seconds=120,
-                           diagnostic_policy=DIAGNOSTIC_POLICY, task_capture_policy=task_capture.POLICY, limits=LIMITS))
+                           diagnostic_policy=DIAGNOSTIC_POLICY, task_capture_policy=task_capture.POLICY,
+                           pressure_policy=PRESSURE_POLICY, limits=LIMITS))
         for row in prelude:
             self.append(row, prelude=True)
 
@@ -341,9 +433,12 @@ class Evidence:
                         ('pageins_s',1,'observed_pageins')]:
                     if p.get(metric) is not None:
                         peak[result] = peak.get(result,0)+p[metric]*scale*row.get('interval_seconds',0)
-        current_hot = {lifetime(p) for p in row['processes'] if (p.get('cpu_percent') or 0)>=40}
-        self.hot = {key:self.hot.get(key,0)+1 if key in self.previous_hot else 1 for key in current_hot}
-        self.previous_hot = current_hot
+        if row.get('census_sample_available',True):
+            if row.get('interval_seconds',0)>30:
+                self.hot = {}; self.previous_hot = set()
+            current_hot = {lifetime(p) for p in row['processes'] if (p.get('cpu_percent') or 0)>=40}
+            self.hot = {key:self.hot.get(key,0)+1 if key in self.previous_hot else 1 for key in current_hot}
+            self.previous_hot = current_hot
         if not prelude:
             self.schedule_diagnostics(row)
         return True
@@ -381,9 +476,12 @@ class Evidence:
                      diagnostics='diagnostics.json' if (self.path/'diagnostics.json').exists() else 'not yet captured',
                      diagnostic_policy=DIAGNOSTIC_POLICY, stack_attempts_reserved=len(self.stack_attempted),
                      task_capture_policy=task_capture.POLICY,
+                     pressure_policy=PRESSURE_POLICY,
+                     census_samples=sum(r.get('census_sample_available',True) for r in self.rows),
+                     pressure_only_samples=sum(not r.get('census_sample_available',True) for r in self.rows),
                      docker_requested=self.docker_requested,
                      limits=LIMITS,
-                     totals_note='Observed totals cover retained selected intervals only; not whole-lifetime totals. Prelude excluded from totals.',
+                     totals_note='Totals count completed selected census intervals once; pressure-only rows have no counters. Census intervals can straddle window boundaries. Prelude excluded; not whole-lifetime totals.',
                      next_tests=['Compare birth/exit chronology with the pressure slope and per-lifetime deltas.',
                                  'Inspect captured symbols before blaming an app; owner IDs are launch provenance.',
                                  'Compare subsequent windows and recovery; propose one reversible workload change only after identifying its owner.'])
@@ -413,29 +511,50 @@ def watch(args):
                 d.update(state='observer_interrupted', updated_at=monitor.now());watcher.write_json(capture,d)
         source_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         task_capture_sha256 = hashlib.sha256(Path(task_capture.__file__).read_bytes()).hexdigest()
-        machine = FastMac(); prelude = deque(maxlen=60); previous = None; prev_pressure = None
+        machine = FastMac(); census = SingleFlight(machine.sample); host_reader = HostCPU()
+        pressure_reader = PressureReader(root)
+        prelude = deque(maxlen=60); previous = None; latest_census = None; latest_census_tick = None
         stopped = threading.Event()
         signal.signal(signal.SIGTERM,lambda *_:stopped.set());signal.signal(signal.SIGINT,lambda *_:stopped.set())
         start = time.monotonic(); capture = None; gate = Gate()
         last_capture_wall = state.get('last_capture_epoch', 0)
         storage = sum(f.stat().st_size for f in (root/'captures').glob('*/*') if f.is_file()); next_storage = 0
         while not stopped.is_set() and (not args.seconds or time.monotonic()-start<args.seconds):
-            tick = time.monotonic(); p,prev_pressure = pressure(root,prev_pressure)
-            raw = machine.sample()
-            decision = gate.evaluate(p,tick,raw['host_cpu'])
+            tick = time.monotonic(); control_started = tick
+            p = pressure_reader.poll(tick)
+            host = host_reader.sample()
+            raw = census.poll(tick,DENSE_INTERVAL if capture else INTERVAL)
+            if raw is not None:
+                raw['process_count'] = len(raw.get('processes',[]))
+                latest_census = raw; latest_census_tick = tick
+            decision = gate.evaluate(p,tick,host)
             if decision['recovered'] and state['active']:
                 item = next(x for x in state['incidents'] if x['id']==state['active'])
                 item['recovered_at'] = monitor.now();state['active'] = None;watcher.write_json(state_path,state)
             if tick>=next_storage:
                 storage = sum(f.stat().st_size for f in (root/'captures').glob('*/*') if f.is_file());next_storage=tick+60
             degraded = 'storage_budget' if storage>=BUDGET or shutil.disk_usage(root).free<5*1024**3 else None
-            row = select(raw,previous);previous=raw
+            available = raw is not None and raw.get('health')=='ok'
+            if available:
+                row = select(raw,previous); previous=raw
+                row['process_sample_timestamp'] = raw['timestamp']
+                row['process_sample_monotonic'] = raw['monotonic']
+            else:
+                row = dict(timestamp=monitor.now(),interval_seconds=PRESSURE_INTERVAL,processes=[],
+                           process_count=None,cpu_delta_covered=None,io_delta_covered=None,
+                           collection_ms=None,
+                           births=[],exits=[],birth_count=0,exit_count=0,process_sample_timestamp=None,
+                           identity_lookups=0,identity_policy=IDENTITY_POLICY,task_capture_policy=task_capture.POLICY)
+            row.update(monotonic=tick,host_cpu=host,census_sample_available=available,
+                       census_health=(latest_census or {}).get('health','pending'),
+                       census_in_flight=census.in_flight(),pressure_policy=PRESSURE_POLICY)
             row['pressure'] = {k:v for k,v in p.items() if k!='vm'};row['sampling_gap'] = decision['gap']
             row['trigger_reasons'] = decision['reasons']
             prelude.append(row)
-            # Slow collection reduces duty cycle; it never runs concurrent full scans.
-            interval = max(DENSE_INTERVAL if capture else INTERVAL, raw['collection_ms']/1000*10)
-            if degraded is None and raw['health']=='ok' and decision['start'] and capture is None and time.time()-last_capture_wall>=COOLDOWN:
+            # Pressure decisions and bounded windows do not wait for a census.
+            # Missing process rows stay missing; completed deltas are appended once.
+            interval = PRESSURE_INTERVAL
+            if degraded is None and decision['start'] and capture is None and time.time()-last_capture_wall>=COOLDOWN:
                 if not state['active']:
                     state['active'] = 'pressure-'+str(uuid.uuid4())
                     state['incidents'].append(dict(id=state['active'],started_at=monitor.now(),captures=[]))
@@ -452,23 +571,39 @@ def watch(args):
                     watcher.write_json(state_path,state)
                 else:
                     capture.report('capturing')
+            latest = latest_census or {}
+            census_age = tick-latest_census_tick if latest_census_tick is not None else None
+            census_health = latest.get('health','pending')
+            stalled = census.in_flight() and tick-census.started>30
+            health = degraded or state.get('capture_failure') or ('pressure_unavailable' if not p.get('available') else
+                        'census_stalled' if stalled else 'census_'+census_health if census_health!='ok' else
+                        'census_backoff' if census_age is not None and census_age>30 else 'ok')
             watcher.write_json(root/'status.json',dict(version=VERSION,pid=os.getpid(),timestamp=monitor.now(),
                 state='capturing' if capture else 'watching',active_incident=state['active'],
                 capture_path=str(capture.path) if capture else None,
-                health=degraded or state.get('capture_failure') or (raw['health'] if p.get('available') else 'pressure_unavailable'),
-                pressure_source=p['source'],pressure_timestamp=p['timestamp'],process_count=row['process_count'],
+                health=health,pressure_health='ok' if p.get('available') else 'unavailable',
+                pressure_policy=PRESSURE_POLICY,pressure_source=p['source'],pressure_timestamp=p['timestamp'],
+                process_count=latest.get('process_count') if census_health=='ok' else None,
                 pressure=row['pressure'],trigger_reasons=decision['reasons'],
-                cpu_delta_covered=raw['cpu_delta_covered'],io_delta_covered=raw['io_delta_covered'],
-                identity_policy=IDENTITY_POLICY,identity_lookups=raw.get('identity_lookups'),source_sha256=source_sha256,
+                cpu_delta_covered=latest.get('cpu_delta_covered') if census_health=='ok' else None,
+                io_delta_covered=latest.get('io_delta_covered') if census_health=='ok' else None,
+                identity_policy=IDENTITY_POLICY,identity_lookups=latest.get('identity_lookups'),source_sha256=source_sha256,
                 diagnostic_policy=DIAGNOSTIC_POLICY,
                 task_capture_policy=task_capture.POLICY,task_capture_sha256=task_capture_sha256,
-                task_identity_covered=raw.get('task_identity_covered'),task_names_covered=raw.get('task_names_covered'),
-                host_cpu=raw['host_cpu'],collection_ms=raw['collection_ms'],next_interval_seconds=interval,bytes_retained=storage,
+                task_identity_covered=latest.get('task_identity_covered'),task_names_covered=latest.get('task_names_covered'),
+                host_cpu=host,collection_ms=latest.get('collection_ms'),next_interval_seconds=interval,bytes_retained=storage,
+                control_collection_ms=1000*(time.monotonic()-control_started),
+                census_health=census_health,census_in_flight=census.in_flight(),
+                census_age_seconds=census_age,census_sample_timestamp=latest.get('timestamp'),
+                census_next_due_seconds=max(0,census.next_due-tick),census_backoff_seconds=census.duration*10,
                 policy=dict(baseline_seconds=INTERVAL,dense_seconds=DENSE_INTERVAL,window_seconds=WINDOW,
                             cooldown_seconds=COOLDOWN,budget_bytes=BUDGET,stacks_per_window=2),limits=LIMITS))
             stopped.wait(min(interval,max(0,args.seconds-(time.monotonic()-start))) if args.seconds else interval)
         if capture:
             capture.report('observer_stopped')
+        watcher.write_json(root/'status.json',dict(version=VERSION,pid=os.getpid(),timestamp=monitor.now(),
+                          state='draining',pressure_policy=PRESSURE_POLICY))
+        census.drain(); pressure_reader.drain()
         watcher.write_json(root/'status.json',dict(version=VERSION,pid=os.getpid(),timestamp=monitor.now(),state='stopped'))
 
 

@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import threading
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -18,6 +19,145 @@ def proc(pid=1,start=10,**kw):
                 owner_evidence=None,script_names=[],**kw)
 
 class Focus(unittest.TestCase):
+    def test_single_flight_blocked_worker_timeout_backoff_and_drain(self):
+        entered=threading.Event();release=threading.Event();calls=[]
+        def collect():
+            calls.append(1);entered.set();release.wait(3)
+            return dict(health='timeout',processes=[],collection_ms=14000)
+        job=f.SingleFlight(collect)
+        try:
+            self.assertIsNone(job.poll(time.monotonic(),5))
+            self.assertTrue(entered.wait(1))
+            for _ in range(10):job.poll(time.monotonic(),2)
+            self.assertEqual(len(calls),1)
+            self.assertTrue(job.in_flight())
+            release.set();job.drain()
+            tick=time.monotonic();result=job.poll(tick,2)
+            self.assertEqual(result['health'],'timeout')
+            self.assertGreaterEqual(job.next_due-tick,139)
+            self.assertEqual(job.launches,1)
+            self.assertIsNone(job.poll(tick+100,2))
+            self.assertEqual(job.launches,1)
+        finally:release.set();job.drain()
+
+    def test_pressure_only_rows_do_not_reset_hot_lifetimes_or_duplicate_counters(self):
+        with tempfile.TemporaryDirectory() as d,patch.object(f.threading,'Thread') as thread:
+            thread.return_value.is_alive.return_value=False
+            e=f.Evidence(Path(d),'fixture',[])
+            e.started=time.monotonic()
+            for _ in range(3):
+                e.append(dict(timestamp='fixture',processes=[proc(pid=7,cpu_percent=80)],
+                              interval_seconds=2,census_sample_available=True,pressure=dict(paging_mib_s=150)))
+                e.append(dict(timestamp='fixture',processes=[],interval_seconds=2,census_sample_available=False,
+                              pressure=dict(paging_mib_s=150)))
+            self.assertEqual(len(e.stack_attempted),1)
+            report=e.report('captured')
+            self.assertEqual(report['pressure_only_samples'],3)
+            self.assertEqual(report['census_samples'],3)
+            self.assertAlmostEqual(report['rankings']['observed_cpu_seconds'][0]['observed_cpu_seconds'],4.8)
+
+    def test_shared_pressure_remains_available_while_fallback_is_blocked(self):
+        entered=threading.Event();release=threading.Event()
+        def slow(previous):
+            entered.set();release.wait(3)
+            return dict(timestamp='2000-01-01T00:00:00Z',available=True)
+        with tempfile.TemporaryDirectory() as d,patch.object(f.watcher,'light_sample',side_effect=slow):
+            root=Path(d);(root/'btle').mkdir()
+            reader=f.PressureReader(root/'focus')
+            try:
+                self.assertFalse(reader.poll(time.monotonic())['available'])
+                self.assertTrue(entered.wait(1))
+                f.watcher.write_json(root/'btle/status.json',dict(pressure=dict(timestamp=f.monitor.now(),available=True,paging_mib_s=900)))
+                self.assertEqual(reader.poll(time.monotonic())['source'],'btle-shared')
+                self.assertEqual(reader.fallback.launches,1)
+                release.set();reader.drain()
+                (root/'btle/status.json').write_text('{}')
+                self.assertFalse(reader.poll(time.monotonic())['available'])
+            finally:release.set();reader.drain()
+
+    def test_capture_and_recovery_with_blocked_census_preserve_cooldown_and_budget(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)/'focus';clock=[0.];writes=[]
+            class Event:
+                def is_set(self):return False
+                def wait(self,seconds):clock[0]+=seconds
+            class Thread:
+                def __init__(self,**kw):pass
+                def start(self):pass
+                def is_alive(self):return False
+            class Machine:
+                def sample(self):raise AssertionError('Census must never run on pressure thread')
+            class Flight:
+                def __init__(self,collect):self.started=0;self.next_due=141;self.duration=14.1
+                def poll(self,tick,interval):return None
+                def in_flight(self):return True
+                def drain(self):pass
+            class Host:
+                def sample(self):return dict(status='ok',idle_pct=95,system_pct=2)
+            class Pressure:
+                def __init__(self,root):pass
+                def poll(self,tick):return dict(timestamp=str(tick),available=True,source='fixture',pressure_level=1,
+                                               paging_mib_s=900 if tick<110 else 0,compressor_mib_s=0)
+                def drain(self):pass
+            original=f.watcher.write_json
+            def write(path,value):
+                if path.name=='status.json':writes.append(value.copy())
+                original(path,value)
+            with patch.object(f,'FastMac',Machine),patch.object(f,'SingleFlight',Flight),patch.object(f,'HostCPU',Host),\
+                 patch.object(f,'PressureReader',Pressure),patch.object(f.threading,'Event',Event),\
+                 patch.object(f.threading,'Thread',Thread),patch.object(f.signal,'signal'),\
+                 patch.object(f.time,'monotonic',side_effect=lambda:clock[0]),\
+                 patch.object(f.time,'time',side_effect=lambda:10000+clock[0]),\
+                 patch.object(f.watcher,'write_json',side_effect=write):
+                f.watch(SimpleNamespace(root=str(root),seconds=250))
+                state=json.loads((root/'incidents.json').read_text())
+                self.assertEqual(len(state['incidents']),1)
+                self.assertIsNone(state['active'])
+                path=Path(state['incidents'][0]['captures'][0]);a=json.loads((path/'analysis.json').read_text())
+                self.assertEqual(a['state'],'captured');self.assertEqual(a['census_samples'],0)
+                self.assertGreaterEqual(a['pressure_only_samples'],40)
+                self.assertLessEqual(len((path/'samples.jsonl').read_bytes()),8*f.monitor.MIB)
+                samples=[json.loads(x) for x in (path/'samples.jsonl').read_text().splitlines()]
+                self.assertTrue(all(x['process_count'] is None for x in samples))
+                self.assertTrue(any(x.get('health')=='census_stalled' for x in writes))
+                self.assertTrue(all(x['next_interval_seconds']==2 for x in writes if 'next_interval_seconds' in x))
+                # Persistent cooldown and storage reserve still prohibit extra windows.
+                with patch.object(Pressure,'poll',side_effect=lambda tick:dict(timestamp=str(tick),available=True,source='fixture',paging_mib_s=900)):
+                    f.watch(SimpleNamespace(root=str(root),seconds=30))
+                self.assertEqual(len(list((root/'captures').iterdir())),1)
+                with patch.object(f,'BUDGET',1):f.watch(SimpleNamespace(root=str(root),seconds=10))
+                self.assertTrue(any(x.get('health')=='storage_budget' for x in writes))
+
+    def test_real_threaded_watch_records_window_while_census_is_blocked(self):
+        release=threading.Event();entered=threading.Event();calls=[]
+        class Machine:
+            def sample(self):
+                calls.append(1);entered.set();release.wait(2)
+                return dict(health='timeout',processes=[],collection_ms=14000)
+        class Host:
+            def sample(self):return dict(status='ok',idle_pct=95,system_pct=2)
+        class Pressure:
+            def __init__(self,root):pass
+            def poll(self,tick):return dict(timestamp=f.monitor.now(),available=True,source='fixture',paging_mib_s=900)
+            def drain(self):pass
+        timer=threading.Timer(.5,release.set)
+        with tempfile.TemporaryDirectory() as d,patch.object(f,'FastMac',Machine),patch.object(f,'HostCPU',Host),\
+             patch.object(f,'PressureReader',Pressure),patch.object(f.signal,'signal'),\
+             patch.object(f,'PRESSURE_INTERVAL',.02),patch.object(f,'WINDOW',.12):
+            timer.start()
+            try:
+                f.watch(SimpleNamespace(root=str(Path(d)/'focus'),seconds=.3))
+                self.assertTrue(entered.is_set());self.assertEqual(len(calls),1)
+                paths=list((Path(d)/'focus/captures').glob('*/analysis.json'))
+                self.assertEqual(len(paths),1)
+                a=json.loads(paths[0].read_text())
+                self.assertEqual(a['state'],'captured')
+                self.assertEqual(a['census_samples'],0)
+                self.assertGreater(a['pressure_only_samples'],1)
+                self.assertEqual(a['pressure_policy'],'independent-pressure-v1')
+                self.assertEqual(json.loads((Path(d)/'focus/status.json').read_text())['state'],'stopped')
+            finally:release.set();timer.join()
+
     def test_docker_diagnostic_integrates_guest_rankings_once_and_bounds_calls(self):
         stats='\n'.join(json.dumps(dict(ID=f'{i:012x}',CPUPerc=f'{i}%',MemUsage=f'{i}GiB / 12GiB')) for i in range(1,4))
         def run(args,**kw):
@@ -280,6 +420,22 @@ class Focus(unittest.TestCase):
                     return dict(timestamp=f.monitor.now(),monotonic=clock[0],processes=[proc(cpu_percent=20)],
                                 interval_seconds=2,cpu_delta_covered=1,io_delta_covered=0,
                                 host_cpu=dict(status='ok',idle_pct=90,system_pct=5),collection_ms=10,health='ok')
+            intervals=[]
+            class Flight:
+                def __init__(self,collect):self.collect=collect;self.next_due=0;self.duration=0;self.started=0
+                def poll(self,tick,interval):
+                    intervals.append(interval)
+                    if tick<self.next_due:return None
+                    self.next_due=tick+interval
+                    return self.collect()
+                def in_flight(self):return False
+                def drain(self):pass
+            class Host:
+                def sample(self):return dict(status='ok',idle_pct=90,system_pct=5)
+            class Pressure:
+                def __init__(self,root):self.root=root
+                def poll(self,tick):return f.pressure(self.root,None)[0]
+                def drain(self):pass
             def pressure(root,previous):
                 return dict(timestamp=str(clock[0]),available=True,source='fixture',pressure_level=1,
                             paging_mib_s=150 if clock[0]<100 else 0,compressor_mib_s=0),None
@@ -287,7 +443,8 @@ class Focus(unittest.TestCase):
             def write(path,value):
                 if path.name=='status.json':writes.append(value.copy())
                 original(path,value)
-            with patch.object(f,'FastMac',Machine),patch.object(f,'pressure',pressure),patch.object(f.threading,'Event',Event),\
+            with patch.object(f,'FastMac',Machine),patch.object(f,'SingleFlight',Flight),patch.object(f,'HostCPU',Host),\
+                 patch.object(f,'PressureReader',Pressure),patch.object(f,'pressure',pressure),patch.object(f.threading,'Event',Event),\
                  patch.object(f.threading,'Thread',Thread),patch.object(f.signal,'signal'),patch.object(f.time,'monotonic',side_effect=lambda:clock[0]),\
                  patch.object(f.time,'time',side_effect=lambda:10000+clock[0]),patch.object(f,'diagnostics'),\
                  patch.object(f.watcher,'write_json',side_effect=write):
@@ -299,7 +456,7 @@ class Focus(unittest.TestCase):
                 report=json.loads((Path(state['incidents'][0]['captures'][0])/'analysis.json').read_text())
                 self.assertEqual(report['state'],'captured')
                 self.assertTrue(any(x.get('next_interval_seconds')==2 for x in writes))
-                self.assertTrue(any(x.get('next_interval_seconds')==5 for x in writes))
+                self.assertIn(5,intervals);self.assertIn(2,intervals)
                 # Restart into severe pressure within persisted cooldown: no extra window.
                 with patch.object(f,'pressure',side_effect=lambda *_:(dict(timestamp=str(clock[0]),available=True,source='fixture',paging_mib_s=150),None)):
                     f.watch(SimpleNamespace(root=str(root),seconds=30))
