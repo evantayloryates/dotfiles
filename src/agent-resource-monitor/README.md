@@ -359,3 +359,21 @@ Keep explicit hypotheses, supporting/contradicting evidence and next safe test;
 compare CoreUARP hot stacks with accessory timelines, not only CPU. Firmware or
 connection timing alone never proves an accessory caused the spin. No automated
 remediation or elevated arbitrary command access is introduced.
+
+### Resource thrash attribution (Oct 13)
+
+The separate `com.taylor.resource-focus` LaunchAgent adds five-second process
+CPU/I/O/page-in/growth deltas and a two-minute in-memory prelude. Sustained
+paging, compressor churn or high host CPU starts a bounded 90-second window
+at a target two-second cadence. Collection backs off when slow. Lifetimes,
+launch ancestry, births/exits, limited stack symbols and bounded asynchronous
+Docker stats help distinguish retained memory from active work.
+
+Install with `agent-resource-monitor install-focus`; inspect with
+`agent-resource-monitor focus-status`. Installation leaves loaded recorders
+and workloads running. Data is private under `data/agent_resource_monitor/focus`.
+No automatic deletion or remediation occurs; storage exhaustion is a failure.
+The existing event relay coalesces rotations into one incident and the hourly
+evaluation reviews new evidence as a fallback. Queue acceptance is not receipt.
+See [thrash-strategy.md](thrash-strategy.md) for thresholds, the hypothesis
+ledger, measured verification and attribution/delivery limits.

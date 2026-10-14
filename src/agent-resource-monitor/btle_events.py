@@ -12,6 +12,53 @@ from btle_watch import ROOT
 BASELINE = '2026-10-11T18:37:08.934414+00:00'
 DISPATCH = pathlib.Path(__file__).with_name('btle_event_dispatch.mjs')
 
+def focus_events(root, state):
+    try:
+        return _focus_events(root,state)
+    except (OSError,ValueError,KeyError,TypeError):
+        state['focus_health']='unreadable focus evidence'
+        if 'focus:health:failure' in state.get('acknowledged',[]):return {}
+        return {'focus:health':[dict(id='focus:health:failure',kind='monitoring_failure',
+                                   source='pressure-focus',incident='focus:health',status='unreadable evidence')]}
+
+
+def _focus_events(root, state):
+    """One completed pressure capture and one recovery per incident, not per rotation."""
+    focus=root.parent/'focus'
+    if not (focus/'status.json').exists():return {}
+    groups={};ack=set(state.get('acknowledged',[]))
+    status=json.loads((focus/'status.json').read_text())
+    age=(dt.datetime.now(dt.timezone.utc)-dt.datetime.fromisoformat(status['timestamp'])).total_seconds()
+    health='healthy' if 0<=age<60 and status.get('health')=='ok' else 'stale or degraded'
+    state['focus_health']=health
+    if health!='healthy' and 'focus:health:failure' not in ack:
+        groups['focus:health']=[dict(id='focus:health:failure',kind='monitoring_failure',source='pressure-focus',
+                                    incident='focus:health',status=status.get('health',status.get('state')))]
+    if health=='healthy' and 'focus:health:failure' in ack:
+        state['acknowledged'].remove('focus:health:failure')
+    path=focus/'incidents.json'
+    if not path.exists():return groups
+    for incident in json.loads(path.read_text()).get('incidents',[]):
+        group='focus:'+incident['id'];events=[]
+        for directory in incident.get('captures',[]):
+            capture=pathlib.Path(directory)
+            if capture.parent.resolve()!=(focus/'captures').resolve():continue
+            report=capture/'analysis.json'
+            if not report.exists():continue
+            d=json.loads(report.read_text())
+            if d.get('state')!='captured':continue
+            eid=group+':capture'
+            if eid not in ack:
+                events.append(dict(id=eid,kind='pressure_capture',source='pressure-focus',incident=group,
+                    bundle=str(capture),last_sample=d.get('last_sample'),pressure_peak=d.get('pressure_peak'),
+                    limitation='Ranked counters and stack symbols are evidence for investigation, not causal attribution.'))
+            break
+        if incident.get('recovered_at') and group+':recovery' not in ack:
+            events.append(dict(id=group+':recovery',kind='recovery',source='pressure-focus',incident=group,
+                               recovered_at=incident['recovered_at']))
+        if events:groups[group]=events
+    return groups
+
 def evaluate(root, state):
     """Rotations stay one incident until 30 consecutive quiet samples."""
     records=[]
@@ -56,10 +103,21 @@ def run(root=ROOT, send=True):
         age=(dt.datetime.now(dt.timezone.utc)-dt.datetime.fromisoformat(status['timestamp'])).total_seconds()
         state['watcher_health']='healthy' if age<15 and status.get('collection_health')=='ok' else 'stale or degraded'
         groups=evaluate(root,state)
+        groups.update(focus_events(root,state))
         if state['watcher_health']!='healthy' and 'health:failure' not in state['acknowledged']:
             groups['health']=[dict(id='health:failure',kind='monitoring_failure',incident='health')]
         if state['watcher_health']=='healthy' and 'health:failure' in state['acknowledged']:
             state['acknowledged'].remove('health:failure')
+        # A prepared health alert has never reached queue/add. If health recovered,
+        # retain its identity in history but do not deliver a stale startup warning.
+        # Submitting/accepted/uncertain identities must still reconcile unchanged.
+        for incident,pending in list(state['pending'].items()):
+            health=state.get('focus_health') if incident=='focus:health' else state['watcher_health'] if incident=='health' else None
+            if health=='healthy' and pending.get('phase')=='prepared' and all(e.get('kind')=='monitoring_failure' for e in pending['events']):
+                state.setdefault('resolved_without_send',[]).append(dict(client_id=pending['client_id'],incident=incident,
+                    resolved_at=now,reason='health recovered before any queue submission'))
+                state['resolved_without_send']=state['resolved_without_send'][-1000:]
+                del state['pending'][incident]
         for incident,pending in state['pending'].items():
             groups.setdefault(incident,pending['events'])
         state['new_event_groups']=len(groups)

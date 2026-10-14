@@ -1,5 +1,8 @@
 #!/bin/sh
 case "${1:-}" in
+  focus-watch) shift; exec /usr/bin/python3 "$(dirname "$0")/../src/agent-resource-monitor/focus_watch.py" watch "$@" ;;
+  focus-status) shift; exec /usr/bin/python3 "$(dirname "$0")/../src/agent-resource-monitor/focus_watch.py" status "$@" ;;
+  install-focus) exec /bin/bash "$(dirname "$0")/../src/agent-resource-monitor/install-focus.sh" ;;
   watch|status) exec /usr/bin/python3 "$(dirname "$0")/../src/agent-resource-monitor/watcher.py" "$@" ;;
   install) exec /bin/bash "$(dirname "$0")/../src/agent-resource-monitor/install.sh" ;;
 esac
