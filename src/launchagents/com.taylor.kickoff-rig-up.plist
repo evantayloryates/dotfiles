@@ -23,6 +23,10 @@
 	<true/>
 	<key>StartInterval</key>
 	<integer>60</integer>
+	<!-- Slot host-up hooks start Mac-side companions with nohup; keep them alive
+	     when this one-shot job exits. -->
+	<key>AbandonProcessGroup</key>
+	<true/>
 	<key>ProcessType</key>
 	<string>Background</string>
 	<key>LowPriorityIO</key>
