@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Kickoff local rig: every minute, start any missing BASELINE service in the
+	     DevPod once Docker is up (reboot, Docker crash, quit and reopen). Starts only
+	     what is missing; never stops or replaces anything. Log:
+	     ~/Library/Logs/kickoff-rig-up.log. Pause: touch kickoff/.scratch/rig/paused.
+	     Docs: kickoff/documentation/explainers/local-rig/README.md -->
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>Label</key>
+	<string>com.taylor.kickoff-rig-up</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>/Users/taylor/src/github/kickoff/dev-tools/local-dev-foundation/rig/rig-up.sh</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StartInterval</key>
+	<integer>60</integer>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>LowPriorityIO</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/taylor/Library/Logs/kickoff-rig-up.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/taylor/Library/Logs/kickoff-rig-up.err.log</string>
+	<key>WorkingDirectory</key>
+	<string>/Users/taylor/src/github/kickoff</string>
+</dict>
+</plist>
