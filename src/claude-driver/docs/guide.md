@@ -704,3 +704,8 @@ independent, fail-closed boundary.
 Stop verification requires explicit idle on the same verified native PID/start
 and CLI session identity. A missing worker, changed epoch or unfamiliar status
 is unverified and prevents interrupt steering from sending a replacement.
+
+Residency evidence reconciles bounded exact-session journals at logical and
+canonical cwd paths after native migration. Conflicting copies fail closed.
+Finding a maintenance list receipt still requires matching app acknowledgment
+and a current native epoch before residency is reported verified.

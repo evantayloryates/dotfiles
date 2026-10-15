@@ -4,6 +4,8 @@
 import {homedir} from 'node:os'
 import {join} from 'node:path'
 import {execFileSync} from 'node:child_process'
+import {realpathSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 import {getRecord} from './sessions.mjs'
 import {tailFile,logSince} from './focus.mjs'
 export const RESIDENCY_CRON='17 * * * *'
@@ -59,16 +61,35 @@ export function verifyCronProtection(state,{since,now=Date.now(),appAcknowledged
  return {verified:!!(fresh&&one&&appAcknowledged&&settled),...state,appAcknowledged:!!appAcknowledged,
   reason:!Number.isFinite(since)?'live-process-epoch-required':!settled?'native-result-uncertain':!fresh?'native-list-not-fresh':!one?'expected-one-owned-job':!appAcknowledged?'app-acknowledgment-not-observed':'native-job-and-app-acknowledgment'}
 }
+// Migration can leave the app record using the logical cwd while new native
+// receipts are written under its canonical cwd. Read only these two exact
+// session journals, bounded independently; never search other projects.
+export function residencyJournalRows({cwd,cliSessionId,projects=process.env.CLAUDE_DRIVER_PROJECTS_DIR||join(homedir(),'.claude','projects')}){
+ if(typeof cwd!=='string'||!/^[-a-f0-9]{36}$/.test(cliSessionId||''))return {rows:[],reason:'no-native-journal'}
+ const paths=new Set([cwd]);try{paths.add(realpathSync(cwd))}catch{}
+ const rows=[],seen=new Map()
+ for(const dir of paths){
+  const file=join(projects,dir.replace(/[^A-Za-z0-9]/g,'-'),cliSessionId+'.jsonl')
+  for(const line of tailFile(file,2*1024*1024).split('\n')){
+   let row;try{row=JSON.parse(line)}catch{continue}
+   if(!row||!['assistant','user'].includes(row.type))continue
+   if(row.sessionId!==undefined&&row.sessionId!==cliSessionId)return {rows:[],reason:'native-journal-identity-mismatch'}
+   const bytes=JSON.stringify(row),digest=createHash('sha256').update(bytes).digest('hex'),key=typeof row.uuid==='string'?row.uuid:digest
+   if(seen.has(key)){if(seen.get(key)!==digest)return {rows:[],reason:'native-journal-conflict'};continue}
+   seen.set(key,digest);rows.push(row)
+  }
+ }
+ rows.sort((a,b)=>(Date.parse(a.timestamp)||0)-(Date.parse(b.timestamp)||0))
+ return {rows,journalPaths:paths.size}
+}
 export function observeBrokerCron(brokerId,{since,now=Date.now()}={}){
  if(!Number.isFinite(since))return {verified:false,reason:'live-process-epoch-required'}
  const r=getRecord(brokerId)
  if(!r?.cwd||!r.cliSessionId)return {verified:false,reason:'no-native-journal'}
- const file=join(process.env.CLAUDE_DRIVER_PROJECTS_DIR||join(homedir(),'.claude','projects'),r.cwd.replace(/[^A-Za-z0-9]/g,'-'),r.cliSessionId+'.jsonl')
+ const journals=residencyJournalRows(r)
+ if(journals.reason)return {verified:false,reason:journals.reason}
  const collector=new CronProtection({since,now})
- for(const line of tailFile(file,2*1024*1024).split('\n')){
-  let row;try{row=JSON.parse(line)}catch{continue}
-  collector.feed(row)
- }
+ for(const row of journals.rows)collector.feed(row)
  const state=collector.snapshot(),job=state.jobs.length===1?state.jobs[0]:null
  const acknowledged=job&&logSince(since,new RegExp(`\\[CCD\\] Session ${brokerId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')} cron ${job.id} confirmed \\(active:`)).length>0
  return verifyCronProtection(state,{since,now,appAcknowledged:!!acknowledged})

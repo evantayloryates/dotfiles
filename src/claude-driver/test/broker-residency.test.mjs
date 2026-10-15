@@ -69,3 +69,25 @@ test('current-process correlation rejects historical calls and malformed relevan
  assert.equal(c.snapshot().uncertain,true)
  const f=new CronProtection({since,now});const future=call('CronCreate',input);future.timestamp='2026-10-07T00:02:00Z';f.feed(future);assert.equal(f.snapshot().jobs.length,0);assert.equal(f.snapshot().uncertain,true)
 })
+
+test('cwd migration reads exact logical and canonical journals, deduplicates and refuses conflicting identities',async()=>{
+ const {mkdtempSync,mkdirSync,symlinkSync,writeFileSync,rmSync,realpathSync}=await import('node:fs')
+ const {join}=await import('node:path')
+ const {residencyJournalRows}=await import('../lib/broker-residency.mjs')
+ const root=realpathSync(mkdtempSync('/tmp/claude-residency-')),cwd=join(root,'logical'),physical=join(root,'physical'),projects=join(root,'projects'),cliSessionId='00000000-0000-4000-8000-000000000001'
+ mkdirSync(physical);symlinkSync(physical,cwd)
+ const file=dir=>{const folder=join(projects,dir.replace(/[^A-Za-z0-9]/g,'-'));mkdirSync(folder,{recursive:true});return join(folder,cliSessionId+'.jsonl')}
+ const logical=file(cwd),canonical=file(physical)
+ const a={...call('CronList'),uuid:'a',sessionId:cliSessionId},b={...result(list),uuid:'b',sessionId:cliSessionId}
+ const write=(f,rows)=>writeFileSync(f,rows.map(r=>JSON.stringify(r)).join('\n')+'\n')
+ try{
+  write(logical,[a]);write(canonical,[a,b])
+  let evidence=residencyJournalRows({cwd,cliSessionId,projects});assert.equal(evidence.journalPaths,2);assert.equal(evidence.rows.length,2)
+  const c=new CronProtection();evidence.rows.forEach(r=>c.feed(r));assert.equal(c.snapshot().jobs[0].id,'abcdef12');assert.equal(c.snapshot().pendingCalls,0)
+  write(canonical,[{...a,message:{content:[]}},b]);assert.equal(residencyJournalRows({cwd,cliSessionId,projects}).reason,'native-journal-conflict')
+  write(canonical,[{...b,sessionId:'another-session'}]);assert.equal(residencyJournalRows({cwd,cliSessionId,projects}).reason,'native-journal-identity-mismatch')
+  write(canonical,[a,b]);write(logical,[])
+  assert.equal(residencyJournalRows({cwd,cliSessionId,projects}).rows.length,2)
+  assert.equal(residencyJournalRows({cwd,cliSessionId:'../outside',projects}).reason,'no-native-journal')
+ }finally{rmSync(root,{recursive:true,force:true})}
+})

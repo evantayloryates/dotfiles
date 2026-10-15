@@ -1,3 +1,28 @@
+## Migrated residency journals reconciled — October 15
+
+Previous goal turn: progress (admission refusal diagnostics and report triage).
+Residency observation now reads bounded tails of only the exact CLI session's
+logical and canonical cwd journals, merges timestamp order, deduplicates UUIDs,
+and refuses conflicting UUID contents or different session IDs. Each journal
+has a2MiB cap; no project discovery or app-file writes. All epoch, native receipt,
+fresh-list, exact owned schedule and app acknowledgment gates remain intact.
+Historical Oct12 replay now finds aa81efad and listedAt00:57:09.751Z; uncertainty
+false/pendingCalls0, but verified remains false: app-acknowledgment-not-observed.
+This confirms receipt visibility improvement only, not live residency or serving.
+Migration test covers canonical-only receipts, duplicate copies, conflicting UUIDs,
+wrong session and unsafe session path. Initial fixture failed due macOS /tmp versus
+/private/tmp identity; corrected fixture root canonicalization and12/12 focused
+checks pass. Full pressure366/366 passes with unchanged source:
+pressure/v2-2026-10-15T23-33-20-799Z.json. Both filtered final-source harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-33-10-325Z.json and
+pressure/harness-v2-codex-2026-10-15T23-33-10-310Z.json.
+Pending broker report note updated; all six remain unacknowledged with unresolved
+blockers. No native messages, controls, restart or permission changes. Goal active.
+Next changed-condition step: reconcile the three detector request IDs against
+current controls and independently retained receipt evidence, then checkpoint
+review before acknowledging any resolved report. Recovery remains observer-owned;
+historical22 unknowns and stale sealed native epoch are not settled by this fix.
+
 ## Observer report review and admission diagnostics — October 15
 
 Previous goal turn: progress (same-epoch explicit idle required for steering).
