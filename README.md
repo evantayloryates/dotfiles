@@ -493,6 +493,14 @@ Run the generated-shell regression checks with:
 python3 -B -m unittest discover -s src/python/tests -p 'test_pathfuncs*.py' -v
 ```
 
+### Clear macOS notifications
+
+Run `notif clear` to dismiss all alerts currently in Notification Center. It
+uses each alert's macOS Close action and leaves future notification delivery
+enabled. This also dismisses reminders and permission requests; review anything
+you still need to act on before clearing. The terminal running it needs macOS
+Accessibility and System Events automation access.
+
 ### Add a new alias
 Create `src/aliases/myaliases.sh`:
 ```bash

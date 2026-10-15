@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$#" -ne 1 ] || [ "$1" != clear ]; then
+    printf 'Usage: notif clear\n' >&2
+    exit 2
+fi
+
+if [ "$(/usr/bin/uname -s)" != Darwin ]; then
+    printf 'notif clear requires macOS.\n' >&2
+    exit 1
+fi
+
+exec /usr/bin/osascript /Users/taylor/dotfiles/src/notif/clear.applescript
