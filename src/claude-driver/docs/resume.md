@@ -1,3 +1,29 @@
+## Composed direct-recipient candidate runner — October 15
+
+Previous goal turn: progress (durable single-publication ledger).
+Added internal lib/direct-recipient.mjs composing existing recipient lock, strict
+peer transport, fsynced ledger and exact native receipt reader. Refuses broker,
+caller, archived/unqualified/non-desktop peer and cwd mismatch. Arming binds
+runtime build and payload SHA256 (no plaintext message). A socket return never
+settles delivery; only exact native user receipt returns received/applied:false.
+Reattach observes the old message without publication; conflicting payload refuses.
+Post-arm cancellation/deadline/error remains outcome_unknown/retrySafe:false.
+Recipient/ledger lock admission receives remaining budget; socket wake uses shared
+abort deadline. Existing control-lock callers retain their prior default behavior.
+Candidate runner is unexposed; public send_message remains native broker route.
+Synthetic real Unix-socket plus journal tests cover receipt, no duplicate frames,
+reattach/conflicting payload, cancel-after-publication, archive/version refusal,
+recipient-lock expiry and cancelled admission with prior uncertainty preserved.
+Full pressure377/377 passes unchanged source:
+pressure/v2-2026-10-15T23-45-51-772Z.json. Both current-source filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-45-24-223Z.json and
+pressure/harness-v2-codex-2026-10-15T23-45-24-203Z.json.
+Goal active. Next actual synthetic MCP and detached-job integration using explicit
+transport/operation identity, client disconnect/reattach, idempotency, cancellation
+and receipt loss. Expose only after these boundaries pass; no new native messages
+until separate authorization. Old22 broker unknowns, native serving/control and
+cold recovery/residency gates remain open; Codex-driver fixes stay parked.
+
 ## Candidate durable single-publication ledger — October 15
 
 Previous goal turn: progress (bounded exact future native receipt observation).

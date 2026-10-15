@@ -1,0 +1,8 @@
+{
+  "name": "taylor-framer-cli-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "@framer/agent": "0.0.47"
+  }
+}

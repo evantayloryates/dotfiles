@@ -3,6 +3,8 @@
 import os
 import plistlib
 import subprocess
+import socket
+import time
 from pathlib import Path
 
 label = "com.taylor.framer-broker"
@@ -28,4 +30,15 @@ destination.write_bytes(data)
 subprocess.run(["launchctl", "bootstrap", f"gui/{os.getuid()}", str(destination)], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 subprocess.run(["launchctl", "enable", f"gui/{os.getuid()}/{label}"], check=True)
 subprocess.run(["launchctl", "kickstart", "-k", f"gui/{os.getuid()}/{label}"], check=True)
+endpoint = home / "Library" / "Application Support" / "taylor-framer" / "framer.sock"
+for _ in range(50):
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as peer:
+            peer.settimeout(0.2)
+            peer.connect(str(endpoint))
+        break
+    except OSError:
+        time.sleep(0.1)
+else:
+    raise SystemExit(f"{label} did not open its local socket")
 print(f"Installed and started {label}")

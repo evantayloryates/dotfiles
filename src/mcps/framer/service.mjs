@@ -10,7 +10,7 @@ const dir = join(homedir(), 'Library', 'Application Support', 'taylor-framer')
 const socket = join(dir, 'framer.sock')
 const sessionsFile = join(dir, 'sessions.json')
 const learningFile = join(dir, 'learning.json')
-const cli = '/opt/homebrew/bin/npx'
+const cli = join(import.meta.dirname, 'runtime', 'node_modules', '@framer', 'agent', 'dist', 'cli.js')
 const packageSpec = '@framer/agent@0.0.47'
 const idPattern = /^[A-Za-z0-9_-]{3,80}$/
 let queue = Promise.resolve()
@@ -29,7 +29,7 @@ async function saveJson(path, value) {
 }
 function run(args, input = '') {
   return new Promise((resolve, reject) => {
-    const child = spawn(cli, ['--yes', packageSpec, ...args], {
+    const child = spawn('/opt/homebrew/bin/node', [cli, ...args], {
       env: { ...process.env, PATH: '/opt/homebrew/bin:/usr/bin:/bin' },
       stdio: ['pipe', 'pipe', 'pipe'],
     })
@@ -107,6 +107,35 @@ async function dispatch(method, params = {}) {
       notes.push({ topic: record.topic, lesson: record.lesson, project_id: record.project_id || null, verified_at: new Date().toISOString() })
       await saveJson(learningFile, notes)
       return { recorded: true, count: notes.length }
+    }
+    case 'guidance': {
+      const topic = params.topic
+      if (topic === 'project') {
+        const projectId = validateId(params.project_id, 'project_id')
+        const paths = [
+          join(homedir(), '.agents', 'skills', 'framer', 'projects', projectId, 'index.md'),
+          join(homedir(), '.agents', 'skills', '.archive', 'framer', 'projects', projectId, 'index.md'),
+        ]
+        for (const path of paths) {
+          try { return { path, text: await readFile(path, 'utf8') } }
+          catch (error) { if (error.code !== 'ENOENT') throw error }
+        }
+        throw new Error('No generated context for that project; connect to it first')
+      }
+      if (!['workflow', 'components'].includes(topic)) throw new Error('topic must be project, workflow or components')
+      const path = topic === 'workflow'
+        ? join(import.meta.dirname, 'LEARNINGS.md')
+        : join(homedir(), '.agents', 'skills', '.archive', 'framer-code-components', 'SKILL.md')
+      const body = await readFile(path, 'utf8')
+      const heading = params.heading
+      if (!heading) return { path, headings: [...body.matchAll(/^#{1,3} (.+)$/gm)].map(m => m[1]) }
+      const lines = body.split('\n')
+      const start = lines.findIndex(line => /^#{1,3} /.test(line) && line.replace(/^#{1,3} /, '').trim().toLowerCase() === heading.toLowerCase())
+      if (start < 0) throw new Error('Heading not found; list headings first')
+      const level = lines[start].match(/^#+/)[0].length
+      let end = start + 1
+      while (end < lines.length && (!/^#{1,3} /.test(lines[end]) || lines[end].match(/^#+/)[0].length > level)) end++
+      return { path, heading, text: lines.slice(start, end).join('\n').slice(0, 50_000) }
     }
     default: throw new Error('Unknown Framer broker method')
   }

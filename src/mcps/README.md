@@ -6,7 +6,7 @@ versioned, portable, and available on any machine that clones this repo.
 ## Client registrations and resource use
 
 `client-registrations.json` is the canonical fleet configuration for Gmail,
-Cloudinary, Notion and claude-driver. Apply it with
+Cloudinary, Notion, claude-driver and Framer. Apply it with
 `python3 src/mcps/install-client-registrations.py --apply`, then run
 `python3 src/mcps/verify-client-registrations.py`. The installer changes only
 managed fields, preserves other servers and private app state, and writes host
@@ -58,6 +58,7 @@ Secrets are **not** stored here. Servers read tokens from the environment
 | [`../codex-bridge`](../codex-bridge/README.md) | Delegates macOS Computer Use tasks to the local Codex agent over the Codex app-server protocol (launcher: `src/codex-bridge/bin/codex-bridge-mcp`). |
 | [`../smart-record`](../smart-record/README.md) | Agent-driven screen recording on an always-on ScreenCaptureKit engine: aim and check frames (images returned inline), scheduled frame-accurate recordings, sessions, marks (launcher: `src/smart-record/bin/smart-record-mcp`; registered in Claude Code and Codex by `smart-record install`). |
 | [`../claude-driver`](../claude-driver/README.md) | Drives the Claude desktop app from any harness: create/fork/rename/pin/archive/delete sessions, model/effort/mode, messages, focus-safe navigation (launcher: `src/claude-driver/bin/claude-driver-mcp`; registered in Claude Code, Codex, Cursor and OpenCode by `claude-driver install`). |
+| [`framer`](framer/README.md) | Shared, branch-guarded Framer Agent CLI broker with a per-user LaunchAgent, learnings and stdio MCP adapters for Codex and Claude Code. |
 
 Both are launchers, not servers: they open the tunnel, read the DB password from
 `.env` at launch, then `exec` the upstream

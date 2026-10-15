@@ -14,6 +14,7 @@ const schemas = {
   framer_select_branch: { description: 'Explicitly switch the Framer editor to a branch ID in a project. Verify the ID with framer_branches first.', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, branch_id: { type: 'string' } }, required: ['project_id', 'branch_id'] } },
   framer_exec: { description: 'Execute Framer Server API JavaScript in a project session only when its active branch matches the explicit branch ID. Code may change or publish the project; use only within the user-authorized scope. Prefer framer.agent APIs for edits and read back changes.', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, branch_id: { type: 'string' }, code: { type: 'string' } }, required: ['project_id', 'branch_id', 'code'] } },
   framer_learning: { description: 'Read or record verified Framer CLI/Server API learnings shared by Claude and Codex. Omit record to read.', inputSchema: { type: 'object', properties: { record: { type: 'object', properties: { topic: { type: 'string' }, lesson: { type: 'string' }, project_id: { type: 'string' } }, required: ['topic', 'lesson'] } } } },
+  framer_guidance: { description: 'Read shared Framer workflow notes, archived code-component guidance by heading, or a project task map. List headings first for components.', inputSchema: { type: 'object', properties: { topic: { type: 'string', enum: ['workflow', 'components', 'project'] }, heading: { type: 'string' }, project_id: { type: 'string' } }, required: ['topic'] } },
 }
 let nextId = 1
 function broker(method, params = {}) {
@@ -43,7 +44,7 @@ async function call(request) {
   if (method === 'notifications/initialized' || method?.startsWith('notifications/')) return
   if (method !== 'tools/call') return send({ jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } })
   try {
-    const map = { framer_status: 'status', framer_projects: 'projects', framer_branches: 'branches', framer_select_branch: 'select_branch', framer_exec: 'exec', framer_learning: 'learning' }
+    const map = { framer_status: 'status', framer_projects: 'projects', framer_branches: 'branches', framer_select_branch: 'select_branch', framer_exec: 'exec', framer_learning: 'learning', framer_guidance: 'guidance' }
     if (!(params.name in map)) throw new Error('Unknown Framer tool')
     const result = await broker(map[params.name], params.arguments || {})
     send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: JSON.stringify(result) }] } })

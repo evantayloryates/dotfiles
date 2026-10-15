@@ -5,8 +5,8 @@ import { createHash } from 'node:crypto'
 import { withLock } from './state.mjs'
 
 const held = new AsyncLocalStorage()
-export async function withSessionControl(session, fn, { signal } = {}) {
+export async function withSessionControl(session, fn, { signal, timeoutMs } = {}) {
   if (held.getStore() === session) return fn()
   const key = createHash('sha256').update(session).digest('hex')
-  return withLock(`control-${key}`, () => held.run(session, fn), { signal })
+  return withLock(`control-${key}`, () => held.run(session, fn), { signal, ...(timeoutMs!==undefined?{timeoutMs}:{}) })
 }

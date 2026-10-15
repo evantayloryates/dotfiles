@@ -729,3 +729,9 @@ The candidate peer send ledger durably arms one publication identity before
 socket writing. Reattachment can reconcile a native receipt but never grants a
 second publication. Unknown state stays unsafe to replay; received records retain
 applied:false. This candidate is not yet wired into public send_message.
+
+The internal direct-recipient candidate composes exact peer identity, durable
+single-publication state and native receipt observation. It refuses broker/caller
+and archived targets, preserves post-arm uncertainty, and reports received with
+applied:false only after an exact receipt. Public sending remains unchanged until
+MCP/job integration and separate native qualification.
