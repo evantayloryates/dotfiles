@@ -1,3 +1,24 @@
+## Two native-mod failure reports reviewed — October 15
+
+Previous goal turn: progress (uncertain-request diagnostic visibility).
+Ran current native-mod-probe-review and native-mod-diagnostic-review scripts with
+no native controls/inference. Both exact reports match retained intent, original
+source hashes, original settings/policy hashes and sealed runtime integrity.
+Both report nativeCallReturned:false; diagnostic reports unidentified-exception.
+Current reviewedVersions, sameNativeMetadataEpoch and copiedFilesMatch all fail.
+Thus both remain failed/unqualified experiments: no plugin-load, kernel epoch,
+native gate, model-free execution or scoped-unload proof. They grant no retry,
+release, wake or installation authority. Retained per-hash review conclusions in
+ diagnostics/report-review-2026-10-15.json. This closes report review only, not
+native qualification. Acknowledge only these two exact scanned hashes after this
+checkpoint is committed/published; keep broker and three detector reports pending.
+No source changes or additional tests warranted for this evidence-only review;
+previous current-source366 pressure and both filtered harness passes remain.
+Goal active. Next changed-condition step: requirement-level audit of current v2
+qualification matrix against current-source evidence, distinguishing historical
+native successes from current app/CLI/epoch proof. Identify next executable gap
+rather than repeating unresolved historical scans. No native operations this turn.
+
 ## Detector request reconciliation diagnostics — October 15
 
 Previous goal turn: progress (migrated residency journal visibility).
