@@ -83,3 +83,34 @@ test('actual MCP clients reattach one detached send job and reconcile a cancelle
   assert.equal((await b.call('send_message',uncertainArgs)).structuredContent.reused,true);assert.equal(frames,before+2)
  }finally{receive=true;await a.close();await b.close()}
 })
+
+test('competing distinct detached jobs share one publication identity and send one frame',async()=>{
+ const a=mcp('direct-racer-a'),b=mcp('direct-racer-b');await Promise.all([a.ready,b.ready]);const before=frames
+ const args={session:sid,message:'COMPETING_SYNTHETIC',transport:'peer-direct',operation_id:'competing-jobs',receipt_timeout_sec:10}
+ try{
+  const [x,y]=await Promise.all([a.call('driver_submit',{operation:'send_message',arguments:args,idempotency_key:'racer-a'}),b.call('driver_submit',{operation:'send_message',arguments:args,idempotency_key:'racer-b'})])
+  assert.notEqual(x.structuredContent.jobId,y.structuredContent.jobId)
+  const results=await Promise.all([a.call('driver_wait',{job_id:x.structuredContent.jobId,timeout_sec:10}),b.call('driver_wait',{job_id:y.structuredContent.jobId,timeout_sec:10})])
+  assert.ok(results.every(r=>r.structuredContent.state==='completed'));assert.equal(results.filter(r=>r.structuredContent.result.reused).length,1);assert.equal(frames,before+1)
+ }finally{await a.close();await b.close()}
+})
+test('abrupt loss of this fixture detached worker preserves unknown; late receipt adoption never replays its job',async()=>{
+ const c=mcp('direct-worker-loss');await c.ready;const before=frames;let workerPid,jobId
+ const args={session:sid,message:'WORKER_LOSS_SYNTHETIC',transport:'peer-direct',operation_id:'worker-loss',receipt_timeout_sec:10}
+ const ownsWorker=()=>{try{return workerPid!==process.pid&&workerPid!==process.ppid&&execFileSync('/bin/ps',['-p',String(workerPid),'-o','command='],{encoding:'utf8'}).includes('job-worker.mjs '+jobId)}catch{return false}}
+ try{
+  receive=false;const input={operation:'send_message',arguments:args,idempotency_key:'worker-loss-fixture'}
+  jobId=(await c.call('driver_submit',input)).structuredContent.jobId
+  await until(()=>frames===before+1);const msgId=lastMessageId
+  const {jobFile}=await import('../lib/jobs.mjs');workerPid=JSON.parse(readFileSync(jobFile(jobId),'utf8')).workerPid
+  assert.equal(ownsWorker(),true,'kill only exact worker spawned by this synthetic test')
+  process.kill(workerPid,'SIGKILL')
+  await until(()=>!ownsWorker())
+  const lost=(await c.call('driver_job',{job_id:jobId})).structuredContent;assert.equal(lost.state,'outcome_unknown');assert.equal(lost.error.category,'worker_lost')
+  const reattached=(await c.call('driver_submit',input)).structuredContent;assert.equal(reattached.jobId,jobId);assert.equal(reattached.reused,true);assert.equal(frames,before+1)
+  appendFileSync(journal,JSON.stringify({type:'user',uuid:'worker-loss-late',sessionId:cli,origin:{kind:'peer',msg_id:msgId},timestamp:new Date().toISOString(),message:{content:'PRIVATE_LATE'}})+'\n')
+  const status=(await c.call('peer_send_status',{operation_id:'worker-loss'})).structuredContent;assert.equal(status.receiptVerified,true);assert.equal(status.retrySafe,false)
+  assert.equal((await c.call('driver_job',{job_id:jobId})).structuredContent.state,'outcome_unknown')
+  assert.equal((await c.call('send_message',args)).structuredContent.reused,true);assert.equal(frames,before+1)
+ }finally{receive=true;if(workerPid&&ownsWorker())process.kill(workerPid,'SIGKILL');await c.close()}
+})

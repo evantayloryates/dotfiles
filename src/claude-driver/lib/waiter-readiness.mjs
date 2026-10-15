@@ -33,9 +33,12 @@ export async function waitForNativeAvailability(info,{observe,deadline,signal,sl
  let idleSince=null,announced=false
  for(;;){
   if(signal?.aborted)throw new DriverError('cancelled before enqueue',{category:'cancelled',detail:{dispatched:false,retrySafe:true}})
+  // Known structural refusal cannot become a transient busy result merely
+  // because metadata inspection consumed the deadline. The caller applies
+  // these gates before any enqueue or template refresh.
+  if(info.handoffStopped||info.runtime?.integrity===false||info.runtime?.dependencyEvidence?.reason==='native-process-epoch-mismatch')return info
   if(Date.now()>=deadline)throw new DriverError('native broker did not reach an available turn boundary before enqueue',{category:'broker_busy',detail:{dispatched:false,retrySafe:true}})
   if(!info.live||info.live.entrypoint!=='claude-desktop')return info
-  if(info.handoffStopped||info.runtime?.integrity===false||info.runtime?.dependencyEvidence?.reason==='native-process-epoch-mismatch')return info // caller applies existing refusal
   if(info.resident?.resident)return info
   if(info.live.status==='idle'){
    idleSince??=Date.now()

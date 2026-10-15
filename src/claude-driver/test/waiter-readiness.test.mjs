@@ -44,3 +44,11 @@ test('deadline, cancellation and changed native epoch refuse before enqueue',asy
  await assert.rejects(waitForNativeAvailability(info,{deadline:Date.now()+2000,sleep,signal,observe:()=>info}),e=>e.category==='cancelled'&&e.detail.dispatched===false)
  await assert.rejects(waitForNativeAvailability(info,{deadline:Date.now()+2000,sleep,observe:()=>({...info,live:{...info.live,pid:2}})}),e=>e.category==='broker_runtime_epoch_mismatch'&&e.detail.dispatched===false)
 })
+
+test('expired observation budget cannot mask a known structural admission refusal',async()=>{
+ for(const changes of [{handoffStopped:true},{runtime:{integrity:false}},{runtime:{dependencyEvidence:{reason:'native-process-epoch-mismatch'}}}]){
+  const info={...available(),...changes};let observed=false
+  assert.equal(await waitForNativeAvailability(info,{deadline:Date.now()-1,sleep:()=>{observed=true;throw Error('must not wait')},observe:()=>{observed=true;throw Error('must not inspect again')}}),info)
+  assert.equal(observed,false)
+ }
+})

@@ -1,3 +1,31 @@
+## Worker-loss and competing-job pressure — October 15
+
+Previous goal turn: progress (experimental direct route MCP/job integration).
+Actual synthetic MCP adversaries now prove distinct jobs sharing one direct
+operation ID publish one frame; abrupt termination of the exact owned test worker
+after publication leaves worker_lost/outcome_unknown. Reattach never restarts that
+job. Late receipt status and same-operation send adopt receipt without replay,
+while the lost job remains unknown. No native/session process was terminated.
+First repeated pressure attempt failed old releases admission test: metadata
+inspection consumed500ms budget and waiter availability checked deadline before
+known epoch refusal. Fixed static handoff/integrity/epoch refusal precedence; new
+expired-budget test proves no wait/observe before structural refusal. Preserved
+failure: pressure/v2-2026-10-15T23-50-25-455Z.json.
+Final three fresh pressure rounds pass,381 checks each/1143 total, source unchanged:
+pressure/v2-2026-10-15T23-51-50-734Z.json. Both final-source filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-51-15-511Z.json and
+pressure/harness-v2-codex-2026-10-15T23-51-15-512Z.json.
+Goal active. Concrete next native gate: one additional fixed DIRECT_ROUTE_OK
+message via durable public peer-direct route in existing scratch
+local_c0a18601-5a57-44d0-94ac-2fed3719e7ca (verified live idle PID98986/start23:20:48Z,
+CLI2.1.299, acceptEdits at plan capture). No new chat, retries, controls, wake,
+permissions or input actions. Plan: diagnostics/direct-native-qualification-plan-2026-10-15.json.
+Taylor must authorize that additional submission here in Codex; Codex executes it
+in the existing Claude scratch. Previous one-message authorization was consumed.
+Until approved, do not send. Revalidate exact peer/version before any approved
+trial and preserve uncertain outcome. Broad native control/recovery/residency and
+22 broker unknowns remain open. Watcher stays paused; recovery stays observer-owned.
+
 ## Experimental direct route integrated through MCP/jobs — October 15
 
 Previous goal turn: progress (composed guarded internal runner).
