@@ -1,3 +1,23 @@
+## Continuous passive lifecycle collection — October 15
+
+Previous goal turn: progress (native installed checks restored). Installed new
+com.taylor.claude-driver-lifecycle LaunchAgent from src/launchd, current-source
+30-second passive ticks. Two scheduled runs exit0, lastTickAt advanced automatically; app running, owned broker
+offline; repeated observations deduplicate and native log reads reach zero bytes.
+It observes versions, app presence, exact broker identity and native log cursor;
+no inference, app navigation, sends, recovery, permissions or sealed epoch changes.
+Pressure v2-2026-10-15T23-01-04-788Z.json passed1/1 in8935ms,
+sourceChanged:false before the final owned-record snapshot refinement.
+Legacy detector remains unloaded; report watcher remains paused. Monitor state
+.runtime/state/lifecycle-monitor.json exposes lastTickAt and logging/checkpoint
+health. Cleanup: monitor intentionally retained for future incident evidence.
+Verification incident: an unfiltered launchctl print exposed inherited environment
+credentials in the tool transcript. No values copied to repository/artifacts;
+subsequent inspection uses allowlisted status fields. Credential remediation is
+outside bridge scope and must be handled by Taylor; do not rotate automatically.
+Next changed-condition step: use passive evidence and explicit desired state to
+qualify a single recovery supervisor; live serving and recovery remain incomplete.
+
 ## Native source checks restored on CLI2.1.299 — October 15
 
 Previous goal turn: progress (four installed checks reconciled). Remaining five

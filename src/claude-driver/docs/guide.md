@@ -648,3 +648,16 @@ for the next poll. Rotation, truncation, initial-tail-only and budget gaps are e
 app-local wall-clock timestamps retain their timezone ambiguity. This does not
 attribute a crash, app update, user quit or intentional termination. No continuous
 capture is claimed until the current collector is installed and observed running.
+
+
+Continuous passive capture: `com.taylor.claude-driver-lifecycle` runs the current
+`scripts/lifecycle-monitor.mjs`
+every 30 seconds through launchd. It observes exact owned broker metadata, app
+process presence, installed versions and bounded native log changes. It never
+wakes an app, sends a message, starts inference, changes permissions or recovers
+a broker. Unchanged ticks are silent. `.runtime/state/lifecycle-monitor.json`
+records last tick, append/checkpoint status and coverage gaps; a stale last tick
+is a monitoring failure, not service health. The job exits between ticks, so
+launchd `not running` with successful exits is normal. The report watcher and
+legacy detector retain their existing paused/unloaded state. Launchd output can
+contain inherited credentials: filter status fields before returning any output.
