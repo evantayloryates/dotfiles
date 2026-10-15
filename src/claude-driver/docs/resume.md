@@ -1,3 +1,25 @@
+## Experimental direct route integrated through MCP/jobs — October 15
+
+Previous goal turn: progress (composed guarded internal runner).
+send_message now accepts explicit transport:peer-direct and stable operation_id;
+receipt_timeout_sec0.1–60/default15. Native broker route stays default. Direct
+route refuses via_broker combination. peer_send_status is a read-only native
+observation/reconciliation operation, with no resend or retry authority. Exact
+native user receipt returns received/verified:true/experimental:true/applied:false.
+Actual private synthetic MCP test submits detached job, disconnects original
+client, reattaches via a second client with same idempotency key and proves one
+frame. Post-publication job cancellation stays outcome_unknown; late exact receipt
+is persisted by status and reused without a second frame. Missing operation_id
+refuses before publication. Common filtered harness proof remains distinct from
+this real MCP transport fixture proof. Full pressure378/378 passes:
+pressure/v2-2026-10-15T23-48-17-669Z.json. Both current filtered harnesses pass:
+pressure/harness-v2-{claude,codex}-2026-10-15T23-48-00-606Z.json.
+Goal active. Next adversaries: abrupt detached-worker loss after publication and
+competing distinct jobs with one direct operation identity; require one frame and
+late receipt adoption without job replay. No additional native trial authorized;
+consumed scratch budget remains one. No old broker mutation settled, no wake or
+permission/input change. Full native serving/control/residency/recovery remain open.
+
 ## Composed direct-recipient candidate runner — October 15
 
 Previous goal turn: progress (durable single-publication ledger).

@@ -735,3 +735,33 @@ single-publication state and native receipt observation. It refuses broker/calle
 and archived targets, preserves post-arm uncertainty, and reports received with
 applied:false only after an exact receipt. Public sending remains unchanged until
 MCP/job integration and separate native qualification.
+
+## Experimental direct-recipient route
+
+In a fresh claude-driver MCP connection, call `send_message` with explicit
+`transport:"peer-direct"`, a stable `operation_id`, the exact recipient session
+and the authorized message. The CLI accepts the same named arguments. Default
+transport remains the native broker route. Direct transport requires an already
+live qualified native peer; it never wakes the app/broker, changes permissions,
+uses immediate priority or starts an inference fallback. Do not combine it with
+`via_broker`. `receipt_timeout_sec` is0.1–60, default15 seconds.
+
+For durable work, submit that same operation and arguments through `driver_submit`
+and keep its idempotency key as well as the direct `operation_id`. Disconnecting
+the MCP client does not cancel the detached worker. Reattach to the existing job;
+do not create a different operation ID to retry an uncertain publication.
+
+`delivery:"received"`, `verified:true` and `experimental:true` qualify only the
+exact native user receipt. `applied:false` explicitly leaves application/model
+completion unverified. Observe the recipient response separately. If publication
+is cancelled, times out or loses its receipt, retain outcome_unknown and use
+`peer_send_status {operation_id:"the-same-id"}`. This read-only native observation
+can persist a late receipt without resending. It never grants retry authority
+or rewrites an already uncertain driver job as completed. A repeated send with
+identical direct operation identity can reconcile; a conflicting payload refuses.
+
+Current proof covers private synthetic sockets/journals, actual MCP clients and
+detached jobs. No new native trial of this composed route has been authorized or
+performed; historical ordinary wire qualification does not establish full native
+serving, controls, residency or recovery. Older candidate notes describe the
+staged implementation before this experimental opt-in was exposed.

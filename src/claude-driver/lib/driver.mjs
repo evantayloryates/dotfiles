@@ -32,6 +32,8 @@ import { inspectRequest } from './requests.mjs'
 import { deliveryReceipt } from './delivery.mjs'
 import { nativeQualification } from './qualification.mjs'
 import { peerRecord } from './peer-direct.mjs'
+import { sendDirectRecipient } from './direct-recipient.mjs'
+import { reconcilePeerSend } from './peer-send-ledger.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -584,8 +586,18 @@ export const OPS = [
     title: 'Send a message into a session',
     description:
       'Deliver a message to a desktop session as a user turn (labelled as coming from the broker or you). Wakes an idle session even with no running process. The result says delivered (turn started) or queued (behind current work).',
-    schema: { properties: { session: S, message: { type: 'string' }, via_broker: VIA_BROKER }, required: ['session', 'message'] },
+    schema: { properties: { session: S, message: { type: 'string' }, via_broker: VIA_BROKER,
+      transport: { type:'string',enum:['native','peer-direct'],description:'Default native broker route. Experimental peer-direct requires operation_id and a qualified live peer; never wakes or falls back.' },
+      operation_id:{type:'string',description:'Stable single-publication identity required for peer-direct. Reuse to reconcile; never change it to retry an unknown send.'},
+      receipt_timeout_sec:{type:'number',minimum:0.1,maximum:60,description:'Peer-direct receipt budget, default15 seconds. Timeout preserves uncertainty.'} }, required: ['session', 'message'] },
     run: async (args, ctx) => {
+      if(args.transport==='peer-direct'){
+        if(args.via_broker!==undefined)throw new DriverError('peer-direct cannot be combined with via_broker',{category:'bad_args'})
+        ctx.tier='peer-direct'
+        const result=await sendDirectRecipient({operationId:args.operation_id,session:args.session,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal})
+        return {...result,verified:true,experimental:true,verification:'Exact native user receipt only; applied:false. Observe recipient response separately.'}
+      }
+      if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
       const rec = resolveSession(args.session)
       if (rec.isArchived) throw new DriverError('session is archived; unarchive it first', { category: 'bad_state' })
       const b = await tierB(ctx, [{ op: 'send_message', args: { session_id: rec.sessionId, message: args.message } }])
@@ -595,6 +607,12 @@ export const OPS = [
       if (receipt.delivery === 'unknown') throw new DriverError('native send returned an unrecognized receipt; reconcile before retrying', { category: 'outcome_unknown', detail:{requestId:b.requestId,dispatched:true,retrySafe:false} })
       return { sessionId: rec.sessionId, ...receipt, requestId:b.requestId, receiptSource:b.receiptSource, detail: res, ms: b.ms }
     },
+  },
+  {
+    name:'peer_send_status',title:'Reconcile one direct peer send',readOnly:true,
+    description:'Observe one persisted peer-direct publication without resending. Unknown remains unsafe to retry. Received proves a native user record, never application or model completion.',
+    schema:{properties:{operation_id:{type:'string'}},required:['operation_id']},
+    run:async args=>{const out=await reconcilePeerSend(args.operation_id);return {operationId:args.operation_id,state:out.record.phase,receiptVerified:out.record.phase==='received',retrySafe:false,canPublish:false,sessionId:out.record.target.hostSessionId,...(out.record.receipt?{receipt:out.record.receipt}:{}),hasMore:out.hasMore===true}},
   },
   {
     name: 'manage_groups',
@@ -1113,7 +1131,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
       const boundArgs = { ...args, session }
       ctx.args = boundArgs
       row.targetSession = session
-      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal })
+      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(name==='send_message'&&args.transport==='peer-direct'?{timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)}:{}) })
     } else out = await op.run(args, ctx)
     trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})
     if(name==='broker_status')trace('broker-observed',{info:out?.broker||out})
