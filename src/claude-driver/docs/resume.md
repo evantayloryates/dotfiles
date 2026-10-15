@@ -1,3 +1,20 @@
+## Installed CLI compatibility reconciliation — October 15
+
+Previous goal turn: progress (passive capture and preserved pressure failures).
+Fresh discovery: Desktop2.42304.0 / CLI2.1.299, superseding earlier2.1.295 status.
+Reconciled four failed installed checks: late module session.start deduplication,
+two positional MCP wrapper ownership/admission tests, object-input native tool API.
+Full pressure v2-2026-10-15T22-58-06-753Z.json: 351/356 pass, five
+remaining failures preserved; sourceChanged:false.
+Explicit2.1.299 symbol profiles execute extracted installed functions with synthetic
+callbacks; no native sends. Unknown versions refuse qualification. Focused5/5 pass.
+Pressure suite hash coverage now includes imported .mjs test fixtures as well as
+.test.mjs suites. Remaining five prior installed failures: environment retirement,
+collection refresh/removal ordering, two peer routing/envelope checks, retired
+receiver dispatch. Next changed-condition step: inspect current2.1.299 implementations
+for those five, update explicit profiles only after semantic validation, rerun full
+pressure and preserve failures. No native broker revival or detector activation.
+
 ## Passive native lifecycle evidence — October 15
 
 Previous goal turn: progress (published lifecycle tracing).

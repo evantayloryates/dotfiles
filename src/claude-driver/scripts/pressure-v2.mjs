@@ -15,7 +15,8 @@ if (!Number.isInteger(repeat) || repeat < 1 || repeat > 100) throw new Error('--
 const root = fileURLToPath(new URL('../../..', import.meta.url))
 const results = []
 const suites = readdirSync(join(root, 'src/claude-driver/test')).filter(f=>f.endsWith('.test.mjs')).sort().map(f=>`src/claude-driver/test/${f}`)
-const suiteHashes = () => Object.fromEntries(suites.map(file=>[file,createHash('sha256').update(readFileSync(join(root,file))).digest('hex')]))
+const evidenceFiles = readdirSync(join(root, 'src/claude-driver/test')).filter(f=>f.endsWith('.mjs')).sort().map(f=>`src/claude-driver/test/${f}`)
+const suiteHashes = () => Object.fromEntries(evidenceFiles.map(file=>[file,createHash('sha256').update(readFileSync(join(root,file))).digest('hex')]))
 const initialSuiteHashes = suiteHashes()
 for (let run = 0; run < repeat; run++) {
   const started = Date.now()

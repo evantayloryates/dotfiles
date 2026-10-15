@@ -1,3 +1,4 @@
+import {installedApiFixture} from './installed-api-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
@@ -5,8 +6,7 @@ import {runInNewContext} from 'node:vm'
 import {resolveClaudeBinary} from '../lib/paths.mjs'
 import {installedWindowContaining,cutInstalledFunction} from '../lib/installed-source.mjs'
 test('corrected candidate refuses foreign ownership and prior intents before public MCP dispatch',async()=>{
- const source=installedWindowContaining(resolveClaudeBinary(),'var gk=(e,t,o)=>Ny({call:',{after:220}).text
- const factory=runInNewContext(`(()=>{${cutInstalledFunction(source,'var gk=','var Bp=')};return gk})()`,{Ny:x=>x})
+ const factory=installedApiFixture().mcp
  const code=readFileSync(new URL('../candidates/native-mod-api-probe/hooks/register.js',import.meta.url),'utf8')
  for(const scenario of ['foreign-session','foreign-directory','prior-intent','prior-report']){
   const hooks=[],calls=[],writes=[],commands=[]
@@ -19,8 +19,7 @@ test('corrected candidate refuses foreign ownership and prior intents before pub
  }
 })
 test('corrected candidate crosses installed public wrapper with exact positional native input',async()=>{
- const source=installedWindowContaining(resolveClaudeBinary(),'var gk=(e,t,o)=>Ny({call:',{after:220}).text
- const factory=runInNewContext(`(()=>{${cutInstalledFunction(source,'var gk=','var Bp=')};return gk})()`,{Ny:x=>x})
+ const factory=installedApiFixture().mcp
  const hooks=[],calls=[],writes=[],commands=[]
  const code=readFileSync(new URL('../candidates/native-mod-api-probe/hooks/register.js',import.meta.url),'utf8')
  runInNewContext(`(()=>{${code.replace('export function register','function register')};return register})()`,{JSON})((...x)=>hooks.push(x))
