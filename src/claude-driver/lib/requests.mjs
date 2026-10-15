@@ -115,15 +115,22 @@ export function inspectRequest(id, { includeResult = false } = {}) {
   const r = readJson(requestFile(id), null)
   if (!r) throw new DriverError('request not found', { category: 'not_found' })
   const c = control(id)
+  let receiptObservation
+  try{
   if(r.nativeObservation&&!existsSync(nativeResultFile(id))){
     const observe=observeNativeReceipts(r.nativeObservation.brokerSessionId,r,r.nativeObservation)
     // Bounded late-result reconciliation, also after the submitting worker
     // disconnected. Read at most 1 MiB, never replay the native invocation.
     for(let i=0;observe&&i<4;i++){const actual=observe();if(actual){writeJsonAtomic(nativeResultFile(id),actual);break}}
   }
+  }catch(e){
+    if(e.category!=='outcome_unknown'||c.dispatched?.length||!['cancelled','expired'].includes(c.state)||!safeUndispatchedRetry(r))throw e
+    receiptObservation={available:false,category:'outcome_unknown',verification:'Historical receipt unavailable; only an undispatched cancelled/expired pure read is retry-safe'}
+  }
   const receipt = validatedResult(r)
   const uncertainEffect=!receipt&&!safeUndispatchedRetry(r)&&['cancelled','expired'].includes(c.state)
   return { requestId: id, state: receipt ? receipt.results.every(x=>x.ok) ? 'completed' : 'failed' : uncertainEffect?'outcome_unknown':c.state || 'unknown',
+    ...(receiptObservation?{receiptObservation}:{}),
     controlState: c.state, dispatched: (c.dispatched || []).length > 0,
     receiptVerified: !!receipt, retrySafe: !receipt && !c.dispatched?.length && ['cancelled','expired'].includes(c.state)&&safeUndispatchedRetry(r),
     operations: r.ops.map(x=>({op:x.op,args:redactArgs(x.args)})),

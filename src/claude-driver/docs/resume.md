@@ -1,3 +1,23 @@
+## Historical receipt evidence and pure-read reconciliation — October 15
+
+Previous goal turn: progress (complete449-request audit). All31 receipt-source
+refusals share saveddev16777233/currentdev16777232, identicalinode45916594.
+The preserved20761827-byte journal prefix matches prior SHA256bb1c87255065a9f60ae1376ed705f5f61b38b5e7901de711b738d34bc153a538.
+Independent private scan found no complete helper-checkpoint/result chains for31;
+19 have matching native calls after request creation (42 unique tool calls), not
+unique request attribution. Evidence in diagnostics/historical-receipt-review-2026-10-15.json
+and historical-uncheckpointed-calls-2026-10-15.json; no raw transcript imported.
+Nine cancelled/expired undispatched pure reads were hidden by cursor-drift errors.
+Inspection now preserves that observation failure while exposing the existing
+safeUndispatchedRetry contract; no receipt or completion claimed. Effects, pending
+reads and dispatched reads still throw. Audit now22 unresolved,9 retry-safe reads,
+408completed/10failed,449total; handoff still refused. Focused7/7 pass.
+Full pressure v2-2026-10-15T23-06-17-174Z.json passes1/1 in10410ms,
+sourceChanged:false. Nothing
+replayed or woken; original native observation cursors remain unchanged. Next step:
+reconcile22 uncertain effect/dispatched outcomes independently, preserving ambiguity;
+do not use current app state alone to claim historical execution.
+
 ## Durable recovery audit — October 15
 
 Previous goal turn: progress (async correlation and offline diagnosis). Current

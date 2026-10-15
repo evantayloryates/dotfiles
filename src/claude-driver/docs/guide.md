@@ -678,3 +678,10 @@ reconciliation may persist a correlated receipt; it never dispatches/replays wor
 Inspection failures retain exact request IDs and sanitized error categories. A
 budget-exhausted or unavailable inventory always refuses settlement. An existing
 cancel/expiry marker alone never settles an uncertain native effect.
+
+
+If historical receipt collection refuses source identity, inspection may still
+report retrySafe for an expired/cancelled pure read with no helper dispatch. It
+also returns receiptObservation.available:false and category:outcome_unknown;
+this is not a receipt or proof that the read never ran. Mutations, pending work
+and any recorded dispatch retain their refusal. No cursor is rebound or replayed.
