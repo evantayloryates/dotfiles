@@ -239,22 +239,44 @@ input, context reset, model/auth change or competing recovery occurred.
 
 # Claude-driver v2 qualification
 
-Latest audit: October7,10:54 Eastern. The bridge is a working native control
-prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
+Latest audit: October15,19:37 Eastern. Overall qualification remains false.
+Current source702a4b61 passes366 isolated checks and both filtered headless
+harness contracts. The connected Codex-chat MCP loads6e0fd19f and reports
+restartRequired:true; use fresh CLI/current filtered harness for engineering.
+The native broker is offline; sealed generation6 remains intact but bound to
+old PID71262. No current waiter, batch admission or residency proof exists.
+Evidence: STATE_DIR/diagnostics/v2-requirements-audit-2026-10-15.json.
 
-| Requirement | Current evidence | Remaining gate |
+| Requirement | Current authoritative evidence | Remaining gate |
 |---|---|---|
-| Common interface and lifecycle | CLI/MCP, durable jobs, idempotency, steering, receipt and shared-memory contracts; actual filtered harness checks passed previously | Current-source native serving/steering under sustained use |
-| Native controls | Batch read/archive passed15.635s with independent archived readback | Three concurrent read clients and a distinct-target read batch passed; controlled mutations/steering and full suite remain unqualified |
-| Native effect guard | Actual positive receipts and cancellation-after-checkpoint denial; unknown effects fail closed | Platform timeout/fault paths and final-package native cancellation |
-| Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Seventeen effects remain causally unresolved; do not replay |
-| Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
-| Mechanical quiet signal | Isolated subprocess boundaries pass; exact native per-ID continuation persisted; helper ancestry/expiry proved | Model ended without tools; signal receipt is not execution reliability |
-| Deterministic MCP hook candidate | Actual native Stop-hook reads and two-target batch with genuine result attachments; temporary settings restored | Event-only FileChanged activation, duplicate/cancel admission and safe mutations remain unqualified; no persistent public transport |
-| Residency/recovery | Bounded quiet helper expired cleanly; native broker stayed alive | Natural governor pressure and unattended cold recovery |
-| Fast detection | Zero-inference local30s detector; hourly Claude observer fallback | Codex inbox remains inference-bearing; full event-triggered inference not implemented |
-| Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
-| Human input scope | Quarantine preserved; no keyboard/paste or app/auth/process intervention | Broader native teardown and future physical-input qualification |
+| Common CLI/MCP interface | Both current-source filtered Claude and configured Codex gpt-6-sol harness contracts pass | Current chat MCP reconnection; native desktop caller handback and Cursor authentication remain separate |
+| Durable lifecycle | Synthetic detached-worker, idempotency, disconnect, wait and cancellation contracts pass | Current-source native recipient and effects under sustained use |
+| Native delivery | Dedicated scratch2.1.299 exact msg_id receipt and terminal TRANSPORT_OK; ordinary next-priority gate qualified | Full send_message broker route, queue/steering and model compliance under load; no immediate/idle-control version promotion |
+| Native controls | Historical control/mutation passes remain historical; current same-epoch stop guard covered synthetically | Current-source positive/negative native controls, concurrency and distinct-target batch |
+| Native effect guard | Checkpoint/cancel/expiry and unknown-outcome synthetic boundaries pass | Current native cancellation/fault/timeout and independently applied effect readback |
+| Uncertainty containment |449 requests:408 completed,10 failed,9 safely undispatched pure reads,22 unknown; unknowns stay unsafe to retry | Independent receipt/effect reconciliation before handoff; empty dispatch ledger is insufficient |
+| Deployment and rollback | Sealed generation6 inventory passes read-only integrity through both state paths | Current native epoch admission, dependency receipts and distinct-build rollback; no repin/restart while unresolved |
+| Mechanical quiet signal | Current isolated boundaries pass; historical continuation receipts retained | Current native helper execution, ancestry/expiry and reliable serving; receipt alone insufficient |
+| Deterministic MCP hook/native-mod candidates | Source/admission tests pass; two failed native-mod reports reviewed and retained | Current loaded bytes, kernel epoch, event activation, duplicate/cancel admission, safe mutations and scoped unload |
+| Residency and recovery | Migrated maintenance receipts now visible; current broker offline | Fresh current-epoch CronList plus app acknowledgment, natural governor pressure, cold recovery and native teardown |
+| Detection and efficiency | Passive30s lifecycle LaunchAgent installed; zero-model unchanged ticks; four unresolved reports remain | Event-triggered Codex inference and sustained native serving latency/throughput; inbox watcher remains paused |
+| Evidence and service memory | Fingerprinted pressure/harness artifacts; static native refusal reasons; per-hash reviews and shared candidate memory | Promote native claims only with independent current receipts; preserve reported versus verified failures |
+| Human input scope | Quarantine retained; no keyboard injection, app restart, session kill or auth changes | Native resource teardown and separate physical-input qualification |
+| Creation, pool and groups | Current one scratch import exists/focus restored; intended bypass mismatch correctly unverified; historical pool/group successes retained | Current-source complete create/pool/group suite and independently persisted settings/cleanup |
+
+Current source evidence hashes and versions are recorded in the private audit.
+The eleven input-free live-v2 gates remain unproven on the current release:
+input-resource-audit-before; create-and-restore-focus; durable-submit-and-recipient-reply;
+cancellation-before-native-dispatch; three-concurrent-native-controls;
+batched-native-controls; queue-is-not-interrupt; interrupt-then-replacement-is-applied;
+single-native-recipient-replies; cleanup-archive; input-resource-audit-after.
+The scratch authorization covered one fixed test only; it does not authorize
+running this broader native suite. Residency's maintenance acknowledgment and
+same-broker-survives-native-idle gates additionally require natural governor
+pressure; absence of pressure cannot pass that requirement.
+
+The following mechanism notes describe historical candidate/epoch evidence.
+They do not override the current matrix above.
 
 Installed hook7e388b8f keeps compact feedbackVersion2 enrolled and quiet disabled.
 Historical hostc969 had later publication-failure handling, fully isolated-tested

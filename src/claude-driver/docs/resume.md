@@ -1,3 +1,25 @@
+## Full v2 requirement audit refreshed — October 15
+
+Previous goal turn: progress (two failed native-mod report reviews acknowledged).
+Audited current requirement matrix and all eleven named input-free live gates,
+plus native residency, recovery/rollback, controls, lifecycle, uncertainty,
+performance/detection, input, memory and creation/pool/groups. Overall qualified:false.
+Current source702a4b61 matches passing366 pressure and both filtered harness
+artifacts (hashes rechecked), but current chat MCP loads6e0fd19f/restartRequired:true.
+Native broker offline;22 unresolved outcomes; no current waiter/batch/residency
+admission. Narrow scratch delivery pass does not qualify generic broker serving.
+Updated docs/v2-qualification.md to separate current proof from historical rows.
+Private evidence: diagnostics/v2-requirements-audit-2026-10-15.json. No repeated
+inference tests or native operations needed for this documentation/evidence audit.
+Goal active. Next concrete engineering gap: current send_message routes all
+non-desktop callers through offline broker even for a qualified live peer.
+Review whether an explicitly scoped direct recipient transport can reuse existing
+native receipt/uncertainty/ownership guards, with synthetic end-to-end MCP tests;
+do not weaken version/epoch gates or bypass unknown broker mutations. Do not send
+more native test messages: existing authorization was one fixed submission only.
+Keep quarantine, paused watcher and observer recovery ownership. Full native
+suite/recovery still needs its own concrete scope and prerequisites satisfied.
+
 ## Two native-mod failure reports reviewed — October 15
 
 Previous goal turn: progress (uncertain-request diagnostic visibility).
