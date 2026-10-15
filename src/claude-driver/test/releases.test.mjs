@@ -123,7 +123,7 @@ test('epoch proof refuses activation without an epoch and a caller outside the o
   releases.commitRelease(staged.build,different,()=> 'pinned sibling')
   const script=new URL('../scripts/broker-wait.mjs',import.meta.url).pathname
   const r=spawnSync(process.execPath,[script,'--dir',state.BROKER_DIR,'--max-sec','0'],{encoding:'utf8',timeout:3000})
-  assert.notEqual(r.status,0);assert.match(r.stderr,/integrity admission/)
+  assert.notEqual(r.status,0);assert.match(r.stderr,/integrity admission/);assert.match(r.stderr,/native-ancestor-missing/)
  }finally{sibling.kill('SIGTERM');await new Promise(resolve=>sibling.once('exit',resolve))}
 })
 test('old matching entries cannot qualify a replaced PID, reused epoch or unbound pointer',()=>{

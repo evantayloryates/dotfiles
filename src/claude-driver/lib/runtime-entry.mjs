@@ -8,7 +8,7 @@ import {dirname,join,resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 const hex=/^[a-f0-9]{64}$/
 const hash=x=>createHash('sha256').update(x).digest('hex')
-const refuse=()=>{throw new Error('pinned broker runtime failed integrity admission; no work claimed')}
+const refuse=(reason='integrity-unqualified')=>{const error=new Error('pinned broker runtime failed integrity admission; no work claimed ['+reason+']');error.code='PINNED_RUNTIME_ADMISSION';error.admissionReason=reason;throw error}
 // Per-request completed observations survive later shared helper entries. This
 // is evidence retention only: it never creates dispatch or native admission.
 export function retainCompletedCheck(dir,record){
@@ -27,25 +27,25 @@ function nativeBinding(pointer,dir) {
  // Legacy releases are preserved for controlled handoff. They must not produce
  // current-epoch qualification in a new host merely from an old entry record.
  if(!Object.hasOwn(pointer,'procStart'))return null
- if(typeof pointer.procStart!=='string'||!pointer.procStart)refuse()
- if(!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string')refuse()
+ if(typeof pointer.procStart!=='string'||!pointer.procStart)refuse('native-epoch-invalid')
+ if(!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string')refuse('native-identity-invalid')
  const peers=process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR||join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'sessions')
  let fd,record
  try {
   fd=openSync(join(peers,pointer.pid+'.json'),constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)
   const stat=fstatSync(fd);if(!stat.isFile()||stat.uid!==process.getuid()||stat.size>65536)refuse()
   const bytes=readFileSync(fd);if(bytes.length>65536)refuse();record=JSON.parse(bytes.toString('utf8'))
- }catch{refuse()}finally{if(fd!==undefined)closeSync(fd)}
- if(record.pid!==pointer.pid||record.procStart!==pointer.procStart||record.hostSessionId!==pointer.sessionId||record.sessionId!==pointer.sessionId.replace(/^local_/, '')||record.entrypoint!=='claude-desktop'||record.spare||record.parkedJobId||resolve(record.cwd||'/')!==resolve(dir))refuse()
+ }catch{refuse('native-peer-unavailable')}finally{if(fd!==undefined)closeSync(fd)}
+ if(record.pid!==pointer.pid||record.procStart!==pointer.procStart||record.hostSessionId!==pointer.sessionId||record.sessionId!==pointer.sessionId.replace(/^local_/, '')||record.entrypoint!=='claude-desktop'||record.spare||record.parkedJobId||resolve(record.cwd||'/')!==resolve(dir))refuse('native-peer-identity-mismatch')
  let cursor=process.ppid
  for(let hop=0;hop<24&&cursor>1;hop++){
   let line
-  try{line=execFileSync('/bin/ps',['-p',String(cursor),'-o','ppid=','-o','lstart='],{encoding:'utf8',timeout:1000,env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()}catch{refuse()}
-  const match=line.match(/^(\d+)\s+(.+)$/);if(!match)refuse()
-  if(cursor===pointer.pid){if(match[2]!==pointer.procStart)refuse();return {brokerPid:pointer.pid,brokerProcStart:pointer.procStart,brokerSessionId:pointer.sessionId,ancestorVerified:true}}
-  const parent=Number(match[1]);if(parent===cursor)refuse();cursor=parent
+  try{line=execFileSync('/bin/ps',['-p',String(cursor),'-o','ppid=','-o','lstart='],{encoding:'utf8',timeout:1000,env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()}catch{refuse('native-ancestry-unavailable')}
+  const match=line.match(/^(\d+)\s+(.+)$/);if(!match)refuse('native-ancestry-invalid')
+  if(cursor===pointer.pid){if(match[2]!==pointer.procStart)refuse('native-epoch-mismatch');return {brokerPid:pointer.pid,brokerProcStart:pointer.procStart,brokerSessionId:pointer.sessionId,ancestorVerified:true}}
+  const parent=Number(match[1]);if(parent===cursor)refuse('native-ancestry-cycle');cursor=parent
  }
- refuse()
+ refuse('native-ancestor-missing')
 }
 export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  if(!['broker-wait','broker-check'].includes(kind))refuse()

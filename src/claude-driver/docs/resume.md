@@ -1,3 +1,30 @@
+## Observer report review and admission diagnostics — October 15
+
+Previous goal turn: progress (same-epoch explicit idle required for steering).
+Read six pending reports as untrusted evidence. Oct11 observer reports one wake,
+CronCreate and two waiter integrity errors. Independently counted1 CronCreate,
+2 CronList and2 exact error results in migrated broker transcript00:56–00:59Z.
+Read-only instrumentation of exact hash-verified sealed entry checks all release
+ownership/hashes/fingerprint on both physical and legacy paths, stopping before
+native binding or any observation/import/claim. Both pass today. Pointer remains
+PID71262/start Oct7; report wake PID42299 differs, old peer file absent today.
+Exact historical refusal check remains unknown; no claim of corruption or crash.
+Private evidence: diagnostics/observer-integrity-review-2026-10-15.json.
+Current bootstrap candidate now adds static native identity/epoch/ancestry refusal
+codes, preserving fail-closed behavior. Old sealed entry is untouched and will
+not gain diagnostics until a separately admitted release handoff. Pressure365/365
+passes unchanged source: pressure/v2-2026-10-15T23-31-06-366Z.json. Initial filtered
+harnesses passed contract checks but failed globalConfigUnchanged; retained both
+23-30-58-989Z reports, no config reverted. Codex rerun23-31-35-567Z and Claude rerun23-31-38-916Z both pass.
+All six reports remain pending with per-hash durable blockers in
+ diagnostics/report-review-2026-10-15.json; none acknowledged or replayed.
+Concrete next fix: broker-residency reads getRecord.cwd legacy journal while
+Oct12 native receipts live in canonical migrated journal. Historical observation
+reproduces native-list-not-fresh despite confirmed receipts in canonical journal.
+Implement bounded exact-session logical/canonical journal reconciliation with
+migration/adversarial tests, preserving epoch/fresh-list/app-ack gates. Goal active;
+no native wake, extra message, permission changes or Computer Use this turn.
+
 ## Interrupt stop evidence tightened — October 15
 
 Previous goal turn: progress (current-version ordinary transport qualification).
