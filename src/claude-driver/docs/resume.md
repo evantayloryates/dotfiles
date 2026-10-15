@@ -1,3 +1,19 @@
+## Native source checks restored on CLI2.1.299 — October 15
+
+Previous goal turn: progress (four installed checks reconciled). Remaining five
+checks now execute current installed code with synthetic callbacks: environment
+retirement/in-flight release order, retired receiver pre-matcher filtering,
+collection inventory/removal order, peer receive consumption and slash skipping,
+and envelope preservation/from-plugin stripping (encoder injected, not end-to-end
+encoder qualification). Explicit2.1.299 profiles refuse unknown versions. No native
+messages, app navigation, recovery, permissions or detector installation.
+Final pressure v2-2026-10-15T22-59-59-475Z.json passes1/1 in12375ms,
+sourceChanged:false. Runner additionally records before/after installed app/CLI
+versions and binary inode/size/mtime/ctime and rejects drift during a run.
+Next changed-condition step: qualify current passive collector deployment and
+native lifecycle/recovery state machine against exact ownership and uncertain
+request ledger, without reusing the old broker epoch. Full v2 remains incomplete.
+
 ## Installed CLI compatibility reconciliation — October 15
 
 Previous goal turn: progress (passive capture and preserved pressure failures).

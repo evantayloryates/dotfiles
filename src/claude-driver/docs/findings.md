@@ -1001,3 +1001,18 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   `hostSessionId`, so `"self"` resolves without any env var. n=1.
 - Research-session findings (import, fork, unarchive link, env -i, bundled
   CLI, ruled-out CDP) are in [brief.md](brief.md) §3.
+
+
+## October 15 — installed native compatibility checks
+
+CLI2.1.299 / Desktop2.42304.0 changed minified symbols relative to the earlier
+qualification fixtures. Nine failures were preserved, then reconciled by executing
+bounded installed code with synthetic dependencies. Retirement, dispatch filtering,
+collection reload ordering, late-load start deduplication, native MCP/tool wrappers,
+and peer receive routing checks now pass. Envelope handling now strips from-plugin
+before passing the preserved direct envelope through its encoder; that encoder is
+injected in this check, so actual encoder behavior is not qualified here. Unknown
+versions fail explicit symbol profiles. These are source/adapter checks, not proof
+of live sidecar serving, shutdown recovery, or permission approval. Pressure reports
+now hash imported test helpers and record installed identity before/after to detect
+source or installed-version drift during a run.
