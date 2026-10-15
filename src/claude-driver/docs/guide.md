@@ -669,3 +669,12 @@ runOp may have no operation ID. An offline worker reports
 `native-process-unavailable`; `native-process-epoch-mismatch` means a live worker
 does not match the activation identity. Neither establishes serving readiness or
 authorizes epoch renewal. Historical sealed releases keep their original behavior.
+
+
+`broker_recovery_status` returns broker identity and a bounded durable-request audit
+(maximum1024 request files). Complete coverage and zero unresolved requests are
+necessary for handoff, not authorization or serving readiness. Late native receipt
+reconciliation may persist a correlated receipt; it never dispatches/replays work.
+Inspection failures retain exact request IDs and sanitized error categories. A
+budget-exhausted or unavailable inventory always refuses settlement. An existing
+cancel/expiry marker alone never settles an uncertain native effect.

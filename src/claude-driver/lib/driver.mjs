@@ -2,6 +2,7 @@
 // pick a tier (A disk/CLI/deep link, B broker ccd_* tools, C computer use) →
 // act under the focus policy → verify against disk → one ledger row.
 
+import {auditRequests} from './request-audit.mjs'
 import {randomUUID} from 'node:crypto'
 import {lifecycleEvent,withLifecycleContext,lifecycleContext} from './lifecycle-log.mjs'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
@@ -969,6 +970,14 @@ export const OPS = [
     description:'Observe broker liveness, runtime integrity and serving evidence without inference; persist bounded metadata-only diagnostic history. Never authorizes dispatch.',
     schema:{properties:{}},
     run:async()=>{const {captureServiceDiagnostics}=await import('./service-diagnostics.mjs');return captureServiceDiagnostics()},
+  },
+  {
+    name: 'broker_recovery_status',
+    title: 'Broker recovery prerequisites',
+    description: 'Read-only broker identity and bounded durable request audit. May reconcile late native receipts without replay. No wake, epoch renewal, permission change or recovery authority.',
+    readOnly: true,
+    schema: { properties: {} },
+    run: async () => ({ broker: brokerInfo(), requests: auditRequests(), recoveryAttempted: false, replayAuthorized: false }),
   },
   {
     name: 'broker_status',

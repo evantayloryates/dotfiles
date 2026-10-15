@@ -1,3 +1,21 @@
+## Durable recovery audit — October 15
+
+Previous goal turn: progress (async correlation and offline diagnosis). Current
+read-only broker_recovery_status audits449 requests:408 completed,10 failed,
+31 inspection-refused/outcome_unknown; complete:true,settledForHandoff:false.
+The earlier17 unknown count is historical. First inspected refusal is transcript
+identity drift; all31 retain unknown outcomes regardless of cancellation/empty
+helper dispatch. Private bounded audit snapshot at diagnostics/request-audit-2026-10-15.json.
+New reusable audit preserves exact unresolved IDs and sanitized categories without
+arguments/errors; budget exhaustion or inventory failure cannot claim settlement.
+Release admission consumes the same audit and preserves refusal. Focused19/19 pass;
+full pressure v2-2026-10-15T23-04-11-381Z.json passes1/1 in10111ms,
+sourceChanged:false;
+no recovery or replay. Next changed-condition step: independently reconcile retained
+historical native receipts against exact unique request/checkpoint/tool identities,
+with immutable source evidence; never relax inode/cursor guards or mark cancelled
+native effects settled from missing dispatch alone. Goal remains active.
+
 ## Async correlation and truthful offline diagnosis — October 15
 
 Previous goal turn: progress (passive monitor installed and observed two runs).

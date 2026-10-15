@@ -6,6 +6,7 @@
 // needed → poll results/<id>.json
 // (bounded) → the caller verifies against disk ground truth.
 
+import {auditRequests} from './request-audit.mjs'
 import {lifecycleEvent} from './lifecycle-log.mjs'
 import { randomUUID } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -128,8 +129,9 @@ export function validateReleaseAdmission({info,record,stop,nonce,pid,unresolved}
 }
 function releaseAdmission(nonce,pid) {
  const info=brokerInfo(),stop=readJson(join(BROKER_DIR,'STOP'),null)
- const unresolved=readdirSync(ensureDir(REQ_DIR)).filter(f=>/^[A-Za-z0-9_-]+\.json$/.test(f)).map(f=>inspectRequest(f.slice(0,-5)))
-   .filter(r=>!r.receiptVerified&&!r.retrySafe)
+ const audit=auditRequests()
+ if(!audit.complete)throw new DriverError('release handoff request audit is incomplete',{category:'broker_handoff_refused',detail:{reason:audit.reason,inspected:audit.inspected,total:audit.total}})
+ const unresolved=audit.unresolved
  validateReleaseAdmission({info,record:getRecord(info.sessionId),stop,nonce,pid,unresolved})
  return info
 }
