@@ -1,3 +1,19 @@
+## Native transport fixture prerequisite — October 15
+
+Previous goal turn: progress (native broker process identity strengthened).
+Current-source registry/live inventory:79 registered sessions;3 live registered
+chats are Kickoff work, no registered probe fixtures under STATE_DIR/probe.
+No existing work chat used, no new chat/message/recovery attempted. Transport
+qualification on2.1.299 cannot proceed without dedicated native fixture; source
+adapter checks do not replace native receipt proof. Concrete plan persisted in
+diagnostics/transport-qualification-plan-2026-10-15.json: one scratch chat, one
+fixed message, zero retries, exact native identity and received/terminal proof.
+User action required: authorize one dedicated scratch chat and the fixed message,
+or identify and authorize an existing dedicated scratch fixture. Earlier watcher
+instructions prohibit creating/messaging chats, so do not infer this permission.
+Goal remains active; first fixture-blocked audit, not blocked status. Historical22
+unknowns and recovery-owner constraints remain separately preserved.
+
 ## Native broker process identity — October 15
 
 Previous goal turn: progress (causal wake evidence). Broker health previously used
