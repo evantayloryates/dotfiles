@@ -173,10 +173,12 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   // A refused arm cannot fall through to another sender or race a fast Stop.
   lifecycleEvent('peer-wake-prepared',{wake:{msgId,pid:rec.pid,procStart:rec.procStart,method:'direct',priority}})
   if(onPrepared!==undefined){if(typeof onPrepared!=='function')throw new DriverError('invalid peer preparation callback',{category:'bad_args',detail:{dispatched:false,retrySafe:true}});await onPrepared({msgId,pid:rec.pid,procStart:rec.procStart})}
-  if(priority==='now'){
-    const fresh=peerRecord(target.sessionId,rec.pid)
-    if(!fresh||fresh.procStart!==rec.procStart||fresh.status!=='idle')throw new DriverError('peer became active before immediate routing; no frame sent',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
-  }
+  // Preparation can await durable admission. Do not route its old credentials
+  // to a replaced process, CLI session or socket after that boundary.
+  const fresh=peerRecord(target.sessionId,rec.pid)
+  const socketNow=lstatSync(sock,{throwIfNoEntry:false})
+  if(!fresh||fresh.procStart!==rec.procStart||fresh.sessionId!==rec.sessionId||fresh.version!==rec.version||fresh.peerProtocol!==rec.peerProtocol||fresh.messagingSocketPath!==sock||!socketNow?.isSocket()||socketNow.isSymbolicLink()||socketNow.uid!==process.getuid()||socketNow.dev!==lst.dev||socketNow.ino!==lst.ino||priority==='now'&&fresh.status!=='idle')
+    throw new DriverError('peer identity or socket changed before routing; no frame sent',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
   await sendLines(sock, payload,{timeoutMs,signal})
   return { msgId, pid: rec.pid, procStart:rec.procStart, transcript: transcriptPath(rec) }
 }

@@ -714,3 +714,8 @@ Recovery audits retain control state when historical receipt observation is
 unavailable, but keep the outcome unknown and unsafe to retry. Strict request
 inspection still refuses that evidence gap; diagnostic visibility grants no
 replay, handoff or release authority.
+
+Direct peer transport revalidates process epoch, CLI identity, version/protocol
+and socket identity after its preparation callback, before sending. A changed
+recipient refuses without a fallback sender. This is transport hardening; public
+send_message continues to use the native broker route.

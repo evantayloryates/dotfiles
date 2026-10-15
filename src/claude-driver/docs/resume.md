@@ -1,3 +1,25 @@
+## Direct-recipient route foundation — October 15
+
+Previous goal turn: progress (full v2 requirement audit refreshed).
+Reviewed existing peer framing, event cursors, job/control ownership and native
+send receipts. Public send_message still uses native broker; no alternate route
+exposed. Found preparation race: ordinary direct wake could await onPrepared then
+send using obsolete process/session/socket metadata. Now every priority revalidates
+unique PID/start, CLI identity, version/protocol, socket path/device/inode/owner/type
+before writing. Immediate routing additionally requires idle as before.
+Added async preparation adversaries for changed epoch/session/version/protocol/path;
+all refuse with dispatched:false/retrySafe:true and no fallback bytes. Full current
+pressure367/367 passes, source unchanged:
+pressure/v2-2026-10-15T23-38-17-439Z.json. Both filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-38-09-286Z.json and
+pressure/harness-v2-codex-2026-10-15T23-38-09-212Z.json.
+Concrete proposal: diagnostics/direct-recipient-route-plan-2026-10-15.json. Next
+implement candidate metadata-only durable send state and bounded same-journal
+origin.msg_id receipt observation, then actual synthetic MCP/job integration.
+No public direct route until those guards pass. Native trials remain unauthorized
+beyond consumed one-message budget. No broker effects settled, recovery attempted,
+permissions changed or native messages sent. Goal active; Codex-driver fixes parked.
+
 ## Full v2 requirement audit refreshed — October 15
 
 Previous goal turn: progress (two failed native-mod report reviews acknowledged).

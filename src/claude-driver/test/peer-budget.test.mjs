@@ -74,6 +74,16 @@ test('prepared metadata is bound before any socket byte and refusal cannot fall 
   assert.equal(bytes,before);assert.equal(existsSync(fallback),false)
  }finally{await close()}
 })
+test('ordinary routing revalidates recipient identity after asynchronous preparation',async()=>{
+ let bytes=0;await start((s,d)=>{bytes+=d.length;s.end()})
+ try{
+  for(const changes of [{procStart:'reused-epoch'},{sessionId:'another-cli'},{version:'9.9.999'},{peerProtocol:2},{messagingSocketPath:join(root,'other.sock')}]){
+   reset()
+   await assert.rejects(deliver(target,'fixture',{method:'direct',onPrepared:async()=>{await Promise.resolve();writeFileSync(recFile,JSON.stringify({...rec,...changes}))}}),e=>e.category==='peer_refused'&&e.detail.dispatched===false&&e.detail.retrySafe===true)
+   assert.equal(bytes,0);assert.equal(existsSync(fallback),false)
+  }
+ }finally{reset();await close()}
+})
 test('experimental immediate routing refuses active or changed peers before sending and never falls back',async()=>{
  let input='';await start((s,d)=>{input+=d.toString();s.end()})
  const idleTarget={...target,live:{pid:process.pid,procStart,status:'idle'}}
