@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {captureNativeLifecycle} from '../lib/native-lifecycle-capture.mjs'
 import {lifecycleEvent} from '../lib/lifecycle-log.mjs'
 import {join} from 'node:path'
 import {sampleBroker,detectorTransition,publishDetectorEvent} from '../lib/broker-detector.mjs'
@@ -10,6 +11,8 @@ const stateFile=join(STATE_DIR,'detector-v1.json'),reportDir='/Users/taylor/src/
 await withLock('broker-detector',async()=>{
  const prior=readJson(stateFile,null)
  const observe=()=>{const session=readJson(join(BROKER_DIR,'broker.json'),null)?.sessionId;return sampleBroker({brokerDir:BROKER_DIR,recordFile:session&&findRecordFile(session),peerDir:PEER_SESSIONS_DIR})}
+ const ownedSession=readJson(join(BROKER_DIR,'broker.json'),null)?.sessionId
+ try{await captureNativeLifecycle(ownedSession)}catch{} // Diagnostics never trigger recovery.
  let sample=observe(),event=detectorTransition(prior?.sample,sample)
  if(event?.kind==='fault-observation'){
   await sleep(2000) // confirm a transition across atomic metadata writes

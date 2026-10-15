@@ -635,3 +635,16 @@ accepting events. Files are not automatically deleted. This is request-time logg
 not an always-on crash recorder: unloaded detectors and old MCP processes produce
 no new instrumentation. Reconnect MCP to load changed source; sealed broker code
 is not modified by this host instrumentation.
+
+
+Passive native lifecycle capture uses a durable inode/byte/session cursor and reads
+at most 256 KiB from Claude main.log per invocation. Run
+`node src/claude-driver/scripts/capture-native-lifecycle.mjs` for one passive capture.
+The current-source detector also invokes it on each tick, even if health is unchanged.
+Only exact owned query exits and governor eviction intentions are retained; raw
+log lines stay out of artifacts. Evidence hashes support duplicate reconciliation
+if a collector fails after append but before checkpoint. Partial final lines wait
+for the next poll. Rotation, truncation, initial-tail-only and budget gaps are explicit;
+app-local wall-clock timestamps retain their timezone ambiguity. This does not
+attribute a crash, app update, user quit or intentional termination. No continuous
+capture is claimed until the current collector is installed and observed running.

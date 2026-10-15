@@ -1,3 +1,22 @@
+## Passive native lifecycle evidence — October 15
+
+Previous goal turn: progress (published lifecycle tracing).
+Full current-source pressure v2-2026-10-15T22-56-34-433Z.json: 347/356 pass,
+nine installed-native source extraction/adapter checks fail, sourceChanged:false.
+Failures preserved in the report and service memory; no qualification claimed.
+Next native step: reconcile minified installed CLI markers and behavior against
+2.1.295 before any peer/sidecar qualification; never weaken assertions to pass. Added bounded incremental
+main.log metadata extraction to the existing detector, plus one-shot
+scripts/capture-native-lifecycle.mjs. Persistent inode/byte/session cursors avoid
+repeated reads and expose rotation/truncation/budget gaps. Exact broker query exit
+codes remain cause unknown; governor would-evict messages remain intentions.
+Raw lines never leave the parser. Two live passive reads: initial 262144 bytes,
+zero owned events; second zero bytes/zero events. Detector remains unloaded and
+report watcher paused; no app wake/restart or sealed runtime change. Next changed
+condition: qualify continuous collection deployment against current-source detector
+and measure bounded overhead before enabling a single recovery owner. Historical
+termination cause remains unproven; unattended recovery remains incomplete.
+
 ## Lifecycle logging — October 15
 
 Added metadata-only daily lifecycle JSONL under .runtime/state/lifecycle:
