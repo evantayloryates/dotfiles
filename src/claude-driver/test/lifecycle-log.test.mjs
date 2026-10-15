@@ -22,3 +22,17 @@ test('unavailable and symlinked log destinations fail without throwing',()=>{
   assert.equal(lifecycleEvent('operation-start',{}, {dir:join(dir,'2026-10-15.jsonl','child')}).recorded,false)
  }finally{rmSync(dir,{recursive:true,force:true})}
 })
+test('interleaved operations keep broker events in their own async correlation context',async()=>{
+ const {withLifecycleContext}=await import('../lib/lifecycle-log.mjs')
+ const dir=mkdtempSync(join(tmpdir(),'driver-lifecycle-'))
+ try{
+  const rows=await Promise.all(['operation-a','operation-b'].map(operationId=>withLifecycleContext({operationId,operation:'send_message',build:'fixture'},async()=>{
+   await new Promise(resolve=>setTimeout(resolve,operationId.endsWith('a')?5:1))
+   const r=lifecycleEvent('request-enqueued',{requestId:operationId},{dir})
+   return {operationId,eventId:r.eventId,file:r.file}
+  })))
+  const logged=readFileSync(rows[0].file,'utf8').trim().split('\n').map(JSON.parse)
+  for(const r of rows){const e=logged.find(x=>x.eventId===r.eventId);assert.equal(e.operationId,r.operationId);assert.equal(e.requestId,r.operationId);assert.equal(e.operation,'send_message');assert.equal(e.build,'fixture')}
+  const outside=lifecycleEvent('broker-observed',{}, {dir});const e=readFileSync(outside.file,'utf8').trim().split('\n').map(JSON.parse).at(-1);assert.equal(e.operationId,null)
+ }finally{rmSync(dir,{recursive:true,force:true})}
+})

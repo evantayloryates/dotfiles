@@ -90,7 +90,8 @@ export function loadEntryEvidence(path) {
 export function entryEpochEvidence({pointer,runtime,live,entries,sessionId,brokerDir,now=Date.now()}) {
  const no=reason=>({verified:false,reason})
  if(typeof pointer?.procStart!=='string'||!pointer.procStart)return no('activation-epoch-unbound')
- if(!live||live.entrypoint!=='claude-desktop'||pointer.pid!==live.pid||pointer.procStart!==live.procStart||pointer.sessionId!==sessionId)return no('native-process-epoch-mismatch')
+ if(!live)return no('native-process-unavailable')
+ if(live.entrypoint!=='claude-desktop'||pointer.pid!==live.pid||pointer.procStart!==live.procStart||pointer.sessionId!==sessionId)return no('native-process-epoch-mismatch')
  const activated=Date.parse(pointer.activatedAt)
  if(!Number.isFinite(activated)||!Array.isArray(entries)||entries.length!==2)return no('entry-evidence-unavailable')
  for(let i=0;i<2;i++){

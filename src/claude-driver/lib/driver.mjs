@@ -3,7 +3,7 @@
 // act under the focus policy → verify against disk → one ledger row.
 
 import {randomUUID} from 'node:crypto'
-import {lifecycleEvent} from './lifecycle-log.mjs'
+import {lifecycleEvent,withLifecycleContext,lifecycleContext} from './lifecycle-log.mjs'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, resolve, sep } from 'node:path'
@@ -1072,11 +1072,14 @@ export function validateOp(name, args) {
   return op
 }
 
-export async function runOp(name, args = {}, { harness = 'cli', progress = () => {}, signal } = {}) {
+export async function runOp(name,args={},options={}){
+ return withLifecycleContext({operationId:randomUUID(),operation:name,build:RUNTIME_BUILD},()=>runOpInner(name,args,options))
+}
+async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal } = {}) {
   const op = validateOp(name, args)
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
-  const t0 = Date.now(),operationId=randomUUID()
+  const t0 = Date.now(),operationId=lifecycleContext().operationId
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   trace('operation-start')

@@ -1,3 +1,18 @@
+## Async correlation and truthful offline diagnosis — October 15
+
+Previous goal turn: progress (passive monitor installed and observed two runs).
+AsyncLocalStorage now carries the enclosing operation ID/name/build into broker
+admission/enqueue/recovery logging without adding payloads. Concurrent interleaved
+operations retain separate IDs; standalone events do not inherit a completed call.
+entryEpochEvidence now distinguishes native-process-unavailable from a live
+native-process-epoch-mismatch. Both refuse verification; fresh CLI confirms owned
+broker exists/unarchived/offline with unavailable reason. Release and focused tests
+21/21 pass. Full pressure v2-2026-10-15T23-02-50-259Z.json passes1/1
+in9854ms/sourceChanged:false. No wake, recovery, replay or sealed release modifications. Monitor
+continues passive current-source ticks. Next changed-condition step: audit exact
+outstanding request identities and determine safe epoch-renewal prerequisites for
+the designated recovery owner; historical uncertain effects must remain unreplayed.
+
 ## Continuous passive lifecycle collection — October 15
 
 Previous goal turn: progress (native installed checks restored). Installed new

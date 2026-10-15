@@ -661,3 +661,11 @@ is a monitoring failure, not service health. The job exits between ticks, so
 launchd `not running` with successful exits is normal. The report watcher and
 legacy detector retain their existing paused/unloaded state. Launchd output can
 contain inherited credentials: filter status fields before returning any output.
+
+
+Nested broker lifecycle events inherit their enclosing driver operation ID through
+async context, including across concurrent requests; direct broker calls outside
+runOp may have no operation ID. An offline worker reports
+`native-process-unavailable`; `native-process-epoch-mismatch` means a live worker
+does not match the activation identity. Neither establishes serving readiness or
+authorizes epoch renewal. Historical sealed releases keep their original behavior.

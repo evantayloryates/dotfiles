@@ -1,10 +1,15 @@
 // Metadata only. Logging is best-effort and never changes operation outcomes.
+import {AsyncLocalStorage} from 'node:async_hooks'
+const context=new AsyncLocalStorage()
+export const withLifecycleContext=(fields,fn)=>context.run({...context.getStore(),...fields},fn)
+export const lifecycleContext=()=>context.getStore()||{}
 import {constants,openSync,closeSync,fstatSync,writeSync,mkdirSync,lstatSync} from 'node:fs'
 import {join} from 'node:path'
 import {randomUUID} from 'node:crypto'
 import {STATE_DIR} from './state.mjs'
 const token=x=>typeof x==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(x)?x:null
-export function lifecycleEvent(event,{operationId,operation,requestId,category,outcome,ms,info,build,versions,native}={}, {dir=join(STATE_DIR,'lifecycle'),now=Date.now(),limit=8*1024*1024}={}){
+export function lifecycleEvent(event,fields={}, {dir=join(STATE_DIR,'lifecycle'),now=Date.now(),limit=8*1024*1024}={}){
+ const {operationId,operation,requestId,category,outcome,ms,info,build,versions,native}={...lifecycleContext(),...fields}
  let fd
  try{
   if(!token(event))return {recorded:false,reason:'invalid-event'}
