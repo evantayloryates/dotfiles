@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {lifecycleEvent} from '../lib/lifecycle-log.mjs'
 import {join} from 'node:path'
 import {sampleBroker,detectorTransition,publishDetectorEvent} from '../lib/broker-detector.mjs'
 import {BROKER_DIR,STATE_DIR,readJson,withLock,writeJsonAtomic} from '../lib/state.mjs'
@@ -16,6 +17,7 @@ await withLock('broker-detector',async()=>{
   event=detectorTransition(prior?.sample,confirmed);sample=confirmed
  }
  let published
+ if(event)lifecycleEvent('detector-transition',{category:sample.reason||sample.state,outcome:event.kind,build:RUNTIME_BUILD,info:{sessionId:sample.sessionId,live:sample.pid?{pid:sample.pid,procStart:sample.procStart}:null}})
  if(event)published=publishDetectorEvent({sample,event,reportDir,runtimeBuild:RUNTIME_BUILD})
  writeJsonAtomic(stateFile,{schemaVersion:1,sample,lastEvent:event?{...event,...published,at:sample.at}:prior?.lastEvent??null,runtimeBuild:RUNTIME_BUILD,tickIntervalSec:30,inferenceCalls:0,recoveryOwner:'Claude observer'})
  // A healthy tick is silent. The existing inbox consumes only new evidence.

@@ -617,3 +617,21 @@ need different checks. Mapping all actions and enforcing those branch-specific
 checks remains unfinished. No generic read/write-label policy is safe. App absence
 is tested synthetically; an actual quit trial remains pending because the existing
 observer may wake the broker and confound the controlled outage.
+
+
+### Lifecycle evidence
+
+Fresh driver processes append metadata-only events to
+`/Users/taylor/src/github/dotfiles/src/claude-driver/.runtime/state/lifecycle/YYYY-MM-DD.jsonl`
+(UTC dates). Operation IDs pair start/end/error; a start without completion is
+incomplete evidence, not proof of a crash. Request enqueue IDs link to durable
+broker receipts. Status/failure/admission snapshots distinguish missing workers,
+archive state, epoch mismatch and serving readiness. Recovery and detector events
+record their boundaries. Loaded build and versions are recorded at operation level.
+No argument bodies, raw errors, transcripts, socket keys or tool results are copied.
+Logging failures never replace operation failures. Each daily file has an 8 MiB
+budget (concurrent appenders may exceed it by a few records); exhausted files stop
+accepting events. Files are not automatically deleted. This is request-time logging,
+not an always-on crash recorder: unloaded detectors and old MCP processes produce
+no new instrumentation. Reconnect MCP to load changed source; sealed broker code
+is not modified by this host instrumentation.

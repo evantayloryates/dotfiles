@@ -1,3 +1,15 @@
+## Lifecycle logging — October 15
+
+Added metadata-only daily lifecycle JSONL under .runtime/state/lifecycle:
+operation start/end/error correlation IDs, loaded source build and app/CLI versions;
+broker observations at status/failure/admission, durable request enqueue IDs,
+recovery start/end/error and detector transitions. No request bodies, tool outputs,
+credentials or raw errors. Best effort; 8 MiB per UTC day, no automatic deletion.
+Synthetic privacy, budget and symlink tests pass. Does not activate the paused
+watcher/unloaded detector or change the sealed broker. Next changed-condition step:
+qualify passive app/worker exit observation and connect a single recovery owner;
+current source logging takes effect in fresh CLI/MCP processes. No restart attempted.
+
 ## Route-specific health checks — October 7
 
 Added shared advisory action_health with four dependency sets: local, desktop,

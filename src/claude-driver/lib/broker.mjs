@@ -6,6 +6,7 @@
 // needed → poll results/<id>.json
 // (bounded) → the caller verifies against disk ground truth.
 
+import {lifecycleEvent} from './lifecycle-log.mjs'
 import { randomUUID } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
@@ -162,6 +163,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return await withLock('broker', async () => {
     let info = brokerInfo()
+    lifecycleEvent('request-admission-observed',{info})
     info=await waitForNativeAvailability(info,{observe:brokerInfo,deadline,signal,sleep,progress})
     if(existsSync(join(BROKER_DIR,'mechanical-probe.json'))){
       try{recoverExpiredTemporaryHookProbe(BROKER_DIR,info)}catch{throw new DriverError('an owned diagnostic hook still needs safe restoration; no request enqueued',{category:'broker_diagnostic_pending',detail:{dispatched:false,retrySafe:true}})}
@@ -194,6 +196,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-last-wake.json'),{requestId:id,protocol:request.protocol,...w})
       armStopRescue(rescuePolicy,request,w)
     }}:{})}}
+    lifecycleEvent('request-enqueued',{requestId:id,info})
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
     let via = { method: info.quietHook?.verified?'native-quiet-hook':'resident' }
@@ -318,6 +321,8 @@ export async function brokerOp(op, args, opts) {
 export async function reviveBroker(opts = {}) {
   return withLock('broker-revive', async () => {
     const info = brokerInfo()
+    const operationId=randomUUID()
+    lifecycleEvent('recovery-start',{operationId,info,outcome:opts.warmOnly?'warm-only':'legacy'})
     if(info.handoffStopped)throw new DriverError('broker release handoff owns STOP; recovery must stand down',{category:'broker_handoff_refused'})
     if(info.runtime?.integrity===false)throw new DriverError('broker runtime integrity failed; recovery refused',{category:'broker_runtime_invalid'})
     if (info.live) return { method: 'already_live', live: info.live }
@@ -329,9 +334,11 @@ export async function reviveBroker(opts = {}) {
     if (!opts.forceRecovery && last?.retryAfter > Date.now()) throw new DriverError('broker recovery is cooling down after failure; inspect driver_status or run broker revive explicitly', { category: 'recovery_cooldown', detail: { retryAfter: last.retryAfter } })
     try {
       const result = opts.warmOnly ? await reviveBrokerWarmOnly(opts) : await reviveBrokerUnlocked(opts)
+      lifecycleEvent('recovery-end',{operationId,outcome:result.method,info:brokerInfo()})
       writeJsonAtomic(file, { at: Date.now(), outcome: 'ok', method: result.method })
       return result
     } catch (err) {
+      lifecycleEvent('recovery-error',{operationId,category:err.category||'internal',info})
       if (err.category !== 'cancelled') writeJsonAtomic(file, { at: Date.now(), outcome: 'failed', category: err.category, retryAfter: Date.now() + 30_000 })
       throw err
     }

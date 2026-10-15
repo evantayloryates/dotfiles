@@ -2,6 +2,8 @@
 // pick a tier (A disk/CLI/deep link, B broker ccd_* tools, C computer use) →
 // act under the focus policy → verify against disk → one ledger row.
 
+import {randomUUID} from 'node:crypto'
+import {lifecycleEvent} from './lifecycle-log.mjs'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, resolve, sep } from 'node:path'
@@ -1074,8 +1076,10 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
   const op = validateOp(name, args)
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
-  const t0 = Date.now()
+  const t0 = Date.now(),operationId=randomUUID()
+  const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
+  trace('operation-start')
   const checkRuntime=()=>{
     const safeObservation=op.readOnly&&!(name==='window_state'&&args.precise)||name==='broker_status'&&!args.revive
     if(!safeObservation&&name!=='driver_cancel'){
@@ -1094,6 +1098,8 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
       row.targetSession = session
       out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal })
     } else out = await op.run(args, ctx)
+    trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})
+    if(name==='broker_status')trace('broker-observed',{info:out?.broker||out})
     const handedBack = out && typeof out === 'object' && out.handedBack
     if (!op.readOnly) {
       const event = { ...row, tier: ctx.tier || (handedBack ? 'B-own' : 'A'), ms: Date.now() - t0, outcome: handedBack ? 'handed_back' : out?.verified === false ? 'unverified' : 'ok', verified: out?.verified ?? null, notes: ctx.notes }
@@ -1103,6 +1109,8 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
     if (ctx.notes.length && out && typeof out === 'object' && !Array.isArray(out)) out.notes = ctx.notes
     return out
   } catch (err) {
+    trace('operation-error',{category:err.category||'internal',outcome:'error',ms:Date.now()-t0})
+    try{trace('broker-at-failure',{info:brokerInfo()})}catch{}
     try{const {captureServiceDiagnostics}=await import('./service-diagnostics.mjs');captureServiceDiagnostics({trigger:'operation-failure'})}catch{} // Never replace the original operation failure.
     appendJsonl(LEDGER, { ...row, tier: ctx.tier, ms: Date.now() - t0, outcome: 'error', error: String(err.message).slice(0, 500), errorCategory: err.category || 'internal', notes: ctx.notes })
     operationMemory({ ...row, outcome: 'error', errorCategory: err.category || 'internal', ms: Date.now() - t0 })
