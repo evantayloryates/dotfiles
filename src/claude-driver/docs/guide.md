@@ -765,3 +765,8 @@ detached jobs. No new native trial of this composed route has been authorized or
 performed; historical ordinary wire qualification does not establish full native
 serving, controls, residency or recovery. Older candidate notes describe the
 staged implementation before this experimental opt-in was exposed.
+
+Peer-direct receipt_timeout_sec is one absolute budget including outer session
+admission, metadata/preparation and socket waiting. It is not restarted after a
+lock wait. An exhausted budget that prevents state inspection can conservatively
+return outcome_unknown; this never grants replay authority.

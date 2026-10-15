@@ -10,9 +10,11 @@ import {withSessionControl} from './controls.mjs'
 import {runtimeState} from './build.mjs'
 import {DriverError,sleep} from './paths.mjs'
 const unknown=id=>new DriverError('direct recipient publication uncertain; reconcile without replay',{category:'outcome_unknown',detail:{operationId:id,retrySafe:false}})
-export async function sendDirectRecipient({operationId,session,message,timeoutMs=15000},{signal}={}){
+export async function sendDirectRecipient({operationId,session,message,timeoutMs=15000},{signal,absoluteDeadline}={}){
  if(typeof message!=='string'||!message||Buffer.byteLength(message)>65536||!Number.isInteger(timeoutMs)||timeoutMs<100||timeoutMs>60000||typeof operationId!=='string'||! /^[A-Za-z0-9_-]{1,100}$/.test(operationId))throw new DriverError('invalid direct recipient request',{category:'bad_args'})
- const rec=resolveSession(session),deadline=Date.now()+timeoutMs,payloadDigest=createHash('sha256').update(message).digest('hex')
+ const deadline=absoluteDeadline??Date.now()+timeoutMs
+ if(!Number.isSafeInteger(deadline)||deadline<0||deadline>Date.now()+timeoutMs)throw new DriverError('invalid direct recipient deadline',{category:'bad_args'})
+ const rec=resolveSession(session),payloadDigest=createHash('sha256').update(message).digest('hex')
  if([brokerInfo().sessionId,callerHostSession()].includes(rec.sessionId))throw new DriverError('refusing direct send to broker or caller',{category:'gate'})
  const remaining=()=>Math.max(1,deadline-Date.now())
  const check=()=>{if(signal?.aborted)throw new DriverError('direct send cancelled before publication',{category:'cancelled',detail:{dispatched:false,retrySafe:true}});if(Date.now()>=deadline)throw new DriverError('direct send deadline expired before publication',{category:'cli_timeout',detail:{dispatched:false,retrySafe:true}});if(runtimeState().restartRequired)throw new DriverError('direct send source changed; reconnect before publication',{category:'runtime_stale',detail:{dispatched:false,retrySafe:true}})}
@@ -49,7 +51,7 @@ export async function sendDirectRecipient({operationId,session,message,timeoutMs
    throw unknown(operationId)
   }catch(e){if(armed)throw unknown(operationId);throw e}
  },{signal,timeoutMs:remaining()})}catch(e){
-  try{if(await inspectPeerSend(operationId))throw unknown(operationId)}catch{throw unknown(operationId)}
+  try{if(await inspectPeerSend(operationId,{timeoutMs:remaining()}))throw unknown(operationId)}catch{throw unknown(operationId)}
   throw e
  }
 }

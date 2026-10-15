@@ -14,9 +14,9 @@ const peer={pid:process.pid,procStart:start,hostSessionId:sid,sessionId:cli,cwd:
 mkdirSync(peers);const folder=join(app,'claude-code-sessions','a','o');mkdirSync(folder,{recursive:true});const recordFile=join(folder,sid+'.json'),record={sessionId:sid,cliSessionId:cli,cwd:root,title:'synthetic direct recipient',permissionMode:'acceptEdits'}
 writeFileSync(recordFile,JSON.stringify(record));const peerFile=join(peers,process.pid+'.json');writeFileSync(peerFile,JSON.stringify(peer));writeFileSync(join(peers,process.pid+'.'+createHash('sha256').update(socket).digest('hex')+'.key'),JSON.stringify({peerToken:'a'.repeat(32),procStart:start}),{mode:0o600})
 const journal=transcriptPath(peer);mkdirSync(join(journal,'..'),{recursive:true});writeFileSync(journal,'')
-let frames=0,receive=true,abortOnFrame,lastMessageId
-const server=createServer({allowHalfOpen:true},s=>{let buf='';s.on('error',()=>{});s.on('data',d=>{buf+=d;const lines=buf.split('\n');for(const line of lines.slice(0,-1)){let f;try{f=JSON.parse(line)}catch{continue}if(f.type==='user'){frames++;lastMessageId=f.msg_id;if(receive)appendFileSync(journal,JSON.stringify({type:'user',uuid:'receipt-'+frames,sessionId:cli,origin:{kind:'peer',msg_id:f.msg_id},timestamp:new Date().toISOString(),message:{content:'PRIVATE_PROMPT'}})+'\n');abortOnFrame?.();s.end()}}buf=lines.at(-1)})})
-await new Promise(r=>server.listen(socket,r));after(async()=>{await new Promise(r=>server.close(r));rmSync(root,{recursive:true,force:true})})
+let frames=0,receive=true,abortOnFrame,lastMessageId,receiptDelayMs=0;const receiptTimers=new Set()
+const server=createServer({allowHalfOpen:true},s=>{let buf='';s.on('error',()=>{});s.on('data',d=>{buf+=d;const lines=buf.split('\n');for(const line of lines.slice(0,-1)){let f;try{f=JSON.parse(line)}catch{continue}if(f.type==='user'){frames++;lastMessageId=f.msg_id;if(receive){const receiptId=frames,write=()=>appendFileSync(journal,JSON.stringify({type:'user',uuid:'receipt-'+receiptId,sessionId:cli,origin:{kind:'peer',msg_id:f.msg_id},timestamp:new Date().toISOString(),message:{content:'PRIVATE_PROMPT'}})+'\n');if(receiptDelayMs){const timer=setTimeout(()=>{receiptTimers.delete(timer);write()},receiptDelayMs);receiptTimers.add(timer)}else write();}abortOnFrame?.();s.end()}}buf=lines.at(-1)})})
+await new Promise(r=>server.listen(socket,r));after(async()=>{for(const timer of receiptTimers)clearTimeout(timer);await new Promise(r=>server.close(r));rmSync(root,{recursive:true,force:true})})
 test('real synthetic socket and native journal produce one receipt; reattach and conflicting payload never resend',async()=>{
  const args={operationId:'received',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000}
  const result=await sendDirectRecipient(args);assert.equal(result.delivery,'received');assert.equal(result.applied,false);assert.equal(frames,1)
@@ -43,7 +43,7 @@ test('deadline and cancellation while waiting for recipient admission cannot pub
  const held=withSessionControl(sid,()=>new Promise(r=>release=r));while(!release)await new Promise(r=>setTimeout(r,5))
  const before=frames
  try{
-  await assert.rejects(sendDirectRecipient({operationId:'lock-expired',session:sid,message:'fixture',timeoutMs:100}),e=>['lock_timeout','cli_timeout'].includes(e.category))
+  await assert.rejects(sendDirectRecipient({operationId:'lock-expired',session:sid,message:'fixture',timeoutMs:100}),e=>['lock_timeout','cli_timeout','outcome_unknown'].includes(e.category))
   assert.equal(await inspectPeerSend('lock-expired'),null);assert.equal(frames,before)
   const controller=new AbortController();controller.abort()
   await assert.rejects(sendDirectRecipient({operationId:'cancelled',session:sid,message:'fixture',timeoutMs:100},{signal:controller.signal}),e=>e.category==='outcome_unknown'&&e.detail.retrySafe===false)
@@ -113,4 +113,23 @@ test('abrupt loss of this fixture detached worker preserves unknown; late receip
   assert.equal((await c.call('driver_job',{job_id:jobId})).structuredContent.state,'outcome_unknown')
   assert.equal((await c.call('send_message',args)).structuredContent.reused,true);assert.equal(frames,before+1)
  }finally{receive=true;if(workerPid&&ownsWorker())process.kill(workerPid,'SIGKILL');await c.close()}
+})
+
+test('an expired inherited deadline cannot start a new receipt budget or arm a send',async()=>{
+ const before=frames
+ await assert.rejects(sendDirectRecipient({operationId:'inherited-expired',session:sid,message:'fixture',timeoutMs:3000},{absoluteDeadline:Date.now()-1}),e=>e.category==='cli_timeout'&&e.detail.dispatched===false||e.category==='outcome_unknown'&&e.detail.retrySafe===false)
+ assert.equal(await inspectPeerSend('inherited-expired'),null);assert.equal(frames,before)
+})
+test('public receipt budget includes outer session admission rather than restarting after the lock',async()=>{
+ const c=mcp('direct-shared-budget');await c.ready
+ const {withSessionControl}=await import('../lib/controls.mjs');let release
+ const held=withSessionControl(sid,()=>new Promise(r=>release=r));while(!release)await new Promise(r=>setTimeout(r,5))
+ receiptDelayMs=1000;const timer=setTimeout(()=>release(),1000),before=frames
+ try{
+  const out=await c.call('send_message',{session:sid,message:'BUDGET_SYNTHETIC',transport:'peer-direct',operation_id:'shared-budget',receipt_timeout_sec:1.5})
+  assert.equal(out.isError,true,'a receipt arriving after the original deadline must not complete the initial send')
+  assert.ok(['outcome_unknown','cli_timeout','lock_timeout'].includes(out.structuredContent.error.category));assert.ok(frames<=before+1)
+  await until(()=>receiptTimers.size===0)
+  if(frames===before+1)assert.equal((await c.call('peer_send_status',{operation_id:'shared-budget'})).structuredContent.receiptVerified,true)
+ }finally{clearTimeout(timer);release();await held;receiptDelayMs=0;await c.close()}
 })

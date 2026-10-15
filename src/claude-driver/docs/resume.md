@@ -1,3 +1,31 @@
+## One absolute direct-send deadline — October 15
+
+Previous goal turn: progress (worker-loss/competing-job pressure and admission fix).
+Additional native approval remains pending; automatic continuation is not consent.
+Independent source review found public send_message reset its receipt budget after
+outer control admission. Now one absolute deadline starts before runtime/metadata
+checks, flows through outer lock and runner, and cannot be extended by nested
+admission. Socket transport counts asynchronous preparation and checks deadline
+again on connect immediately before writing. Expired publication remains unknown
+if its state cannot be inspected in remaining time, without granting replay.
+New real MCP delayed-receipt regression proves original public budget is retained;
+expired inherited deadline arms no send, and slow preparation sends no late frame.
+Initial focused7/9 result retained in diagnostics/direct-deadline-regression-2026-10-15.json:
+old assertions did not permit conservative unknown on exhausted inspection budget.
+Full failed reports preserved:23-54-31-757Z(CLI fixture failed before descendant
+record due Node bootstrap) and23-56-20-966Z(partial-wake fixture80ms exhausted at
+metadata admission). CLI held-pipe fixture now uses an immediate shell launcher;
+partial-wake fixture has admission headroom but still indefinitely held receiver,
+requiring actual post-write timeout/no fallback. No production deadline weakened.
+Final current pressure384/384 passes unchanged source:
+pressure/v2-2026-10-15T23-56-50-876Z.json. Both filtered final-source harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-55-44-568Z.json and
+pressure/harness-v2-codex-2026-10-15T23-55-44-620Z.json.
+Goal active. Native composed-route trial remains the concrete next gate and needs
+Taylor's approval here in Codex under diagnostics/direct-native-qualification-plan-2026-10-15.json.
+No native message, wake, permission/input change, old broker settlement or Codex
+bridge work. Do not reinterpret automatic goal continuation as trial approval.
+
 ## Worker-loss and competing-job pressure — October 15
 
 Previous goal turn: progress (experimental direct route MCP/job integration).

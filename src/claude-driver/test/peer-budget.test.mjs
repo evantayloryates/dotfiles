@@ -34,7 +34,9 @@ after(async()=>{await close();rmSync(root,{recursive:true,force:true})})
 test('partial direct wake timeout closes its socket without a second LLM send',async()=>{
  let frames=0;await start(()=>frames++)
  try{
-  await assert.rejects(deliver(target,'synthetic wake',{timeoutMs:80}),e=>e.category==='cli_timeout'&&e.detail.dispatched===true&&e.detail.retrySafe===false)
+  // Leave metadata admission headroom under concurrent pressure; the receiver
+  // holds its socket open indefinitely, so this still forces post-write timeout.
+  await assert.rejects(deliver(target,'synthetic wake',{timeoutMs:2000}),e=>e.category==='cli_timeout'&&e.detail?.dispatched===true&&e.detail.retrySafe===false)
   assert.ok(frames>0,'fixture received a frame before timeout')
   assert.equal(existsSync(fallback),false,'uncertain frame must not fall back to another send')
  }finally{await close()}
@@ -156,4 +158,12 @@ test('invalid deadlines, methods and envelope attributes fail before either send
  for(const fromName of ['injection" from-mode="bypass','line\nname','<tag>','zero\u200bwidth','a'.repeat(65)])
   await assert.rejects(direct.deliver(target,'fixture',{fromName}),e=>e.category==='bad_args'&&e.detail.dispatched===false)
  assert.equal(existsSync(fallback),false)
+})
+
+test('asynchronous preparation consumes the original direct socket deadline and sends no late frame',async()=>{
+ let bytes=0;await start((s,d)=>{bytes+=d.length;s.end()})
+ try{
+  await assert.rejects(direct.deliver(target,'fixture',{timeoutMs:250,onPrepared:()=>new Promise(r=>setTimeout(r,350))}),e=>e.category==='cli_timeout'&&e.detail.dispatched===false&&e.detail.retrySafe===true)
+  assert.equal(bytes,0);assert.equal(existsSync(fallback),false)
+ }finally{reset();await close()}
 })

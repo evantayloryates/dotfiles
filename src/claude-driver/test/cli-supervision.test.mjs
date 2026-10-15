@@ -48,11 +48,22 @@ test('normal helper completion preserves exit status and output',async()=>{
  assert.equal(r.code,0);assert.equal(r.stdout.trim(),'synthetic-success')
 })
 test('an exited CLI with descendant-held output pipes remains deadline bounded',async()=>{
+ // A shell fixture records its descendant before exiting, independently of
+ // Node bootstrap latency under concurrent pressure.
+ const held=join(root,'held-cli.sh'),quote=v=>"'"+v.replaceAll("'","'\\''")+"'"
+ writeFileSync(held,`#!/bin/sh
+${quote(process.execPath)} -e 'setTimeout(()=>{},1200)' &
+printf '%s' "$!" > ${quote(join(root,'descendant'))}
+exit 0
+`,{mode:0o700})
+ const previous=process.env.CLAUDE_DRIVER_CLI;process.env.CLAUDE_DRIVER_CLI=held
  const start=Date.now()
- await assert.rejects(runCli(['--held-pipe'],{cwd:root,timeoutMs:300}),e=>e.category==='cli_timeout')
- assert.ok(Date.now()-start<900,'inherited pipes must not extend the helper budget')
- const pid=Number(readFileSync(join(root,'descendant')))
- assert.equal(alive(pid),true,'only local readers close; descendant is not signalled')
- const end=Date.now()+2000;while(alive(pid)&&Date.now()<end)await new Promise(r=>setTimeout(r,20))
- assert.equal(alive(pid),false,'private fixture descendant exits naturally')
+ try{
+  await assert.rejects(runCli([],{cwd:root,timeoutMs:500}),e=>e.category==='cli_timeout')
+  assert.ok(Date.now()-start<1500,'inherited pipes must not extend the helper budget')
+  const pid=Number(readFileSync(join(root,'descendant')))
+  assert.equal(alive(pid),true,'only local readers close; descendant is not signalled')
+  const end=Date.now()+4000;while(alive(pid)&&Date.now()<end)await new Promise(r=>setTimeout(r,20))
+  assert.equal(alive(pid),false,'private fixture descendant exits naturally')
+ }finally{process.env.CLAUDE_DRIVER_CLI=previous}
 })

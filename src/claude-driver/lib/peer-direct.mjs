@@ -105,7 +105,7 @@ function escapeBody(body) {
   return body.replace(/<(?!\\)(?=\s*\/\s*cross[-_\s]*session[-_\s]*message)/giu, '<\\')
 }
 
-function sendLines(sock, lines, {timeoutMs=5000,signal}={}) {
+function sendLines(sock, lines, {timeoutMs=5000,signal,deadline=Date.now()+timeoutMs}={}) {
   return new Promise((ok, fail) => {
     if(signal?.aborted){fail(new DriverError('peer delivery cancelled',{category:'cancelled'}));return}
     const s = createConnection({ path: sock })
@@ -122,6 +122,7 @@ function sendLines(sock, lines, {timeoutMs=5000,signal}={}) {
     s.on('error', refuse)
     s.on('connect', () => {
       if(failed)return
+      if(Date.now()>=deadline){refuse(new DriverError('peer delivery expired before socket write',{category:'cli_timeout'}));return}
       written=true
       s.write(lines)
       halfClose=setTimeout(() => !s.destroyed && s.end(), 150)
@@ -151,6 +152,7 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
   if(typeof text!=='string'||typeof fromName!=='string'||/["<>\p{Cc}\p{Cf}]/u.test(fromName)||[...fromName].length>64||!Number.isFinite(timeoutMs)||timeoutMs<=0||!['next','now'].includes(priority))
     throw new DriverError('invalid direct peer message or deadline',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
+  const deadline=Date.now()+timeoutMs
   const rec = peerRecord(target.sessionId,target.live?.pid)
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
   if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError('direct transport is not qualified for this peer version',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
@@ -179,7 +181,8 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   const socketNow=lstatSync(sock,{throwIfNoEntry:false})
   if(!fresh||fresh.procStart!==rec.procStart||fresh.sessionId!==rec.sessionId||fresh.version!==rec.version||fresh.peerProtocol!==rec.peerProtocol||fresh.messagingSocketPath!==sock||!socketNow?.isSocket()||socketNow.isSymbolicLink()||socketNow.uid!==process.getuid()||socketNow.dev!==lst.dev||socketNow.ino!==lst.ino||priority==='now'&&fresh.status!=='idle')
     throw new DriverError('peer identity or socket changed before routing; no frame sent',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
-  await sendLines(sock, payload,{timeoutMs,signal})
+  if(Date.now()>=deadline)throw new DriverError('peer delivery expired during preparation; no frame sent',{category:'cli_timeout',detail:{dispatched:false,retrySafe:true}})
+  await sendLines(sock, payload,{timeoutMs:Math.max(1,deadline-Date.now()),deadline,signal})
   return { msgId, pid: rec.pid, procStart:rec.procStart, transcript: transcriptPath(rec) }
 }
 

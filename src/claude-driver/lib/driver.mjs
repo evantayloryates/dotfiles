@@ -585,7 +585,7 @@ export const OPS = [
     name: 'send_message',
     title: 'Send a message into a session',
     description:
-      'Deliver a message to a desktop session as a user turn (labelled as coming from the broker or you). Wakes an idle session even with no running process. The result says delivered (turn started) or queued (behind current work).',
+      'Deliver a message to a desktop session as a user turn (labelled as coming from the broker or you). Wakes an idle session even with no running process. Native transport reports delivered or queued. Explicit experimental peer-direct requires a live qualified peer and reports received only after its exact native user receipt; application remains unverified.',
     schema: { properties: { session: S, message: { type: 'string' }, via_broker: VIA_BROKER,
       transport: { type:'string',enum:['native','peer-direct'],description:'Default native broker route. Experimental peer-direct requires operation_id and a qualified live peer; never wakes or falls back.' },
       operation_id:{type:'string',description:'Stable single-publication identity required for peer-direct. Reuse to reconcile; never change it to retry an unknown send.'},
@@ -594,7 +594,7 @@ export const OPS = [
       if(args.transport==='peer-direct'){
         if(args.via_broker!==undefined)throw new DriverError('peer-direct cannot be combined with via_broker',{category:'bad_args'})
         ctx.tier='peer-direct'
-        const result=await sendDirectRecipient({operationId:args.operation_id,session:args.session,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal})
+        const result=await sendDirectRecipient({operationId:args.operation_id,session:args.session,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal,absoluteDeadline:ctx.directDeadline})
         return {...result,verified:true,experimental:true,verification:'Exact native user receipt only; applied:false. Observe recipient response separately.'}
       }
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
@@ -1112,6 +1112,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
   const t0 = Date.now(),operationId=lifecycleContext().operationId
+  if(name==='send_message'&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   trace('operation-start')
@@ -1131,7 +1132,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
       const boundArgs = { ...args, session }
       ctx.args = boundArgs
       row.targetSession = session
-      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(name==='send_message'&&args.transport==='peer-direct'?{timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)}:{}) })
+      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(name==='send_message'&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
     } else out = await op.run(args, ctx)
     trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})
     if(name==='broker_status')trace('broker-observed',{info:out?.broker||out})
