@@ -724,3 +724,8 @@ The unexposed peer receipt reader binds an incremental journal cursor to the
 recipient epoch and accepts only an exact future native peer user record. It
 returns metadata with applied:false. Public sending does not use this candidate
 until durable send uncertainty and MCP/job integration are qualified.
+
+The candidate peer send ledger durably arms one publication identity before
+socket writing. Reattachment can reconcile a native receipt but never grants a
+second publication. Unknown state stays unsafe to replay; received records retain
+applied:false. This candidate is not yet wired into public send_message.

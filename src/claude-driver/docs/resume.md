@@ -1,3 +1,28 @@
+## Candidate durable single-publication ledger — October 15
+
+Previous goal turn: progress (bounded exact future native receipt observation).
+Added unexposed lib/peer-send-ledger.mjs. Arms one operation/message/recipient
+identity with EOF cursor and outcome_unknown before publication. Exclusive file
+creation, fsync(file/directory) and existing cross-process locks make uncertainty
+persistent before canPublish:true. Reattachment always returns canPublish:false;
+conflicting message/target refuses. Bounded private/no-follow state reads reject
+malformed, symlinked, extra-field or changed state. Cancellation/rotation retain
+uncertainty. Reconciliation consumes bounded exact native receipts, atomically
+persists metadata-only received/applied:false, and skips disk writes on unchanged
+polls. There is no resend, model completion or old broker settlement authority.
+Synthetic concurrency grants one arm; reattachment, later receipt, cancellation,
+rotation, payload exclusion and corrupt/symlink state checks pass. Full current
+pressure373/373 passes, unchanged source:
+pressure/v2-2026-10-15T23-42-05-388Z.json. Both filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-15T23-42-09-369Z.json and
+pressure/harness-v2-codex-2026-10-15T23-42-09-374Z.json.
+Goal active. Next compose ledger with exact native transport in a candidate send
+runner: record runtime build, caller/broker exclusion, qualified peer identity,
+archive guard, preparation/deadline/cancel checks, single bounded receipt wait.
+Then actual synthetic MCP/job/disconnect integration before public exposure.
+Current ledger is not kernel-peer qualification or native serving proof. No new
+native messages, wakes, permissions/input actions or Codex-driver changes.
+
 ## Candidate exact native peer receipt reader — October 15
 
 Previous goal turn: progress (post-preparation recipient revalidation).

@@ -40,6 +40,11 @@
       ],
       "startup_timeout_sec": 120.0,
       "tool_timeout_sec": 120.0
+    },
+    "framer": {
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
+      "startup_timeout_sec": 30.0,
+      "tool_timeout_sec": 150.0
     }
   },
   "claude": {
@@ -78,6 +83,12 @@
       "args": [
         "personal-legacy"
       ]
+    },
+    "framer": {
+      "type": "stdio",
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
+      "args": [],
+      "env": {}
     }
   },
   "removed_servers": {
