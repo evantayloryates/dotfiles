@@ -104,6 +104,19 @@ test('missing, malformed, nonprivate, mismatched or symlinked keys send nothing 
   }
  }finally{reset();await close()}
 })
+test('2.1.299 qualifies ordinary delivery while immediate routing stays refused',async()=>{
+ let input='';await start((s,d)=>{input+=d;s.end()})
+ try{
+  writeFileSync(recFile,JSON.stringify({...rec,version:'2.1.299',status:'idle'}))
+  const native={...target,live:{pid:process.pid,procStart,status:'idle'}}
+  assert.equal(direct.canDeliver(native),true)
+  await direct.deliver(native,'fixture')
+  const frame=JSON.parse(input.trim().split('\n')[1]);assert.equal(frame.priority,'next');assert.equal(frame.session_id,rec.sessionId)
+  input=''
+  await assert.rejects(direct.deliver(native,'fixture',{priority:'now'}),e=>e.category==='peer_refused'&&e.detail.dispatched===false)
+  assert.equal(input,'');assert.equal(existsSync(fallback),false)
+ }finally{reset();await close()}
+})
 test('version qualification cannot be bypassed by explicit mode or an environment list',async()=>{
  try{
   writeFileSync(recFile,JSON.stringify({...rec,version:'9.9.999'}));process.env.CLAUDE_DRIVER_PEER_VERIFIED='9.9.999'

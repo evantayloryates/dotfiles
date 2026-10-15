@@ -12,16 +12,16 @@ writeFileSync(join(root,'app','claude-code-sessions','a','o',sid+'.json'),JSON.s
 writeFileSync(join(root,'peers',process.pid+'.json'),JSON.stringify({pid:process.pid,hostSessionId:sid,status:'idle',entrypoint:'synthetic'}))
 writeFileSync(fake,`#!${process.execPath}
 if(process.argv.includes('--version')){console.log('synthetic');process.exit(0)}
-await new Promise(r=>setTimeout(r,1200));console.log('SENT');
+await new Promise(r=>setTimeout(r,3000));console.log('SENT');
 `,{mode:0o700})
 const {brokerRequest,prepareBrokerDir,saveBrokerInfo}=await import('../lib/broker.mjs')
 saveBrokerInfo({sessionId:sid});prepareBrokerDir()
 after(()=>rmSync(root,{recursive:true,force:true}))
 test('a slow peer wake is included in the broker deadline and leaves a definitive undispatched outcome',async()=>{
  const start=Date.now();let error
- try{await brokerRequest([{op:'get_session',args:{session_id:sid}}],{timeoutMs:180})}catch(e){error=e}
+ try{await brokerRequest([{op:'get_session',args:{session_id:sid}}],{timeoutMs:800})}catch(e){error=e}
  assert.ok(error);assert.equal(error.category,'broker_timeout')
- assert.ok(Date.now()-start<1000,'wake helper must not exceed the request budget')
+ assert.ok(Date.now()-start<2000,'wake helper must not exceed the request budget')
  assert.equal(error.detail.dispatched,false);assert.equal(error.detail.retrySafe,true)
  const files=readdirSync(join(dir,'requests'));assert.equal(files.length,1)
  const c=JSON.parse(readFileSync(join(dir,'controls',error.detail.requestId+'.json')))

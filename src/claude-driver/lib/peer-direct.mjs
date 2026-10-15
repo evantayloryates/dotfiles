@@ -28,7 +28,10 @@ const LINE_CAP = 1048576
 // 2.1.289: installed receiver functions exercised in isolation and exact
 // owned native frame independently correlated by msg_id (155–156 ms).
 // This qualifies transport acceptance, not model compliance/native controls.
-export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289'])
+// 2.1.299: dedicated scratch native msg_id receipt and terminal TRANSPORT_OK
+// verified on Oct 15. Only ordinary next-priority delivery was qualified;
+// immediate routing and idle subscriptions retain their separate version gates.
+export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299'])
 
 function procStartOf(pid) {
   try {

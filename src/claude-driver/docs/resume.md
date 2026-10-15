@@ -1,3 +1,24 @@
+## Ordinary peer delivery qualified on CLI2.1.299 — October 15
+
+Previous goal turn: progress (authorized native scratch receipt and terminal response).
+Production VERIFIED_CLI now includes2.1.299 for ordinary next-priority delivery only.
+Immediate priority and idle-subscription gates remain2.1.289; native controls and
+broker serving are not qualified by this message. Added synthetic current-version
+routing/refusal coverage. Full isolated suite364/364 passes, source unchanged:
+pressure/v2-2026-10-15T23-28-14-638Z.json. Preserved the earlier failed pressure
+report23-27-45-744Z: deadline fixture exhausted180ms during lock admission under
+concurrent load. Fixture now budgets800ms against a3000ms fake helper and still
+requires definitive expired/undispatched state within2000ms.
+Filtered Claude and configured Codex gpt-6-sol harnesses both pass MCP contract,
+idempotency, one worker, completion, candidate memory and unchanged configuration.
+Reports: pressure/harness-v2-{claude,codex}-2026-10-15T23-{27-38-600,27-46-333}Z.json.
+No further native message submitted. Fresh broker_status still shows offline,
+no native epoch, no waiter/batch/residency evidence; sealed generation6 intact.
+Goal resumed and active. Next changed-condition work: qualify current-version
+input-free control boundaries using isolated source tests, then reconcile observer
+recovery ownership and22 unresolved historical outcomes before any live recovery.
+Keep quarantine and paused inbox watcher; do not infer a restart authorization.
+
 ## Authorized scratch transport test — October 15
 
 Taylor explicitly authorized creation and one test submission in the Codex chat.
@@ -9,8 +30,7 @@ response verified; no tool use. Default import remained acceptEdits. Focus resto
 Evidence: diagnostics/scratch-qualification-2026-10-15.json. No retries, broker
 restart, permission changes or work-chat messages. Production version allowlist
 unchanged. Scratch retained for inspection; no archive/delete requested.
-This supersedes the fixture authorization prerequisite below. Broad goal remains
-platform-blocked and needs Play/Resume to continue automatically. Next engineering
+This supersedes the fixture authorization prerequisite below. Broad goal has resumed; see the latest checkpoint above. Next engineering
 step: review native receipt qualification for a separately tested production gate
 update; historical22 unknowns and observer recovery ownership remain unresolved.
 
