@@ -1,3 +1,21 @@
+## Native broker process identity — October 15
+
+Previous goal turn: progress (causal wake evidence). Broker health previously used
+liveByHost PID-alive metadata while direct transport used stricter peerRecord checks.
+Native brokerInfo now requires unique owned metadata, actual process start epoch,
+exact expected PID and CLI session identity, non-spare/non-parked native entrypoint.
+Reused PIDs, foreign CLI IDs, duplicate workers and linked peer metadata produce
+live:null/nativeProcessEvidence.verified:false; legacy nonnative observation remains
+explicitly labelled legacy-process-observation. Lifecycle snapshots retain the
+identity reason. Fresh CLI confirms actual broker offline/unavailable. Focused17/17
+pass (identity, wake/cancel and direct transport boundaries). Full pressure
+v2-2026-10-15T23-09-20-467Z.json passes1/1 in10238ms/sourceChanged:false.
+No app recovery or
+native sends; source-level API qualification does not qualify direct transport on
+CLI2.1.299 (transport allowlist remains2.1.284/286/289). Next changed-condition step:
+qualify transport acceptance with a scoped native fixture on the installed version
+before service revival, preserving all22 historical unknowns and recovery ownership.
+
 ## Causal wake evidence — October 15
 
 Previous goal turn: progress (nine pure reads safely reconciled). For22 remaining

@@ -18,6 +18,7 @@ import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
+import {peerRecord} from './peer-direct.mjs'
 import { cancelRequest, control, enqueue, validatedResult, nativeResultFile, inspectRequest, safeUndispatchedRetry } from './requests.mjs'
 import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
@@ -86,7 +87,12 @@ export function brokerInfo() {
   const info = readJson(BROKER_FILE, null)
   if (!info?.sessionId) return { configured: false }
   const rec = getRecord(info.sessionId)
-  const live = liveByHost().get(info.sessionId)
+  const candidate = liveByHost().get(info.sessionId)
+  const nativeCandidate=candidate?.entrypoint==='claude-desktop'
+  const verifiedNative=nativeCandidate?peerRecord(info.sessionId,candidate.pid):null
+  const nativeMatches=verifiedNative?.entrypoint==='claude-desktop'&&verifiedNative.sessionId===(rec?.cliSessionId||info.sessionId.slice(6))
+  const live=nativeCandidate?(nativeMatches?verifiedNative:null):candidate
+  const nativeProcessEvidence={verified:!!(nativeCandidate&&nativeMatches),reason:nativeCandidate?(nativeMatches?'unique-epoch-bound-native-process':'native-process-identity-unverified'):candidate?'legacy-process-observation':'native-process-unavailable'}
   const runtime=releaseStatus()
   if(runtime.pinned&&runtime.integrity){
     const pointer=activeRelease().pointer
@@ -109,6 +115,7 @@ export function brokerInfo() {
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint,procStart:live.procStart } : null,
+    nativeProcessEvidence,
     resident: live ? { ...hb, resident: native?quiet.verified||waiter.verified:['busy','working'].includes(live.status)&&hb.resident, evidenceSource:native?'native-pickup-channel':'legacy-non-native-heartbeat' } : { resident: false },
     waiterReadiness:waiter,
     batchAdmission:batch,

@@ -692,3 +692,11 @@ preparation callback or socket write. `peer-wake-returned` records transport ret
 with executionVerified:false. These events inherit operation/request correlation
 when called through the broker; neither is a native acceptance or serving receipt.
 No socket paths, authentication keys, frames or message bodies are logged.
+
+
+Native broker `live` observations require a unique owned peer record with matching
+PID/start epoch and CLI session ID. `nativeProcessEvidence` explains refusal;
+stale or duplicate metadata cannot establish processAlive/serving health. Legacy
+nonnative process observations are labelled separately. Source/adapter tests on a
+new CLI version do not qualify peer transport; its version allowlist remains an
+independent, fail-closed boundary.
