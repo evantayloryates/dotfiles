@@ -18,45 +18,49 @@ on togglePanel()
     end tell
 end togglePanel
 
-on notificationList()
+on notificationElements()
     tell application "System Events"
         tell process "NotificationCenter"
+            if not (exists window "Notification Center") then return {}
             set panel to first window whose name is "Notification Center"
-            set listGroup to UI element 1 of UI element 1 of UI element 1 of UI element 1 of panel
-            if value of attribute "AXIdentifier" of listGroup is not "AXNotificationListItems" then error "Notification Center layout changed."
-            return listGroup
+            set scroller to UI element 1 of UI element 1 of UI element 1 of panel
+            if value of attribute "AXRole" of scroller is not "AXScrollArea" then error "Notification Center layout changed."
+            if (count of UI elements of scroller) is 0 then return {}
+            set firstElement to UI element 1 of scroller
+            set firstIdentifier to missing value
+            try
+                set firstIdentifier to value of attribute "AXIdentifier" of firstElement
+            end try
+            if firstIdentifier is "AXNotificationListItems" then
+                return UI elements of firstElement
+            end if
+            -- With one alert left, macOS promotes it directly under the scroll
+            -- area instead of wrapping it in AXNotificationListItems.
+            return UI elements of scroller
         end tell
     end tell
-end notificationList
+end notificationElements
 
-on closeOne()
-    set listGroup to notificationList()
+on hasClosableNotification(shouldClose)
+    set candidateElements to notificationElements()
     tell application "System Events"
         tell process "NotificationCenter"
-            set items to UI elements of listGroup
-            if (count of items) is 0 then return false
-            repeat with itemRef in items
-                repeat with actionRef in actions of itemRef
-                    set actionName to name of actionRef
+            repeat with itemRef in candidateElements
+                -- Snapshot values before iterating: System Events' live action
+                -- collection can change while a notification is animating out.
+                set actionNames to (get name of every action of itemRef) as list
+                repeat with actionText in actionNames
+                    set actionName to contents of actionText as text
                     if actionName is "AXClose" or actionName starts with "Name:Close" then
-                        perform action actionName of itemRef
+                        if shouldClose then perform action actionName of itemRef
                         return true
                     end if
                 end repeat
             end repeat
-            error "Notification Center has items without a Close action."
+            return false
         end tell
     end tell
-end closeOne
-
-on visibleItemCount()
-    set listGroup to notificationList()
-    tell application "System Events"
-        tell process "NotificationCenter"
-            return count of UI elements of listGroup
-        end tell
-    end tell
-end visibleItemCount
+end hasClosableNotification
 
 set openedHere to false
 set clearedCount to 0
@@ -72,15 +76,15 @@ try
     end if
 
     repeat 500 times
-        if not closeOne() then
+        if not hasClosableNotification(true) then
             -- Confirm after the dismissal animation before reporting success.
             delay 0.2
-            if not closeOne() then exit repeat
+            if not hasClosableNotification(true) then exit repeat
         end if
         set clearedCount to clearedCount + 1
         delay 0.05
     end repeat
-    if visibleItemCount() > 0 then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
+    if hasClosableNotification(false) then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
 on error errorMessage number errorNumber
     if openedHere then
         try
