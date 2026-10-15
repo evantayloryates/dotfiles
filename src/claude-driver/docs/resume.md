@@ -1,3 +1,19 @@
+## Authorized scratch transport test — October 15
+
+Taylor explicitly authorized creation and one test submission in the Codex chat.
+Created `claude-driver-transport-scratch-2026-10-15`, session
+`local_c0a18601-5a57-44d0-94ac-2fed3719e7ca`, under STATE_DIR/probe/transport-2026-10-15.
+Native CLI2.1.299 PID98986/start Thu Oct15 23:20:48 UTC accepted one isolated
+qualification frame. Exact msg_id receipt and subsequent TRANSPORT_OK terminal
+response verified; no tool use. Default import remained acceptEdits. Focus restored.
+Evidence: diagnostics/scratch-qualification-2026-10-15.json. No retries, broker
+restart, permission changes or work-chat messages. Production version allowlist
+unchanged. Scratch retained for inspection; no archive/delete requested.
+This supersedes the fixture authorization prerequisite below. Broad goal remains
+platform-blocked and needs Play/Resume to continue automatically. Next engineering
+step: review native receipt qualification for a separately tested production gate
+update; historical22 unknowns and observer recovery ownership remain unresolved.
+
 ## Native transport fixture prerequisite — October 15
 
 Previous goal turn: progress (native broker process identity strengthened).
