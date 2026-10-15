@@ -12,6 +12,7 @@
 // otherwise. The driver claims the receiver's class: it is a machine sender
 // whose requests the broker only ever runs from a fixed allowlist.
 
+import {lifecycleEvent} from './lifecycle-log.mjs'
 import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { closeSync, constants, fstatSync, lstatSync, openSync, readdirSync, readFileSync } from 'node:fs'
@@ -167,6 +168,7 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   if (payload.length > LINE_CAP) throw new DriverError('message too large for one peer frame', { category: 'bad_args' })
   // Internal service callback sees metadata only, before a byte is sent.
   // A refused arm cannot fall through to another sender or race a fast Stop.
+  lifecycleEvent('peer-wake-prepared',{wake:{msgId,pid:rec.pid,procStart:rec.procStart,method:'direct',priority}})
   if(onPrepared!==undefined){if(typeof onPrepared!=='function')throw new DriverError('invalid peer preparation callback',{category:'bad_args',detail:{dispatched:false,retrySafe:true}});await onPrepared({msgId,pid:rec.pid,procStart:rec.procStart})}
   if(priority==='now'){
     const fresh=peerRecord(target.sessionId,rec.pid)

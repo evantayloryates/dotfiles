@@ -7,7 +7,7 @@
 // (bounded) → the caller verifies against disk ground truth.
 
 import {auditRequests} from './request-audit.mjs'
-import {lifecycleEvent} from './lifecycle-log.mjs'
+import {lifecycleEvent,withLifecycleContext} from './lifecycle-log.mjs'
 import { randomUUID } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
@@ -214,7 +214,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, pulse, { ...wakeOptions(info),timeoutMs:Math.max(1,deadline-Date.now()) })
+      via = await withLifecycleContext({requestId:id},()=>deliver(info, pulse, { ...wakeOptions(info),timeoutMs:Math.max(1,deadline-Date.now()) }))
+      lifecycleEvent('peer-wake-returned',{requestId:id,wake:via,outcome:'transport-returned'})
       if(via.msgId)observe?.watchWake(via.msgId)
       lastWake = Date.now()
       wakeAttempts++
@@ -254,7 +255,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, pulse, { ...wakeOptions(now),timeoutMs:Math.max(1,deadline-Date.now()) })
+          via = await withLifecycleContext({requestId:id},()=>deliver(now, pulse, { ...wakeOptions(now),timeoutMs:Math.max(1,deadline-Date.now()) }))
+          lifecycleEvent('peer-wake-returned',{requestId:id,wake:via,outcome:'transport-returned'})
           if(via.msgId)observe?.watchWake(via.msgId)
           lastWake = Date.now()
           wakeAttempts++

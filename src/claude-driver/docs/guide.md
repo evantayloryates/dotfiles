@@ -685,3 +685,10 @@ report retrySafe for an expired/cancelled pure read with no helper dispatch. It
 also returns receiptObservation.available:false and category:outcome_unknown;
 this is not a receipt or proof that the read never ran. Mutations, pending work
 and any recorded dispatch retain their refusal. No cursor is rebound or replayed.
+
+
+`peer-wake-prepared` records direct peer msgId/worker epoch/priority before the
+preparation callback or socket write. `peer-wake-returned` records transport return,
+with executionVerified:false. These events inherit operation/request correlation
+when called through the broker; neither is a native acceptance or serving receipt.
+No socket paths, authentication keys, frames or message bodies are logged.

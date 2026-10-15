@@ -36,3 +36,10 @@ test('interleaved operations keep broker events in their own async correlation c
   const outside=lifecycleEvent('broker-observed',{}, {dir});const e=readFileSync(outside.file,'utf8').trim().split('\n').map(JSON.parse).at(-1);assert.equal(e.operationId,null)
  }finally{rmSync(dir,{recursive:true,force:true})}
 })
+test('wake evidence retains causal metadata without socket, token or message content',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'driver-lifecycle-'))
+ try{
+  const r=lifecycleEvent('peer-wake-prepared',{requestId:'rfixture',wake:{msgId:'synthetic-id',pid:42,procStart:'owned epoch',priority:'now',method:'direct',socket:'SECRET',token:'SECRET',content:'SECRET'}},{dir})
+  const text=readFileSync(r.file,'utf8'),row=JSON.parse(text);assert.equal(text.includes('SECRET'),false);assert.equal(row.wake.msgId,'synthetic-id');assert.equal(row.wake.executionVerified,false);assert.equal(row.requestId,'rfixture')
+ }finally{rmSync(dir,{recursive:true,force:true})}
+})

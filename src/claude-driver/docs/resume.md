@@ -1,3 +1,20 @@
+## Causal wake evidence — October 15
+
+Previous goal turn: progress (nine pure reads safely reconciled). For22 remaining
+unknowns,12 saved wake IDs exist;8 landed in the preserved hash-verified prefix,
+4 reached correlated end-turn without tools;10 lack wake metadata. These are
+partial causal observations, not settlement or proof of no effects. Private artifact:
+diagnostics/historical-wake-review-2026-10-15.json. All22 remain unresolved.
+Direct peer preparation now logs msgId/PID/start epoch/priority before callback or
+socket write; broker wake returns log correlated request and operation IDs with
+executionVerified:false. Socket paths, keys, frames and message contents excluded.
+Async request context avoids changing transport selection, fallback, wake budgets
+or authority. Focused10/10 pass; full pressure
+v2-2026-10-15T23-08-02-926Z.json passes1/1 in9445ms/sourceChanged:false.
+No native sends/recovery performed in this turn. Next changed-condition
+step: preserve unknown historical effects, design generation-isolated recovery
+without replay, and qualify exact native restart under the designated recovery owner.
+
 ## Historical receipt evidence and pure-read reconciliation — October 15
 
 Previous goal turn: progress (complete449-request audit). All31 receipt-source
