@@ -131,7 +131,7 @@ function sendLines(sock, lines, {timeoutMs=5000,signal}={}) {
 }
 
 export function transcriptPath(rec) {
-  return join(process.env.HOME, '.claude', 'projects', rec.cwd.replace(/[^A-Za-z0-9]/g, '-'), `${rec.sessionId}.jsonl`)
+  return join(process.env.CLAUDE_DRIVER_PROJECTS_DIR || join(process.env.HOME, '.claude', 'projects'), rec.cwd.replace(/[^A-Za-z0-9]/g, '-'), `${rec.sessionId}.jsonl`)
 }
 
 // Internal diagnostic subscription only. Caller sends these private lines from

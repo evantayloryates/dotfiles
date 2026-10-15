@@ -719,3 +719,8 @@ Direct peer transport revalidates process epoch, CLI identity, version/protocol
 and socket identity after its preparation callback, before sending. A changed
 recipient refuses without a fallback sender. This is transport hardening; public
 send_message continues to use the native broker route.
+
+The unexposed peer receipt reader binds an incremental journal cursor to the
+recipient epoch and accepts only an exact future native peer user record. It
+returns metadata with applied:false. Public sending does not use this candidate
+until durable send uncertainty and MCP/job integration are qualified.

@@ -1,3 +1,28 @@
+## Candidate exact native peer receipt reader — October 15
+
+Previous goal turn: progress (post-preparation recipient revalidation).
+Added unexposed lib/peer-receipt.mjs: capture metadata cursor at current EOF,
+bind host/CLI/cwd/PID/start plus journal device/inode, read at most256KiB, accept
+only future same-session user origin.kind:peer/exact msg_id with bounded UUID.
+Returns metadata and applied:false; never message content or model completion.
+Partial lines retain offset. Replaced/truncated/symlink/non-owned journals,
+invalid cursors and oversized incomplete records refuse outcome_unknown with
+retrySafe:false. Direct transcriptPath now honors the existing private projects
+override so fixtures stay isolated. Reader does not independently prove kernel
+peer identity; durable sender must enforce that via existing peerRecord checks.
+Three adversarial fixture tests cover historical exclusion, partial append,
+wrong origin/session/msg/type/sidechain/time, epoch mismatch, rotation/truncation,
+symlink and record budget. Full pressure370/370 passes on unchanged source:
+pressure/v2-2026-10-15T23-39-51-146Z.json. Both filtered harnesses pass:
+pressure/harness-v2-{claude,codex}-2026-10-15T23-39-55-144Z.json.
+No public route or native trial; candidate receipt code is not native qualification.
+Goal active. Next implement durable direct-recipient send ledger: arm metadata
+before socket write; preserve unknown state across worker disconnect/cancellation;
+reconcile exact receipt without replay. Then synthetic MCP/job integration before
+public exposure. Existing one-message native authorization remains consumed.
+Broker22 unknowns, stale MCP, current native controls/serving/residency/recovery
+remain open; no Codex-driver work, native wake, permission or input changes.
+
 ## Direct-recipient route foundation — October 15
 
 Previous goal turn: progress (full v2 requirement audit refreshed).
