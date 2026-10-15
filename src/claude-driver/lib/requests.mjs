@@ -111,7 +111,7 @@ export function validatedResult(request) {
 
 // Explicit, read-only reconciliation. Late receipts settle the delivery
 // protocol without replaying a native call or claiming the task was applied.
-export function inspectRequest(id, { includeResult = false } = {}) {
+export function inspectRequest(id, { includeResult = false, allowUnavailableReceipt = false } = {}) {
   const r = readJson(requestFile(id), null)
   if (!r) throw new DriverError('request not found', { category: 'not_found' })
   const c = control(id)
@@ -124,11 +124,12 @@ export function inspectRequest(id, { includeResult = false } = {}) {
     for(let i=0;observe&&i<4;i++){const actual=observe();if(actual){writeJsonAtomic(nativeResultFile(id),actual);break}}
   }
   }catch(e){
-    if(e.category!=='outcome_unknown'||c.dispatched?.length||!['cancelled','expired'].includes(c.state)||!safeUndispatchedRetry(r))throw e
+    const safe=!c.dispatched?.length&&['cancelled','expired'].includes(c.state)&&safeUndispatchedRetry(r)
+    if(e.category!=='outcome_unknown'||!safe&&!allowUnavailableReceipt)throw e
     receiptObservation={available:false,category:'outcome_unknown',verification:'Historical receipt unavailable; only an undispatched cancelled/expired pure read is retry-safe'}
   }
   const receipt = validatedResult(r)
-  const uncertainEffect=!receipt&&!safeUndispatchedRetry(r)&&['cancelled','expired'].includes(c.state)
+  const uncertainEffect=!receipt&&(!safeUndispatchedRetry(r)&&['cancelled','expired'].includes(c.state)||receiptObservation&&!(safeUndispatchedRetry(r)&&!c.dispatched?.length&&['cancelled','expired'].includes(c.state)))
   return { requestId: id, state: receipt ? receipt.results.every(x=>x.ok) ? 'completed' : 'failed' : uncertainEffect?'outcome_unknown':c.state || 'unknown',
     ...(receiptObservation?{receiptObservation}:{}),
     controlState: c.state, dispatched: (c.dispatched || []).length > 0,

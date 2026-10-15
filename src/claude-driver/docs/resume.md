@@ -1,3 +1,26 @@
+## Detector request reconciliation diagnostics — October 15
+
+Previous goal turn: progress (migrated residency journal visibility).
+Reviewed detector requests rmuxpnohk-c8bd2b(set_pinned), rmuxppvkw-2f19d6 and
+rmuxqc2c7-c5ba43(archive_session). Each control expired with empty dispatch ledger;
+none has a verified receipt. Mutations remain unknown despite empty dispatch.
+Strict inspectRequest continues to refuse journal drift. Recovery audit alone uses
+an explicit diagnostic option to retain controlState and receiptUnavailable without
+returning success/retry authority. Full449-request audit now reports408 completed,
+10 failed,22 outcome_unknown,7 expired and2 cancelled. Unresolved count stays22;
+release/handoff remains refused. Private evidence: diagnostics/detector-request-review-2026-10-15.json.
+Updated three per-hash pending report blockers; no reports acknowledged or replayed.
+Synthetic coverage requires strict refusal and diagnostic unknown/retrySafe:false
+for mutation, pending read and dispatched read. Full pressure366/366 passes:
+pressure/v2-2026-10-15T23-34-46-364Z.json. Both final-source filtered harnesses pass:
+pressure/harness-v2-{claude,codex}-2026-10-15T23-34-40-373Z.json.
+Goal active. Next changed-condition step: review two failed native-mod reports
+against their retained diagnostic/probe evidence and current admission readers;
+identify whether either can be checkpointed as a completed failed qualification
+without implying native execution. Historical mutations, sealed epoch, native
+serving/recovery/control qualification and residency remain open. No native message,
+wake, control, permission or Codex-driver changes this turn.
+
 ## Migrated residency journals reconciled — October 15
 
 Previous goal turn: progress (admission refusal diagnostics and report triage).

@@ -709,3 +709,8 @@ Residency evidence reconciles bounded exact-session journals at logical and
 canonical cwd paths after native migration. Conflicting copies fail closed.
 Finding a maintenance list receipt still requires matching app acknowledgment
 and a current native epoch before residency is reported verified.
+
+Recovery audits retain control state when historical receipt observation is
+unavailable, but keep the outcome unknown and unsafe to retry. Strict request
+inspection still refuses that evidence gap; diagnostic visibility grants no
+replay, handoff or release authority.

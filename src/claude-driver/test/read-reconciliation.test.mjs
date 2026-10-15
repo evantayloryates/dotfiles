@@ -15,6 +15,11 @@ test('receipt-source drift preserves pure-read retry safety only after cancellat
   enqueue({id,protocol:7,createdAt:new Date().toISOString(),expiresAt:Date.now()-1,ops:[{op,args:{session_id:sid}}],nativeObservation:{brokerSessionId:sid,cliSessionId:cli,dev:stat.dev+1,ino:stat.ino,offset:0}})
   writeJsonAtomic(join(broker,'controls',id+'.json'),{id,state:stateName,dispatched})
   if(id==='read'){const r=inspectRequest(id);assert.equal(r.retrySafe,true);assert.equal(r.receiptVerified,false);assert.equal(r.receiptObservation.available,false);assert.equal(r.receiptObservation.category,'outcome_unknown')}
-  else assert.throws(()=>inspectRequest(id),e=>e.category==='outcome_unknown')
+  else {
+   assert.throws(()=>inspectRequest(id),e=>e.category==='outcome_unknown')
+   const diagnostic=inspectRequest(id,{allowUnavailableReceipt:true})
+   assert.equal(diagnostic.state,'outcome_unknown');assert.equal(diagnostic.controlState,stateName)
+   assert.equal(diagnostic.retrySafe,false);assert.equal(diagnostic.receiptVerified,false);assert.equal(diagnostic.receiptObservation.available,false)
+  }
  }
 })
