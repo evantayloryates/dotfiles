@@ -700,3 +700,7 @@ stale or duplicate metadata cannot establish processAlive/serving health. Legacy
 nonnative process observations are labelled separately. Source/adapter tests on a
 new CLI version do not qualify peer transport; its version allowlist remains an
 independent, fail-closed boundary.
+
+Stop verification requires explicit idle on the same verified native PID/start
+and CLI session identity. A missing worker, changed epoch or unfamiliar status
+is unverified and prevents interrupt steering from sending a replacement.

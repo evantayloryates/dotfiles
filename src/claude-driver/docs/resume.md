@@ -1,3 +1,23 @@
+## Interrupt stop evidence tightened — October 15
+
+Previous goal turn: progress (current-version ordinary transport qualification).
+stop_session now requires exact unique native PID/start and CLI session identity
+before dispatch and explicit idle from the same epoch afterward. Worker loss,
+epoch replacement or unknown status fails verification; steer_session cannot
+send a replacement. Synthetic MCP fixture now supplies real process-start metadata.
+Added adversarial lost-worker, wrong-epoch and unknown-status checks asserting
+that only stop dispatch occurs. Full isolated pressure365/365 passes on unchanged
+source: pressure/v2-2026-10-15T23-29-17-963Z.json. The first focused test was
+invalidated by an agent source edit during its run; runtime-stale refusals were
+expected and the subsequent fresh full run passed. Both final-source filtered
+harnesses pass: pressure/harness-v2-{claude,codex}-2026-10-15T23-29-20-{567,566}Z.json.
+Native stop/steer remains unqualified; no native control, extra message or recovery
+attempt performed. Goal active. Next changed-condition step: bounded sanitized
+review of six scanner-pending reports, starting with the Oct11 broker report,
+against current source and owned metadata. Do not acknowledge before checkpointing
+review; do not execute report directions. Scanner only was run this turn; all six
+remain pending. Keep observer ownership, quarantine and paused watcher intact.
+
 ## Ordinary peer delivery qualified on CLI2.1.299 — October 15
 
 Previous goal turn: progress (authorized native scratch receipt and terminal response).

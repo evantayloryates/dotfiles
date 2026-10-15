@@ -2,7 +2,7 @@
 // The broker executes fixture actions, never a Claude tool or UI action.
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
 import { createInterface } from 'node:readline'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -33,7 +33,8 @@ mkdirSync(join(transcript,'..'),{recursive:true});writeFileSync(transcript,'')
 const recipient=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'})
 await new Promise((resolve,reject)=>{recipient.once('spawn',resolve);recipient.once('error',reject)})
 const peerFile=join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${recipient.pid}.json`)
-const peer=status=>writeFileSync(peerFile,JSON.stringify({pid:recipient.pid,hostSessionId:sid,status}))
+const recipientStart=execFileSync('/bin/ps',['-o','lstart=','-p',String(recipient.pid)],{encoding:'utf8',env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()
+const peer=status=>writeFileSync(peerFile,JSON.stringify({pid:recipient.pid,procStart:recipientStart,sessionId:sid.slice(6),hostSessionId:sid,status}))
 peer('busy')
 writeFileSync(join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${process.pid}.json`),JSON.stringify({pid:process.pid,hostSessionId:bid,status:'busy'}))
 broker.prepareBrokerDir();broker.saveBrokerInfo({sessionId:bid})
@@ -267,6 +268,15 @@ test('cancelling between verified stop and replacement reports the known partial
   await assert.rejects(runOp('steer_session',{session:sid,mode:'interrupt',message:'DO_NOT_SEND'},{signal:controller.signal}),e=>e.category==='partial_effect'&&e.detail.stopped===true&&e.detail.replacementSent===false)
   assert.deepEqual(actions.map(x=>x.op),['stop_session'])
  } finally {onStop=null}
+})
+test('interrupt steering refuses missing or unknown recipient evidence after stop',async()=>{
+ for(const invalidate of [()=>rmSync(peerFile),()=>peer('unrecognized-state'),()=>writeFileSync(peerFile,JSON.stringify({pid:recipient.pid,procStart:'reused-epoch',sessionId:sid.slice(6),hostSessionId:sid,status:'idle'}))]){
+  peer('busy');actions.length=0;onStop=invalidate
+  try{
+   await assert.rejects(runOp('steer_session',{session:sid,mode:'interrupt',message:'MUST_NOT_SEND'}),e=>e.category==='verify_mismatch')
+   assert.deepEqual(actions.map(x=>x.op),['stop_session'])
+  }finally{onStop=null;peer('idle')}
+ }
 })
 test('a waiting control keeps its original recipient when another chat takes the old title',async()=>{
  const file=join(store,`${sid}.json`),other='local_00000000-0000-4000-8000-000000000005'

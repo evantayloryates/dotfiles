@@ -31,6 +31,7 @@ import { uiPolicy } from './ui-policy.mjs'
 import { inspectRequest } from './requests.mjs'
 import { deliveryReceipt } from './delivery.mjs'
 import { nativeQualification } from './qualification.mjs'
+import { peerRecord } from './peer-direct.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -220,12 +221,16 @@ export const OPS = [
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
       if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to stop the broker or caller', { category: 'gate' })
+      const before = peerRecord(rec.sessionId)
+      if (!before || before.sessionId !== (rec.cliSessionId || rec.sessionId.replace(/^local_/, ''))) throw new DriverError('stop requires a verified native recipient epoch', { category: 'verify_mismatch' })
       const b = await tierB(ctx, [{ op: 'stop_session', args: { session_id: rec.sessionId } }])
       if (b.handback) return b.handback
       const deadline = Date.now() + 8000
       while (Date.now() < deadline) {
-        const live = liveByHost().get(rec.sessionId)
-        if (!live || !['busy', 'working'].includes(live.status)) return { sessionId: rec.sessionId, stopped: true, verified: true, status: live?.status || 'offline' }
+        const live = peerRecord(rec.sessionId, before.pid)
+        if (!live || live.procStart !== before.procStart || live.sessionId !== before.sessionId) throw new DriverError('recipient epoch disappeared or changed after stop; replacement must not be sent', { category: 'verify_mismatch' })
+        if (live.status === 'idle') return { sessionId: rec.sessionId, stopped: true, verified: true, status: 'idle', nativeProcess: { pid: live.pid, procStart: live.procStart } }
+        if (!['busy', 'working', 'running'].includes(live.status)) throw new DriverError('recipient status after stop is unknown; replacement must not be sent', { category: 'verify_mismatch' })
         await sleep(200)
       }
       throw new DriverError('stop was requested but idle state was not verified', { category: 'verify_mismatch' })
