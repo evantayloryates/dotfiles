@@ -804,3 +804,12 @@ linked, replaced or shortened transcripts fail with `cursor_reset`; a FIFO
 cannot block the reader. Ordinary append growth remains observable. Missing
 transcripts retain the existing pending-cursor behavior. Never reuse reset
 ancestry as receipt proof.
+
+`open_session {session, focus:"restore", wait_native_sec:30}` optionally observes
+an exact owned desktop peer before restoring focus. The wait is0–30 seconds;
+default0 preserves existing navigation behavior. `nativeProcess.verified` means
+matching CLI/session/cwd/process identity only; serving and inference remain
+unverified. Timeout or cancellation returns an explicit unverified reason while
+allowing focus restoration. This observer never sends, starts a CLI, or recovers
+a broker. Opening a chat alone did not warm-start its native worker after the
+controlled app restart on app2.42304.0/CLI2.1.299; do not treat navigation as readiness.

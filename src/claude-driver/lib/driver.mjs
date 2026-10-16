@@ -33,6 +33,7 @@ import { deliveryReceipt } from './delivery.mjs'
 import { stopReceipt } from './stop-receipt.mjs'
 import { nativeQualification } from './qualification.mjs'
 import { peerRecord } from './peer-direct.mjs'
+import { waitNativePeer } from './wait-native-peer.mjs'
 import { sendDirectRecipient } from './direct-recipient.mjs'
 import { reconcilePeerSend } from './peer-send-ledger.mjs'
 
@@ -471,12 +472,16 @@ export const OPS = [
     name: 'open_session',
     title: 'Open / focus a session',
     description: 'Bring a session into the main window by deep link. Default focus "show" (that is the point); "restore" just touches it (e.g. to warm-spawn its process) and puts things back.',
-    schema: { properties: { session: S, focus: FOCUS }, required: ['session'] },
+    schema: { properties: { session: S, focus: FOCUS, wait_native_sec:{type:'number',minimum:0,maximum:30,description:'Optional bounded native peer identity wait before focus restoration; not serving/inference proof.'} }, required: ['session'] },
     navigates: true,
     run: async (args, ctx) => {
       ctx.tier = 'A'
       const rec = resolveSession(args.session)
-      const { result, focus } = await withFocus(focusArg(args, 'show'), () => openSession(rec))
+      const { result, focus } = await withFocus(focusArg(args, 'show'), async () => {
+        const opened=await openSession(rec)
+        if(args.wait_native_sec>0)opened.nativeProcess=await waitNativePeer(rec,{timeoutMs:Math.ceil(args.wait_native_sec*1000),signal:ctx.signal})
+        return opened
+      })
       delete result.navigatedTo
       return { ...result, focus: focus.action, nowShowing: currentMain() }
     },

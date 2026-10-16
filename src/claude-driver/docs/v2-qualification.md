@@ -1,3 +1,34 @@
+## Controlled app restart: offline refusal passed, cold peer startup failed — October 15
+
+Previous turn: progress (native cancellation). Taylor explicitly authorized
+Claude Desktop quit/restart. Held shared broker-revive lock through one graceful
+AppleEvent quit and reopen to serialize observer recovery. No OS/session kill,
+keyboard injection, permission/auth change or broker wake. Durable intent marks
+this as intentional termination; do not infer crash/governor eviction from exits.
+Exact app and scratch peer absence observed after quit. A new direct send refused
+peer_unqualified before arming any ledger. App reopened, but open_session with
+focus restoration did not start the disposable scratch native peer within30s.
+Retained failure: diagnostics/direct-app-restart-2026-10-15.json. No uncertain
+message was retried and no post-restart inference prompt was sent.
+Added optional open_session.wait_native_sec(0–30/default0), observing exact
+desktop peer/session/cwd/process identity inside navigation before restoration.
+It returns nativeProcess verified identity only, servingVerified:false and
+inferenceVerified:false; timeout/cancel is explicit while focus can restore.
+Three helper tests and full final-source pressure pass:
+pressure/v2-2026-10-16T00-18-48-528Z.json. Both filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-16T00-18-34-138Z.json and
+pressure/harness-v2-codex-2026-10-16T00-18-34-138Z.json.
+Changed-condition native follow-up waited30s before restoring focus and ALSO
+returned native-peer-timeout. This disproves focus restoration delay as sufficient
+explanation. Chat navigation is not a warm-start guarantee on current installed
+app2.42304.0/CLI2.1.299. Preserve both observations; no second restart performed.
+App is reopened; scratch record intact/unarchived but native worker offline.
+Legacy broker remains offline with22unknown effects and handoff unsettled.
+Next changed-condition step: inspect installed cold-start/deep-link semantics and
+existing input-free startup mechanisms without bypassing quarantine, controller
+refusal, native permission gates or observer recovery ownership. Live native
+controls, persistent serving, cold recovery and residency remain unqualified.
+
 ## Native direct cancellation boundaries passed — October 15
 
 Previous turn: progress (two-target concurrency). Current-source owned scratch
