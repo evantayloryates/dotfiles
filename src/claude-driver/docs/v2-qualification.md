@@ -1,3 +1,30 @@
+## Installed stop-handler contract qualification — October 15
+
+Previous turn: progress (recognized native stop receipts). Added reproducible
+scripts/native-stop-contract-v2.mjs executing only the exact reviewed installed
+stop tool handler in a VM with synthetic manager/telemetry. All8 checks pass:
+human-answer waiting refuses before interrupt; held user message produces declined
+success envelope; reconnecting host remains requested; accepted agent interrupt
+produces exact positive receipt; idle, starting, archived and self cases do not
+invoke interrupt. Calls bind exact target and agent trigger. Evidence:
+pressure/native-stop-contract-2026-10-16T00-08-24-329Z.json.
+Installed handler chunk SHA f5d162e3e6047c12ca0cee15d72574e316513df6a65d52e89e2d456a4a3022ff
+is required; drift fails rather than guessing minified source. No live app IPC,
+permission broker changes, messages, process signals or native controls occurred.
+Further source tracing finds app manager interruptSession(...,agent) uses actual
+query.interrupt(), preserves held user input, reports reconnect-pending, and may
+fall back to native stop on missing SDK acknowledgment. Peer priority is not an
+equivalent control interface and must not bypass these protections.
+Next changed-condition step: prepare an exact owned scratch native-tool controller
+trial through existing app tool machinery, with current native admission/receipt
+proof and no replay of old broker requests. Offline legacy broker and22unknown
+effects remain open; general recovery/handoff gates are unchanged.
+
+Current full pressure passes unchanged source: pressure/v2-2026-10-16T00-08-47-099Z.json.
+Both final-source filtered harnesses pass: pressure/harness-v2-claude-2026-10-16T00-08-33-361Z.json
+and pressure/harness-v2-codex-2026-10-16T00-08-33-361Z.json.
+
+
 ## Native stop receipt refusal guard — October 15
 
 Previous turn: progress (direct queue steering). Bounded installed desktop source
