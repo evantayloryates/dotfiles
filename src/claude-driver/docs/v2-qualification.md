@@ -1,3 +1,28 @@
+## Explicit direct queue steering — October 15
+
+Previous goal turn: progress (native ordinary busy queue proof). Public
+steer_session(mode:queue) now accepts explicit transport:peer-direct with stable
+operation_id and receipt_timeout_sec. It reuses the guarded durable direct runner
+and one absolute outer-admission/receipt deadline. Exact native receipt returns
+received/applied:false/stopped:false; default native route is unchanged. Direct
+interrupt and direct/via_broker combinations refuse before effects. Native stop
+remains required for interrupt; no version/control gate was weakened.
+New synthetic tests prove one publication/reattachment, refusal before effect and
+outer-lock deadline. Focused11/11 and full isolated pressure pass unchanged source:
+pressure/v2-2026-10-16T00-04-46-713Z.json. Both current filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-16T00-04-53-712Z.json and
+pressure/harness-v2-codex-2026-10-16T00-04-54-910Z.json.
+Actual durable public steer_session scratch trial passes: second job submitted
+while busy before first completion, exact250-integer first causal reply then exact
+follow-up causal reply, no tools. Evidence:
+diagnostics/direct-steer-queue-trial-2026-10-15.json.
+Fresh recovery audit still reports offline broker, intact sealed package,449
+requests/22unknown and settledForHandoff:false. No recovery or replay attempted.
+Next changed-condition work: inspect installed current native stop/control API
+independently of the offline broker, then prepare a bounded scratch interruption
+trial only through a verified route. Broad control/residency/recovery remain open.
+Watcher stays paused; no input injection, permission changes or Codex bridge fixes.
+
 ## Native ordinary direct queue qualification — October 15
 
 Previous goal turn: progress (composed native direct receipt/reply). Existing

@@ -133,3 +133,18 @@ test('public receipt budget includes outer session admission rather than restart
   if(frames===before+1)assert.equal((await c.call('peer_send_status',{operation_id:'shared-budget'})).structuredContent.receiptVerified,true)
  }finally{clearTimeout(timer);release();await held;receiptDelayMs=0;await c.close()}
 })
+
+test('public direct queue steering preserves one publication and refuses unsupported interrupt before effects',async()=>{
+ const {runOp}=await import('../lib/driver.mjs');const before=frames;
+ const args={session:sid,mode:'queue',message:'DIRECT_QUEUE',transport:'peer-direct',operation_id:'public-direct-queue',receipt_timeout_sec:3};
+ const r=await runOp('steer_session',args);assert.equal(r.delivery,'received');assert.equal(r.steeringMode,'queue');assert.equal(r.stopped,false);assert.equal(r.applied,false);assert.equal(frames,before+1);
+ assert.equal((await runOp('steer_session',args)).reused,true);assert.equal(frames,before+1);
+ for(const invalid of [{...args,mode:'interrupt'},{...args,via_broker:true},{...args,transport:'native'}])await assert.rejects(runOp('steer_session',invalid),e=>e.category==='bad_args');
+ assert.equal(frames,before+1);
+})
+
+test('public direct queue steering deadline includes outer control admission',async()=>{
+ const {runOp}=await import('../lib/driver.mjs'),{withSessionControl}=await import('../lib/controls.mjs');let release;
+ const held=withSessionControl(sid,()=>new Promise(r=>release=r));while(!release)await new Promise(r=>setTimeout(r,5));const before=frames;
+ try{await assert.rejects(runOp('steer_session',{session:sid,mode:'queue',message:'MUST_NOT_SEND',transport:'peer-direct',operation_id:'queue-admission-expired',receipt_timeout_sec:0.1}),e=>['lock_timeout','cli_timeout','outcome_unknown'].includes(e.category));assert.equal(frames,before);assert.equal(await inspectPeerSend('queue-admission-expired'),null)}finally{release();await held}
+})

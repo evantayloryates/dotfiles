@@ -771,3 +771,14 @@ Peer-direct receipt_timeout_sec is one absolute budget including outer session
 admission, metadata/preparation and socket waiting. It is not restarted after a
 lock wait. An exhausted budget that prevents state inspection can conservatively
 return outcome_unknown; this never grants replay authority.
+
+`steer_session` now accepts the same explicit experimental direct options for
+`mode:"queue"`: `transport:"peer-direct"`, stable `operation_id`, and optional
+`receipt_timeout_sec`. The absolute budget includes outer control admission.
+It returns `steeringMode:"queue"`, `stopped:false`, `delivery:"received"` only
+with an exact native user receipt, and `applied:false`. Use causal observations
+for model completion. Direct queue identity reattachment never resends.
+Direct interrupt and any direct/via_broker combination refuse before effects;
+interrupt continues to require the native stop route. Default transport is unchanged.
+A native2.1.299 scratch trial verified busy submission followed by complete first
+response and exact follow-up response through durable steer_session.

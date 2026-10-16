@@ -200,10 +200,20 @@ export const OPS = [
   {
     name: 'steer_session', title: 'Steer a Claude session explicitly',
     description: 'Queue a follow-up (mode:queue), or stop the active turn, verify idle, then send the replacement instruction (mode:interrupt). Queuing is not immediate steering. Capture a session_events cursor beforehand and read back the response. Refuses the broker and caller.',
-    schema: { properties: { session: S, message: { type: 'string' }, mode: { type: 'string', enum: ['queue', 'interrupt'] }, via_broker: VIA_BROKER }, required: ['session', 'message', 'mode'] },
+    schema: { properties: { session: S, message: { type: 'string' }, mode: { type: 'string', enum: ['queue', 'interrupt'] }, via_broker: VIA_BROKER,
+      transport:{type:'string',enum:['native','peer-direct'],description:'Explicit experimental peer-direct supports queue only; interrupt still requires native stop.'},
+      operation_id:{type:'string',description:'Stable single-publication identity required for peer-direct queue.'},
+      receipt_timeout_sec:{type:'number',minimum:0.1,maximum:60,description:'Absolute peer-direct queue admission/receipt budget, default15 seconds.'} }, required: ['session', 'message', 'mode'] },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
       if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to steer the broker or caller', { category: 'gate' })
+      if(args.transport==='peer-direct'){
+        if(args.mode!=='queue'||args.via_broker!==undefined)throw new DriverError('peer-direct steering supports queue only and cannot combine via_broker',{category:'bad_args'})
+        ctx.tier='peer-direct'
+        const sent=await sendDirectRecipient({operationId:args.operation_id,session:rec.sessionId,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal,absoluteDeadline:ctx.directDeadline})
+        return {...sent,steeringMode:'queue',stopped:false,verified:true,experimental:true,applied:false,verification:'Exact native user receipt only; ordinary next-priority delivery does not interrupt. Observe the causal response before claiming application.'}
+      }
+      if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
@@ -1112,7 +1122,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
   const t0 = Date.now(),operationId=lifecycleContext().operationId
-  if(name==='send_message'&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
+  if(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   trace('operation-start')
@@ -1132,7 +1142,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
       const boundArgs = { ...args, session }
       ctx.args = boundArgs
       row.targetSession = session
-      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(name==='send_message'&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
+      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
     } else out = await op.run(args, ctx)
     trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})
     if(name==='broker_status')trace('broker-observed',{info:out?.broker||out})
