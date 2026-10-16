@@ -1,3 +1,25 @@
+## Two-target native direct concurrency passed — October 15
+
+Previous goal turn: progress (descriptor-bound observations). Current-source
+public durable peer-direct trial submitted6 jobs concurrently across the2 owned
+scratch chats,3 per target. All6 jobs completed with unique exact native user
+receipts and exact causal terminal replies. Every original idempotency key was
+reattached and retained its job ID; no duplicate job/publication/reply observed.
+Both exact native PID/start epochs unchanged; no tools. Final records show both
+targets idle/unarchived. Evidence:
+diagnostics/direct-concurrency-2026-10-15.json, runtime
+4262b079933b2f38a26b8ca746f626701f46c266297249c12041d444512beb0a.
+Submit latency109–377ms; first receipt per target563/628ms; queued receipts
+4994–11310ms; causal replies3134–12859ms; total13955ms. These measured values
+qualify only this bounded6-message/2-recipient workload, not sustained throughput,
+fairness, broker serving, interruption, recovery, native mutations or residency.
+No source change, app restart, permission change, refused-stop retry, old broker
+replay or Codex bridge modification. Required current-source synthetic/harness
+proof from the previous turn remains applicable; no redundant inference retest.
+Next changed-condition step: exact native direct lifecycle cancellation/reattach
+qualification or trusted existing native control admission, preserving controller
+refusal. Legacy broker22unknowns and cold recovery/residency remain open.
+
 ## Descriptor-bound transcript observations — October 15
 
 Previous turn: progress (bounded causal tool receipt IDs). Shared observer now
