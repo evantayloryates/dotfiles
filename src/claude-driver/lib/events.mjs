@@ -1,6 +1,6 @@
 // Bounded incremental transcript reads. A cursor belongs to one session and
 // one CLI transcript; a /clear or rotation is reported, never silently mixed.
-import { closeSync, existsSync, openSync, readSync, statSync } from 'node:fs'
+import { closeSync, constants, fstatSync, openSync, readSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
 import { resolveSession, liveByHost } from './sessions.mjs'
@@ -24,27 +24,29 @@ export function sessionEvents({ session, cursor, include_text = false, include_c
   }
   if (!cli) return pending()
   const file = join(process.env.CLAUDE_DRIVER_PROJECTS_DIR || join(homedir(), '.claude', 'projects'), r.cwd.replace(/[^A-Za-z0-9]/g, '-'), `${cli}.jsonl`)
-  if (!existsSync(file)) return pending()
-  const st = statSync(file)
-  const identity = `${cli}:${st.dev}:${st.ino}`
-  let offset = 0, previousStatus
-  if (cursor) {
-    if(c.pending){
-      if(c.cli&&c.cli!==cli||!Number.isSafeInteger(c.since)||c.since<0)throw new DriverError('invalid pending transcript cursor',{category:'cursor_reset'})
-    }else {
-      if (c.identity !== identity || !Number.isSafeInteger(c.offset) || c.offset < 0 || c.offset > st.size) throw new DriverError('cursor belongs to another session or a replaced transcript; request a new cursor', { category: 'cursor_reset' })
-      offset = c.offset
-    }
-    previousStatus = c.status
-  } else {
-    // Starting observation watches only future events. It does not pour an
-    // existing conversation into the caller or mistake old replies for new.
-    offset = st.size
-  }
-  const bytes = Math.min(st.size - offset, 256 * 1024)
-  const buf = Buffer.alloc(bytes)
-  const fd = openSync(file, 'r')
-  try { readSync(fd, buf, 0, bytes, offset) } finally { closeSync(fd) }
+  let fd
+  try {fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)}
+  catch(error){if(error.code==='ENOENT')return pending();throw new DriverError('owned transcript could not be opened safely',{category:'cursor_reset'})}
+  let st,identity,offset=0,previousStatus,bytes,buf
+  try {
+    st=fstatSync(fd)
+    if(!st.isFile()||st.uid!==process.getuid())throw new DriverError('transcript is not an owned regular file',{category:'cursor_reset'})
+    identity = `${cli}:${st.dev}:${st.ino}`
+    if (cursor) {
+      if(c.pending){
+        if(c.cli&&c.cli!==cli||!Number.isSafeInteger(c.since)||c.since<0)throw new DriverError('invalid pending transcript cursor',{category:'cursor_reset'})
+      }else {
+        if(c.identity!==identity||!Number.isSafeInteger(c.offset)||c.offset<0||c.offset>st.size)throw new DriverError('cursor belongs to another session or a replaced transcript; request a new cursor',{category:'cursor_reset'})
+        offset=c.offset
+      }
+      previousStatus=c.status
+    }else offset=st.size // Observe only future events, never historical replies.
+    bytes=Math.min(st.size-offset,256*1024);buf=Buffer.alloc(bytes)
+    let count=0
+    while(count<bytes){const n=readSync(fd,buf,count,bytes-count,offset+count);if(!n)throw new DriverError('transcript shortened during observation',{category:'cursor_reset'});count+=n}
+    const after=fstatSync(fd)
+    if(after.size<st.size||after.size===st.size&&(after.mtimeMs!==st.mtimeMs||after.ctimeMs!==st.ctimeMs))throw new DriverError('transcript changed during observation',{category:'cursor_reset'})
+  }finally{closeSync(fd)}
   const events = []
   let consumed = 0
   for (const line of buf.toString('utf8').split('\n').slice(0, -1)) {

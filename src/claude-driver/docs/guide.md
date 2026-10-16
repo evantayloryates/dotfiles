@@ -797,3 +797,10 @@ success. Each list is limited to64 blocks. `toolMetadataTruncated:true` marks an
 overflow, and `toolMetadataIncomplete:true` marks invalid/omitted identifiers.
 These identifiers prove correlation only. Validate operation arguments, native
 result semantics and persisted state separately before claiming an effect.
+
+Transcript observation opens an owned regular file without following a final
+symlink and validates cursor identity on that same descriptor. Nonregular,
+linked, replaced or shortened transcripts fail with `cursor_reset`; a FIFO
+cannot block the reader. Ordinary append growth remains observable. Missing
+transcripts retain the existing pending-cursor behavior. Never reuse reset
+ancestry as receipt proof.

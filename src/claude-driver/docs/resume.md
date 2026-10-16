@@ -1,3 +1,27 @@
+## Descriptor-bound transcript observations — October 15
+
+Previous turn: progress (bounded causal tool receipt IDs). Shared observer now
+opens its journal O_NOFOLLOW/O_NONBLOCK and validates owned regular-file identity
+through fstat on the exact descriptor supplying bytes. It no longer stats one
+path and reopens a potentially replaced target. Cursor dev/inode/offset checks
+use that descriptor; bounded reads detect premature EOF/truncation and reject
+non-growing metadata replacement during reading. Normal append growth remains
+valid; missing transcript pending cursors are unchanged. No FIFO can block read.
+Focused45 checks pass including final-symlink, directory, FIFO and replaced-inode
+refusals; original partial-line, truncation, Unicode/privacy and pending context
+checks continue passing. Full final-source pressure passes:
+pressure/v2-2026-10-16T00-13-20-714Z.json. Fresh current public observer retains
+exact native call/result pairing on the owned scratch journal without inference:
+diagnostics/native-observation-file-identity-2026-10-15.json.
+Both final-source filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-16T00-13-06-746Z.json and
+pressure/harness-v2-codex-2026-10-16T00-13-06-746Z.json.
+Controller mutation refusal remains authoritative; no new message, permission
+change, recovery, restart or old request replay. Both scratch chats retained idle.
+Next changed-condition work: current-source native lifecycle/recovery boundaries
+and serving qualification, without substituting peer prompts for refused control
+authority. Full interruption, residency, cold recovery and22unknowns remain open.
+
 ## Bounded native tool-call/result observation — October 15
 
 Previous turn: progress (native metadata read and preserved controller refusal).

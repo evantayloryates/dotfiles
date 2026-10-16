@@ -1,6 +1,6 @@
 import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, appendFileSync, readFileSync, rmSync, statSync, utimesSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, appendFileSync, readFileSync, rmSync, statSync, utimesSync, renameSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
@@ -382,4 +382,14 @@ test('causal observations pair bounded tool identifiers without revealing argume
  appendFileSync(transcript,JSON.stringify({uuid:'bounded-results',parentUuid:'result-row',type:'user',timestamp:at,message:{content:Array.from({length:65},(_,i)=>({type:'tool_result',tool_use_id:i===0?'bad id':'toolu_'+i,is_error:true,content:'PRIVATE_RESULT'}))}})+'\n')
  const bounded=events.sessionEvents({session:sid,cursor:next,include_causality:true}).events[0]
  assert.equal(bounded.toolMetadataTruncated,true);assert.equal(bounded.toolMetadataIncomplete,true);assert.equal(bounded.toolResults.length,63);assert.equal(bounded.toolResults.every(x=>x.isError===true),true)
+})
+
+test('observations refuse linked, nonregular and replaced transcripts before exposing contents',()=>{
+ const cursor=events.sessionEvents({session:sid}).cursor,backup=transcript+'.owned-backup',foreign=join(root,'other-journal');writeFileSync(foreign,JSON.stringify({type:'assistant',message:{content:'PRIVATE_FOREIGN_JOURNAL'}})+'\n');renameSync(transcript,backup);
+ try{
+  symlinkSync(foreign,transcript);assert.throws(()=>events.sessionEvents({session:sid,cursor,include_text:true}),e=>e.category==='cursor_reset');rmSync(transcript);
+  mkdirSync(transcript);assert.throws(()=>events.sessionEvents({session:sid,include_text:true}),e=>e.category==='cursor_reset');rmSync(transcript,{recursive:true});
+  const made=spawnSync('/usr/bin/mkfifo',[transcript]);assert.equal(made.status,0);const start=Date.now();assert.throws(()=>events.sessionEvents({session:sid}),e=>e.category==='cursor_reset');assert.ok(Date.now()-start<1000);rmSync(transcript);
+  writeFileSync(transcript,readFileSync(foreign));assert.throws(()=>events.sessionEvents({session:sid,cursor,include_text:true}),e=>e.category==='cursor_reset');rmSync(transcript);
+ }finally{renameSync(backup,transcript)}
 })
