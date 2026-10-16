@@ -1,3 +1,30 @@
+## Cold-start source admission review — October 15
+
+Previous goal turn: progress (authorized app restart revealed offline refusal and
+missing peer startup). Bounded installed source now confirms separate APIs:
+LocalSessions.setFocusedSession changes focus/preconnects SSH; warmSession calls
+manager warmSession(...,{fromPage:true}). Manager warm entry refuses unconfirmed
+imports, stoppedUntilPersonSends, hosted-state restrictions and crash-loop gates,
+then checks transcript/trust/auth and start ownership. None may be bypassed.
+canAutoResume reports stopped-until-person-sends, import-confirm, parked crash-loop
+or stale-auth refusal. This is source evidence, not a current native canAutoResume
+result or proof of which gate caused this scratch failure. Allowlisted persisted
+scratch flags were absent; do not interpret absent as clear/false.
+Evidence: diagnostics/native-cold-start-review-2026-10-15.json. No app/internal
+IPC executed, settings changed, restart repeated, native control retried or prompt
+spoofed. Both scratch records remain unarchived with no current native worker.
+The native controller's earlier cross-chat mutation refusal is also preserved.
+Concrete changed-condition gate: Taylor can open the existing Claude Desktop chat
+claude-driver-interrupt-scratch-2026-10-15 and send a short ready message there;
+then current exact peer/versions and one harmless direct receipt/reply can be
+requalified. Codex cannot type that message while input quarantine is retained.
+An independently verified supported native warm-start route respecting admission
+could also unblock; current code has not established one. Legacy broker remains
+observer-owned/offline with22unknown effects; ordinary recovery cannot clear them.
+No new source change; prior current pressure/harness evidence retained. Next work
+should change this startup condition or qualify a supported route, not repeat
+unchanged opens/restarts, add unrelated helpers, or reinterpret navigation as ready.
+
 ## Controlled app restart: offline refusal passed, cold peer startup failed — October 15
 
 Previous turn: progress (native cancellation). Taylor explicitly authorized
