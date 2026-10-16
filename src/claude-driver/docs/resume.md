@@ -1,3 +1,28 @@
+## Native direct cancellation boundaries passed — October 15
+
+Previous turn: progress (two-target concurrency). Current-source owned scratch
+trial validates both boundaries through actual durable public jobs. A controlled
+recipient lock kept first job waiting before admission; cancellation produced
+cancelled with no direct ledger, and same-key reattachment retained that job.
+A bounded500-integer workload then held the real recipient busy. Follow-up was
+durably armed once and caller cancellation left its job outcome_unknown. The
+exact native user receipt arrived AFTER cancellation, followed by exact causal
+terminal reply. One native receipt only; same-key job reattachment never replayed.
+peer_send_status reconciled late receipt to received while original job remained
+outcome_unknown. No tools; exact native epoch unchanged. Final cleanup records
+recipient idle. Evidence: diagnostics/native-cancellation-2026-10-15.json, runtime
+4262b079933b2f38a26b8ca746f626701f46c266297249c12041d444512beb0a.
+This qualifies cancellation bookkeeping and late native direct receipt observation
+for this bounded fixture. Cancellation does not stop recipient inference or undo
+published work. The preserved unknown job is not an unresolved legacy broker
+mutation; its direct ledger has exact received proof and causal reply. Do not
+rewrite historical job state or retry with a new identity.
+No source change, broker wake/recovery, OS process kill, permission change or
+refused native control retry. Current synthetic/harness evidence still applies.
+Next changed-condition step: current native lifecycle/dependency and recovery
+qualification under the existing admission gates; native controller cross-chat
+mutation refusal and legacy22unknowns remain authoritative.
+
 ## Two-target native direct concurrency passed — October 15
 
 Previous goal turn: progress (descriptor-bound observations). Current-source
