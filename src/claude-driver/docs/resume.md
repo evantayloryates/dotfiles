@@ -1,3 +1,22 @@
+## Native ordinary direct queue qualification — October 15
+
+Previous goal turn: progress (composed native direct receipt/reply). Existing
+scratch PID98986/start Thu Oct15 23:20:48UTC, CLI2.1.299 remained the target.
+Two durable public peer-direct jobs completed. Follow-up job was created while
+get_session reported busy and before the first terminal response timestamp.
+The first exact causal reply contains all250 integers plus the fresh final marker;
+only afterward the follow-up native user receipt and exact causal terminal reply
+appear. No tools. Evidence: diagnostics/direct-queue-trial-2026-10-15.json,
+including durable job times, exact native message IDs and bounded event ancestry.
+This qualifies ordinary next-priority direct delivery without interrupting this
+bounded workload. It does not qualify steer_session, native stop, broker controls,
+queue fairness under sustained load or current immediate-priority routing.
+Taylor authorizes routine bridge testing and Claude Desktop restarts as needed;
+old one-message approval limitations below are historical and superseded.
+Next changed-condition step: inspect current installed stop/control mechanisms
+and broker recovery admission; do not promote2.1.299 immediate/idle controls from
+this ordinary queue trial. Watcher remains paused; old unknowns are not replayed.
+
 ## Composed native direct-route qualification passed — October 15
 
 Taylor explicitly approved DIRECT_ROUTE_OK and routine bridge testing, including

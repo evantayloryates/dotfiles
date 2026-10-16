@@ -761,8 +761,9 @@ or rewrites an already uncertain driver job as completed. A repeated send with
 identical direct operation identity can reconcile; a conflicting payload refuses.
 
 Current proof covers private synthetic sockets/journals, actual MCP clients and
-detached jobs. No new native trial of this composed route has been authorized or
-performed; historical ordinary wire qualification does not establish full native
+detached jobs, plus native CLI2.1.299 composed durable direct receipt and causal
+DIRECT_ROUTE_OK reply. A bounded busy queue trial completed its original response
+before the follow-up receipt/reply. These narrow trials do not establish full native
 serving, controls, residency or recovery. Older candidate notes describe the
 staged implementation before this experimental opt-in was exposed.
 

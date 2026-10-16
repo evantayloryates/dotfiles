@@ -1,3 +1,22 @@
+## Native ordinary direct queue qualification — October 15
+
+Previous goal turn: progress (composed native direct receipt/reply). Existing
+scratch PID98986/start Thu Oct15 23:20:48UTC, CLI2.1.299 remained the target.
+Two durable public peer-direct jobs completed. Follow-up job was created while
+get_session reported busy and before the first terminal response timestamp.
+The first exact causal reply contains all250 integers plus the fresh final marker;
+only afterward the follow-up native user receipt and exact causal terminal reply
+appear. No tools. Evidence: diagnostics/direct-queue-trial-2026-10-15.json,
+including durable job times, exact native message IDs and bounded event ancestry.
+This qualifies ordinary next-priority direct delivery without interrupting this
+bounded workload. It does not qualify steer_session, native stop, broker controls,
+queue fairness under sustained load or current immediate-priority routing.
+Taylor authorizes routine bridge testing and Claude Desktop restarts as needed;
+old one-message approval limitations below are historical and superseded.
+Next changed-condition step: inspect current installed stop/control mechanisms
+and broker recovery admission; do not promote2.1.299 immediate/idle controls from
+this ordinary queue trial. Watcher remains paused; old unknowns are not replayed.
+
 ## Composed native direct-route qualification passed — October 15
 
 Taylor explicitly approved DIRECT_ROUTE_OK and routine bridge testing, including
@@ -269,7 +288,7 @@ Evidence: STATE_DIR/diagnostics/v2-requirements-audit-2026-10-15.json.
 |---|---|---|
 | Common CLI/MCP interface | Both current-source filtered Claude and configured Codex gpt-6-sol harness contracts pass | Current chat MCP reconnection; native desktop caller handback and Cursor authentication remain separate |
 | Durable lifecycle | Synthetic detached-worker, idempotency, disconnect, wait and cancellation contracts pass | Current-source native recipient and effects under sustained use |
-| Native delivery | Dedicated scratch2.1.299 exact msg_id receipt and terminal TRANSPORT_OK; ordinary next-priority gate qualified | Full send_message broker route, queue/steering and model compliance under load; no immediate/idle-control version promotion |
+| Native delivery | Dedicated scratch2.1.299 composed durable direct receipt/DIRECT_ROUTE_OK and busy queue exact causal replies; ordinary next-priority gate qualified | Full send_message broker route, queue/steering and model compliance under load; no immediate/idle-control version promotion |
 | Native controls | Historical control/mutation passes remain historical; current same-epoch stop guard covered synthetically | Current-source positive/negative native controls, concurrency and distinct-target batch |
 | Native effect guard | Checkpoint/cancel/expiry and unknown-outcome synthetic boundaries pass | Current native cancellation/fault/timeout and independently applied effect readback |
 | Uncertainty containment |449 requests:408 completed,10 failed,9 safely undispatched pure reads,22 unknown; unknowns stay unsafe to retry | Independent receipt/effect reconciliation before handoff; empty dispatch ledger is insufficient |
@@ -288,8 +307,8 @@ input-resource-audit-before; create-and-restore-focus; durable-submit-and-recipi
 cancellation-before-native-dispatch; three-concurrent-native-controls;
 batched-native-controls; queue-is-not-interrupt; interrupt-then-replacement-is-applied;
 single-native-recipient-replies; cleanup-archive; input-resource-audit-after.
-The scratch authorization covered one fixed test only; it does not authorize
-running this broader native suite. Residency's maintenance acknowledgment and
+Taylor now authorizes routine scratch bridge qualification and Claude Desktop
+restarts as needed; high-risk or definitively disruptive actions still require review. Residency's maintenance acknowledgment and
 same-broker-survives-native-idle gates additionally require natural governor
 pressure; absence of pressure cannot pass that requirement.
 
