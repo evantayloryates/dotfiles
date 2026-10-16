@@ -1,3 +1,21 @@
+## Composed native direct-route qualification passed — October 15
+
+Taylor explicitly approved DIRECT_ROUTE_OK and routine bridge testing, including
+Claude Desktop quit/restart as needed; ask only for high-risk or definitively
+disruptive actions. Earlier additional-message approval blockers below are superseded.
+Existing scratch local_c0a18601-5a57-44d0-94ac-2fed3719e7ca remained live/idle
+before submission. Fresh public driver_submit job jea110c3793f64c439aa7945a816925cb
+completed with exact native user receipt 7edf5e39-b555-4eda-b84a-772f9dd09568, peer message
+7beefa4f-8be9-41e9-ae0b-bd170da2473c. Causal attachment ancestry leads to terminal assistant
+59942b8e-48e4-456f-b56c-c91bfe4f1bbb: exact DIRECT_ROUTE_OK, end_turn, no tools.
+Runtime build 89b82ac96eb6480483b99efbf6bc686125e873a152b2766f13b94a6971c984f9; existing CLI2.1.299.
+Evidence: diagnostics/direct-native-qualification-plan-2026-10-15.json.
+No duplicate submission, broker wake, restart, permission change or input injection.
+This qualifies this native composed direct send only; controls, residency, cold
+recovery and historical unknown effects remain open. Watcher remains paused.
+Next changed-condition experiment: scratch-only native queue/control qualification
+with exact causal receipts; reconcile observer ownership before broker recovery.
+
 ## Host expiry before native delivery — October 7
 
 Source audit found request expiry can pass while claim/revalidation awaits. Added
