@@ -1,3 +1,27 @@
+## Bounded native tool-call/result observation — October 15
+
+Previous turn: progress (native metadata read and preserved controller refusal).
+Shared session_events/session_wait include_causality now includes metadata-only
+toolCalls{id,name} and toolResults{toolUseId,isError}. IDs/names are bounded;
+64-block caps and malformed identifiers explicitly mark truncation/incompleteness.
+Missing native error flag stays null, never inferred success. Arguments, result
+bodies, thinking and user text remain excluded. Default observation unchanged.
+New fixture proves pairing, opt-in privacy, nullable error and overflow/invalid-ID
+flags. Focused44 checks passed before final metadata-incomplete flag; full
+final-source pressure passes: pressure/v2-2026-10-16T00-11-59-476Z.json.
+Both final-source filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-16T00-11-46-346Z.json and
+pressure/harness-v2-codex-2026-10-16T00-11-46-347Z.json.
+Current public observer independently pairs the retained native scratch read's
+actual toolu_01MgVHUvin97S86zFJseEW9M call/result without a new model prompt.
+Evidence: diagnostics/native-tool-observation-2026-10-15.json.
+Correlation is not semantic effect proof; exact arguments/result/state remain
+separate gates. Controller stop refusal is preserved and not retried. Both
+disposable scratch chats are retained; target workload completed and idle.
+Next changed-condition work: leverage these paired IDs for bounded causal native
+receipt observation while keeping mutation authorization/refusal authoritative.
+Full native interruption/recovery/residency remains open; watcher stays paused.
+
 ## Native scratch controller read passed; interruption refused — October 15
 
 Previous turn: progress (installed stop-handler contract). Existing scratch

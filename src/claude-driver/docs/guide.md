@@ -788,3 +788,12 @@ idle. Declined/unfamiliar receipts refuse replacement even if idle appears later
 Reconnect-pending stop remains outcome_unknown/retrySafe:false; no replacement
 is sent. An already-idle receipt returns stopped:false and verified idle, rather
 than claiming an interrupted turn.
+
+With `include_causality:true`, observations include bounded `toolCalls` entries
+(`id`, `name`) and `toolResults` entries (`toolUseId`, `isError`). Match a result
+ID to its native call on the same parent chain. Arguments and result bodies stay
+private. `isError:null` means the journal omitted a boolean error flag; it is not
+success. Each list is limited to64 blocks. `toolMetadataTruncated:true` marks an
+overflow, and `toolMetadataIncomplete:true` marks invalid/omitted identifiers.
+These identifiers prove correlation only. Validate operation arguments, native
+result semantics and persisted state separately before claiming an effect.

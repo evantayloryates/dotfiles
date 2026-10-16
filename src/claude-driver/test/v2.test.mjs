@@ -366,3 +366,20 @@ test('malformed transcript entries do not prevent subsequent valid observation',
   appendFileSync(transcript,'null\n'+JSON.stringify({type:'assistant',message:{content:[null,{type:'text',text:{bad:true}},{type:'text',text:'valid reply'}]}})+'\n')
   assert.equal(events.sessionEvents({session:sid,cursor:first.cursor,include_text:true}).events[0].text,'valid reply')
 })
+
+test('causal observations pair bounded tool identifiers without revealing arguments or result bodies',()=>{
+ const cursor=events.sessionEvents({session:sid}).cursor,at=new Date().toISOString()
+ for(const row of [
+  {uuid:'call-row',parentUuid:'peer',type:'assistant',message:{content:[{type:'tool_use',id:'toolu_native',name:'mcp__ccd_session_mgmt__get_session',input:{session_id:'PRIVATE_INPUT'}}]}},
+  {uuid:'result-row',parentUuid:'call-row',type:'user',message:{content:[{type:'tool_result',tool_use_id:'toolu_native',is_error:false,content:'PRIVATE_RESULT'},{type:'tool_result',tool_use_id:'unknown_error',content:'PRIVATE_OTHER'}]}}
+ ])appendFileSync(transcript,JSON.stringify({...row,timestamp:at})+'\n')
+ const ordinary=events.sessionEvents({session:sid,cursor,include_text:true});assert.equal(ordinary.events.some(e=>e.toolCalls||e.toolResults),false)
+ const causal=events.sessionEvents({session:sid,cursor,include_causality:true,include_text:true})
+ assert.deepEqual(causal.events[0].toolCalls,[{id:'toolu_native',name:'mcp__ccd_session_mgmt__get_session'}])
+ assert.deepEqual(causal.events[1].toolResults,[{toolUseId:'toolu_native',isError:false},{toolUseId:'unknown_error',isError:null}])
+ assert.equal(causal.events[1].parentId,'call-row');assert.equal(JSON.stringify(causal).includes('PRIVATE_'),false)
+ const next=causal.cursor
+ appendFileSync(transcript,JSON.stringify({uuid:'bounded-results',parentUuid:'result-row',type:'user',timestamp:at,message:{content:Array.from({length:65},(_,i)=>({type:'tool_result',tool_use_id:i===0?'bad id':'toolu_'+i,is_error:true,content:'PRIVATE_RESULT'}))}})+'\n')
+ const bounded=events.sessionEvents({session:sid,cursor:next,include_causality:true}).events[0]
+ assert.equal(bounded.toolMetadataTruncated,true);assert.equal(bounded.toolMetadataIncomplete,true);assert.equal(bounded.toolResults.length,63);assert.equal(bounded.toolResults.every(x=>x.isError===true),true)
+})

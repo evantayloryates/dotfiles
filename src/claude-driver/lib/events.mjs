@@ -65,9 +65,16 @@ export function sessionEvents({ session, cursor, include_text = false, include_c
       const text = blocks.filter(b=>b?.type === 'text' && typeof b.text === 'string').map(b=>b.text).join('\n')
       const tools = blocks.filter(b=>b?.type === 'tool_use' && typeof b.name === 'string').map(b=>b.name)
       // Never return thinking or tool inputs/results, even with include_text.
+      const callBlocks=blocks.filter(b=>b?.type==='tool_use'),resultBlocks=blocks.filter(b=>b?.type==='tool_result')
+      const toolCalls=callBlocks.slice(0,64).flatMap(b=>boundedId(b.id)&&typeof b.name==='string'&&/^[A-Za-z0-9_:.-]{1,200}$/.test(b.name)?[{id:b.id,name:b.name}]:[])
+      const toolResults=resultBlocks.slice(0,64).flatMap(b=>boundedId(b.tool_use_id)?[{toolUseId:b.tool_use_id,isError:typeof b.is_error==='boolean'?b.is_error:null}]:[])
       const causal=include_causality&&boundedId(x.uuid)?{
         parentId:boundedId(x.parentUuid)??null,sidechain:x.isSidechain===true,
-        ...(x.origin?.kind==='peer'&&boundedId(x.origin.msg_id)?{peerMessageId:x.origin.msg_id}:{})
+        ...(x.origin?.kind==='peer'&&boundedId(x.origin.msg_id)?{peerMessageId:x.origin.msg_id}:{}),
+        ...(callBlocks.length?{toolCalls}:{}),
+        ...(resultBlocks.length?{toolResults}:{}),
+        ...(callBlocks.length>64||resultBlocks.length>64?{toolMetadataTruncated:true}:{}),
+        ...(toolCalls.length!==Math.min(64,callBlocks.length)||toolResults.length!==Math.min(64,resultBlocks.length)?{toolMetadataIncomplete:true}:{})
       }:{}
       // Causal observation includes metadata-only ancestors (e.g. thinking
       // blocks). Their contents, user text and peer sender fields stay private.
