@@ -1,3 +1,27 @@
+## Native stop receipt refusal guard — October 15
+
+Previous turn: progress (direct queue steering). Bounded installed desktop source
+review found successful stop_session envelopes can mean user-input refusal,
+starting/no turn, or reconnect-pending. Idle observed later cannot prove those
+stops executed. Current stop_session now requires a recognized exact-target
+receipt before same-epoch idle verification. Declined/unfamiliar receipts refuse
+replacement; reconnect-pending reports outcome_unknown/retrySafe:false without
+replacement. Already-idle returns stopped:false while retaining verified idle.
+Steering no longer reports an already-idle recipient as an interrupted turn.
+Evidence: diagnostics/stop-native-receipt-review-2026-10-15.json, installed chunk
+.vite/build/index.chunk-B5tintml.js SHA f5d162e3e6047c12ca0cee15d72574e316513df6a65d52e89e2d456a4a3022ff.
+Parser positives/negative/foreign/malformed/error receipts pass. Actual synthetic
+MCP regression models later idle after declined native receipt and proves no
+replacement; pending reconnect is likewise unknown. Full pressure passes:
+pressure/v2-2026-10-16T00-07-07-226Z.json. Both final-source filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-16T00-06-52-458Z.json and
+pressure/harness-v2-codex-2026-10-16T00-06-53-637Z.json.
+No native interruption trial, app restart, permission change or broker recovery
+performed. Next changed-condition step remains a current native control route:
+review desktop interruptSession dispatch/control transport; preserve pending
+human-message protection rather than substituting OS signals or peer priority.
+Broker22unknowns and residency/recovery remain open; watcher stays paused.
+
 ## Explicit direct queue steering — October 15
 
 Previous goal turn: progress (native ordinary busy queue proof). Public

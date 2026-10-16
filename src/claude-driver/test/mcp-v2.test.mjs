@@ -38,7 +38,7 @@ const peer=status=>writeFileSync(peerFile,JSON.stringify({pid:recipient.pid,proc
 peer('busy')
 writeFileSync(join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${process.pid}.json`),JSON.stringify({pid:process.pid,hostSessionId:bid,status:'busy'}))
 broker.prepareBrokerDir();broker.saveBrokerInfo({sessionId:bid})
-let paused=false,busy=false,onStop,failAfterFirst=false
+let paused=false,busy=false,onStop,stopOutput,failAfterFirst=false
 let sendOutput='delivery: delivered\nmessage_id: 00000000-0000-4000-8000-000000000004'
 const actions=[]
 const beat=setInterval(()=>state.writeJsonAtomic(join(state.BROKER_DIR,'heartbeat.json'),{at:Date.now(),state:'waiting'}),500)
@@ -78,7 +78,7 @@ const pump=setInterval(async()=>{
     else for(const id of c.args.session_ids)scope.assignments['code:'+id]=c.args.group_id
     state.writeJsonAtomic(config,cfg)
    }
-   results.push({op:c.op,ok:true,result:c.op==='send_message'?sendOutput:'stopped'})
+   results.push({op:c.op,ok:true,result:c.op==='send_message'?sendOutput:c.op==='stop_session'?(stopOutput??`Stopped session ${c.args.session_id}'s current turn. It stays open; anything already queued there runs next.`):'stopped'})
   }
   state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results})
   if(results.some(x=>x.op==='stop_session'))onStop?.()
@@ -312,4 +312,16 @@ test('a member cannot be claimed while parking; a partial claim is never returne
   assert.equal(await pool.claim(root,{title:'never replay'}),null)
   assert.equal(pool.poolOf()[sid].state,'claimed')
  } finally {failAfterFirst=false;await pool.setEntry(sid,null)}
+})
+
+test('native declined or unfamiliar stop receipt cannot become verified from later idle',async()=>{
+ for(const output of [`Session ${sid} was not stopped: it holds a message the user typed there, which a stop from here must not discard. Its turn is still running.`,`Session ${sid} was not stopped: it is waiting for the user to answer a request. They can stop it themselves; tell them the session is waiting for their answer.`,'unrecognized successful stop']){
+  peer('busy');actions.length=0;stopOutput=output;
+  try{await assert.rejects(runOp('steer_session',{session:sid,mode:'interrupt',message:'MUST_NOT_SEND'}),e=>e.category==='verify_mismatch');assert.deepEqual(actions.map(x=>x.op),['stop_session'])}finally{stopOutput=undefined;peer('idle')}
+ }
+})
+
+test('pending reconnect stop cannot be settled by idle or followed by replacement',async()=>{
+ peer('busy');actions.length=0;stopOutput=`Asked session ${sid} to stop; its host is reconnecting (or it runs in the cloud), so the interrupt lands when the link is back. Check get_session before assuming it stopped.`;
+ try{await assert.rejects(runOp('steer_session',{session:sid,mode:'interrupt',message:'MUST_NOT_SEND'}),e=>e.category==='outcome_unknown'&&e.detail.retrySafe===false);assert.deepEqual(actions.map(x=>x.op),['stop_session'])}finally{stopOutput=undefined;peer('idle')}
 })

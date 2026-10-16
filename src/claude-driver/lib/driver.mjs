@@ -30,6 +30,7 @@ import { RUNTIME_BUILD,runtimeState } from './build.mjs'
 import { uiPolicy } from './ui-policy.mjs'
 import { inspectRequest } from './requests.mjs'
 import { deliveryReceipt } from './delivery.mjs'
+import { stopReceipt } from './stop-receipt.mjs'
 import { nativeQualification } from './qualification.mjs'
 import { peerRecord } from './peer-direct.mjs'
 import { sendDirectRecipient } from './direct-recipient.mjs'
@@ -217,11 +218,11 @@ export const OPS = [
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
-      if (stopped?.verified && ctx.signal?.aborted) throw new DriverError('recipient stopped; replacement was cancelled before sending', {
+      if (stopped?.stopped && ctx.signal?.aborted) throw new DriverError('recipient stopped; replacement was cancelled before sending', {
         category: 'partial_effect', detail: { sessionId: rec.sessionId, stopped: true, replacementSent: false },
       })
       const sent = await runOp('send_message', { session: rec.sessionId, message: args.message, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
-      return { ...sent, steeringMode: args.mode, stopped: stopped?.verified === true, applied: false,
+      return { ...sent, steeringMode: args.mode, stopped: stopped?.stopped === true, applied: false,
         ...(args.mode==='interrupt'?{queueDisposition:'existing queued messages are preserved by native stop'}:{}),
         verification: 'delivery is confirmed; observe the recipient response before claiming the new instruction was applied' }
     },
@@ -237,11 +238,14 @@ export const OPS = [
       if (!before || before.sessionId !== (rec.cliSessionId || rec.sessionId.replace(/^local_/, ''))) throw new DriverError('stop requires a verified native recipient epoch', { category: 'verify_mismatch' })
       const b = await tierB(ctx, [{ op: 'stop_session', args: { session_id: rec.sessionId } }])
       if (b.handback) return b.handback
+      const receipt=stopReceipt(b.results?.[0]?.result,rec.sessionId)
+      if(receipt.state==='requested')throw new DriverError('native interrupt is pending reconnection; replacement must not be sent',{category:'outcome_unknown',detail:{requestId:b.requestId,retrySafe:false}})
+      if(receipt.state==='unknown')throw new DriverError('native stop did not return a recognized accepted receipt; replacement must not be sent',{category:'verify_mismatch',detail:{requestId:b.requestId,retrySafe:false}})
       const deadline = Date.now() + 8000
       while (Date.now() < deadline) {
         const live = peerRecord(rec.sessionId, before.pid)
         if (!live || live.procStart !== before.procStart || live.sessionId !== before.sessionId) throw new DriverError('recipient epoch disappeared or changed after stop; replacement must not be sent', { category: 'verify_mismatch' })
-        if (live.status === 'idle') return { sessionId: rec.sessionId, stopped: true, verified: true, status: 'idle', nativeProcess: { pid: live.pid, procStart: live.procStart } }
+        if (live.status === 'idle') return { sessionId: rec.sessionId, stopped: receipt.state!=='already_idle', stopReceipt:receipt.state, verified: true, status: 'idle', nativeProcess: { pid: live.pid, procStart: live.procStart } }
         if (!['busy', 'working', 'running'].includes(live.status)) throw new DriverError('recipient status after stop is unknown; replacement must not be sent', { category: 'verify_mismatch' })
         await sleep(200)
       }

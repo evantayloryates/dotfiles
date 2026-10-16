@@ -782,3 +782,9 @@ Direct interrupt and any direct/via_broker combination refuse before effects;
 interrupt continues to require the native stop route. Default transport is unchanged.
 A native2.1.299 scratch trial verified busy submission followed by complete first
 response and exact follow-up response through durable steer_session.
+
+Native stop requires both a recognized exact-target accepted receipt and same-epoch
+idle. Declined/unfamiliar receipts refuse replacement even if idle appears later.
+Reconnect-pending stop remains outcome_unknown/retrySafe:false; no replacement
+is sent. An already-idle receipt returns stopped:false and verified idle, rather
+than claiming an interrupted turn.
