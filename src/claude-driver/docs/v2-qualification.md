@@ -1,3 +1,33 @@
+## Native scratch controller read passed; interruption refused — October 15
+
+Previous turn: progress (installed stop-handler contract). Existing scratch
+local_c0a18601-5a57-44d0-94ac-2fed3719e7ca successfully discovered and called
+mcp__ccd_session_mgmt__get_session for itself. Exact native tool-use arguments,
+matching tool-result ID/target and causal terminal acknowledgment verified from
+bounded owned journal. ToolSearch discovery observed; no substituted shell or
+filesystem tool. Evidence: diagnostics/scratch-native-tool-read-2026-10-15.json.
+Created second disposable target through create_session with acceptEdits/Haiku5.5:
+local_74c54e49-972e-4dac-adfa-d23e01316119, title
+claude-driver-interrupt-scratch-2026-10-15, cwd probe/interrupt-2026-10-15.
+Disk verified; immediate focus restoration recorded. Native PID44866 was busy
+generating bounded1200 integers when controller received one exact stop request.
+Controller refused peer-delivered authority before any native stop tool call.
+This is a preserved native model authorization refusal, not successful interrupt,
+transport failure or evidence the stop API is unavailable. No retry/forged human
+authority, alternate control, permission change or native process kill attempted.
+Evidence: diagnostics/scratch-native-interrupt-2026-10-15.json.
+Target naturally completed its final marker and is now independently idle.
+Replacement was never sent. Target retained unarchived for next legitimate test;
+no active workload remains. Native cross-session mutation through this controller
+requires direct human instruction in that Claude chat; ordinary peer authority
+cannot be assumed from metadata read success. Broad goal remains active with
+other independent implementation work available; no new approval request here.
+Next changed-condition step: inspect existing trusted native service admission
+for a scratch-only controller path, preserving this refusal and all existing
+permission gates. Legacy broker22unknowns remain pending; no wake/replay/handoff.
+Current source unchanged; prior pressure/harness proof retained without repeated
+model tests. Watcher remains paused; Codex bridge fixes remain parked.
+
 ## Installed stop-handler contract qualification — October 15
 
 Previous turn: progress (recognized native stop receipts). Added reproducible
