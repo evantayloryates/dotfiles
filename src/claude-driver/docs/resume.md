@@ -35,9 +35,8 @@ archiveHistoryAfterReopen retain exact jobs, receipts and metadata.
 Next qualify one fixed native wake via current controller (send_message scope to
 same sealed target), independently observe new peer and receipt before coldrebind.
 Do not retry native archive, clear targetSTOP, use legacy broker/keyboard/CUA, or
-infer serving from reopened record. Platform goal still reports blocked even
-though native human-input gate cleared; current user reply authorizes this turn's
-work, Play/Resume is needed for automatic goal continuation if it remains blocked.
+infer serving from reopened record. Platform initially still reported blocked after the native gate cleared; latest
+get_goal now independently reports active, so automatic continuation is available.
 Watcher paused; Codex fixes and 1Password separate. Fresh real-MCP current-route
 harnesses BOTH pass14checks on transport controller, source
 73b2d32233a29090bbfb2b30965fc39e8be77cb256bb59a2eff8b4d4fbf913bb:
@@ -55,8 +54,8 @@ Attached cached MCP driver_status read-only recheck still driver46c7a58/runtime
 restartRequiredtrue (its sourceBuild75ac4e... uses cached build implementation).
 Fresh harness qualification does NOT refresh this attached binding. No writes
 through cached MCP; refresh/Codex changes remain separate. Native human gate is
-resolved; platform goal remains blocked and needs user Play/Resume for automatic
-continuation. Actual cold-start wake/rebind is next, not another approval request.
+resolved; latest platform get_goal reports active. Actual cold-start wake/rebind
+is next, not another approval request.
 
 ## Native hot-reload gate revalidated; goal blocked pending human input — October 17
 
