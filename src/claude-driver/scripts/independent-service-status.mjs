@@ -8,12 +8,12 @@ import {reviewIndependentAttempts} from '../lib/independent-service-attempts.mjs
 import {independentStopMatches} from '../lib/independent-service-quiesce.mjs'
 import {observeNativeModLoading} from '../lib/native-mod-loading.mjs'
 import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
-const [session,serviceId,mode]=process.argv.slice(2),historicalOnly=mode==='--historical'
+const [session,serviceId,mode,historicalCwd]=process.argv.slice(2),historicalOnly=mode==='--historical'
 let activation={activationPhaseObserved:null,activationEffectsAssessed:false}
 try{
  let ledger=null;try{ledger=independentJson(join(STATE_DIR,'activation.json'))}catch(error){if(error.code!=='ENOENT')throw error}
  activation=summarizeIndependentActivationLedger(ledger,{serviceId,session})
- const c=await loadIndependentServiceContext(session,serviceId,{allowRetired:true,historicalOnly}),now=Date.now(),{config,pointer,policy}=c
+ const c=await loadIndependentServiceContext(session,serviceId,{allowRetired:true,historicalOnly,...historicalCwd?{historicalRecord:{sessionId:session,cwd:historicalCwd}}:{}}),now=Date.now(),{config,pointer,policy}=c
  const slots=Array.from({length:config.maxRequests},(_,slot)=>{try{return c.read('../native-service-budget-'+serviceId+'-'+slot+'.json')}catch(e){if(e.code!=='ENOENT')throw e;return null}}),budget=summarizeIndependentBudget(config,slots)
  const allNames=readdirSync(BROKER_DIR),attempts=reviewIndependentAttempts({context:c,reservedRequestIds:budget.reservedRequestIds,names:allNames,now})
  const names=allNames.filter(n=>/^native-policy-invocation-[A-Za-z0-9_-]+\.json$/.test(n));if(names.length>128)throw Error('audit bound')

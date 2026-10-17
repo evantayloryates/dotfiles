@@ -938,3 +938,13 @@ assesses native readiness, publishes receipts, dispatches or recovers. It report
 not-assessed. Installed source and legacy routing refuse this mode. The existing
 app session record is still needed to resolve receiver cwd; deletion recovery
 requires a future independently owned generation index.
+
+
+Independent preparation now retains a bounded owned generation locator before
+staging effects; verified retirement can retain a locator for older generations.
+Historical status resolves that locator without the app session record and then
+independently verifies preserved ownership/source. A locator never proves service
+creation, readiness, native effect or recovery authority. Missing locators may use
+legacy app-record resolution; malformed or conflicting existing locators refuse.
+This preserves evidence lookup if the app record disappears, without deleting,
+recreating or silently switching the user’s chat.

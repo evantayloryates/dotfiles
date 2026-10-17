@@ -1,6 +1,6 @@
 import {execFile} from 'node:child_process'
 import {promisify} from 'node:util'
-import {join,resolve} from 'node:path'
+import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {getRecord} from './sessions.mjs'
 import {DriverError} from './paths.mjs'
@@ -8,10 +8,9 @@ import {randomUUID} from 'node:crypto'
 import {existsSync,writeFileSync} from 'node:fs'
 import {STATE_DIR,ensureDir,writeJsonAtomic} from './state.mjs'
 const exec=promisify(execFile)
-export function independentServiceState(session,serviceId,record){
- if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(session||'')||! /^[a-f0-9]{32}$/.test(serviceId||'')||record?.sessionId!==session||typeof record.cwd!=='string'||record.cwd==='/'||resolve(record.cwd)!==record.cwd)throw new DriverError('independent receiver identity refused',{category:'bad_args'})
- return join(record.cwd,'.claude-driver-services',serviceId)
-}
+import {independentServiceState} from './independent-service-location.mjs'
+import {readIndependentGenerationLocator} from './independent-service-index.mjs'
+export {independentServiceState}
 export function independentServiceRequestId(jobId){
  if(jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid durable job identity',{category:'bad_args'})
  return 'rpeer'+(jobId?jobId.slice(1):randomUUID().replaceAll('-',''))
@@ -42,7 +41,7 @@ export async function reconcileIndependentServiceResult(session,serviceId,reques
  }catch{throw new DriverError('independent native result reconciliation refused; inspect the original request, never replay',{category:'independent_service_result_refused'})}
 }
 export async function inspectIndependentService(session,serviceId,{signal,historical=false}={}){
- const state=independentServiceState(session,serviceId,getRecord(session))
- try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId,...historical?['--historical']:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
+ const located=historical?readIndependentGenerationLocator(session,serviceId):null,record=located?.record??getRecord(session),state=independentServiceState(session,serviceId,record)
+ try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId,...historical?['--historical',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
  catch{throw new DriverError('independent service status unavailable; no recovery attempted',{category:'independent_service_status_unavailable'})}
 }

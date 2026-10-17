@@ -1,3 +1,53 @@
+## Durable generation locators independent of app records — October 17
+
+Previous turn progressed retired-history mode without native version/peer reads.
+Added owned bounded global independent-service-generations/<serviceId>.json
+locators: exact schema/service/session, normalized receiver cwd under PROBE_DIR,
+exact derived namespace, timestamp/job identity and preparation-intent or verified-
+retirement origin. No tokens. O_NOFOLLOW/owned regular file <=4KiB/stable read;
+linked/foreign/malformed/oversized/out-of-scope entries refuse, never guessed path
+or silent fallback. Exclusive first write is retained; matching reuse preserves
+original bytes/origin, conflicting identity refuses. Locator is metadata only,
+not readiness, source proof, authorization or a live-control target.
+
+Preparation writes locator before namespace/release/candidate effects. Verified
+retirement retains/backfills a locator after successful exact-owner review.
+Historical inspection prefers locator, passes derived historical record to child,
+and avoids app-record lookup in both layers. Missing locator retains legacy record
+resolution; malformed present locator refuses rather than falling back. Child
+still independently verifies namespace, watched absence, retirement/STOP/pointer/
+sealed inventory/package/policy. Live operations retain app/live guards and never
+use historical override. State derivation extracted unchanged into shared location
+helper; existing exports remain compatible.
+
+Five focused tests pass: first-origin preservation/conflict, missing vs invalid,
+links/bounds/foreign records; retired context with app record/version/peer observers
+throwing; live/installed/drift gates retained. No actual app record deleted.
+Existing db2 retirement revalidated without repeating module move in durable job
+jb5e48bb12140411fa90e4c6e64d91c85, then locator retained verified-retirement.
+Actual public historical request succeeds with parent getRecord/versions/peerRecord
+all throwing. Native child uses locator-derived record. Retirement/STOP/original
+receipt hashes unchanged; evidence indexedHistoryObservation in existing plan.
+
+Fresh indexed successor preparation only, jobj2e2144d47ac746cc9b6ad646578b21e2,
+service2e2144d47ac746cc9b6ad646578b21e2/source
+ dc9604e2b9f720d7f7e98275db4ece66fd4dbe205efabcb18ba13493d19eb8da.
+Native validator passed; locator timestamp precedes preparation effects. No active
+pointer, watched module or settings change; old STOP unchanged. Candidate retained
+for future explicit predecessor transition; deadline in private preparation. Do
+not activate through empty-receiver path (old settings exist), delete old history,
+or replay consumed IDs. Evidence empty-receiver-activation.json locatorBackfill,
+indexedHistoryObservation and successorPreparation under existing probe folder.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-54-43-963Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-54-30-663Z.json.
+Next explicit predecessor settings transition / generation replacement, supported
+native process disposition and actual crash/archive/deletion/recovery qualification.
+Locator+fixture proof does not claim destructive native tests or always-on success.
+All old settings, STOP, retired bytes and evidence remain; no sender/worker/waiter.
+Goal active, Codex fixes and old d5 unresolved self-test untouched.
+
 ## Explicit retired-history verification without live native dependencies — October 17
 
 Previous turn progressed filesystem retirement and scoped receive interception

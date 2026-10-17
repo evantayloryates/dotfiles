@@ -24,9 +24,9 @@ export async function buildSealedIndependentPackage(build,config){
  if(typeof buildNativePeerServicePackage!=='function')refuse()
  return buildNativePeerServicePackage(config)
 }
-export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false}={}){
- if(historicalOnly&&(!allowRetired||requireIdle))refuse()
- const record=getRecord(session),version=historicalOnly?null:versions()
+export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false,historicalRecord}={}){
+ if(historicalOnly&&(!allowRetired||requireIdle)||historicalRecord!==undefined&&!historicalOnly)refuse()
+ const record=historicalOnly&&historicalRecord!==undefined?historicalRecord:getRecord(session),version=historicalOnly?null:versions()
  if(independentServiceState(session,serviceId,record)!==STATE_DIR||!historicalOnly&&(version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions'))refuse()
  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),STATE_DIR,BROKER_DIR]){const st=lstatSync(path);if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==process.getuid())refuse()}
  const release=activeRelease(),pointer=release?.pointer,peer=historicalOnly?null:peerRecord(session,pointer?.pid)
