@@ -1,3 +1,30 @@
+## Human-started new epoch and connected MCP verified — October 17
+
+Taylor reported done after the requested ready message in Claude Desktop.
+Independently observed existing target local_74c54e49-972e-4dac-adfa-d23e01316119
+live/idle PID20499, start Sat Oct17 15:48:23UTC, desktop entrypoint, CLI2.1.299.
+Installed app2.42304.0/CLI2.1.299 unchanged. Fresh public durable direct send has
+exact native receipt and exact causal POST_READY_OK reply without tools:
+diagnostics/post-ready-2026-10-17.json. Target returned idle.
+Actual connected Codex MCP driver_status now reports runtimeBuild==sourceBuild
+64c8563f7be1cda864fdf4b37d527f35de93ae7f5185dbde6f59b3aca037b480,
+restartRequired:false. A native send was submitted through this chat's actual
+MCP, reattached from fresh CLI to same job, then waited/observed through MCP.
+Job j83995b4eeed3446a80fe1e40bed42322 completed; exact native user receipt and
+causal MCP_NATIVE_OK_20261017 terminal reply verified, no tools or duplicate job.
+Evidence: diagnostics/connected-mcp-native-2026-10-17.json. This closes the stale
+connected-MCP gap for the explicit direct route on this build/epoch only.
+Current source fingerprint matches passing full pressure
+pressure/v2-2026-10-16T00-18-48-528Z.json; no redundant synthetic/model retest.
+Historical cold-start failure remains failed: this recovery required a direct
+human message, so autonomous cold recovery is NOT qualified. Prior blocked audit
+is superseded by changed native state; goal active, new blocked-audit count0.
+Fresh legacy broker audit: native worker absent,22unresolved and handoff
+unsettled. No broker restart/wake, old effect replay, native mutation refusal
+retry, permission or quarantine change. Watcher remains paused; Codex bridge
+fixes parked. Next work: current native control admission and autonomous startup
+architecture, preserving the recorded controller refusal and unknown effects.
+
 ## Cold-start source admission review — October 15
 
 Previous goal turn: progress (authorized app restart revealed offline refusal and
