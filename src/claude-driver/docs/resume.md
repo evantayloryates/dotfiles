@@ -1,3 +1,34 @@
+## Delivered offline filesystem flow fixture-qualified; native bootstrap alternative — October 17
+
+Added test/independent-offline-retirement.test.mjs. Runs actual delivered STOP/
+retire commands in exclusively owned temporary app/peer/config/state namespaces,
+with sealed source/runtime policy and a fixture process observed exited. These
+are synthetic epochs, not Claude native processes. No app records exist in the
+fixture, exercising supplied retained cwd context without real app state.
+Success preserves module/settings bytes and STOP, supports retained-settings move
+and repeated retirement without replacement. Unknown original intent remains
+byte-identical, keeps STOP, and prohibits module retirement. Registration drift
+refuses before STOP; preexisting destination collision preserves both trees and
+refuses before retirement ledger. Owned sealed fixture trees cleaned up afterwards.
+Three new integration cases pass; nine focused tests pass with offline/STOP unit
+contracts. Full frozen-source pressure1/1passes including new cases:
+pressure/v2-2026-10-17T20-13-42-093Z.json. No executable source changed this turn;
+prior filtered harness source evidence remains applicable, not repeated.
+Positive actual native process-loss/recovery remains unqualified.
+
+Important route correction before requiring Taylor's manual transport mode step:
+current CLI2.1.299 generated ccd_session/start_session declaration explicitly has
+permission_mode and permits same-or-lower mode (omit to inherit). Import path's
+acceptEdits limitation does not establish native start's behavior. Exact declaration
+hash332911b2203d28d02965597b34f0b907cac6e8e7cfcb9dfba4995316df1bef3e
+retained in plan nativeControllerStartAlternative. Declaration evidence only;
+no native start attempted. Told Taylor to hold off manual mode setup while this
+route is qualified. Next implement one fixed durable native controller bootstrap
+through current independent checkpoint/native permission audit, verify persisted
+bypass and native peer, then scoped physical exit/reopen/coldrebind/read. Do not
+use old legacy broker, create Codex chats, manufacture consent or infer readiness.
+Goal active; watcher paused, legacy unknowns and Codex/1Password work separate.
+
 ## Explicit offline STOP/retirement prepared; live refusal verified — October 17
 
 Extended independent quiesce/retire with explicit offline:true. Reuses full broker
