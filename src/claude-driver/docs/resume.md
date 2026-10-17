@@ -1,3 +1,33 @@
+## Pinned receiver survives workspace candidate updates — October 17
+
+Enrollment review found durability bug: independent context rebuilt expected module
+bytes from mutable workspace factory. A routine candidate update would invalidate
+otherwise sound pinned receiver/receipt. Context now validates the release and
+uses that sealed generation's package generator. Config build and namespace
+capability must match; no arbitrary generator root. Context becomes async; read
+prepare/revalidate, settlement lock and read-only status await it. All ownership,
+policy, epoch, native admission and original receipt checks remain.
+
+New isolated clone regression stages a release, deliberately appends a candidate
+workspace revision, confirms mutable package hash changes, then requires sealed
+expected hashes remain original. First fixture failed before staging due nested
+JS newline syntax; preserved diagnostics/sealed-service-generator-fixture-failure-
+2026-10-17.json. Corrected fixture passes; no native operation in either run.
+
+Live existing d5 generation/buildb7 status still verified; reconciliation returned
+receiptVerified:true,published:false and native result hash unchanged. Evidence:
+public-read-d5e108a08b91ff3f3260f2a89b8d8584/plan.json sealedValidation. No module,
+settings, policy or process changed this turn; no worker/waiter remains.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T18-20-52-573Z.json. Both filtered harnesses ten checks pass,
+source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-20-38-896Z.json.
+Shared service memory saved. Next public enrollment needs explicit owned-settings
+and module transition handling, durable phase identity and terminal attempt review;
+then controlled retirement, process retirement, recovery and always-on proof.
+Goal active; legacy22unknowns untouched and Codex bridge fixes parked.
+
 ## Corrected native recovery ID live-verified; independent status added — October 17
 
 Previous turn: public read succeeded but dispatcher dropped jobId; code fix tested.

@@ -1064,3 +1064,7 @@ Public independent read now reuses standard durable transaction/budget/lifecycle
 ## 2026-10-17 — Corrected request identity and read-only independent status
 
 Fresh native public job exactly mapped jobId to requestId through durable host record, lifecycle, MCP admission and fresh native result;266ms module path, journal growth0. Same key reused job without evidence changes. This closes the prior ID-forwarding failure for the tested source. Independent read-only status now reports bound epoch/source, retained readiness/policy audit and validated reservations without claiming serving or attempting recovery. Actual exhausted budget reported2/2; wrong receiver returned unqualified and preserved native result. Full pressure and both filtered harnesses pass; enrollment/retirement/recovery remain open.
+
+## 2026-10-17 — Validate installed package against its sealed generator
+
+Workspace factory updates could previously invalidate a healthy pinned independent receiver. Expected bytes now come from the validated sealed release generator, tied to config build and namespace capability. Async context consumers await validation. A clone regression changes mutable candidate source and proves sealed expected hashes remain unchanged; first fixture syntax failure is retained separately. Existing live pinned status and receipt reconciliation still pass without result changes. Full pressure and both filtered harnesses pass. Enrollment/retirement/recovery remain open.

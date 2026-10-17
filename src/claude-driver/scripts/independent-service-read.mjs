@@ -20,8 +20,8 @@ try{
  if(!/^rpeer[a-f0-9]{32}$/.test(id||'')||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(target||'')||target===session||!getRecord(target)||!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>60000)throw Error('arguments')
  const result=await withLock('broker',async()=>{
   let context,request
-  const preflight=()=>{
-   context=loadIndependentServiceContext(session,serviceId,{requireIdle:true})
+  const preflight=async()=>{
+   context=await loadIndependentServiceContext(session,serviceId,{requireIdle:true})
    const {config,pointer,policy}=context,now=Date.now()
    if(!screenNativeServiceReady({config,ready:context.read('.native-service-'+serviceId+'.ready.json'),now})||config.deadline-now<1000)throw Error('readiness')
    for(const name of ['STOP','stop-rescue-arm.json','mechanical-probe.json']){try{lstatSync(join(BROKER_DIR,name));throw Error('control present')}catch(e){if(e.code!=='ENOENT')throw e}}
@@ -30,7 +30,7 @@ try{
    if(!qualified)throw Error('native policy not observed')
   }
   return runNativeServiceReadTransaction({requestId:id,signal:controller.signal},{
-   prepare:()=>{preflight();const {config,pointer,policy}=context;request={id,protocol:7,createdAt:new Date().toISOString(),expiresAt:Math.min(Date.now()+timeoutMs,config.deadline),ops:[{op:'get_session',args:{session_id:target}}],nativeEffectAdmissionPolicy:{version:1,handlerSha256:policy.sha256,settingsHash:policy.settingsHash},nativeRuntimeBinding:{version:1,...Object.fromEntries(['build','bootstrapHash','generation','sessionId','pid','procStart'].map(k=>[k,pointer[k]]))}};const observe=observeNativeReceipts(session,request);if(!observe)throw Error('journal');request.nativeObservation=observe.start;return {request}},
+   prepare:async()=>{await preflight();const {config,pointer,policy}=context;request={id,protocol:7,createdAt:new Date().toISOString(),expiresAt:Math.min(Date.now()+timeoutMs,config.deadline),ops:[{op:'get_session',args:{session_id:target}}],nativeEffectAdmissionPolicy:{version:1,handlerSha256:policy.sha256,settingsHash:policy.settingsHash},nativeRuntimeBinding:{version:1,...Object.fromEntries(['build','bootstrapHash','generation','sessionId','pid','procStart'].map(k=>[k,pointer[k]]))}};const observe=observeNativeReceipts(session,request);if(!observe)throw Error('journal');request.nativeObservation=observe.start;return {request}},
    enqueue:r=>publishNativeServiceReadRequest({dir:STATE_DIR,serviceId,maxRequests:context.config.maxRequests,request:r}),claim:id=>pickupPending({requestId:id}),revalidate:preflight,
    send:()=>deliver({sessionId:session,permissionMode:'bypassPermissions',live:{pid:context.peer.pid,procStart:context.peer.procStart,status:context.peer.status}},context.config.token+' '+id,{signal:controller.signal,timeoutMs:Math.min(5000,timeoutMs),onPrepared:meta=>writeFileSync(join(BROKER_DIR,'native-service-send-'+id+'.json'),JSON.stringify({serviceId,requestId:id,...meta,at:Date.now(),retrySafe:false}),{flag:'wx',mode:0o600})}),
    now:Date.now,responsePresent:()=>existsSync(join(BROKER_DIR,'.native-service-'+id+'.result.json')),wait:()=>sleep(100),reconcile:()=>settleIndependentServiceResult(session,serviceId,id),cancel:cancelRequest,
