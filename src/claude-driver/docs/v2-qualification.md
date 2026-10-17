@@ -1,3 +1,24 @@
+## Stop-rescue refusal independently narrowed — October 17
+
+Previous turn: progress (published required-bypass service provisioning contract).
+Read-only validation of the installed policy proves its sealed release valid,
+script bytes and settings bytes match policy hashes, feedbackVersion2 has no
+quietWait, and no temporary mechanical probe exists. Literal policy script path
+uses ~/.local/state/claude-driver/releases/7e388b8f... while validated release
+uses repository .runtime/state/releases/7e388b8f...; their realpaths are identical.
+stopRescuePolicy rejects the literal mismatch. This is a migration-path false
+negative, not evidence that Taylor must approve another permission request.
+
+Separately the policy remains bound to PID71262/start Wed Oct7 03:24:51 2026.
+Canonicalizing paths would not authorize a new process epoch or resolve the
+legacy22unknowns/sealed dependency mismatch. Do not rewrite the live policy or
+relax identity checks. No wake, control, permission write or replay performed.
+Evidence: diagnostics/stop-rescue-path-review-2026-10-17.json. Next safe work:
+prepare isolated canonical-path comparison regression, preserving release/hash
+checks and exact process binding; live service refresh still requires admitted
+current-epoch enrollment. Required bypass scratch mode remains unmet until a
+supported mode change succeeds. Goal active; no live trial handle pending.
+
 ## Required bypass service mode — October 17
 
 Taylor sent the direct human grant for the exact planned stop in the existing
