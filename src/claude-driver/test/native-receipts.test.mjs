@@ -47,9 +47,9 @@ const store=join(process.env.CLAUDE_DRIVER_APP_SUPPORT,'claude-code-sessions','a
 writeFileSync(join(store,broker+'.json'),JSON.stringify({sessionId:broker,cliSessionId:cli,cwd}))
 const file=join(process.env.CLAUDE_DRIVER_PROJECTS_DIR,cwd.replace(/[^A-Za-z0-9]/g,'-'),cli+'.jsonl');mkdirSync(join(file,'..'),{recursive:true})
 test('journal starts at current end, handles partial UTF-8 lines and can reconcile after disconnect',()=>{
- writeFileSync(file,sequence.map(r=>JSON.stringify(r)+'\n').join(''))
+ writeFileSync(file,sequence.map(r=>JSON.stringify({...r,sessionId:cli})+'\n').join(''))
  const observe=observeNativeReceipts(broker,request);assert.equal(observe(),null)
- const s=sequence.map(r=>JSON.stringify(r)+'\n').join('');const bytes=Buffer.from(s)
+ const s=sequence.map(r=>JSON.stringify({...r,sessionId:cli})+'\n').join('');const bytes=Buffer.from(s)
  const cat=bytes.indexOf(Buffer.from('🐈'));appendFileSync(file,bytes.subarray(0,cat+1));assert.equal(observe(),null)
  appendFileSync(file,bytes.subarray(cat+1));assert.equal(observe().results[0].result,'delivery: queued')
  const reattached=observeNativeReceipts(broker,request,observe.start);assert.equal(reattached().source,'native-tool-result')
@@ -133,4 +133,14 @@ test('lookalike feedback, peer/human turns and unrelated ancestry cannot enter t
   c.feed({type:'assistant',uuid:'foreign-end',parentUuid:feedback.uuid,message:{stop_reason:'end_turn',content:[]}})
   assert.equal(c.wakeStatus(marker.msgId).rescueLanded,false);assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,false);assert.equal(c.receipt(),null)
  }
+})
+
+test('sidechain or malformed sidechain flags cannot settle foreground native results',()=>{
+ for(const index of [0,1,2,3])for(const flag of [true,'true',null]){
+  const rows=structuredClone(sequence);rows[index].isSidechain=flag;const c=new NativeReceipts(request);for(const row of rows)c.feed(row);assert.equal(c.receipt(),null)
+ }
+})
+test('runtime native receipt collector requires the exact CLI session for every checkpoint and result',()=>{
+ for(const index of [0,1,2,3])for(const sessionId of [undefined,'foreign-cli']){const rows=structuredClone(sequence).map(r=>({...r,sessionId:'owned-cli'}));rows[index].sessionId=sessionId;const c=new NativeReceipts(request,{cliSessionId:'owned-cli'});rows.forEach(r=>c.feed(r));assert.equal(c.receipt(),null)}
+ const c=new NativeReceipts(request,{cliSessionId:'owned-cli'});sequence.forEach(r=>c.feed({...r,sessionId:'owned-cli',isSidechain:false}));assert.equal(c.receipt().source,'native-tool-result')
 })

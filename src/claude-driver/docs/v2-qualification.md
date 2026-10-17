@@ -1,3 +1,31 @@
+## Foreground native receipt session binding — October 17
+
+Previous turn: progress (human-started epoch and connected MCP verification).
+Read-only legacy receipt audit reproduced an independent synthetic defect:
+foreground dispatch checkpoint plus a matching sidechain native call/result
+incorrectly settled a receipt. Collector now rejects all sidechain records and
+malformed sidechain flags, and runtime observers bind every checkpoint/call/result
+to the exact expected CLI session. Missing/foreign session IDs cannot settle.
+No old receipt is fabricated or replayed; no historical result was overwritten.
+Evidence: diagnostics/native-receipt-binding-2026-10-17.json.15focused collector
+tests and6broker tests pass. First full pressure failed3broker fixture checks:
+synthetic journal rows omitted real sessionId; fixture corrected to include exact
+CLI identity. Failure preserved: pressure/v2-2026-10-17T16-00-29-276Z.json.
+Final unchanged-source pressure passes:
+pressure/v2-2026-10-17T16-00-56-183Z.json. Both current filtered harnesses pass:
+pressure/harness-v2-claude-2026-10-17T16-00-12-178Z.json and
+pressure/harness-v2-codex-2026-10-17T16-00-12-178Z.json.
+Current build 9fb58c9fd9fc4081ad2f0fa13e188e067b077c687e0095dfff51c2286462abd6. Connected MCP still
+loads64c8563f and now correctly reports restartRequired:true; fresh processes
+used for current checks. Prior connected native proof remains bound to its old
+build, not silently promoted. Read-only native journal cursor binding verified;
+no new broker serving/native mutation qualification claimed. Legacy22unknowns
+remain; handoff unsettled. Sealed runtime and current native epoch mismatch
+unchanged. No restart, wake, settings/quarantine change or refused-stop retry.
+Next changed-condition step: exact historical foreground receipt evidence review
+or independently admitted native control qualification; preserve unknowns without
+replay and reconnect MCP before using changed code through that connector.
+
 ## Human-started new epoch and connected MCP verified — October 17
 
 Taylor reported done after the requested ready message in Claude Desktop.

@@ -13,7 +13,7 @@ const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.f
 const canonical=x=>JSON.stringify(ordered(x))
 const text=x=>typeof x==='string'?x:Array.isArray(x)?x.filter(b=>b?.type==='text'&&typeof b.text==='string').map(b=>b.text).join('\n'):''
 export class NativeReceipts {
-  constructor(request){this.request=request;this.checks=new Map();this.calls=new Map();this.ready=new Set();this.results=new Map();this.wakes=new Map()}
+  constructor(request,{cliSessionId}={}){this.request=request;this.cliSessionId=cliSessionId;this.checks=new Map();this.calls=new Map();this.ready=new Set();this.results=new Map();this.wakes=new Map()}
   watchWake(msgId){if(typeof msgId==='string'&&this.wakes.size<3)this.wakes.set(msgId,{landed:false,chain:new Set(),toolCalls:0,terminalWithoutTools:false})}
   watchRescue(marker,epoch){
     const w=marker?.msgId&&this.wakes.get(marker.msgId)
@@ -47,6 +47,7 @@ export class NativeReceipts {
     }
   }
   feed(row){
+    if(row?.isSidechain!==undefined&&row.isSidechain!==false||this.cliSessionId!==undefined&&row?.sessionId!==this.cliSessionId)return
     this.observeWake(row)
     if(!['assistant','user'].includes(row?.type)||!Array.isArray(row.message?.content))return
     for(const b of row.message.content){
@@ -95,7 +96,7 @@ export function observeNativeReceipts(brokerId,request,start=null){
   const initial=start?{dev:start.dev,ino:start.ino}:stInitial
   let offset=start?.offset??stInitial.size
   if(!Number.isSafeInteger(offset)||offset<0)throw new DriverError('invalid native receipt cursor',{category:'outcome_unknown'})
-  const collector=new NativeReceipts(request)
+  const collector=new NativeReceipts(request,{cliSessionId:cli})
   const observe=()=>{
     const st=statSync(file)
     if(st.dev!==initial.dev||st.ino!==initial.ino||st.size<offset)throw new DriverError('broker transcript changed before receipt; reconcile without replay',{category:'outcome_unknown',detail:{requestId:request.id}})

@@ -813,3 +813,8 @@ unverified. Timeout or cancellation returns an explicit unverified reason while
 allowing focus restoration. This observer never sends, starts a CLI, or recovers
 a broker. Opening a chat alone did not warm-start its native worker after the
 controlled app restart on app2.42304.0/CLI2.1.299; do not treat navigation as readiness.
+
+Native broker receipt collection accepts only foreground records from the exact
+CLI session bound by its observation cursor. Sidechains, malformed sidechain
+flags, and missing/foreign CLI session identity cannot settle checkpoints or
+results. This does not grant replay or resolve historical unknown effects.

@@ -32,7 +32,7 @@ const server=createServer(s=>{let buffer='';s.on('data',async data=>{buffer+=dat
    {type:'assistant',uuid:'end'+messages,parentUuid:'result'+messages,message:{stop_reason:'end_turn',content:[{type:'text',text:'Done'}]}}
   )
  }
- appendFileSync(file,rows.map(r=>JSON.stringify(r)+'\n').join(''))
+ appendFileSync(file,rows.map(r=>JSON.stringify({...r,sessionId:cli})+'\n').join(''))
  }s.end()})})
 await new Promise(r=>server.listen(socket,r))
 after(async()=>{await new Promise(r=>server.close(r));function unseal(path){const s=lstatSync(path);if(s.isDirectory()){chmodSync(path,0o700);for(const n of readdirSync(path))unseal(join(path,n))}else if(!s.isSymbolicLink())chmodSync(path,0o600)}unseal(root);rmSync(root,{recursive:true,force:true})})
