@@ -15,7 +15,7 @@ The previous one-minute process cadence missed short-lived work and obscured
 its CPU/I/O chronology. Container probes also timed out during severe pressure.
 Large retained allocations identify exposure to pressure, not the trigger.
 
-October 17 release candidate: a second bounded guest process reading pairs
+October 17 release: a second bounded guest process reading pairs
 CPU time across a natural capture, and `pmset` records the warning state. The
 Mac currently reports no recorded thermal warning, which is not a fan-speed or
 temperature measurement. A read-only live smoke of the shared Kickoff DevPod
@@ -23,6 +23,17 @@ found a large Next server near 2.2 GiB guest RSS while its paired ten-second
 CPU counter stayed flat. That is retained working set, not evidence that Next
 was driving the fan during that interval. The shared baseline and two standing
 QA slots were left running.
+
+The monitor change was published as dotfiles master `302445e` and loaded by a
+graceful focus-observer handoff at 15:42 EDT. The new observer reported policy
+`late-stack-guest-pair-v2`, helper policy `guest-task-delta-v3`, matching source
+hashes, healthy pressure/census heartbeats, and 751 CPU/I/O-covered processes
+after warm-up. The active incident and capture cooldown survived the handoff.
+All 65 unit tests passed on the published commit; a read-only paired Docker
+probe parsed 24 stable guest processes over four seconds. None accrued a
+measurable CPU-second delta in that brief smoke. A natural post-release capture
+is still needed to verify the paired diagnostic timing under pressure. Callback
+receipt remains unverified while the existing transport daemon is unavailable.
 
 ## Capture now, without interrupting existing work
 

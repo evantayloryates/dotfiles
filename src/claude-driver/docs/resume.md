@@ -1,3 +1,44 @@
+## Queued renewal admission failure reproduced and fixed — October 17
+
+Bounded native pressure used fresh capacity2generation99a5... (one probe consumed,
+one real read slot remaining), then3concurrent routed reads. With old5second route
+mutex bound, one ordinary read and one renewal+read completed; third parent
+jf32eadcaa99c430ca3312dc805474954 failed lock_timeout after5seconds. No route ledger
+was created for failed parent; no child admitted. Successful targetmetadata matched,
+native journalgrowth0. Original failedjob and evidence preserved, never resubmitted.
+Setupj99a5edee8a7244e1bece83380ebd851d; renewalchildj5dc6b2f3a698419bb7670b55ab5f3be9
+created known terminal5dc6... . Existing plan queuedRenewal*5s retains exact outcomes.
+
+Changed route admission default60sec, optional queue_timeout_sec1..120. Added explicit
+admission boundary wrapper: timeout/cancellation before callback entry returns
+admittedfalse/dispatchedfalse/retrySafetrue; errors after entry keep original
+uncertainty and cannot masquerade as no-effect. User/parent cancellation after
+child submission still requires inspecting child jobs. Six focused route tests pass,
+including both admission boundary sides; frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-43-52-981Z.json. Both filtered synthetic-store harnesses
+10checks pass source/configunchanged: pressure/harness-v2-{claude,codex}-
+2026-10-17T19-44-17-246Z.json. Sourcee5069a2068af59888c17598e454671f67a0bc024972dcb93786fa7604f697dde.
+
+Changed-condition setupj7881bb7de62b451dbbeec009d5e7462b created capacity2generation
+7881... . Repeated3concurrent readers with fresh keys/default60sec allcompleted:
+parentja2c2720697d74b1188c7ffa0b4f8bcfb read last oldslot;
+parentjafeaaf98390e4747935e28aa2fea8e44 ran ONE qualified renewalchild
+j9be92135198647d19f464dfab740a8cf and one readchildj428744ea3f50432baa42f2610804bc2f;
+parentjbcbe092125794c42bff4a0b1a9c8d0b0 waited7718ms before admission, then one
+readchildj0e8bbcc45cee400e90bc63b5631df3e1 on successor9be9... . All persisted metadata
+independently matchescontrol8f. Parent durations2138/7784/8921ms include queue,
+not native latency SLA. Shared settings/anchor hash/inode/mtime/size unchanged;
+old7881STOP/history and original failed5sec parent remain verified. Entire new
+pressure journalgrowth0/events0. Exactly3current successor attempts (one probe,
+two reads), no unresolved. Current9be92135198647d19f464dfab740a8cf3/32slots,
+29spare,deadline1792269897312, samePID20499/start15:48:23UTC. No active native or
+headless parent/child/sender/waiter. Existing plan queuedRenewal*60s holds evidence.
+
+Next expiry-triggered routing and scoped cold/crash/deleted-session/physical process
+proof. Bounded queued-renewal success is not unbounded queue or unattended daemon
+proof. Original readiness timeout/direct format failures retained. Cached attached
+MCP refresh remains separate; Codex fixes parked. Goal active.
+
 ## Fresh Claude/Codex MCP current-route native contracts qualified — October 17
 
 Extended existing explicit native harness with --current-route; default direct

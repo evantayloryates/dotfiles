@@ -1190,3 +1190,13 @@ request mapping, selected generation, no maintenance/external tools/config/sourc
 changes or native model turn. Persisted targetmetadata independently matches;2slots
 consumed, no unknowns. This qualifies healthy current-route clients; attached stale
 chat binding still reports restartRequired:true and was used only read-only.
+
+### Readers queued behind renewal (October 17)
+
+Real capacity2generation plus3concurrent readers reproduced old5sec admission
+failure:2completed,1lock_timeout before route ledger/children. Default60sec bounded
+admission and typed no-admission errors added. Fresh changed-condition test completed
+all3readers, one automatic renewal; third waited7.72sec then returned matching native
+metadata. Original failedjob preserved, no retry, zero native journalgrowth, shared
+files/history unchanged. This qualifies one bounded queued-renewal scenario, not
+unlimited queueing or a native latency SLA.

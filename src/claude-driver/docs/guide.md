@@ -902,7 +902,7 @@ One actual same-epoch turnover has qualified native reads without another model
 boundary. This does not establish automatic renewal, cold recovery or app restart
 recovery. Do not manually replace selectors or clear predecessor STOP.
 
-`broker_service_read_current {session,session_id,experimental:true,timeout_sec?}`
+`broker_service_read_current {session,session_id,experimental:true,timeout_sec?,queue_timeout_sec?}`
 selects the current owned stable generation for one metadata read. Use a durable
 parent job. It validates the target before maintenance and checkpoints at most one
 renewal, one policy probe and one read. Each effect uses a distinct real durable
@@ -914,9 +914,13 @@ looping. Selection changes stop before read; underlying operations still enforce
 current admission. No daemon, model wake, restart or permission change. Parent
 cancellation does not establish child cancellation: inspect recorded child job IDs
 before any continuation; queued/running children may still finish independently.
-The current route admission mutex has a5second wait bound. Three queued healthy
-reads plus a duplicate key were natively qualified; waiting behind a long renewal
-remains a separate pressure gate. Parent timing includes queue and child overhead.
+Route admission defaults60seconds, configurable1-120seconds. Before-admission
+queue timeout/cancellation reports admitted:false, dispatched:false, retrySafe:true;
+no child was started. Once admitted, child uncertainty retains retrySafe:false.
+An actual5second-bound queue failure during renewal is preserved; the changed
+60second-bound test completed all3readers, including7.72seconds waiting behind
+renewal. This is bounded backpressure, not an unlimited queue/latency guarantee.
+Parent timing includes queue and child overhead.
 
 `broker_service_plan {session,service_id,read_timeout_sec?}` is read-only routing
 policy for the currently selected stable generation. It verifies selector equality

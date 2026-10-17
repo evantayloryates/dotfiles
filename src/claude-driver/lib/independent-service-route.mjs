@@ -6,6 +6,15 @@ import {loadReceiverSelection} from './receiver-runtime-selection.mjs'
 import {inspectIndependentServicePlan} from './independent-service-plan.mjs'
 import {DriverError} from './paths.mjs'
 
+export async function admitIndependentReadRoute(lock,work){
+ let admitted=false
+ try{return await lock(async()=>{admitted=true;return work()})}
+ catch(error){
+  if(!admitted&&['lock_timeout','cancelled'].includes(error.category))throw new DriverError('read route was not admitted; no child operation started',{category:error.category==='cancelled'?'cancelled':'independent_service_route_queue_timeout',detail:{dispatched:false,retrySafe:true,admitted:false}})
+  throw error
+ }
+}
+
 export async function runIndependentReadRoute(d){
  let serviceId=await d.select(),plan=await d.plan(serviceId)
  await d.record('planned',{serviceId,plan})
@@ -29,11 +38,12 @@ export async function runIndependentReadRoute(d){
  if(result?.receiptVerified!==true||result.state!=='completed'||result.serviceId!==serviceId)throw Error('route native read not successfully verified')
  return {serviceId,result}
 }
-export async function routeIndependentRead(session,targetSession,{jobId,timeoutMs=20000,signal}={}){
+export async function routeIndependentRead(session,targetSession,{jobId,timeoutMs=20000,queueTimeoutMs=60000,signal}={}){
  const uuid=/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/
  if(!/^j[a-f0-9]{32}$/.test(jobId||'')||!uuid.test(session||'')||!uuid.test(targetSession||'')||session===targetSession||!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>60000)throw new DriverError('read route requires durable job and distinct bounded target',{category:'bad_args'})
  if(!getRecord(targetSession))throw new DriverError('read route target is unavailable',{category:'bad_args'})
- return withLock('independent-route-'+session,async()=>{
+ if(!Number.isInteger(queueTimeoutMs)||queueTimeoutMs<1000||queueTimeoutMs>120000)throw new DriverError('invalid bounded route queue timeout',{category:'bad_args'})
+ return admitIndependentReadRoute(work=>withLock('independent-route-'+session,work,{timeoutMs:queueTimeoutMs,signal}),async()=>{
   const record=getRecord(session),file=join(ensureDir(join(STATE_DIR,'independent-service-routes')),jobId+'.json'),ledger={schemaVersion:1,kind:'independent-service-read-route',jobId,sessionId:session,targetSession,phase:'created',at:Date.now(),children:{},steps:[],retrySafe:false}
   writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600})
   const save=()=>{ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)}
@@ -61,5 +71,5 @@ export async function routeIndependentRead(session,targetSession,{jobId,timeoutM
    })
    ledger.phase='completed';save();return {...result,routeFile:file,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId])),retrySafe:false}
   }catch(error){ledger.failure={action:error.action??null,reason:error.reason??'route_step_failed',at:Date.now()};save();throw new DriverError('read route stopped; inspect parent and retained child jobs without replay',{category:'independent_service_route_unresolved',detail:{jobId,phase:ledger.phase,action:error.action??null,reason:error.reason??null,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId??null])),retrySafe:false}})}
- },{timeoutMs:5000,signal})
+ })
 }
