@@ -33,3 +33,30 @@ test('sealed helper admits only the bound private state under the same native an
   const linked=spawnSync(process.execPath,args,{env,encoding:'utf8',timeout:10000});assert.notEqual(linked.status,0);assert.match(linked.stderr,/native-service-state-directory-unowned/);fs.unlinkSync(state);fs.renameSync(moved,state)
  }finally{unseal(root);fs.rmSync(root,{recursive:true,force:true})}
 })
+
+test('current PreToolUse identity is opt-in; legacy and rescue qualifications are not broadened',async()=>{
+ const {nativePolicyPeerMatches}=await import('../lib/runtime-entry.mjs'),x=fixture(),pointer={pid:42,procStart:'epoch',sessionId,build,serviceStateBinding:x.binding},peer={pid:42,procStart:'epoch',hostSessionId:sessionId,sessionId:sessionId.slice(6),version:'2.1.299',cwd:receiverCwd,entrypoint:'claude-desktop'},base={pointer,peer,dir:x.dir,inputCwd:receiverCwd}
+ assert.equal(nativePolicyPeerMatches(base),true)
+ for(const patch of [{version:'2.1.289'},{version:'future'},{cwd:'/foreign'},{procStart:'changed'},{pid:43},{spare:true},{parkedJobId:'owned-other'},{entrypoint:'cli'}])assert.equal(nativePolicyPeerMatches({...base,peer:{...peer,...patch}}),false)
+ assert.equal(nativePolicyPeerMatches({...base,inputCwd:x.dir}),false)
+ const legacy={...pointer};delete legacy.serviceStateBinding
+ assert.equal(nativePolicyPeerMatches({...base,pointer:legacy,peer:{...peer,cwd:x.dir},inputCwd:x.dir}),false)
+ assert.equal(nativePolicyPeerMatches({...base,pointer:legacy,peer:{...peer,version:'2.1.289',cwd:x.dir},inputCwd:x.dir}),true)
+})
+
+test('actual command hook admits current bound checkpoint only with namespace capability',async()=>{
+ const fs=await import('node:fs'),os=await import('node:os'),path=await import('node:path'),{spawnSync,execFileSync}=await import('node:child_process'),{fileURLToPath}=await import('node:url')
+ const home=fs.mkdtempSync(path.join(os.tmpdir(),'current-state-policy-')),cwd=path.join(home,'receiver'),state=path.join(cwd,'.claude-driver-services',id),dir=path.join(state,'broker'),release=path.join(state,'releases',build),script=path.join(release,'scripts/broker-check.mjs'),peers=path.join(home,'.claude/sessions')
+ const epoch=execFileSync('/bin/ps',['-p',String(process.pid),'-o','lstart='],{encoding:'utf8',env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim(),pointer={build,pid:process.pid,procStart:epoch,sessionId,serviceStateBinding:{version:1,id,receiverCwd:cwd,sessionId,build}},peer={version:'2.1.299',pid:process.pid,procStart:epoch,hostSessionId:sessionId,sessionId:sessionId.slice(6),entrypoint:'claude-desktop',cwd}
+ const save=(p,v)=>fs.writeFileSync(p,JSON.stringify(v)),input={hook_event_name:'PreToolUse',tool_name:'Bash',session_id:sessionId.slice(6),cwd,tool_input:{command:`/opt/homebrew/bin/node "${script}" rmissing 0 --dir "${dir}"`,timeout:5000}}
+ const run=()=>{const r=spawnSync(process.execPath,[fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),dir,'PreToolUse'],{env:{PATH:'/usr/bin:/bin',HOME:home},input:JSON.stringify(input),encoding:'utf8',timeout:10000});assert.equal(r.status,0,r.stderr);return JSON.parse(r.stdout).hookSpecificOutput}
+ try{
+  for(const p of[dir,path.dirname(script),peers])fs.mkdirSync(p,{recursive:true})
+  fs.writeFileSync(script,'// synthetic sealed entry; never executed',{mode:0o444});const {createHash}=await import('node:crypto'),manifest={nativeServiceStateBindingVersion:1,files:{'scripts/broker-check.mjs':createHash('sha256').update(fs.readFileSync(script)).digest('hex')}}
+  save(path.join(release,'release.json'),manifest);save(path.join(dir,'runtime.json'),pointer);save(path.join(peers,process.pid+'.json'),peer)
+  const allowed=run();assert.equal(allowed.permissionDecision,undefined);assert.equal(allowed.updatedInput.run_in_background,false);assert.match(allowed.updatedInput.command,/rmissing 0 --dir/)
+  save(path.join(release,'release.json'),{files:manifest.files});assert.equal(run().permissionDecision,'deny');save(path.join(release,'release.json'),manifest)
+  save(path.join(peers,process.pid+'.json'),{...peer,version:'2.1.289'});assert.equal(run().permissionDecision,'deny');save(path.join(peers,process.pid+'.json'),peer)
+  input.cwd=dir;assert.equal(run().permissionDecision,'deny')
+ }finally{fs.rmSync(home,{recursive:true,force:true})}
+})

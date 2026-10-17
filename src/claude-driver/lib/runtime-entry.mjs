@@ -15,6 +15,12 @@ export function serviceStateBindingMatches({binding,dir,sessionId,build,receiver
  if(!binding||typeof binding!=='object'||Array.isArray(binding)||Object.keys(binding).sort().join(',')!=='build,id,receiverCwd,sessionId,version'||binding.version!==1||! /^[a-f0-9]{32}$/.test(binding.id)||!hex.test(binding.build)||binding.build!==build||binding.sessionId!==sessionId||! /^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(sessionId||'')||typeof binding.receiverCwd!=='string'||binding.receiverCwd==='/'||resolve(binding.receiverCwd)!==binding.receiverCwd||binding.receiverCwd!==receiverCwd)return false
  return dir===join(binding.receiverCwd,'.claude-driver-services',binding.id,'broker')
 }
+// Native PreToolUse identity only. This does not authorize a command or effect.
+export function nativePolicyPeerMatches({pointer,peer,dir,inputCwd}={}){
+ if(!Number.isInteger(pointer?.pid)||pointer.pid<=1||typeof pointer.procStart!=='string'||!pointer.procStart||peer?.pid!==pointer.pid||peer.procStart!==pointer.procStart||peer.hostSessionId!==pointer.sessionId||peer.sessionId!==pointer.sessionId?.replace(/^local_/,'')||peer.entrypoint!=='claude-desktop'||peer.spare||peer.parkedJobId)return false
+ if(Object.hasOwn(pointer,'serviceStateBinding'))return peer.version==='2.1.299'&&inputCwd===peer.cwd&&serviceStateBindingMatches({binding:pointer.serviceStateBinding,dir,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:peer.cwd})
+ return peer.version==='2.1.289'&&resolve(peer.cwd||'/')===resolve(dir)&&resolve(inputCwd||'/')===resolve(dir)
+}
 // Per-request completed observations survive later shared helper entries. This
 // is evidence retention only: it never creates dispatch or native admission.
 export function retainCompletedCheck(dir,record){

@@ -126,6 +126,7 @@ test('independent receiver uses only its bound lifecycle state and safely quoted
  assert.equal([...s.files.keys()].every(p=>p.startsWith(brokerCwd+'/')),true)
  const argv=execFileSync('/bin/sh',['-c',s.commands[0].replace('/opt/homebrew/bin/node',"/usr/bin/printf '%s\\n'")],{encoding:'utf8'}).trim().split('\n')
  assert.deepEqual(argv,[join(dirname(brokerCwd),'releases',config.build,'scripts/broker-check.mjs'),r1,'0','--dir',brokerCwd])
+ const {adaptEntryCommand}=await import('../scripts/broker-stop-rescue.mjs'),adapted=adaptEntryCommand({command:s.commands[0]},{brokerDir:brokerCwd,activeRoot:join(dirname(brokerCwd),'releases',config.build),stateDir:dirname(brokerCwd)});assert.ok(adapted);assert.equal(execFileSync('/bin/sh',['-c',adapted.command.replace('/opt/homebrew/bin/node',"/usr/bin/printf '%s\\n'")],{encoding:'utf8'}).trim(),argv.join('\n'))
  const foreign=setup({autoStart:false,configPatch:{serviceStateBinding:binding,brokerCwd}});foreign.$.session.cwd=async()=>brokerCwd;assert.equal((await foreign.send('ready')).consumed,'service-read-not-ready');assert.equal(foreign.files.size,0)
  for(const patch of [{brokerCwd:'/foreign'},{serviceStateBinding:{...binding,id:'d'.repeat(32)}},{serviceStateBinding:{...binding,build:'d'.repeat(64)}},{resourceProbe:true,marker:true,observeRetiredServiceId:null}])assert.throws(()=>buildNativePeerServicePackage({...config,brokerCwd,serviceStateBinding:binding,...patch}))
 })

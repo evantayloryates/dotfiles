@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Experimental command Stop hook. Explicit, short-lived arming only; no sends,
 // native effects, request arguments, transcript content or model evaluation.
+import {nativePolicyPeerMatches,serviceStateBindingMatches} from '../lib/runtime-entry.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
 import {constants,openSync,closeSync,fstatSync,readFileSync,readSync,existsSync,writeFileSync,lstatSync,renameSync,unlinkSync} from 'node:fs'
 import {createHash,randomUUID} from 'node:crypto'
@@ -41,9 +42,9 @@ export function nativeAdmissionIndex({input,pointer,entry,request,control,tools,
 
 export function adaptEntryCommand(input,{brokerDir,activeRoot,stateDir,cachedRoots=[],node='/opt/homebrew/bin/node'}={}){
  if(typeof input?.command!=='string'||input.run_in_background===true)return null
- const word='(?:"[^"\\r\\n]+"|[^\\s";|&<>`$]+)',m=input.command.match(new RegExp('^('+word+') ('+word+')(?: ([A-Za-z0-9_-]{1,100}) ([0-9]+))? --dir ('+word+')(?: --request-id (r[A-Za-z0-9_-]{1,99}) --max-sec ([1-9]|[1-5][0-9]|60))?$'))
+ const single="'[^'\\r\\n]*'(?:\\\\''[^'\\r\\n]*')*",word='(?:'+single+'|"[^"`$\\\\\\r\\n]+"|[^\\s"\';|&<>`$\\\\]+)',m=input.command.match(new RegExp('^('+word+') ('+word+')(?: ([A-Za-z0-9_-]{1,100}) ([0-9]+))? --dir ('+word+')(?: --request-id (r[A-Za-z0-9_-]{1,99}) --max-sec ([1-9]|[1-5][0-9]|60))?$'))
  if(!m)return null
- const unquote=s=>s.startsWith('"')?s.slice(1,-1):s
+ const unquote=s=>s.startsWith("'")?s.slice(1,-1).replaceAll("'\\''","'"):s.startsWith('"')?s.slice(1,-1):s
  if(unquote(m[1])!==node||unquote(m[5])!==brokerDir)return null
  const script=unquote(m[2]),kind=script.match(/\/scripts\/(broker-wait|broker-check)\.mjs$/)?.[1]
  if(!kind||kind==='broker-wait'&&m[3]!==undefined||kind==='broker-check'&&m[3]===undefined)return null
@@ -52,7 +53,7 @@ export function adaptEntryCommand(input,{brokerDir,activeRoot,stateDir,cachedRoo
  const historical=script.slice((join(stateDir,'releases')+'/').length).match(/^([a-f0-9]{64})\/scripts\/broker-(wait|check)\.mjs$/)
  const allowed=script===join(activeRoot,'scripts',kind+'.mjs')||cachedRoots.some(root=>script===join(root,'scripts',kind+'.mjs'))||historical&&script===join(stateDir,'releases',historical[1],'scripts',kind+'.mjs')
  if(!allowed)return null
- const quote=s=>'"'+s+'"',command=node+' '+quote(join(activeRoot,'scripts',kind+'.mjs'))+(kind==='broker-check'?' '+m[3]+' '+m[4]:'')+' --dir '+quote(brokerDir)+(m[6]!==undefined?' --request-id '+m[6]+' --max-sec '+m[7]:'')
+ const quote=s=>/["`$\\\r\n]/.test(s)?"'"+s.replaceAll("'","'\\''")+"'":'"'+s+'"',command=node+' '+quote(join(activeRoot,'scripts',kind+'.mjs'))+(kind==='broker-check'?' '+m[3]+' '+m[4]:'')+' --dir '+quote(brokerDir)+(m[6]!==undefined?' --request-id '+m[6]+' --max-sec '+m[7]:'')
  return {kind,command,timeout:kind==='broker-wait'?(m[7]!==undefined?(Number(m[7])+5)*1000:600000):input.timeout,rewritten:command!==input.command}
 }
 
@@ -136,7 +137,9 @@ async function main(){
  let data=Buffer.alloc(0);for await(const chunk of process.stdin){data=Buffer.concat([data,chunk]);if(data.length>65536){if(expectedEvent==='PreToolUse')denyMalformed();return}}
  let input;try{input=JSON.parse(data.toString('utf8'))}catch{if(expectedEvent==='PreToolUse')denyMalformed();return}
  if(!input||typeof input!=='object'||Array.isArray(input)||expectedEvent&&input.hook_event_name!==expectedEvent){if(expectedEvent==='PreToolUse')denyMalformed();return}
- const dir=process.argv[2];if(!dir||resolve(input.cwd||'/')!==resolve(dir)){
+ const dir=process.argv[2],boundPointer=dir&&input.hook_event_name==='PreToolUse'?boundedJson(join(dir,'runtime.json')):null
+ const boundCwd=boundPointer&&Object.hasOwn(boundPointer,'serviceStateBinding')&&serviceStateBindingMatches({binding:boundPointer.serviceStateBinding,dir,sessionId:boundPointer.sessionId,build:boundPointer.build,receiverCwd:input.cwd})
+ if(!dir||(!boundCwd&&resolve(input.cwd||'/')!==resolve(dir))){
   if(input.hook_event_name==='PreToolUse')console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'Broker tool invocation is outside its exact service directory; no operation admitted.'}}))
   return
  }
@@ -146,9 +149,10 @@ async function main(){
    const pointer=boundedJson(join(dir,'runtime.json')),entry=boundedJson(join(dir,'broker-check-entry.json'))
    if(!pointer||!(/^[a-f0-9]{64}$/).test(pointer.build)||input.session_id!==pointer.sessionId?.replace(/^local_/,''))throw Error('identity')
    const peer=boundedJson(join(homedir(),'.claude','sessions',String(pointer.pid)+'.json'))
-   if(peer?.version!=='2.1.289'||peer.pid!==pointer.pid||peer.procStart!==pointer.procStart||peer.hostSessionId!==pointer.sessionId||peer.sessionId!==input.session_id||resolve(peer.cwd||'/')!==resolve(dir)||peer.entrypoint!=='claude-desktop'||peer.spare||peer.parkedJobId||!nativeAncestor(pointer)||existsSync(join(dir,'STOP')))throw Error('epoch')
+   if(!nativePolicyPeerMatches({pointer,peer,dir,inputCwd:input.cwd})||peer.sessionId!==input.session_id||!nativeAncestor(pointer)||existsSync(join(dir,'STOP')))throw Error('epoch')
    const root=join(resolve(dir,'..'),'releases',pointer.build),template=join(root,'broker-template','CLAUDE.md'),manifest=boundedJson(join(root,'release.json'),1024*1024),st=lstatSync(template)
    if(st.isSymbolicLink()||!st.isFile()||st.uid!==process.getuid()||st.mode&0o222||st.size>65536)throw Error('template')
+   if(Object.hasOwn(pointer,'serviceStateBinding')&&manifest?.nativeServiceStateBindingVersion!==1)throw Error('service state capability')
    const body=readFileSync(template);if(createHash('sha256').update(body).digest('hex')!==manifest?.files?.['broker-template/CLAUDE.md'])throw Error('inventory')
    if(!/^r[A-Za-z0-9_-]{1,99}$/.test(entry?.requestId||''))throw Error('request')
    const request=boundedJson(join(dir,'requests',entry.requestId+'.json'),1024*1024),control=boundedJson(join(dir,'controls',entry.requestId+'.json'))
@@ -169,10 +173,11 @@ async function main(){
   try{
    pointer=boundedJson(join(dir,'runtime.json'));if(!pointer||!(/^[a-f0-9]{64}$/).test(pointer.build)||input.session_id!==pointer.sessionId?.replace(/^local_/,''))throw Error('identity')
    const stateDir=resolve(dir,'..'),activeRoot=join(stateDir,'releases',pointer.build),peer=boundedJson(join(homedir(),'.claude','sessions',String(pointer.pid)+'.json'))
-   if(peer?.version!=='2.1.289'||peer.pid!==pointer.pid||peer.procStart!==pointer.procStart||peer.hostSessionId!==pointer.sessionId||peer.sessionId!==input.session_id||resolve(peer.cwd||'/')!==resolve(dir)||peer.entrypoint!=='claude-desktop'||peer.spare||peer.parkedJobId||!nativeAncestor(pointer))throw Error('epoch')
+   if(!nativePolicyPeerMatches({pointer,peer,dir,inputCwd:input.cwd})||peer.sessionId!==input.session_id||!nativeAncestor(pointer))throw Error('epoch')
    adapted=adaptEntryCommand(input.tool_input,{brokerDir:resolve(dir),activeRoot,stateDir,cachedRoots:[join(homedir(),'dotfiles','src','claude-driver'),join(homedir(),'src','github','dotfiles','src','claude-driver')]});if(!adapted)throw Error('command')
    const script=join(activeRoot,'scripts',adapted.kind+'.mjs'),st=lstatSync(script),manifest=boundedJson(join(activeRoot,'release.json'),1024*1024)
    if(st.isSymbolicLink()||!st.isFile()||st.uid!==process.getuid()||st.mode&0o222||st.size>4*1024*1024||createHash('sha256').update(readFileSync(script)).digest('hex')!==manifest?.files?.['scripts/'+adapted.kind+'.mjs'])throw Error('integrity')
+   if(Object.hasOwn(pointer,'serviceStateBinding')&&manifest?.nativeServiceStateBindingVersion!==1)throw Error('service state capability')
    valid=true
   }catch{}
   if(!valid){console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'The broker may execute only the current epoch-bound sealed wait/check entry, in foreground, with exact documented arguments. This command failed admission; no service command executed.'}}));return}

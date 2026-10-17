@@ -1,3 +1,42 @@
+## Current independent PreToolUse identity candidate — October 17
+
+Previous turn: actual independent sealed missing-request checkpoint passed. Review
+found native PreToolUse identity/cwd checks still hardcoded2.1.289 and cwd==broker.
+Added nativePolicyPeerMatches shared pure predicate: version2.1.299 requires exact
+opt-in serviceStateBinding, receiver cwd/session/PID/start/desktop/not spare or
+parked; unbound legacy remains2.1.289/cwd equality. Both native MCP and Bash
+PreToolUse branches retain native ancestry, sealed source, dispatch/policy checks;
+bound modes additionally require release namespace capability. Outer cwd gate
+accepts receiver cwd only through exact bound pointer. Stop/quiet/rescue behavior
+was not broadened or qualified for299.
+
+Isolated actual command-hook subprocess fixture with synthetic owned native
+ancestry admits current bound checkpoint without permissionDecision allow;
+missing capability,289-as-bound,wrong cwd deny. Pure identity matrix refuses
+foreign epoch/version/parked/spare. Existing legacy hook suite passes. These are
+not actual desktop hook execution, MPC admission or installation evidence.
+No live settings, policy, pointer or module changed this turn.
+
+Also caught package/guard mismatch: factory single-quotes paths but old parser
+only understood double/unquoted. Restricted grammar now accepts exact shell
+single-quote encoding (including embedded apostrophe), rejects expansion syntax
+outside literal quotes, and safely rewrites special paths. Actual sh round-trip
+from bound factory through adapter preserves exact script/request/index/dir argv
+with apostrophe,$(),backticks. Existing cached-path/foreground restrictions pass.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T17-55-06-932Z.json; both filtered harnesses ten checks pass,
+source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-54-53-760Z.json.
+Shared service candidate memory recorded. Earlier17:54checks predate quote fix.
+Next: binding-aware policy/settings placement and independently observed actual
+hook loading on exact receiver; do not assume nested broker/.claude/settings is
+loaded by session whose cwd is receiverCwd. Stage new sealed generation before
+installation; existing private ee9e... namespace remains earlier build e8eee...
+and unchanged. Only after actual effect gate qualification enqueue fixed scratch
+metadata via standard lifecycle. Legacy22unknowns untouched; goal active, Codex
+fixes parked. Retirement/recovery/always-on requirements remain open.
+
 ## Actual independent sealed checkpoint executed — October 17
 
 Previous turn: isolated namespace binding passed. Receiver package now accepts
