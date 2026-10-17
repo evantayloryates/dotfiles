@@ -1,3 +1,25 @@
+## October 17 post-trust accidental-archive test prepared; human setup pending
+
+Previousbatch0baaa7b. Primary9d62 remains live; no absent-primary test submitted.
+Asked Taylor in existing Codex chat to manually Archive (not Delete) EXISTING
+claude-driver-transport-scratch-2026-10-15 and leave interrupt scratch open. This
+is test setup, not another authorization request: automated archive requires STOP
+and retirement, so tests a different boundary. Do not fake equivalence or kill PID.
+
+Private metadataControlTrial.postTrustArchiveRecoveryTrial retains current exact
+binding1aedf3, baseline both settings, one planned post-trust cold request and
+schemaVerified:true/submissionPerformed:false. This is a changed-condition test:
+new restored services and human persisted trust, not replay of old failed root.
+Exact operation broker_service_recover_enrolled args session,
+expected_enrollment_sha256,experimental:true; timeout360. Key
+post-trust-manual-archive-cold-recovery-20261017. No job exists yet. Original failed
+manualArchiveRecoveryTrial untouched. On reply independently verify primary archived,
+no peer/oldPID absent/current exact binding/standby qualified/0unknown/retained empty
+family before submit; persist returned root before waiting. Then use completed exact
+root for rebind; do not replay unknown. If refused preserve original new failure.
+Goal active, human archive answer pending; no live test process to poll. Next action
+belongs to Taylor's Claude Desktop chat menu. Do not run unchanged checks repeatedly.
+
 ## October 17 restored generation qualified through actual Claude MCP
 
 Previousbatch6d3eeee. Fresh primary9d62 status verified live-native idle PID82655,
