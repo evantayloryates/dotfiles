@@ -1013,6 +1013,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('metadata control requires experimental durable submission',{category:'bad_args'});return (await import('./independent-service-result.mjs')).readIndependentService(args.session,args.service_id,args.session_id,{metadataControl:{operation:args.operation,value:args.value},timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal,jobId:ctx.jobId,progress:ctx.progress})},
   },
   {
+    name:'broker_service_standby_plan',title:'Inspect exact standby recovery admission',readOnly:true,
+    description:'Read-only eligibility for one explicit standby, primary generation and retained empty family receipt. Live primary, changed epoch, stopped/unknown history or unqualified standby never grants recovery. No wake, retirement, repair, native effect or crash inference.',
+    schema:{required:['session','service_id','session_id','target_service_id','family_request_id'],properties:{session:{type:'string'},service_id:{type:'string'},session_id:{type:'string'},target_service_id:{type:'string'},family_request_id:{type:'string'}}},
+    run:(args,ctx)=>(import('./standby-plan.mjs')).then(m=>m.inspectStandbyRecovery(args.session,args.service_id,args.session_id,args.target_service_id,args.family_request_id,{signal:ctx.signal})),
+  },
+  {
     name:'broker_service_recover',title:'Recover one sealed independent scratch target',readOnly:false,
     description:'Experimental durable recovery through an exact independently sealed controller. Default cold mode requires original target PID absent/no current peer and a retained empty native family receipt. Explicit cycle:true additionally exercises intentional scratch archive/exit first. Composes original durable child jobs, one native wake, independent new epoch/tool-free reply, cold rebind, policy probe and native read. Stops on human trust/consent, changed identities, failed or uncertain effects. No app restart, kill, delete, permission raise, automatic replay or unattended supervision claim. Reattach the original parent job.',
     schema:{required:['session','service_id','session_id','target_service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},target_service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},family_request_id:{type:'string',pattern:'^rpeer[a-f0-9]{32}$'},cycle:{type:'boolean'},experimental:{type:'boolean',enum:[true]}}},

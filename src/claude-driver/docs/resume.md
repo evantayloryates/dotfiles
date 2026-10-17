@@ -1,3 +1,61 @@
+## October 17 independent standby staged without primary interruption
+
+Previousbatch published6d36c73. Bothexistingowned scratcheslive/idle/0unknown.
+RetainedfreshPRIMARYnativeemptyfamilyviaj35a620b5a70c440bbbb6126c5075abdf,
+rpeer35a620b5a70c440bbbb6126c5075abdf onprimaryservice0968475bc538473f9f8316216d40d8f4;
+independentparseverifiedcount0. Thisisaread, notabsence/crashreadinessproof.
+
+Preparednewstandbyrolej3e8045beb41448a389634d678ee105a4 onEXISTINGinterruptscratch,
+archiveTargetONLYprimarylocal_c0a18601-5a57-44d0-94ac-2fed3719e7ca/PID31678/
+start20:14:51UTC/cwdtransport. No arbitrarywakebody orotherarchiveauthority. Prior
+interruptreadrole491b51dd terminalreview2attempts/0unknown, quiescejf8167efea8284e84aa0f8ba4ad0d739a,
+retirej0048576856c4449fbd71ef3ba32abb81; no processretirement. Stablehookactivation
+je46fb0d068c9484b9e8bd2ecd7bdf32e preservedsettings/anchor, newrole
+3e8045beb41448a389634d678ee105a4. Nativepolicynegativej06d4b73768804db2afd769731b6cea6f
+passed. Standby→primarynativeget_session j59acd29307fb4df3b8e98595942ec254
+receiptverified. Allnativecallsconsumedbyhook; noinferencestartforcontrolread.
+Standby keepsgenericmetadataread/family capabilities plusfixedexacttargetrecovery
+control; rolegrantdoesNOTimplyawakenedprimary orqualifiedunattendedrecovery.
+
+LiveNEGATIVEcoldrequestj3a7705eb47eb4a02beda24d1fc058fed failedbefore-preflight,
+childrenEMPTY, no quiesce/retire/archive/wake ofprimary. PrimarynativePIDstillalive.
+Failurepreserved/retrySafefalse; don'treplayoriginalparent. No deliberateprimary
+kill/archive/crash, apprestart, newchat orhumanpermissiongate. SameactorPID90418.
+
+AddedREADONLYbroker_service_standby_plan exactactor/service/primary/service/family
+arguments. Ownverifiedselectedgeneration/familyreceipt, primaryterminalhistory,
+sealedtargetscope andOSprocessabsence required. A liveprimary returnswait/primary-live;
+unknown/history/stop/changedepoch/family/standbyissues failclosed. Plannerreturns
+onlyeligibility, effectsPerformedfalse/recoveryAttemptedfalse/absenceCauseunclassified;
+neverinfercrash frommissingpeer andneverexecuteplan. Threepuretestsincludeabsent
+positivefixture, live/OSpresentnegative, unknown/STOP/stalefamily/epochscope refusal.
+Actualcurrentplanreturnswaitprimary-live/coldRecoveryEligiblefalse. No auto-failover
+routing/enrollment installedyet; no backgroundwakeup or observerduplication.
+
+Coexistenceverification afterstandbyroleturnover: actualfreshCodexMCPordinarysend
+harness-native-native-send-codex-2026-10-17T22-39-46-988Z.jsonPASS18checks, primary
+controller→standby/recipient stillgets exactcausalreply/settingsunchanged, samejob,
+no maintenance/inferenceonprimary/source/globalconfigunchanged. Thisishealthy
+sendproof, notcoldrecovery. FINALHOST474d5fade072e9755a5e3d5d9c3d8011bc96449aa7d70f9634b0946278d57fdf;
+primarysealed3dc08c68; standbysealed354f32ad. Fullpressure
+v2-2026-10-17T22-39-50-521Z.json1/1sourceunchanged. Bothsynthetic10checks
+harness-v2-{claude,codex}-2026-10-17T22-39-48-015Z.jsonPASS.
+
+CURRENTprimary096...ready/policytrue,idle31678/start20:14:51UTC,9settled/0unknown,
+54slots. Standby3e8045...ready/policytrue,idle90418/start21:37:26UTC,1settled+
+1terminalpolicynegative/0unknown,30slots. Bothrecordsettingsbaselineunchanged.
+Privateplan.metadataControlTrial.standbyFinal savesexactroles/family/lastplan;
+standby*stepsretaindurablejobs. Originallegacy35b...brokeruntouched/observerowned.
+
+NEXT: durable explicitstandbyenrollment/routing linkingexactprimarygeneration to
+retainedfamilyreceipt andsealedstandby. Primarygenerationrenewalmustrefreshthat
+proof; oldfamily/serviceIDs mustNOTsilentlyfollowarbitrarysuccessor. Onlyafter
+independentactualabsence andzero unknowns cannewcoldrequestbeconsidered; original
+negativeparentneverreplayed. No deliberatekill/repeatedarchivecyclesforgreen.
+Appquit/bothcontrollersgone, naturalpressure, creation/no-folder/fork/fullarchive/
+window/personpermissiongatesremainunqualified. Goalactive, watcherpaused; noCUA/
+input/auth/restart/newchats/manualkills. Codex-driver/1Passwordparked.
+
 ## October 17 recovery role preservation and honest idle-residency evidence
 
 Previousbatch published21d1d9b. Foundrealcold-recoverycompositiongap: d.prepare

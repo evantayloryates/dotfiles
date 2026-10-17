@@ -1487,3 +1487,13 @@ observes an existing independent controller without native writes or wakes.
 An idle-survival result without observed natural pressure remains pressure-
 unqualified. It does not establish Cron protection, app-restart recovery or
 always-on availability. Source, epoch and budget must remain unchanged.
+
+### Standby recovery planning
+
+`broker_service_standby_plan` takes exact standby session/service, primary
+session/service and a retained empty-family request ID. It reads current native
+and historical evidence and returns eligibility only. `wait: primary-live` forbids
+cold recovery; changed generations, unknown effects, STOP, stale family proof or
+unqualified standby fail closed. Missing peer state never establishes a crash.
+The staged standby is not yet wired into automatic control routing. Generation
+renewal must refresh retained family proof before future cold recovery.
