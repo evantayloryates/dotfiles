@@ -973,3 +973,10 @@ inspect original contract and durable job after disconnect or failure. Never spe
 a new identity merely to retry unknown work. Reports distinguish native contract
 verification from strict model output formatting; format failures remain failed.
 Fresh-client success does not refresh a long-lived harness's cached MCP schema.
+
+
+Current2.1.299 module `settings.read` is a read-only snapshot adapter, not an
+established native hook-refresh API. Isolated execution proves its provider and
+clone behavior only; real settings adoption still needs native evidence. The API
+returns env/helper fields without redaction, so any future native observation must
+select only bounded owned hook metadata and never log the full settings object.

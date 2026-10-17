@@ -1,3 +1,48 @@
+## Installed settings-read adapter qualified; no refresh API established — October 17
+
+Previous turn progressed fresh native MCP harness integration and safe closeout.
+Investigated whether generation settings could reload without a model turn using
+supported module API. Current native generated declarations expose settings.read
+only, explicitly read-only. Exact installed2.1.299 dispatch calls frr(n) after source
+validation. Adapter frr returns DW(ct()) for merged data or DW(fe(source)), with
+policy transform for policy source. No explicit refresh operation in this adapter.
+Provider internals are not qualified as cache refresh; do not infer reload from a
+read API or remove existing native boundary/audit requirement.
+
+Added scripts/mod-settings-contract-299.mjs, current version gated and exact unique
+function prologue/boundary. Extracted bounded1800byte installed window offset
+204825436/SHA0cfb633582f54750ccf230c6c1f9aec1a01f68cea12e1c0a196aa746047f6fca.
+Actual adapter+source validator execute with synthetic settings providers/clone/
+policy transform only. Five checks pass: merged snapshot isolation, selected-source
+provider, policy-only transform, invalid/inherited source rejection, unredacted
+synthetic env field. No actual settings read, native module/tool/process call,
+write, inference or refresh. Report pressure/mod-settings-contract-299-
+2026-10-17T19-09-44-506Z.json. Source lookup misses/ambiguous short names and large
+module refusal retained in diagnostics/settings-adapter-extraction-2026-10-17.json.
+Narrow unique prologue avoids unrelated frr/prr in another bundled module.
+
+Final unchanged-source pressure1/1pass: pressure/v2-2026-10-17T19-10-33-864Z.json.
+Both synthetic-store headless harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-10-20-922Z.json. These do not
+replace prior real native evidence or erase the preserved Claude format failure.
+This changes next implementation: use a stable owned per-receiver PreToolUse entry
+rather than rewriting the loaded hook command for every generation. Build a sealed,
+built-ins-only anchor and strict receiver selector tied to exact service namespace,
+pointer/build/bootstrap/native epoch and owned policy/settings hashes. Preserve all
+existing request/native admission/STOP gates and immutable old history. The first
+anchor install still needs actual native boundary/audit qualification; do not claim
+that a static selector or source tests load settings. Then switch generations by
+validated selector and package publication, retain identical settings bytes, and
+prove two real native reads across turnover without journal growth/model boundary.
+Held/unbound/failed native reload outcomes remain gates; no synthetic consent.
+
+Current2e21 generation remains quiescent with STOP, capacity4/4 used and all attempts
+terminal. No new native request, message, process signal or app restart this turn.
+Don't reuse slots or lift STOP to test the anchor; retire/preserve it and prepare a
+fresh bounded generation when anchor implementation is ready. Physical retirement,
+cold recovery, record-loss recovery, current-chat stale MCP refresh and always-on
+pressure remain open. Goal active; no pending sender/worker/waiter; Codex fixes parked.
+
 ## Fresh real Codex/Claude MCP native metadata qualification — October 17
 
 Previous turn progressed same-process generation replacement and successor serving.
