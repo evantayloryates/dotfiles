@@ -58,5 +58,7 @@ test('actual command hook admits current bound checkpoint only with namespace ca
   save(path.join(release,'release.json'),{files:manifest.files});assert.equal(run().permissionDecision,'deny');save(path.join(release,'release.json'),manifest)
   save(path.join(peers,process.pid+'.json'),{...peer,version:'2.1.289'});assert.equal(run().permissionDecision,'deny');save(path.join(peers,process.pid+'.json'),peer)
   input.cwd=dir;assert.equal(run().permissionDecision,'deny')
+  input.cwd=cwd;input.tool_use_id='native-policy-probe';const {buildNativeServicePolicy}=await import('../lib/native-service-policy.mjs'),handler=fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),prepared=buildNativeServicePolicy({binding:pointer.serviceStateBinding,epoch:{pid:process.pid,procStart:epoch},brokerDir:dir,scriptSha256:createHash('sha256').update(fs.readFileSync(handler)).digest('hex')});fs.mkdirSync(path.dirname(prepared.settingsPath));fs.writeFileSync(prepared.settingsPath,prepared.settingsBytes);save(prepared.policyPath,prepared.policy)
+  assert.equal(run().permissionDecision,undefined);const audit=JSON.parse(fs.readFileSync(path.join(dir,'native-policy-invocation-native-policy-probe.json')));assert.equal(audit.toolUseId,input.tool_use_id);assert.equal(audit.settingsHash,prepared.policy.settingsHash);assert.equal(run().permissionDecision,'deny')
  }finally{fs.rmSync(home,{recursive:true,force:true})}
 })

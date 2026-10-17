@@ -1,3 +1,49 @@
+## Actual current hook loaded after settings turn boundary — October 17
+
+Previous turn: current bound identity candidate passed in isolation. Added pure
+buildNativeServicePolicy: receiver-cwd .claude/settings.json with PreToolUse only;
+private namespace stop-rescue-policy.json stores exact settingsPath/hash, sealed
+handler hash, binding and native epoch. No Stop/quiet/rescue or permission allow.
+Native MCP guard resolves settings path only with exact current binding/epoch;
+legacy settings path remains unchanged. Bound Bash hook logs one sanitized native
+invocation before admitted checkpoint, with toolUseId/epoch/build/generation and
+handler/settings hashes; duplicate ID refuses. Isolated policy tests cover path,
+source,epoch and unsupported fields; actual hook fixture verifies audit/no replay.
+
+Fresh namespace83ada8d22920716010cc15df3f767f54, sealed build
+ a856cf95d1b6f4bdea8f5a4b2338bb0ec041ac6bdbedaac92d1449a8ce578182,
+prepared on same owned scratch8f1d6d55/PID42813/start16:03:11UTC/CLI2.1.299.
+Preserved old module; native validation then owned register update. First ready
+challenge reached model before reload; subsequent session.start readiness wrote
+bound receipt. Failure retained. Installed settings only in that scratch's cwd
+(previously absent); private policy published first. Legacy broker untouched.
+
+First missing request rpeer614c4593e6103ea4b9fa20dc1645aceb executed sealed helper
+but audit absent: hook loading unproven. Retained this failure, no native request
+or metadata operation. Then durable boundary jobjd1cf5c94982d43dda618db070f1313fa
+had exact POLICY_BOUNDARY_OK reply, tools0, terminal idle. Second distinct missing
+request rpeera48b0f92358381f0c6e3f92742d6b2ba generated actual native policy audit
+ toolu_plugin_00853ab1932e409a8a1e926a2757a321 at17:59:09.967Z and exact retained
+completed sealed helper entry at17:59:10.112Z. Verified current native epoch,
+source/bootstrap/generation, handler/settings hashes, request/control/result
+absence and descriptor-bound journal unchanged. This establishes actual current
+PreToolUse command-hook loading after boundary, not native MCP admission.
+
+Evidence: probe/scratch-native-read-2026-10-17/policy-
+83ada8d22920716010cc15df3f767f54/plan.json (one directory name), pointed to by
+policy-current.json. Module capacity2/2 used; never replay. Settings/policy/module
+retained for next controlled transition, no background worker/waiter running.
+Next: fresh bound generation and owned settings update, then standard lifecycle
+fixed scratch metadata read with actual native MCP admission consumption and
+independent persisted result verification. Physical retirement, cancellation and
+recovery/always-on remain separate gates. Goal active; Codex fixes parked.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T17-57-53-349Z.json; filtered Claude/Codex(gpt-6-sol) ten
+checks each pass and configs/source unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-57-41-045Z.json.
+Shared service memory recorded. Old22unknowns and old policy remain untouched.
+
 ## Current independent PreToolUse identity candidate — October 17
 
 Previous turn: actual independent sealed missing-request checkpoint passed. Review
@@ -14,7 +60,7 @@ Isolated actual command-hook subprocess fixture with synthetic owned native
 ancestry admits current bound checkpoint without permissionDecision allow;
 missing capability,289-as-bound,wrong cwd deny. Pure identity matrix refuses
 foreign epoch/version/parked/spare. Existing legacy hook suite passes. These are
-not actual desktop hook execution, MPC admission or installation evidence.
+not actual desktop hook execution, MCP admission or installation evidence.
 No live settings, policy, pointer or module changed this turn.
 
 Also caught package/guard mismatch: factory single-quotes paths but old parser

@@ -21,6 +21,16 @@ export function nativePolicyPeerMatches({pointer,peer,dir,inputCwd}={}){
  if(Object.hasOwn(pointer,'serviceStateBinding'))return peer.version==='2.1.299'&&inputCwd===peer.cwd&&serviceStateBindingMatches({binding:pointer.serviceStateBinding,dir,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:peer.cwd})
  return peer.version==='2.1.289'&&resolve(peer.cwd||'/')===resolve(dir)&&resolve(inputCwd||'/')===resolve(dir)
 }
+export function nativePolicySettingsPath({pointer,policy,dir}={}){
+ if(!pointer||!policy||typeof dir!=='string')return null
+ if(Object.hasOwn(pointer,'serviceStateBinding')){
+  const binding=pointer.serviceStateBinding
+  if(!serviceStateBindingMatches({binding:policy.serviceStateBinding,dir,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:binding?.receiverCwd})||policy.serviceStateBinding.id!==binding.id||policy.settingsPath!==join(binding.receiverCwd,'.claude','settings.json')||policy.sessionId!==pointer.sessionId||policy.pid!==pointer.pid||policy.procStart!==pointer.procStart||policy.build!==pointer.build)return null
+  return policy.settingsPath
+ }
+ if(Object.hasOwn(policy,'serviceStateBinding')||Object.hasOwn(policy,'settingsPath'))return null
+ return join(dir,'.claude','settings.json')
+}
 // Per-request completed observations survive later shared helper entries. This
 // is evidence retention only: it never creates dispatch or native admission.
 export function retainCompletedCheck(dir,record){

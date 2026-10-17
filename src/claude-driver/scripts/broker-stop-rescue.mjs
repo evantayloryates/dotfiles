@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Experimental command Stop hook. Explicit, short-lived arming only; no sends,
 // native effects, request arguments, transcript content or model evaluation.
-import {nativePolicyPeerMatches,serviceStateBindingMatches} from '../lib/runtime-entry.mjs'
+import {nativePolicyPeerMatches,nativePolicySettingsPath,serviceStateBindingMatches} from '../lib/runtime-entry.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
 import {constants,openSync,closeSync,fstatSync,readFileSync,readSync,existsSync,writeFileSync,lstatSync,renameSync,unlinkSync} from 'node:fs'
 import {createHash,randomUUID} from 'node:crypto'
@@ -156,8 +156,9 @@ async function main(){
    const body=readFileSync(template);if(createHash('sha256').update(body).digest('hex')!==manifest?.files?.['broker-template/CLAUDE.md'])throw Error('inventory')
    if(!/^r[A-Za-z0-9_-]{1,99}$/.test(entry?.requestId||''))throw Error('request')
    const request=boundedJson(join(dir,'requests',entry.requestId+'.json'),1024*1024),control=boundedJson(join(dir,'controls',entry.requestId+'.json'))
-   const policy=boundedJson(join(dir,'stop-rescue-policy.json'))
-   if(policy?.nativeEffectAdmissionVersion!==1||request?.nativeEffectAdmissionPolicy?.version!==1||policy.sha256!==request.nativeEffectAdmissionPolicy.handlerSha256||policy.settingsHash!==request.nativeEffectAdmissionPolicy.settingsHash||createHash('sha256').update(readFileSync(process.argv[1])).digest('hex')!==policy.sha256||createHash('sha256').update(readFileSync(join(dir,'.claude','settings.json'))).digest('hex')!==policy.settingsHash)throw Error('policy')
+   const policy=boundedJson(join(dir,'stop-rescue-policy.json')),settingsPath=nativePolicySettingsPath({pointer,policy,dir})
+   if(!settingsPath)throw Error('settings binding')
+   if(policy?.nativeEffectAdmissionVersion!==1||request?.nativeEffectAdmissionPolicy?.version!==1||policy.sha256!==request.nativeEffectAdmissionPolicy.handlerSha256||policy.settingsHash!==request.nativeEffectAdmissionPolicy.settingsHash||createHash('sha256').update(readFileSync(process.argv[1])).digest('hex')!==policy.sha256||createHash('sha256').update(readFileSync(settingsPath)).digest('hex')!==policy.settingsHash)throw Error('policy')
    const tools=Object.fromEntries([...body.toString().matchAll(/^\| (\w+) \| (mcp__\w+) \|$/gm)].map(m=>[m[1],m[2]])),index=nativeAdmissionIndex({input,pointer,entry,request,control,tools})
    if(index<0)throw Error('checkpoint')
    // Consume the actual native admission before the tool executes. A duplicate
@@ -178,6 +179,11 @@ async function main(){
    const script=join(activeRoot,'scripts',adapted.kind+'.mjs'),st=lstatSync(script),manifest=boundedJson(join(activeRoot,'release.json'),1024*1024)
    if(st.isSymbolicLink()||!st.isFile()||st.uid!==process.getuid()||st.mode&0o222||st.size>4*1024*1024||createHash('sha256').update(readFileSync(script)).digest('hex')!==manifest?.files?.['scripts/'+adapted.kind+'.mjs'])throw Error('integrity')
    if(Object.hasOwn(pointer,'serviceStateBinding')&&manifest?.nativeServiceStateBindingVersion!==1)throw Error('service state capability')
+   if(Object.hasOwn(pointer,'serviceStateBinding')&&existsSync(join(dir,'stop-rescue-policy.json'))){
+    const policy=boundedJson(join(dir,'stop-rescue-policy.json')),settingsPath=nativePolicySettingsPath({pointer,policy,dir})
+    if(!settingsPath||policy.sha256!==createHash('sha256').update(readFileSync(process.argv[1])).digest('hex')||policy.settingsHash!==createHash('sha256').update(readFileSync(settingsPath)).digest('hex')||! /^[A-Za-z0-9_-]{1,160}$/.test(input.tool_use_id||''))throw Error('bound policy observation')
+    let fd;try{fd=openSync(join(dir,'native-policy-invocation-'+input.tool_use_id+'.json'),constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);writeFileSync(fd,JSON.stringify({schemaVersion:1,scope:'owned-native-policy-invocation',toolUseId:input.tool_use_id,tool:'Bash',pid:pointer.pid,procStart:pointer.procStart,sessionId:pointer.sessionId,build:pointer.build,generation:pointer.generation,handlerSha256:policy.sha256,settingsHash:policy.settingsHash,at:Date.now()}))}finally{if(fd!==undefined)closeSync(fd)}
+   }
    valid=true
   }catch{}
   if(!valid){console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'The broker may execute only the current epoch-bound sealed wait/check entry, in foreground, with exact documented arguments. This command failed admission; no service command executed.'}}));return}
