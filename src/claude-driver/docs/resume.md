@@ -1,3 +1,30 @@
+## Current installed module tool adapters qualified in isolation — October 17
+
+Previous turn: binding guard review. Added scripts/mod-tool-contract-299.mjs,
+explicitly version-gated to CLI2.1.299. It extracts unique exact installed Sdn MCP
+and HG tool adapter functions, verifies parseable boundaries, records byte-window
+hash/offset, and executes them with synthetic session/tool/permission dependencies.
+Does not relax ambiguity or execute native calls. Older extractor failure retained.
+
+Five checks pass: ordinary permission callback/exact plugin origin; denial prevents
+synthetic execution and propagates refusal; unbound/missing/hidden tools refuse;
+missing result refuses and tool errors preserve isError; MCP consent injection
+refuses without executing. Installed native pipeline itself remains synthetic.
+Evidence pressure/mod-tool-contract-299-2026-10-17T16-34-24-266Z.json.
+Runtime3b49b5ee388f3524f1edf0f2a3a27caeb527a48a8dfb20c9d86ac9894df717e5.
+Full pressure1/1pass, source unchanged:
+pressure/v2-2026-10-17T16-34-43-670Z.json. Filtered Claude and Codex(gpt-6-sol)
+harnesses pass, configs/source unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-34-31-373Z.json.
+Shared service candidate/test memory recorded.
+
+This resolves current adapter extraction/fixture work, not actual desktop hook
+execution, module activation/serving or old-process retirement. No module loaded,
+no native tool called, no live state/permissions changed. Next current-version
+review is module registration/session.receive lifecycle and a separately owned,
+fixed-target bounded scratch read probe. Legacy broker22unknowns stay untouched;
+existing settled-handoff gate remains. Goal active; Codex bridge fixes parked.
+
 ## Current receiver reuse audit — October 17
 
 Previous turn: actual CLI hook failure evidence. Approved control scratch remains
