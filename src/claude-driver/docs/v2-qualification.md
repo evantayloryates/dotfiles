@@ -1,3 +1,41 @@
+## Supported module entry loaded; native input wait now observed — October 17
+
+Previous blocked state was based on unverified loading/consent. Taylor's screenshot
+showed no Mods menu/prompt; corrected that instruction. No new user permission is
+inferred from generic native skill prose. Read-only source review traced
+Uts/xzr placeholder interpolation to plugin/skill command loading: supported
+builtin plugin-authoring resolves ${CLAUDE_DEV_MODS_DIR} and initializes watcher.
+Merely writing its guessed folder after native startup did not establish that.
+Source builtin module21372bytes/offset230140363/SHA
+6245ff86d1fab13ea9dfc117c4a8010943601067239ab8d4175e6327326ede66.
+
+Actual interrupt controller performed one ToolSearch for session mods status;
+correlated toolu_018nPCT127svvXoJ24BqSJ8f returned connector/window/account-plugin
+tools, no direct session-mod status. One ListPlugins exact-name query returned
+empty account-level results; cannot infer session module loading from that.
+Private diagnostics native-mods-discovery-2026-10-17.json and
+native-mods-plugin-inspection-2026-10-17.json preserve evidence.
+
+Actual control scratch then invoked Skill({skill:"plugin-authoring"}) once:
+toolu_01SdVsHPG3otKuaB9yxip7TA, native prompt row
+fc81c511-597d-4599-a4c5-23044866dfbf. Native skill resolved the exact published
+/Users/taylor/.claude/dev-mods/8f1d6d55-df3d-4b50-a96c-f4b61a7858bd/ folder.
+Agent made no other tool calls in this step. Skill's generic 'nobody could be
+asked' explanation is a constant, NOT an observed live failure. No card clicked,
+no permissions/settings/module code changed, no model-generated suggestions run.
+Evidence diagnostics/native-plugin-authoring-entry-2026-10-17.json.
+
+Changed-condition slot1 preflight subsequently refused: same nativePID42813/start
+SatOct17 16:03:11UTC/CLI2.1.299 now waiting, waitingFor 'input needed', mode bypass.
+No slot1 send/prepare occurred; slot remains unused. Card presence itself remains
+unverified, but waiting state is fresh native evidence, not inferred from send.
+Human should inspect that exact control scratch again for the native hot-reload
+question. After input resolves, require idle/same epoch/unchanged package/unexpired
+config before slot1. Do not replay slot0, forge consent or change app settings.
+Private plan state waiting-native-input-after-supported-entry; prior blocked audit
+superseded. Runtime unchanged, prior passing pressure/harness evidence retained.
+No old broker or22unknown mutations. Goal active; Codex bridge fixes parked.
+
 ## Fixed-target scratch read probe published; serving failed — October 17
 
 Previous turn: current consent lifecycle passed. Added fixture-only package builder
