@@ -1,3 +1,79 @@
+# Current v2 requirements audit — October 17, 2026
+
+Overall qualification: **incomplete**. This audit preserves the original build
+brief and all eleven live-v2 gates. Scoped native read/recovery proofs do not
+replace general Claude Desktop control qualification. Machine evidence is
+`.runtime/state/diagnostics/v2-requirements-audit-2026-10-17.json`.
+
+Current runtime836da735605c43cd169b9e1bc4b3cf1cf84759a111f2abf935c8348a2499a533;
+Desktop2.42304.0/CLI2.1.299. All four registered launchers resolve to the canonical
+repository launcher. Claude and configured Codexgpt-6-sol pass current synthetic
+and actual native metadata MCP contracts. The attached chat MCP still reports
+driver46c7a58/restartRequiredtrue; it is not refreshed by a fresh harness pass.
+Legacy brokerPID79060/startOct16 14:54:25UTC is live but NOT resident serving;
+generation6/4af08654 integrity passes, dependency paths remain unqualified.
+No legacy repair/restart or unknown-effect reconciliation was performed here.
+
+| Original requirement | Verified scope | Remaining gate |
+| --- | --- | --- |
+| Common CLI/MCP, any harness | One63-operation layer; four canonical registrations; current Claude/Codex synthetic10checks each and native metadata14checks each | Attached connector refresh; current Cursor/OpenCode execution and desktop caller handback |
+| Create/fork with exact folder/title/model | Implemented Tier A and historical bootstrap/import/fork evidence | Current complete native create/fork/focus/model/title/bypass proof; existing live script requests acceptEdits, contrary to current scratch preference |
+| Rename/pin/model/effort/mode | Implemented general Tier B; scoped archive/wake qualified separately; rename now verifies titleSource tool as well as title | Current general metadata-control admission, readback, batch/concurrency and restoration; native person-only permission gates remain |
+| Durable lifecycle | Current122-file pressure round passes; real cycle/cold parents and unchanged-ledger same-key reattachment | Sustained general effects/recipient workload and current full live suite |
+| Send/queue/interrupt | Oct15 direct exact receipt/queue/concurrency and Oct17 single native stop/replacement retained on their recorded sources; fixed native cold wake/reply qualified | Complete current generic messaging/queue/interrupt/replacement suite; default native send still uses legacy Tier B |
+| Admission/uncertainty | Current sealed policy refusal, native archive plus independent disk/PID postconditions, fixed wake plus independent reply/new process | General native mutation settlement; last audited legacy root had22 unknowns, not silently settled by this audit |
+| Sealed deployment/rollback | Integrity, stable selector/settings, forward source turnover, retained history and cold rebind | Distinct-build rollback; legacy epoch/dependency admission. Forward turnover is not rollback |
+| Native read service | Current metadata route and both real MCP harnesses; bounded slots/deadline/renewal and serialized requests | Arbitrary native tools/sessions and unlimited or sustained throughput are not qualified |
+| Cold recovery | One public cycle and one default cold parent from already-retired absent target; live cold refusal before children; actual reply/new epoch/readback | Offline-installed crash path, global app restart, deleted-session replacement; next target epoch needs explicit new controller sealing |
+| Always-on residency | Two exact live owned receivers/readiness; bounded renewal and recovery primitives | Natural governor pressure, current maintenance acknowledgment and unattended/sustained readiness |
+| Detection/efficiency | Metadata detector/inbox code and quiet-tick tests; per-request timings and fingerprinted reports | Event-triggered inference and sustained latency/throughput; inbox watcher remains explicitly paused |
+| Teardown/input | Scoped callback absence/retirement and intentional process exit proof; quarantine preserved | General auxiliary resource disposal, full paired input audits and physical input qualification |
+| Groups/project/window/delete | Guarded implementations/historical mechanisms; groups low priority, deletes remain person-approved | Current native persisted behavior; UI quarantine and approval boundaries retained |
+| Shared evidence/memory | Exact source/report hashes, permanent jobs/receipts, candidate service memory, retained failures and this audit | Claims stay scoped; no narrow pass upgrades the full suite |
+
+## Original full live-v2 gates remain open as a set
+
+`input-resource-audit-before`, `create-and-restore-focus`,
+`durable-submit-and-recipient-reply`, `cancellation-before-native-dispatch`,
+`three-concurrent-native-controls`, `batched-native-controls`,
+`queue-is-not-interrupt`, `interrupt-then-replacement-is-applied`,
+`single-native-recipient-replies`, `cleanup-archive`,
+`input-resource-audit-after`.
+
+Some primitives have newer independent proof, but **no complete current-source
+run of these eleven gates** exists. `live-v2.mjs` still calls the legacy broker
+for general controls. Do not run it unchanged against a non-serving broker or
+use its acceptEdits creation branch against Taylor's required bypass mode.
+Native control sourceee81/Oct17 and direct queue/concurrency source4262/Oct15
+remain useful historical evidence, not new full-suite passes.
+
+## Audit validation and concrete fix
+
+The current source passed pressure1/1 across122 test files with matching suite
+hashes: `pressure/v2-2026-10-17T21-02-03-894Z.json`. Both filtered headless
+synthetic harnesses pass10checks (`harness-v2-claude-2026-10-17T21-01-40-101Z.json`,
+`harness-v2-codex-2026-10-17T21-01-41-314Z.json`). Same-process renewal
+j9475c62da7bc44538b7a666d2dcedad5 installed this source on interruptPID13591/
+start20:57:38UTC with actual readiness/policy/no unresolved. Current receiver
+9475c62da7bc44538b7a666d2dcedad5 then passed both actual native metadata MCP
+harnesses14checks (`harness-native-current-claude-2026-10-17T21-02-21-577Z.json`,
+`harness-native-current-codex-2026-10-17T21-02-22-701Z.json`). These do not invoke
+rename. Audit found rename_session could claim verified on matching text without
+verifying locked source; its persisted predicate now also requires
+`titleSource==='tool'`, aligned with set_session_config. Full isolated pressure
+and existing archived-config tests pass; native rename remains a stated gap.
+
+Next implementation: explicit sealed target-bound metadata controls through the
+qualified independent controller, with exact native admission, independent
+persisted title/pin/effort postconditions and restoration; qualify positive and
+negative, batch and concurrency before integrating the general public route.
+Do not repair the legacy broker, weaken its admission, repeat cold cycles as a
+substitute, initialize Computer Use or resume the paused watcher. Preserve Codex
+bridge/1Password separation and historical unknowns.
+
+The dated entries below are retained evidence and prior hypotheses. They do not
+override this current audit's scope or the exact artifacts it references.
+
 ## Second native cycle: persisted trust, one wake, new peer and cold rebind passed — October 17
 
 No runtime edits; source remains92d850ec257d5a4b7dea24fca3e89c2b5a26a3e1dd28726ace7248a4754a977a.
@@ -1086,9 +1162,9 @@ introduced wrapper assertion failure and its misleading transient cleanup are
 preserved alongside explicit later reconciliation. No native retry, keyboard
 input, context reset, model/auth change or competing recovery occurred.
 
-# Claude-driver v2 qualification
+# Historical v2 requirements audit — October 15
 
-Latest audit: October15,19:37 Eastern. Overall qualification remains false.
+As of October15,19:37 Eastern. Overall qualification remains false.
 Current source702a4b61 passes366 isolated checks and both filtered headless
 harness contracts. The connected Codex-chat MCP loads6e0fd19f and reports
 restartRequired:true; use fresh CLI/current filtered harness for engineering.

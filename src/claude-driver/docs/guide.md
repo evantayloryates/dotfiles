@@ -4,8 +4,15 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Native batch and concurrent controls have passed, but later full runs failed
-serving and concurrency. Full current native steering remains unqualified.
+Current audit (October17): fresh Claude/Codex MCP metadata reads, scoped archive/
+wake and durable cold recovery are qualified on their exact owned scratch targets.
+General rename/pin/config/groups still use legacy Tier B, whose broker is live
+but not resident serving. Historical native batch/concurrent control and direct
+queue/stop evidence does not qualify the complete current live suite. All four
+harness registrations are present; attached cached MCP and Cursor/OpenCode
+execution remain separate gates. See [v2-qualification.md](v2-qualification.md).
+No quarantine, native consent or legacy admission bypass is authorized.
+
 The installed PreToolUse adapter redirects exact cached wait/check commands,
 and a separate gate checks the actual native operation. See [resume.md](resume.md) for
 exact source/package distinctions, preserved failures and readiness gates.

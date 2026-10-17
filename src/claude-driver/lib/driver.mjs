@@ -519,8 +519,8 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const b = await tierB(ctx, [{ op: 'set_session_title', args: { session_id: rec.sessionId, title: args.title } }], `title "${args.title}", titleSource "tool"`)
       if (b.handback) return b.handback
-      const w = await waitForRecord(rec.sessionId, (r) => r.title === args.title, { timeoutMs: 8000 })
-      if (!w.ok) throw new DriverError(`title did not change on disk (still "${w.record?.title}")`, { category: 'verify_mismatch' })
+      const w = await waitForRecord(rec.sessionId, (r) => r.title === args.title && r.titleSource === 'tool', { timeoutMs: 8000 })
+      if (!w.ok) throw new DriverError('title text and locked titleSource were not both verified on disk', { category: 'verify_mismatch' })
       return { sessionId: rec.sessionId, title: w.record.title, titleSource: w.record.titleSource, verified: true, ms: b.ms }
     },
   },

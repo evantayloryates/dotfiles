@@ -1,3 +1,60 @@
+## Requirements audit refreshed; rename lock verification corrected — October 17
+
+Completed original-scope audit against brief.md, README, live-v2.mjs, current
+source, structured native/synthetic reports, current owned receiver and actual
+legacy broker metadata. Four harness registrations canonicalize to exact repo
+launcher; actual attachedMCPdriver46c7a58 still restartRequiredtrue (cached
+fingerprint implementation differs, do not compare its reported source hash
+with current runtime). Legacy brokerPID79060/startOct16 14:54:25UTC is live/idle
+but residentfalse; pinned4af08654/gen6 integritytrue/dependencyPathsObservedfalse.
+No legacy repair, wake, source swap, apprestart, authentication or unknown-effect
+settlement attempted. Last root449/22unknown audit is HISTORICAL, not refreshed.
+
+Audit exposed concrete rename_session postcondition defect: matching title text
+alone could claim lockedtitle without titleSourcetool. Predicate now requiresboth,
+consistent with configurationbatch, and mismatch error is fixed/sanitized. Native
+rename remains unqualified while generic Tier B is non-serving; do not claim
+that passing isolated checks proves it applied in Claude. No new trivial tests;
+existing archived-config2checks and full pressure validate unchanged boundaries.
+
+FINAL runtime836da735605c43cd169b9e1bc4b3cf1cf84759a111f2abf935c8348a2499a533.
+Pressurev2-2026-10-17T21-02-03-894Z.json1/1 passes122 testfiles; all recorded suite
+hashes independently match. Synthetic harnesses10checks each: Claude
+harness-v2-claude-2026-10-17T21-01-40-101Z.json / Codexgpt-6-sol
+harness-v2-codex-2026-10-17T21-01-41-314Z.json. Fresh same-epoch native renewal
+j9475c62da7bc44538b7a666d2dcedad5 succeeded; CURRENT interrupt receiver
+9475c62da7bc44538b7a666d2dcedad5, PID13591/start20:57:38UTC, actualready/policy/
+no unresolved. Both actual real-MCP metadata harnesses pass14checks on thissource:
+harness-native-current-claude-2026-10-17T21-02-21-577Z.json and
+harness-native-current-codex-2026-10-17T21-02-22-701Z.json. Prior89e9...generation
+retired safely. Controller remains94e5d3705e334fc4aa277698cc3b252f/PID31678/
+start20:14:51UTC, sealed OLDtarget5972, cannot silently retarget current13591.
+Plan requirementsAuditRenewal retains exact durable renewal; final audit private
+artifact diagnostics/v2-requirements-audit-2026-10-17.json records14requirements,
+all11 original live gates,63operation layer, five hashed current reports, canonical
+registrations and observed receiver/broker. overallQualifiedfalse. Its private
+run script initially had wrong repo-relative test hash root; corrected without
+changing source/tests or weakening hash check; audit then passed evidence review.
+
+README now starts with current actual qualification and preserves all old legacy/
+input-incident notes under historical details. v2-qualification.md has current14row
+matrix and all original11gates; older October15matrix explicitly historical. Guide
+serves current scope. Direct nativequeue/concurrency Oct15 source4262 and single
+nativeStop/replacement Oct17 sourceee81 inspected from structured verifications;
+kept historical. latest live-v2 full/control reports are October7, not current.
+Original createbranch requests acceptEdits and needs reconciliation with Taylor's
+required bypass preference before rerun; old legacy broker cannot serve suite.
+
+NEXT: address the substantive original-interface gap, rather than more recovery
+cycles. Extend qualified independent controller with EXPLICIT sealed target-bound
+metadata-control capability (title/pin/effort initially), exact native admission,
+immutable persisted postcondition receipts and restoration. Existing archiveTarget
+capability must not silently gain arbitrary mutations. Qualify current positive/
+negative nativecontrols, batch/concurrency then public generalroute; creation and
+full steer/live11gates remain later. Do not awaken/repair legacybroker owned by
+observer, replayunknowncontrolscratch, changehumanpermissions/auth or useCUA.
+Watcherpaused, goalactive; Codex bridge fixes/1Password separate.
+
 ## Default cold recovery natively passed; live target refused before children — October 17
 
 No code changes/sourceb1a2fdd466d7e85f6aaedce78df836a5a853e722ffe00a6dad650ec598536f0e.

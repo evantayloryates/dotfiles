@@ -33,6 +33,43 @@ Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 [docs/findings.md](docs/findings.md). Original research and decisions:
 [docs/brief.md](docs/brief.md).
 
+## Current qualification — October 17, 2026
+
+The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
+incremental observations and service memory. All four harness registrations are
+present. Current-source Claude and configured Codex harness contracts pass;
+Cursor's last execution stopped at authentication, and OpenCode execution has
+not been qualified. An already-running Codex-chat MCP remains stale: use the
+fresh CLI or verified fresh harnesses. Refreshing that binding remains separate.
+
+On Claude Desktop2.42304.0/CLI2.1.299, independent sealed scratch receivers now
+serve native metadata reads with actual admission and receipts through both
+fresh MCP harnesses. Stable same-process renewal, scoped native archive/exit,
+one fixed native cold wake, independently observed reply/new process, and durable
+cold recovery have passed. Default cold recovery preserves retired history;
+explicit cycle mode performs the intentional scratch archive first. Repeated
+parent submission reattaches without repeating children. Initial workspace trust
+and hot-reload consent remain human gates; bypass mode does not remove them.
+
+This is partial qualification. General rename/pin/configuration/groups and the
+full original live suite still use the legacy Tier B path, whose broker process
+is live but resident serving and pinned dependency admission are unqualified.
+Its observer owns recovery; do not launch duplicate wakes. General native CRUD,
+batched/concurrent metadata mutations, full current-source queue/interrupt,
+distinct-build rollback, natural governor residency, global app restart and
+deleted-session replacement remain acceptance gaps. Native stop/queue evidence
+on earlier source hashes is retained as historical proof, not a full-suite pass.
+UI automation remains quarantined. Codex bridge fixes and1Password stay separate.
+
+See the current [requirements audit](docs/v2-qualification.md) and
+[continuity checkpoint](docs/resume.md) for exact sources, jobs, receipts and gaps.
+The original eleven live-v2 gates have not been replaced by the narrower native
+read/recovery checks. Its create branch still requests Accept edits and must be
+reconciled with Taylor's required Bypass mode before another full run.
+
+<details>
+<summary>Historical broker, direct-transport and input-incident observations</summary>
+
 The v2 control interface adds durable jobs, explicit stop/queue/interrupt,
 incremental transcript observation and shared service memory. Isolated
 lifecycle and native broker controls have dedicated qualification evidence.
@@ -95,6 +132,8 @@ Natural governor pressure, unattended cold recovery, different-build rollback
 and native-helper teardown remain unqualified; keyboard automation stays
 quarantined. Codex-driver fixes and 1Password work remain separate.
 
+</details>
+
 ## Setup
 
 ```sh
@@ -140,7 +179,7 @@ records unfinished cleanup and stops further app controls. Qualification
 requires every named check; partial runs cannot pass.
 
 Headless harness qualification uses `scripts/harness-v2.mjs --harness claude`
-or `--harness codex --codex-model gpt-6.1-sol`. The filtered MCP relay only
+or `--harness codex --codex-model <configured-model>` (latest verified: `gpt-6-sol`). The filtered MCP relay only
 allows the script's private synthetic session and read-only durable jobs;
 it cannot send or drive the desktop. Actual Claude and Codex model runs
 passed the guide/read/idempotency/wait/events/memory workflow. Cursor's
