@@ -932,8 +932,8 @@ export const OPS = [
   },
   {
     name:'broker_service_renew',title:'Renew one owned stable receiver generation',readOnly:false,
-    description:'Experimental durable one-shot renewal: prepare successor, quiesce and terminally review predecessor, preserve retired module/selector, activate on unchanged stable settings and verify installation. Requires installed stable predecessor, same idle native epoch and a durable driver_submit job. No model message, restart, permission change, uncertain replay or readiness/serving claim from installation. Failed phases require original-job inspection.',
-    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    description:'Experimental durable one-shot renewal: prepare successor, quiesce and terminally review predecessor, preserve retired module/selector, activate on unchanged stable settings, await bounded native readiness, run one durable negative policy probe and verify read admission. Requires installed stable predecessor, same idle native epoch and a durable driver_submit job. Consumes one successor slot for the policy probe. No model message, restart, permission change, uncertain replay or positive serving claim from installation. Failed phases require original-job inspection.',
+    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:2,maximum:128}}},
     run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent renewal requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-renew.mjs')).renewIndependentService(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8})},
   },
   {

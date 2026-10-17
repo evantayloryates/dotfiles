@@ -1,7 +1,7 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {runIndependentRenewal,renewIndependentService} from '../lib/independent-service-renew.mjs'
-const phases=['prepare','quiesce','retire','activate','verify']
+import {runIndependentRenewal,renewIndependentService,waitIndependentReadiness} from '../lib/independent-service-renew.mjs'
+const phases=['prepare','quiesce','retire','activate','readiness','policyProbe','verify']
 function fixture(fail){
  const effects=[],records=[],guards=[]
  const d={guard:async phase=>{guards.push(phase)},record:async phase=>{records.push(phase)},...Object.fromEntries(phases.map(p=>[p,async()=>{effects.push(p);if(fail===p)throw Error('injected '+p);return {phase:p}}]))}
@@ -12,6 +12,19 @@ test('renewal prepares before admission stop and checkpoints each step once',asy
  assert.deepEqual(f.effects,phases);assert.deepEqual(f.guards,phases)
  assert.deepEqual(f.records,phases.flatMap(p=>['before-'+p,'after-'+p]))
  assert.deepEqual(Object.keys(r),phases)
+})
+test('readiness waits for actual observation and refuses timeout or invalid context',async()=>{
+ let time=0,calls=0
+ const d={now:()=>time,guard:async()=>{},inspect:async()=>({verified:true,sourceDisposition:'installed',admissionStopped:false,readinessObserved:++calls===3,unresolvedRequestIds:[]}),wait:async()=>{time+=100}}
+ const r=await waitIndependentReadiness({timeoutMs:1000},d);assert.equal(r.readinessWaitMs,200);assert.equal(calls,3)
+ d.inspect=async()=>({verified:true,sourceDisposition:'installed',readinessObserved:false});await assert.rejects(waitIndependentReadiness({timeoutMs:100},d),/deadline/)
+ d.inspect=async()=>({verified:false});await assert.rejects(waitIndependentReadiness({},d),/unqualified/)
+ const controller=new AbortController();controller.abort();await assert.rejects(waitIndependentReadiness({signal:controller.signal},d),/cancelled/)
+})
+test('observed 18.59-second native readiness delay fits bounded default; shorter deadline stays a failure',async()=>{
+ const fixture=()=>{let time=0;return {now:()=>time,guard:async()=>{},inspect:async()=>({verified:true,sourceDisposition:'installed',readinessObserved:time>=18590}),wait:async()=>{time+=100}}}
+ assert.equal((await waitIndependentReadiness({},fixture())).readinessWaitMs,18600)
+ await assert.rejects(waitIndependentReadiness({timeoutMs:15000},fixture()),e=>e.category==='independent_service_readiness_timeout')
 })
 test('every renewal effect failure stops at its original identity without replay or rollback',async()=>{
  for(const phase of phases){const f=fixture(phase);await assert.rejects(runIndependentRenewal(f.d),/injected/);assert.equal(f.effects.at(-1),phase);assert.equal(f.effects.filter(x=>x===phase).length,1);assert.equal(f.records.at(-1),'before-'+phase)}

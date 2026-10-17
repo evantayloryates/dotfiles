@@ -1144,3 +1144,13 @@ missing-request audit/helper/refusal/absence proof, then separate public read
 ja93978a8866f4cfa8dcc71c709f15bb7 verified matching target metadata. No native journal
 growth/model turn. Probe reattachment preserved evidence. Negative qualification
 never claims positive serving; uncertainty retains original request and slot.
+
+### Integrated renewal readiness latency and qualification (October 17)
+
+Original15sec readiness budget failed before probe; exact native registration was
+18.59sec after activation. Failure preserved. A revised bounded30sec run observed
+23.44sec readiness, completed its built-in negative policy probe and then a separate
+verified positive metadata read. Same native epoch, no model/journal growth, stable
+files/history unchanged. This demonstrates7step renewal qualification, not a latency
+SLA or autonomous crash recovery. Native loader latency must be observed rather than
+inferred from publication; installation does not make policy readiness immediate.

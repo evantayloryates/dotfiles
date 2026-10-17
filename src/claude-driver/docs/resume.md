@@ -1,3 +1,47 @@
+## Renewal includes native readiness and policy qualification — October 17
+
+Renewal now checkpoints7steps: prepare/quiesce/retire/activate/readiness/policyProbe/
+verify. Readiness polls exact installed context/epoch with bounded30second budget,
+refuses STOP/expiry/uncertainty, then one durable negative probe uses the parent
+renewal job identity. Requires capacity>=2 (one slot permanently consumed by probe).
+Final policy-qualified ledger/readAdmissionQualified requires fresh ready/audit,
+terminal attempts, no STOP/expiry and unused capacity. servingQualified remainsfalse;
+positive read is separate.10focused renewal/probe tests pass, including each phase
+failure/cancellation/timeout and delayed18.59sec readiness fixture. Final frozen-source
+pressure1/1passes: pressure/v2-2026-10-17T19-30-26-527Z.json. Both filtered synthetic
+harnesses10checks pass source/configunchanged: pressure/harness-v2-{claude,codex}-
+2026-10-17T19-30-43-774Z.json.
+
+Preserved native failure: integrated jobj821f09f4bbae439fbbd554dcc9f9a2dc/source296d...
+failed before-readiness at original15sec bound; prior effects completed, no probe
+sent. Actual ready arrived18.59sec after activation,3.5sec after failure. No crash,
+restart or model turn. Original failed job/ledger remain unchanged. Raised bound30sec
+based on this evidence, specific independent_service_readiness_timeout category.
+Late-ready generation separately qualified using new policy probej59b044efda634154a13dec8685baf375
+and readj0215d87076bf4e94bee351510bded2ea; targetmetadata matched/journalgrowth0.
+These were new supported operations after definitive absence of any original probe,
+not replay or relabeling of the failed renewal.
+
+Changed-condition native renewalj533f569be2e748089763c7fba947b3ba then completed all7
+steps from known terminal821f generation, source7886789dbea9dc9471e945787ba17a7b04199145c8002ec95690be7237340946.
+Successor533f569be2e748089763c7fba947b3ba; actual readinessWaitMs23441. Built-in probe
+rpeer533f569be2e748089763c7fba947b3ba terminally verified. Returned readinessObserved/
+nativePolicyObserved/readAdmissionQualifiedtrue,servingQualifiedfalse. Same-key
+reattachment samejob/unchanged ledger. Positive public readj1de90f10febd4939b8711c4e8f2a5038
+completed receiptVerified/publishedtrue,cleanupPendingfalse, native tool
+ toolu_plugin_b1037d626fb94548b6fcce4eea7356b8; persisted targetmetadata matchescontrol8f.
+Across entire renewal+probe+read native journalgrowth0/events0. Shared anchor/settings
+hash/inode/mtime/size unchanged. Old821f history/STOP and original failed job verified.
+Current533f capacity2/6used, no unresolved, deadline1792269039143, samePID20499/start
+15:48:23UTC. No active sender/worker/waiter. Existing plan qualifiedRenewal*,
+lateReadyStandalone*,qualifiedRenewal30* holds exact jobs/failures/readiness/evidence.
+
+Next bounded automatic renewal decision/read routing and sustained pressure.30sec is
+a tested budget, not a loader latency guarantee; late observations must preserve
+failure and original identity. Automatic daemon/recovery scheduling, crash/cold/
+deleted-session and physical process recovery remain unproven. Current-chat stale
+MCP refresh separate. Goal active, Codex fixes parked.
+
 ## Durable native negative policy probe qualified — October 17
 
 Added broker_service_policy_probe, explicit experimental independent receiver and

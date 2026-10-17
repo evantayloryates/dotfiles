@@ -905,7 +905,8 @@ recovery. Do not manually replace selectors or clear predecessor STOP.
 `broker_service_renew {session,service_id,experimental:true,lifetime_sec?,max_requests?}`
 requires `driver_submit`: its durable job ID determines the successor generation.
 It prepares first, then stops and terminally reviews the predecessor, preserves its
-module/selector, activates on unchanged stable settings and verifies installation.
+module/selector, activates on unchanged stable settings, waits up to30seconds for observed readiness,
+runs one durable negative policy probe, then verifies read admission.
 Each step checkpoints before/after; one receiver renewal lock serializes renewal
 jobs. Existing lifecycle locks still protect individual steps. Epoch or selector
 changes refuse. Reattach the original job/key; failures or interruption require
@@ -913,7 +914,12 @@ inspection, never a new job to replay an uncertain phase. This is a one-shot
 controller operation, not a daemon or automatic resumption mechanism. It sends no
 model message and does not restart apps or change permissions. Returned readiness
 is an observation at verification time; installation never establishes serving.
-The new generation still needs actual bound policy audit before public reads.
+Renewal now consumes one permanent successor slot for its policy probe and requires
+max_requests>=2. The probe request derives from the same renewal job identity; no
+second child job or fresh retry identity is created. The final policy-qualified
+checkpoint requires fresh readiness, actual policy audit, terminal attempts, no
+STOP/expiry and at least one unused slot. readAdmissionQualified describes these
+point-in-time gates; servingQualified stays false until a separate positive read.
 
 `broker_service_policy_probe {session,service_id,experimental:true,timeout_sec?}`
 is the durable negative qualification path. Submit through `driver_submit`; its job
