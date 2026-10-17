@@ -494,8 +494,8 @@ export const OPS = [
   {
     name: 'unarchive_session',
     title: 'Unarchive a session',
-    description: 'Restore an archived session. Tier A (re-import deep link) first, which works for sessions the driver or a CLI created; Tier B unarchive_session otherwise. Verified on disk.',
-    schema: { properties: { session: S, focus: FOCUS, via_broker: VIA_BROKER }, required: ['session'] },
+    description: 'Restore an archived session. Tier A (re-import deep link) first, which works for sessions the driver or a CLI created; Tier B unarchive_session otherwise. import_only:true refuses instead of broker fallback when the link route is unavailable or unverified. Verified on disk.',
+    schema: { properties: { session: S, focus: FOCUS, via_broker: VIA_BROKER, import_only:{type:'boolean'} }, required: ['session'] },
     navigates: true,
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
@@ -507,6 +507,7 @@ export const OPS = [
         if (result.ok) return { sessionId: rec.sessionId, unarchived: true, via: 'deep link', focus: focus.action }
         ctx.notes.push('deep-link unarchive did not take; falling back to Tier B')
       }
+      if(args.import_only===true)throw new DriverError('import-only unarchive unavailable or unverified; no broker fallback attempted',{category:'unarchive_import_unverified',detail:{brokerFallback:false,retrySafe:false}})
       const b = await tierB(ctx, [{ op: 'unarchive_session', args: { session_id: rec.sessionId } }], 'isArchived false')
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.isArchived === false, { timeoutMs: 8000 })

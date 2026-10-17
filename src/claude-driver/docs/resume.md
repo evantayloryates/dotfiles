@@ -1,3 +1,55 @@
+## October 17 native archive-test boundary and import-only unarchive repair
+
+Previous batch published57fa0aa. Required native cold/rebind proof has remained
+missing across40286b8,10ec858,1638339,57fa0aa. Those turns made implementation
+progress; current remaining qualification requires an actual absent primary.
+Audited controlled archive: native archiveTargetPreflightMatches requires
+historical-retired source, STOP and complete terminal inventory. Agent archive
+would therefore test planned STOP, not accidental archive of installed source.
+Do not weaken that guard or claim equivalent native evidence. No permitted CUA,
+process signal, global restart or duplicate legacy wake used to force condition.
+
+Asked Taylor via pending async question: in Claude Desktop EXISTING exact
+claude-driver-transport-scratch-2026-10-15, choose Archive(notDelete), leave
+claude-driver-interrupt-scratch-2026-10-15 open, reply in this Codex chat. This is
+a native test setup action, not renewed authorization. Both preflighted native
+services idle/readiness/policy true/0unknown. Primary31678/start20:14:51UTC,
+standby90418/start21:37:26UTC. Primary still active/unarchived on last read.
+No test submitted or automated archive performed. If user prefers natural absence,
+keep exact identities/receipts and wait; do not poll unchanged state in a loop.
+
+Found real recovery fallback gap before test: unarchive_session could attempt
+legacy broker revival when deep-link import failed. Added import_only boolean
+and made independent recovery child set it true. Unsupported/unverified link
+now refuses unarchive_import_unverified with brokerFallback:false/retrySafe:false;
+never attempts legacy revival. Default generic unarchive behavior unchanged.
+Eight focused recovery/import-only tests PASS including public-operation fixture
+that disables link capability and verifies no broker request directory. Full
+isolated v2-2026-10-17T23-07-16-649Z.json1/1PASS/sourceunchanged. Both filtered
+harness-v2-{claude,codex}-2026-10-17T23-06-52-702Z.json10checks each PASS.
+FINALHOST674587caaceafda214db4c291582b2d64c0ec1fa928ddbb76265a516daaad169. No native imported-unarchive success claimed by fixture.
+
+Private metadataControlTrial.manualArchiveRecoveryTrial now retains exact baseline
+settings/epochs and ORIGINAL planned coldRequest(idempotency key
+manual-archive-cold-recovery-qualification-20261017,timeout360). submissionPerformed:false.
+After human archive, independently require archived record, no current peer, old
+OS PID absent, installed unstopped terminal inventory, exact family/standby. Use
+that retained request; save driver_submit job BEFORE waiting, never replay unknown.
+After verified cold result use its exact root parent ID and current enrollment
+digest for standby rebind, then one fresh ordinary MCP check and baseline readback.
+If a child fails, reconcile original parent/child instead of changing identities.
+
+Current primarycb68, standby5f126077aa5c412c9b23713d07071de6, binding
+a2a38331a437289d5cf630ef72801fef54d82d973a957c8043bf87df67eb0f6e unchanged;
+automatic recovery remains disabled. Watcher paused, legacy observer retains legacy
+recovery ownership. Codex-driver/1Password parked. No native job is pending.
+
+BLOCKED AUDIT: exact absent-primary condition has recurred over at least three
+goal turns; safe code work/checks now checkpointed. Native qualification cannot
+advance without manual archive or natural absence. Goal is not complete. Mark
+blocked after publication; human can archive named scratch then reply and use
+Play/Resume. Do not create replacement goal or resume background polling.
+
 ## October 17 absent-primary standby lease admission candidate
 
 Previousbatch published1638339. Cold admission can now distinguish a structurally

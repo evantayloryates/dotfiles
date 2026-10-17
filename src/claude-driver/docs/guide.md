@@ -1573,3 +1573,14 @@ before renewal, retains the old digest, checks the renewed binding and rechecks
 cold admission before submitting its one recovery child. A failed/uncertain
 renewal, CAS or checkpoint stops the original request. The current enrollment
 remains disabled until this complete native path is qualified.
+
+
+Independent cold recovery restores an archived imported scratch through
+`unarchive_session {import_only:true}`. If that link mechanism is unavailable or
+its record readback does not verify, recovery stops with
+`unarchive_import_unverified`; it never falls back to reviving the legacy broker.
+Generic callers retain their existing fallback unless they explicitly opt out.
+An automated scoped archive requires quiescence and retired source, so it tests
+intentional STOP handling, not an accidental archive of an installed service.
+The latter native test requires a manual archive of the exact dedicated primary;
+never weaken the archive guard or manufacture a crash to label that case passed.
