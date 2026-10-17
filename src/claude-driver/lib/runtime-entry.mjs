@@ -73,8 +73,7 @@ function nativeBinding(pointer,dir) {
  }
  refuse('native-ancestor-missing')
 }
-export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
- if(!['broker-wait','broker-check'].includes(kind))refuse()
+function pinnedRuntime(dir) {
  const pointerFile=join(dir,'runtime.json'),s=lstatSync(pointerFile)
  if(s.isSymbolicLink()||!s.isFile()||s.uid!==process.getuid()||s.size>1024*1024)refuse()
  const pointer=JSON.parse(readFileSync(pointerFile,'utf8'))
@@ -99,6 +98,20 @@ export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  for(const file of Object.keys(files))if(file.startsWith('candidates/')&&file.endsWith('.js'))runtimeFiles.push(file)
  const fingerprint=createHash('sha256');for(const file of runtimeFiles.sort())fingerprint.update(file).update('\0').update(readFileSync(join(root,file))).update('\0')
  if(fingerprint.digest('hex')!==pointer.build)refuse()
+ return {pointer,state,root,manifest}
+}
+// Receiver hook admission reuses the complete sealed inventory/fingerprint and
+// native ancestry checks. It creates no helper receipt or permission decision.
+export function admitPinnedReceiverHook({dir,expectedPointer,input}={}){
+ const {pointer,state,root,manifest}=pinnedRuntime(dir)
+ if(!Object.hasOwn(pointer,'serviceStateBinding')||JSON.stringify(pointer)!==JSON.stringify(expectedPointer)||manifest.nativeRequestBindingVersion!==1||pointer.nativeRequestBindingVersion!==1)refuse('receiver-pointer-mismatch')
+ if(input?.hook_event_name!=='PreToolUse'||input.session_id!==pointer.sessionId.slice(6)||input.cwd!==pointer.serviceStateBinding.receiverCwd)refuse('receiver-hook-identity')
+ const native=nativeBinding(pointer,dir)
+ return {state,script:join(root,'scripts','broker-stop-rescue.mjs'),nativeBinding:native}
+}
+export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
+ if(!['broker-wait','broker-check'].includes(kind))refuse()
+ const {pointer,state,root}=pinnedRuntime(dir)
  const script=join(root,'scripts',kind+'.mjs')
  if(loadedScript!==undefined&&realpathSync(loadedScript)!==realpathSync(script))refuse()
  process.env.CLAUDE_DRIVER_STATE_DIR=state

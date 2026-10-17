@@ -20,6 +20,14 @@ test('sealed helper admits only the bound private state under the same native an
  try{
   const staged=spawnSync(process.execPath,['--input-type=module','-e',source],{env,encoding:'utf8',timeout:20000});assert.equal(staged.status,0,staged.stderr)
   const r=JSON.parse(staged.stdout),broker=path.join(state,'broker'),script=path.join(r.root,'scripts/broker-check.mjs'),args=[script,'missing-synthetic-request','0','--dir',broker]
+  const initialPointer=JSON.parse(fs.readFileSync(path.join(broker,'runtime.json'))),bootstrap=path.join(state,'entry',initialPointer.bootstrapHash+'.mjs'),{pathToFileURL}=await import('node:url')
+  const hookInput={hook_event_name:'PreToolUse',session_id:sessionId.slice(6),cwd}
+  const hook=(expectedPointer=initialPointer,input=hookInput)=>spawnSync(process.execPath,['--input-type=module','-e',`import {admitPinnedReceiverHook} from ${JSON.stringify(pathToFileURL(bootstrap).href)};console.log(JSON.stringify(admitPinnedReceiverHook({dir:${JSON.stringify(broker)},expectedPointer:${JSON.stringify(expectedPointer)},input:${JSON.stringify(input)}})))`],{env,encoding:'utf8',timeout:10000})
+  const hookOk=hook();assert.equal(hookOk.status,0,hookOk.stderr);assert.equal(JSON.parse(hookOk.stdout).nativeBinding.ancestorVerified,true)
+  assert.equal(JSON.parse(hookOk.stdout).script,path.join(r.root,'scripts/broker-stop-rescue.mjs'))
+  assert.equal(fs.existsSync(path.join(broker,'broker-check-entry-selected.json')),false)
+  const staleHook=hook({...initialPointer,generation:initialPointer.generation+1});assert.notEqual(staleHook.status,0);assert.match(staleHook.stderr,/receiver-pointer-mismatch/)
+  const foreignHook=hook(initialPointer,{...hookInput,cwd:root});assert.notEqual(foreignHook.status,0);assert.match(foreignHook.stderr,/receiver-hook-identity/)
   const admitted=spawnSync(process.execPath,args,{env,encoding:'utf8',timeout:10000});assert.equal(admitted.status,0,admitted.stderr);assert.equal(JSON.parse(admitted.stdout).dispatch,false)
   const entry=JSON.parse(fs.readFileSync(path.join(broker,'broker-check-entry.json')));assert.equal(entry.nativeBinding.ancestorVerified,true);assert.equal(entry.nativeBinding.brokerPid,process.pid)
   const manifestFile=path.join(r.root,'release.json'),manifestBytes=fs.readFileSync(manifestFile),manifest=JSON.parse(manifestBytes);delete manifest.nativeServiceStateBindingVersion;fs.chmodSync(manifestFile,0o600);fs.writeFileSync(manifestFile,JSON.stringify(manifest));fs.chmodSync(manifestFile,0o444)

@@ -1,3 +1,26 @@
+## Shared sealed-runtime receiver hook admission — October 17
+
+Factored the existing bootstrap full sealed inventory/fingerprint verification into
+one private pinnedRuntime function, reused by unchanged helper entry semantics and
+new exported admitPinnedReceiverHook. The hook requires an independent namespace,
+exact unchanged expected pointer, native request binding capability/version1,
+PreToolUse receiver session/cwd and actual native ancestry. It returns only the
+fixed selected sealed handler/state/native binding; no helper receipt, environment
+change, tool execution or permission decision. Actual handler request/STOP checks
+remain mandatory after entry admission.
+
+Extended real staged-release tests: child invocation imports the hash-selected
+sealed bootstrap, qualifies a synthetic peer with real parent ancestry, refuses
+stale pointer/foreign cwd and verifies no helper-selected receipt. Eight focused
+selector/file-loader/bootstrap/native-policy/retention tests pass. This is synthetic
+peer evidence, not an actual desktop hook invocation. Existing native context and
+installed generations are unchanged. Next build the stable executable around the
+bounded selector loader and hash-verified bootstrap, preserve handler process argv
+identity, then integrate candidate activation and qualify native two-generation
+turnover. Frozen-source pressure1/1 passes: pressure/v2-2026-10-17T19-15-33-240Z.json,
+sourceChanged:false. No sends/restarts/settings changes. Goal remains active;
+Codex fixes parked.
+
 ## Bounded receiver selector file loader prepared — October 17
 
 Added read-only loadReceiverSelection around the exact selector contract. It checks
