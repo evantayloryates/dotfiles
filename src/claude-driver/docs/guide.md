@@ -84,6 +84,15 @@ unqualified.
 
 ## V2 control interface
 
+`broker_service_status {session,service_id,offline:true}` is a read-only inventory
+of the exact retained installed generation after affirmative predecessor PID
+absence. It is exclusive with historical mode. It rechecks PID absence and source
+pointer, verifies sealed source/settings/selector and reviews original attempts;
+unresolved work stays unresolved. It can use the retained generation locator when
+the app record disappeared. It never restarts, signals, installs STOP, retires
+files or permits replay. Readiness in this mode is explicitly historical. PID
+absence does not establish crash cause or prove no successor process exists.
+
 `broker_service_family {session,service_id,experimental:true}` must be submitted
 through `driver_submit`. It makes exactly one independent-receiver native
 `list_sessions {linked:true,include_archived:true,limit:100}` call through the

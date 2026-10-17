@@ -13,6 +13,7 @@ import {nativePolicySettingsPath} from './runtime-entry.mjs'
 import {snapshotIndependentModule,independentRetirementLedgerMatches} from './independent-module-tree.mjs'
 import {independentStopMatches} from './independent-service-quiesce.mjs'
 import {pathToFileURL} from 'node:url'
+import {requireIndependentEpochAbsent} from './independent-offline-review.mjs'
 const refuse=()=>{throw Error('independent receipt refused')}
 const bytes=(file,limit=65536)=>{const fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);try{const st=fstatSync(fd);if(!st.isFile()||st.uid!==process.getuid()||st.size>limit)refuse();const b=readFileSync(fd);if(b.length>limit)refuse();return b}finally{closeSync(fd)}}
 const json=file=>JSON.parse(bytes(file)),hash=b=>createHash('sha256').update(b).digest('hex')
@@ -24,13 +25,14 @@ export async function buildSealedIndependentPackage(build,config){
  if(typeof buildNativePeerServicePackage!=='function')refuse()
  return buildNativePeerServicePackage(config)
 }
-export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false,historicalRecord}={}){
- if(historicalOnly&&(!allowRetired||requireIdle)||historicalRecord!==undefined&&!historicalOnly)refuse()
- const record=historicalOnly&&historicalRecord!==undefined?historicalRecord:getRecord(session),version=historicalOnly?null:versions()
- if(independentServiceState(session,serviceId,record)!==STATE_DIR||!historicalOnly&&(version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions'))refuse()
+export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false,offlineOnly=false,historicalRecord}={}){
+ if(historicalOnly&&(!allowRetired||requireIdle)||offlineOnly&&(historicalOnly||requireIdle||allowRetired)||historicalRecord!==undefined&&!historicalOnly&&!offlineOnly)refuse()
+ const evidenceOnly=historicalOnly||offlineOnly,record=evidenceOnly&&historicalRecord!==undefined?historicalRecord:getRecord(session),version=evidenceOnly?null:versions()
+ if(independentServiceState(session,serviceId,record)!==STATE_DIR||!evidenceOnly&&(version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions'))refuse()
  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),STATE_DIR,BROKER_DIR]){const st=lstatSync(path);if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==process.getuid())refuse()}
- const release=activeRelease(),pointer=release?.pointer,peer=historicalOnly?null:peerRecord(session,pointer?.pid)
- if(!release||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId||!historicalOnly&&(!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd))refuse()
+ const release=activeRelease(),pointer=release?.pointer,peer=evidenceOnly?null:peerRecord(session,pointer?.pid)
+ if(!release||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId||!evidenceOnly&&(!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd))refuse()
+ const offlineObservation=offlineOnly?requireIndependentEpochAbsent(pointer):null
  const watchedModule=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods',session.slice(6),'desktop-bridge-native-peer-service')
  let module=watchedModule,retirement=null,sourceDisposition='installed'
  const useRetired=()=>{
@@ -57,6 +59,7 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
   if(!retirement){const {loadReceiverSelection}=await import(pathToFileURL(join(release.root,'lib/receiver-runtime-selection.mjs')).href),selected=loadReceiverSelection(record.cwd);if(JSON.stringify(ordered(selected.pointer))!==JSON.stringify(ordered(pointer))||selected.brokerDir!==BROKER_DIR)refuse()}
  }
  if(requireIdle&&peer.status!=='idle')refuse()
- return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':'live-native',pkg,read:name=>json(join(BROKER_DIR,name))}
+ if(offlineOnly){requireIndependentEpochAbsent(pointer);if(JSON.stringify(ordered(activeRelease()?.pointer))!==JSON.stringify(ordered(pointer)))refuse()}
+ return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':offlineOnly?'offline-installed':'live-native',offlineObservation,pkg,read:name=>json(join(BROKER_DIR,name))}
 }
 export {bytes as independentBytes,json as independentJson,ordered as independentOrdered}

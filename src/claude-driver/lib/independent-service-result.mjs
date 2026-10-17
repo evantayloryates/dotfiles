@@ -40,8 +40,9 @@ export async function reconcileIndependentServiceResult(session,serviceId,reques
   return JSON.parse(stdout)
  }catch{throw new DriverError('independent native result reconciliation refused; inspect the original request, never replay',{category:'independent_service_result_refused'})}
 }
-export async function inspectIndependentService(session,serviceId,{signal,historical=false}={}){
- const located=historical?readIndependentGenerationLocator(session,serviceId):null,record=located?.record??getRecord(session),state=independentServiceState(session,serviceId,record)
- try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId,...historical?['--historical',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
+export async function inspectIndependentService(session,serviceId,{signal,historical=false,offline=false}={}){
+ if(typeof historical!=='boolean'||typeof offline!=='boolean'||historical&&offline)throw new DriverError('inspection modes are exclusive',{category:'bad_args'})
+ const located=historical||offline?readIndependentGenerationLocator(session,serviceId):null,record=located?.record??getRecord(session),state=independentServiceState(session,serviceId,record)
+ try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId,...historical||offline?[offline?'--offline':'--historical',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
  catch{throw new DriverError('independent service status unavailable; no recovery attempted',{category:'independent_service_status_unavailable'})}
 }

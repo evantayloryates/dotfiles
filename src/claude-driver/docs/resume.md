@@ -1,3 +1,34 @@
+## Read-only offline installed-generation inventory prepared — October 17
+
+Added explicit broker_service_status offline:true, exclusive with historical.
+Uses retained generation locator for missing app record; no current native version
+or peer required. Exact oldPID must be affirmatively absent before/after sealed
+source/settings/selector/pointer review and again around attempt inventory. Any
+present/reused PID or observation error refuses. New bounded diagnostic categories
+distinguish unavailable epoch/process observation and offline_predecessor_pid_present.
+Existing live and historical defaults unchanged. Offline readiness is labeled
+historical; no crash cause, replay permission or no-successor-process inference.
+No STOP/move/restart/signal/permissions/native effect performed by this API.
+
+Eight focused tests pass: affirmative absence twice, present/reused/unknown/error,
+reappearing PID and original unresolved attempt preservation, plus existing status
+and result contracts. Actual live negative test refused with
+offline_predecessor_pid_present; ordinary live status still verified same idle
+PID20499/start15:48:23UTC and no unresolved requests. Plan key
+offlineInspectionLiveRefusal retains both. Positive actual absent-process inventory
+remains unqualified. Final-source pressure1/1passes:
+pressure/v2-2026-10-17T20-08-51-628Z.json. Both filtered synthetic-store harnesses
+pass10checks: pressure/harness-v2-{claude,codex}-2026-10-17T20-08-35-970Z.json.
+These are synthetic operation/store checks, not crash/recovery proof.
+
+Retirement/quiescence currently require live idle peer; offline inventory does not
+change those mutation requirements. Next qualify scoped lifecycle controller and
+physical exit, then orderly coldrebind/read and offline crash retirement under
+terminal-attempt requirements. Global restart deferred to preserve legacy observer
+ownership. Scanner found only pending Oct7/Oct11 legacy reports; watcher remains
+paused, reports left pending/unacknowledged and durable observerReconciliationFrontier
+notes that these do not establish current observer outcome. Codex fixes parked.
+
 ## Native caller-family metadata qualified; scoped process test next — October 17
 
 Added durable broker_service_family using existing independent request, budget,

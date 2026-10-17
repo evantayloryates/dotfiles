@@ -7,6 +7,13 @@ test('explicit receiver derives only its private generation namespace',()=>{
  assert.equal(independentServiceState(session,service,{sessionId:session,cwd:'/owned/receiver'}),'/owned/receiver/.claude-driver-services/'+service)
  for(const [s,id,record]of [[session,'../foreign',{sessionId:session,cwd:'/owned'}],['title',service,{sessionId:session,cwd:'/owned'}],[session,service,{sessionId:'foreign',cwd:'/owned'}],[session,service,{sessionId:session,cwd:'relative'}],[session,service,{sessionId:session,cwd:'/owned/../foreign'}],[session,service,{sessionId:session,cwd:'/'}],[session,service,null]])assert.throws(()=>independentServiceState(s,id,record),e=>e.category==='bad_args')
 })
+test('offline inventory is explicit read-only mode and cannot combine with retired history',async()=>{
+ const {inspectIndependentService}=await import('../lib/independent-service-result.mjs'),op=OPS.find(x=>x.name==='broker_service_status')
+ assert.equal(op.readOnly,true);assert.equal(op.schema.properties.offline.type,'boolean')
+ assert.doesNotThrow(()=>validateOp(op.name,{session,service_id:service,offline:true}))
+ await assert.rejects(inspectIndependentService(session,service,{offline:true,historical:true}),e=>e.category==='bad_args')
+ await assert.rejects(op.run({service_id:service,offline:true},{}),e=>e.category==='bad_args')
+})
 test('durable reconciliation retains explicit opt-in and legacy arguments',()=>{
  const op=OPS.find(x=>x.name==='broker_service_result_reconcile');assert.equal(op.readOnly,false);assert.equal(op.schema.properties.session.type,'string')
  const legacy={service_id:service,request_id:'rpeer'+'b'.repeat(32),experimental:true};assert.doesNotThrow(()=>validateOp(op.name,legacy));assert.doesNotThrow(()=>validateOp(op.name,{...legacy,session}))
