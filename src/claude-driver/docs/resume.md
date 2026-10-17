@@ -1,3 +1,51 @@
+## Actual cold rebind qualified after human workspace trust — October 17
+
+Taylor typed ready in existing interrupt scratch; native workspace trust appeared
+for the exact probe folder and Taylor accepted. Read /Users/taylor/Desktop/check-1.png:
+exact Trust this workspace? dialog/path, distinct from bypass/hot-reload. Independent
+new peer PID89369/startSatOct17 20:45:45UTC/CLI2.1.299/correctcwd/idle confirmed.
+No duplicate wake was sent; prior explicit undelivered native failure remains.
+
+Prepared ja371fdf5cddd46bea27ce236abf1f2e5, activated cold_rebind/stable_hook via
+j808eeb22c8b843bb8c8488708e7fb826. CURRENT interrupt service:
+a371fdf5cddd46bea27ce236abf1f2e5, source92d850ec257d5a4b7dea24fca3e89c2b5a26a3e1dd28726ace7248a4754a977a.
+Actual activation ledger records retired6ab7657958214ec59f5b73dd52387b8e,
+oldPID20499/start15:48:23UTC absent, newPID89369/start20:45:45UTC; oldselector
+retained. Independently compared old/current policy anchor/settings hashes: BOTH
+identical. Actual new-generation readiness observed without another consent card.
+Native negative policy probej66217031d77c409eb93644795adea0bf passed; positive
+readj98fa1d07daab44e4b4b95d1e7699c69f settled actual native receipt
+toolu_plugin_465f04d2e0104565ab2a427a710ccbfe.
+No unresolved attempts. Plan trustedColdPreparation/Activation/PolicyProbe/
+PositiveRead/Verification retain durable jobs/epoch/ledger/hash comparisons.
+
+Actual fresh real-MCP current-route harnesses BOTH pass14checks on recovered
+interrupt service, sourceunchanged/globalconfigunchanged/no modelturn/no maintenance:
+harness-native-current-claude-2026-10-17T20-47-00-764Z.json and
+harness-native-current-codex-2026-10-17T20-47-01-919Z.json (configuredgpt-6-sol).
+Plan trustedColdHarnesses retains exact parent/readchild/request IDs and checks.
+This qualifies actual read admission/service after intentional archive/exit,
+human trust startup and coldrebind. It does NOT qualify automatic cold wake,
+crash recovery or app restart. Current transport controller still de12578406fc4e4e91913d5865f3cb22
+with OLD sealed target PID20499; cannot archive/wake new target epoch with it.
+
+Fixed observed synthetic pressure hang: v2 test worker waits now have5second
+startup deadline and reject terminal worker states immediately instead of polling
+forever for startedAt. Explicit queued-deadline/terminal/running tests pass; full
+v2file46/46. Pressurev2-2026-10-17T20-46-10-203Z.json passed1/1 final tests/source.
+Earlier interrupted stale-source pressure failure retained in prior section.
+
+Next changed-condition experiment: SECOND scoped archive/cold-wake cycle after
+human trust, to see whether approval persists and native wake now starts target
+without another human step. Need a NEW controller preparation explicitly sealed
+to current interruptPID89369/start20:45:45UTC (do not silently retarget existing
+capability); obtain current target native emptyfamily receipt, preserve current
+terminal generation/STOP/retire, use one archive then unarchive then ONE nativewake
+identity. Reconcile native reply/newprocess independently, no replay unknowns.
+Cold rebind only after exact newepoch observed. This is authorized scratch testing,
+no new approval unless native person-only gate appears. Goalactive; watcherpaused;
+Codex bridge fixes/1Password separate, legacyobserver owns legacybroker.
+
 ## Fixed native wake implemented; workspace trust rejects cold startup — October 17
 
 Implemented broker_service_wake_target using existing durable native transaction,

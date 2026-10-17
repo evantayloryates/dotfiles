@@ -18,6 +18,24 @@ const { runOp, validateOp } = await import('../lib/driver.mjs')
 const mem = await import('../lib/memory.mjs')
 const { withSessionControl } = await import('../lib/controls.mjs')
 let next = 1
+async function waitForFixtureWorker(read,{timeoutMs=5000,now=Date.now,wait=()=>new Promise(r=>setTimeout(r,10))}={}){
+ const deadline=now()+timeoutMs
+ for(;;){
+  const snapshot=await read()
+  if(snapshot?.state==='running'&&snapshot.startedAt)return snapshot
+  if(snapshot?.state!=='queued'&&snapshot?.state!=='running')throw Error('fixture worker became terminal before running: '+String(snapshot?.state))
+  if(now()>=deadline)throw Error('fixture worker startup deadline')
+  await wait()
+ }
+}
+test('fixture worker wait bounds queued startup and fails promptly on terminal state',async()=>{
+ let time=0,reads=0
+ const clock={timeoutMs:20,now:()=>time,wait:async()=>{time+=10}}
+ await assert.rejects(waitForFixtureWorker(async()=>({state:'queued'}),clock),/startup deadline/)
+ await assert.rejects(waitForFixtureWorker(async()=>{reads++;return {state:'failed'}},clock),/terminal before running: failed/)
+ assert.equal(reads,1)
+ assert.deepEqual(await waitForFixtureWorker(async()=>({state:'running',startedAt:1}),clock),{state:'running',startedAt:1})
+})
 function request(expiresAt = Date.now() + 60_000) {
   const r = { id: `test-${next++}`, createdAt: new Date().toISOString(), expiresAt, ops: [{ op: 'get_session', args: {} }] }
   req.enqueue(r); return r
@@ -276,13 +294,14 @@ test('a detached worker retains the desktop caller self-protection gate', async(
 test('timed-out waits leave the job running, cancellation ends the wait operation', async()=> {
   const cursor=events.sessionEvents({session:sid}).cursor
   const j=await jobs.submitJob({operation:'session_wait',arguments:{session:sid,cursor,timeout_sec:30}})
-  let snapshot; do { snapshot=await jobs.inspectJob(j.jobId); await new Promise(r=>setTimeout(r,10)) } while(snapshot.state==='queued')
+  await waitForFixtureWorker(()=>jobs.inspectJob(j.jobId))
   assert.equal((await jobs.waitJob(j.jobId,{timeoutSec:0})).state,'running')
   await jobs.cancelJob(j.jobId);assert.equal((await jobs.waitJob(j.jobId,{timeoutSec:5})).state,'cancelled')
 })
 test('a killed worker becomes outcome_unknown and idempotent retry never replays', async()=> {
   const j=await jobs.submitJob({operation:'session_wait',arguments:{session:sid,timeout_sec:30},idempotency_key:'kill'})
-  let raw; do { raw=state.readJson(jobs.jobFile(j.jobId),{});await new Promise(r=>setTimeout(r,10)) } while(!raw.startedAt)
+  await waitForFixtureWorker(()=>jobs.inspectJob(j.jobId))
+  const raw=state.readJson(jobs.jobFile(j.jobId),{})
   process.kill(raw.workerPid,'SIGKILL');await new Promise(r=>setTimeout(r,100))
   assert.equal((await jobs.inspectJob(j.jobId)).state,'outcome_unknown')
   const retry=await jobs.submitJob({operation:'session_wait',arguments:{session:sid,timeout_sec:30},idempotency_key:'kill'})

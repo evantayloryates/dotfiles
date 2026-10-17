@@ -1181,3 +1181,12 @@ independently before cold rebind. Reconcile uncertain attempts by their existing
 request ID. An explicit undelivered workspace-trust refusal requires the native
 human trust/startup flow; do not write trust state, fabricate consent or repeat
 sends while that condition is unchanged.
+
+
+Native qualification on October 17: intentional archive and PID exit followed by
+human workspace-trust startup, cold rebind to a new native PID/start, negative
+policy probe, actual native metadata read and both real-MCP harnesses passed.
+Stable hook/settings hashes remained identical and retired selector was retained.
+This proves post-trust cold rebind; automatic cold wake and crash recovery remain
+separate acceptance gates. Test worker startup waits are bounded and reject
+terminal workers so a source-change failure cannot hang pressure evidence forever.
