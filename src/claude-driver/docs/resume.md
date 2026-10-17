@@ -1,3 +1,72 @@
+## Real Claude/Codex public mutation MCP contracts passed — October 17
+
+Previous turn progressed/publishedcc8492d. Extended EXISTING native-service-contract,
+filtered proxy, harness-native-service and one-shot claims with --metadata-config.
+Exact public set_session_config submission only, two identical submissions/same
+parent, exactlythree distinct child receipts/derivedIDs/target/service agreement,
+independent changed state, unchanged source/global config and no model turns in
+controller OR target. Private contract saves baseline/requestedvalues and cursors;
+report saves bounded sanitized targetobservation. Claimmode metadata-config is
+separate from direct/current reads; duplicateidentity remains refused. No arbitrary
+newtools or fallback/permission authority. Eightfocusedcontractchecks pass.
+
+Preserved failure1: first Claude mutation jobj8a1a493e01e047afa62cb9128dcd5d18
+DID complete native title/pin/effort changes/allotherchecks. Original report
+harness-native-metadata-config-claude-2026-10-17T21-27-47-247Z.json remains FAILED:
+bytesRead>0 incorrectly implied modelturn. Bounded131KiBmetadata-only inspection
+found no newuser/assistant; native title/agent records appendbytes. Separate
+.report.review equivalent file (same basename .review.json) retains retrospective
+cursor after lastassistant20:57:41.686Z atoffset1290697,4605bytes/oneattachment/
+hasMorefalse, no user/assistant; does NOT rewrite originalreport. New helper
+nativeTargetNoModelTurn requires complete bounded observation with onlymetadata;
+rejects user/assistant/unknown events and incomplete/malformed observation.
+
+Preserved failure2: while first restoreparentj05c358a32b3143a8aacffa6f3812f31c ran,
+source was edited. Runtime guard stopped at before-pinned/runtime_stale AFTER
+settledtitlechildjc07f3e2a32b246a0b1305ff5a0e382a9. Pinned submissionkey absent
+fromglobaljobindex; effortchild nevercreated; predecessor terminalreview0unknown.
+Exact private plan mutationMcpPartialRestoreProof retains knownnoeffect remainder.
+Renewalj7d6d39a0c744462293211e8d9d3b5b3d preserved scope and retired oldce...
+RemainingONLY pin/effort restoreja6562cf2e343414fa35ce3265ad53e9a passed, no title
+replay. Do not repeat this runtime-edit-during-parent mistake. Source froze before
+all finaltests/nativecontracts. No uncertain mutation replayed.
+
+FINAL HOST AND SEALED runtime
+cb2929231a688e40ca19fa635089cbc2b59134cc2a65e456b59e22063f15c94a.
+CURRENT metadata controller7d6d39a0c744462293211e8d9d3b5b3d/PID31678/start
+SatOct17 20:14:51UTC; immutabletarget74c54e49/PID13591/start20:57:38UTC.
+Targetreadservice9475...unchanged. Corrected actualClaude mutation report
+harness-native-metadata-config-claude-2026-10-17T21-29-53-578Z.json PASS18checks,
+parentjef24a93b531f47ba979254b713827387, titlej805a43525bb7429385a180b864ca079c/
+pinj6ef4c9b6ef524526ba9b511d1da6c07f/effortjc0d97560df764b1186b02bcf04f40cd2.
+Claude restorejae80e2302e0e475284d677cfbc598ed5 passed before Codextest.
+ActualCodexgpt-6-sol mutation report harness-native-metadata-config-codex-
+2026-10-17T21-30-32-218Z.json PASS18checks, parentjc3dca62a6c7145738cc410e62786c753,
+titlej2a29bfa166d344a2b3405c675564b957/pinj645cf273ede249fcb667ceb114efb5f9/
+effortje75796c3f10a41dca71c967b00ac8fd0. BOTH actually changed allthree baseline
+values; not no-opreadproof. Finalrestorej2dc73e1aff9d4daeb6fe47c50560ae21 passed.
+Samekeyreattach reusedsameparent; parentledger/nativeevidence bytes unchanged.
+Finalstatus14settled/0unresolved/15reservedof32, actualready/nativepolicy. Fixture
+originaltitle/toolsource/pinnedfalse/explicitHigh/Haiku5.5/bypass/exactepoch.
+Initial absenttitleSource/effort baseline is historical, not byteidentically restored.
+Private authoritative plan metadataControlTrial.mutationMcpFinal retains reports,
+exactchildren/status/restorationdigest. No apprestart/kill/auth/CUA/unknownreplay.
+
+Finalpressure v2-2026-10-17T21-29-36-223Z.json1/1/sourceChangedfalse. Bothsynthetic
+10checks finalsource: harness-v2-claude-2026-10-17T21-29-14-903Z.json and
+harness-v2-codex-2026-10-17T21-29-16-045Z.json. Earlier21:28pressure/21:27synthetic
+reports are old verifier source; retain distinctions. Generalpublic mutation MCP
+qualification NOW proven only explicit enrolledcontroller route on owned target.
+Attached oldMCP not refreshed merely by fresh harness success.
+
+NEXT: remove explicit-controller burden for already-enrolled targets through a
+bounded deterministic enrollment/selection index, preserving exact capability,
+ambiguity/stale/unknown refusal and no legacy recovery fallback. Do not scan work
+chat content or silently enroll arbitrarytargets. Then remaining originalcreate/
+model/mode/messaging/steer/full11live/residency gates. Do not equate this scoped
+pilot with full always-onqualification. Goalactive/watcherpaused; legacyobserver
+ownsbroker; Codex-driver fixes/1Password separate.
+
 ## Public title/pin/effort routing and durable batches passed — October 17
 
 Previous turn progressed/published7682952. Added explicit metadata_controller to

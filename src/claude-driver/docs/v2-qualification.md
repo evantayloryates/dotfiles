@@ -1,3 +1,17 @@
+## October 17 real public mutation MCP addendum
+
+Fresh actual Claude and configured Codexgpt-6-sol MCP clients each passed18checks
+for an exact public title/pin/effort batch, distinct native children, independently
+changed state, same-parent reuse, unchanged configuration/source and no model turns
+in either scratch. Final sourcecb292923/controller7d6d39a0. Restorations verified;
+14settled/0unknown. Fullpressure and bothsynthetic MCP contracts also pass.
+First Claude harness falsefailure (metadata bytes mistaken for modelturn) and a
+partial restoration runtime_stale failure remain preserved with separate bounded
+review/no-effect-remainder evidence; see resume.md. No silent native retry.
+Remaining: default routing for enrolled targets, model/mode, creation, messaging/
+steering, full original live suite and always-on behavior. Explicit scoped metadata
+controller qualification does not imply those gates or refresh this attached MCP.
+
 ## October 17 public metadata-route addendum
 
 rename_session, pin_session and set_session_config now support an explicit enrolled

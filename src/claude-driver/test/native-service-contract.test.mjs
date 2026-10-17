@@ -21,3 +21,18 @@ test('route classification requires service selection and absence of maintenance
  checks.selectedServiceMatches=true;checks.noMaintenanceChildren=true;assert.equal(classifyNativeContractChecks(checks,{routeCurrent:true}).ok,true)
  checks.noMaintenanceChildren=false;assert.equal(classifyNativeContractChecks(checks,{routeCurrent:true}).nativeContractVerified,false)
 })
+
+test('public metadata MCP proof requires three distinct exact child receipts and no extra authority',async()=>{
+ const {nativeContractReplyEvidence,classifyNativeContractChecks}=await import('../scripts/native-service-contract.mjs'),fields=['title','pinned','effort'],result={verified:true,route:'independent-metadata',serviceId:c.serviceId,sessionId:c.submission.arguments.session_id,childJobs:{},results:{}}
+ for(const [i,k]of fields.entries()){const child='j'+String(i+1).repeat(32);result.childJobs[k]=child;result.results[k]={receiptVerified:true,metadataVerified:true,state:'completed',serviceId:result.serviceId,targetSession:result.sessionId,requestId:'rpeer'+child.slice(1)}}
+ const make=()=>({jobId:id,result:structuredClone(result)}),proof=nativeContractReplyEvidence(make(),{metadataConfig:true});assert.equal(proof.receiptVerified,true);assert.equal(proof.derivedRequestIds,true)
+ for(const change of [x=>delete x.result.results.title,x=>x.result.results.effort.requestId='foreign',x=>x.result.results.pinned.serviceId='foreign',x=>x.result.results.title.targetSession=c.session,x=>x.result.results.effort.metadataVerified=false,x=>x.result.childJobs.effort=x.result.childJobs.title,x=>x.result.childJobs.permission_mode=id]){const x=make();change(x);assert.equal(nativeContractReplyEvidence(x,{metadataConfig:true}).receiptVerified,false)}
+ const contract={...c,metadataConfig:true,submission:{operation:'set_session_config',arguments:{session:result.sessionId,metadata_controller:c.session,title:'probe',pinned:true,effort:'low'},idempotency_key:'one-metadata-batch',timeout_sec:120}};assert.equal(permittedNativeContractCall(contract,jobs,'driver_submit',structuredClone(contract.submission)),true);const foreign=structuredClone(contract.submission);foreign.arguments.permission_mode='bypassPermissions';assert.equal(permittedNativeContractCall(contract,jobs,'driver_submit',foreign),false)
+ const checks=Object.fromEntries(['processSucceeded','noExternalToolCalls','freshSchema','exactTwoSubmissions','sameJob','verifiedNativeReceipt','derivedRequestId','noRefusedCalls','noModelTurn','sourceUnchanged','globalConfigUnchanged','finalMarker','selectedServiceMatches','noMaintenanceChildren','metadataChildrenVerified','stateVerified','fixtureStateChanged','targetNoModelTurn'].map(k=>[k,true]));assert.equal(classifyNativeContractChecks(checks,{metadataConfig:true}).ok,true);for(const k of ['stateVerified','metadataChildrenVerified','fixtureStateChanged','targetNoModelTurn'])assert.equal(classifyNativeContractChecks({...checks,[k]:false},{metadataConfig:true}).nativeContractVerified,false)
+})
+
+test('title metadata bytes do not imply a model turn, but incomplete or actual-turn observation cannot pass',async()=>{
+ const {nativeTargetNoModelTurn}=await import('../scripts/native-service-contract.mjs'),o={bytesRead:4605,hasMore:false,cursor:'bound-cursor',events:[{type:'metadata',sourceType:'attachment'}]}
+ assert.equal(nativeTargetNoModelTurn(o),true);assert.equal(nativeTargetNoModelTurn({...o,events:[]}),true)
+ for(const patch of [{hasMore:true},{events:[{type:'assistant'}]},{events:[{type:'user'}]},{events:[{}]},{bytesRead:undefined},{cursor:undefined}])assert.equal(nativeTargetNoModelTurn({...o,...patch}),false)
+})

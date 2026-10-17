@@ -1300,3 +1300,26 @@ aggregate state. Cancellation, a failed/unknown child or final mismatch stops
 later fields and retains the parent ledger, exact child jobs and completed fields.
 Reattach the same parent job. Never replay the whole batch after a partial effect;
 inspect retained children and reconcile uncertainty first. No automatic rollback.
+
+### Explicit public-mutation MCP qualification
+
+`harness-native-service.mjs --live --metadata-config --harness claude|codex`
+with exact `--session <controller> --service-id <generation> --target <scratch>`
+uses the existing filtered MCP proxy for exactly one public set_session_config
+parent. Codex also requires the configured `--model`. It changes title, pin and
+effort in the enrolled owned scratch; its private contract retains baseline and
+requested values. Separate persistent claim identities prevent disconnected reruns.
+No direct tools, extra fields, new idempotency keys or arbitrary calls are allowed.
+
+The verifier requires two identical submissions/same parent, three distinct exact
+child receipts, derived request IDs, native postconditions, aggregate independent
+state readback, unchanged source/global configuration and no model turns in either
+scratch. Target transcript metadata can append bytes; complete bounded event
+observation distinguishes those records from user/assistant turns. Cursors and
+sanitized observation are retained for audit. Incomplete observation cannot pass.
+
+This live harness deliberately leaves the verified changed fixture for its owner
+to reconcile and restore through a separate durable request. Read the original
+parent and children first after any failure or disconnect; never rerun the harness
+to infer outcome. A failed report stays failed, with any retrospective review saved
+separately. Restore only known settled fields; unknown effects require reconciliation.
