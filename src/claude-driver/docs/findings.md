@@ -1079,3 +1079,15 @@ separate from activation and serving. Candidate refusal receipts now distinguish
 an exact pre-dispatch helper refusal from a missing result; they do not alone
 establish no-effect, settlement or safe retirement. Native execution of the new
 refusal receipt remains pending; synthetic boundaries pass.
+
+
+### Empty owned receiver activation (October 17)
+
+Public preparation/activation installed servicedb2a06e219134fd78fcfa2bbb33c70a2
+on existing interrupt scratch74/PID20499. Exact installed bytes/settings/policy/
+pointer and native epoch independently verified; no readiness/policy-loading or
+serving proof and no native message. An initial pre-effect failure exposed inverted
+ENOENT handling; absent effect paths independently verified before corrected job.
+Original failure and read-only diagnostic retained. Activation never replaces an
+existing generation or erases unresolved attempts. Native consent/loading remains
+separate from successful filesystem installation.

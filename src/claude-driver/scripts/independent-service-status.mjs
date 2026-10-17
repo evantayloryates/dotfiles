@@ -12,6 +12,7 @@ try{
  const allNames=readdirSync(BROKER_DIR),attempts=reviewIndependentAttempts({context:c,reservedRequestIds:budget.reservedRequestIds,names:allNames,now})
  const names=allNames.filter(n=>/^native-policy-invocation-[A-Za-z0-9_-]+\.json$/.test(n));if(names.length>128)throw Error('audit bound')
  const nativePolicyObserved=names.some(name=>{const a=c.read(name);return a.scope==='owned-native-policy-invocation'&&a.pid===pointer.pid&&a.procStart===pointer.procStart&&a.sessionId===session&&a.build===pointer.build&&a.generation===pointer.generation&&a.handlerSha256===policy.sha256&&a.settingsHash===policy.settingsHash&&Number.isFinite(a.at)&&a.at>=config.notBefore&&a.at>=Date.parse(pointer.activatedAt)&&a.at<=now})
- const readinessObserved=screenNativeServiceReady({config,ready:c.read('.native-service-'+serviceId+'.ready.json'),now:Math.min(now,config.deadline)})
+ let readinessObserved=false
+ try{readinessObserved=screenNativeServiceReady({config,ready:c.read('.native-service-'+serviceId+'.ready.json'),now:Math.min(now,config.deadline)})}catch(error){if(error.code!=='ENOENT')throw error}
  console.log(JSON.stringify({serviceId,sessionId:session,verified:true,build:pointer.build,generation:pointer.generation,nativeEpoch:{pid:pointer.pid,procStart:pointer.procStart,status:c.peer.status},deadline:config.deadline,expired:now>config.deadline,readinessObserved,nativePolicyObserved,...budget,...attempts,servingQualified:false,recoveryAttempted:false}))
 }catch{console.log(JSON.stringify({serviceId,sessionId:session,verified:false,servingQualified:false,recoveryAttempted:false,reason:'independent-service-context-unqualified'}))}

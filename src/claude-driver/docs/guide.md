@@ -875,3 +875,13 @@ evidence; `callbackRefusalRequestIds` is a subset requiring further review.
 `terminalAttemptReviewComplete` describes this bounded inventory only;
 `retirementAuthorized` and `scopedUnloadQualified` remain false. Status never
 rewrites receipts or controls, and expiration never resolves uncertainty.
+
+
+`broker_service_activate {session, service_id, experimental:true}` installs a
+previously prepared generation only on an empty driver-owned idle bypass scratch
+receiver. Existing receiver settings, module, broker state or activation ledger
+refuse. Use a durable job and retain its original identity. Before/after phases
+record policy, pointer, settings and module publication; interrupted or failed
+activation requires inspection, never a blind retry or automatic rollback.
+Installation does not prove native loading, readiness, policy loading or serving.
+Human hot-reload consent remains independent and cannot be answered by this API.

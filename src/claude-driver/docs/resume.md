@@ -1,3 +1,49 @@
+## Empty-receiver activation installed; readiness pending — October 17
+
+Previous turn progressed attempt inventory. Added broker_service_activate for a
+prepared generation on an explicit empty driver-owned idle bypass scratch receiver.
+Refuses existing settings, module, broker directory or activation ledger; never
+replaces a predecessor. Global receiver lock, exact native epoch and sealed package
+validation precede effects. Durable before/after phases cover policy, pointer,
+exclusive settings creation and exclusive module publication. No sends/wakes,
+permission changes, retries or automatic rollback across publication uncertainty.
+Interrupted work must inspect original ledger. Four focused tests cover phase
+ordering, every effect failure, preflight/checkpoint refusal and actual path absence
+versus symlink/invalid traversal. Status now permits missing readiness as false
+while retaining verified installation context; malformed evidence still refuses.
+
+Actual existing interrupt scratch local_74c54e49-972e-4dac-adfa-d23e01316119,
+PID20499/start15:48:23UTC/CLI2.1.299, bypass/idle, had no settings or receiver module.
+Preparation jobjdb2a06e219134fd78fcfa2bbb33c70a2 staged service
+db2a06e219134fd78fcfa2bbb33c70a2 with sealed source
+f436afc5498723b6981332ef48a0575ee65bd9b83fd0070c68ac4fbec2171973.
+First activationjf35a66968b394585bea11a89e8409b04 failed before ledger/effects:
+inverted path absence helper threw on ENOENT. Independently verified all four effect
+paths absent; retained diagnostic and original failure. Fixed helper with filesystem
+regression. Corrected jobj87eaf18de57349f6aab4950417a2d09e completed installed.
+Same key returned same job. Fresh status verifies sealed package/settings/policy/
+pointer and exact native epoch; ledger installed. Zero reservations/attempts.
+readinessObserved:false,nativePolicyObserved:false,servingQualified:false.
+No message was sent and no model/tool request was made to the new receiver.
+
+Evidence: probe/scratch-native-read-2026-10-17/empty-receiver-activation.json;
+private service preparation/activation and validation artifacts retained. Installed
+module/settings left bounded to this service deadline; don't replace/delete them.
+Original d5 receiver8f remains intact with one unresolved historical self-test.
+
+Next: independently qualify module loading/human hot-reload consent on interrupt
+scratch74 before a single persisted ready challenge; never infer loaded state from
+installation or send return. Then exact tool-free settings boundary and new refusal
+receipt qualification, followed by public reads and controlled retirement. Missing
+consent is human-only; do not click a native approval card. No CUA/keyboard fallback.
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-33-23-223Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-claude-2026-10-17T18-33-09-562Z.json and
+pressure/harness-v2-codex-2026-10-17T18-33-09-563Z.json.
+Physical retirement, warm/cold recovery and always-on proof remain open. Goal active;
+Codex bridge fixes parked. One early Claude harness overlapped diagnostic source
+change and failed sourceUnchanged only; preserved, superseded by frozen-source runs.
+
 ## Independent terminal-attempt inventory — October 17
 
 Previous turn made progress: public preparation and refusal receipts published.
