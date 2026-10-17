@@ -1,3 +1,30 @@
+## Exact disposable native control trial prepared — October 17
+
+Previous turn: progress (historical native journal receipt audit). Prepared a
+reviewable native interruption sequence without retrying the prior controller
+refusal. Created1disposable target local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd,
+title claude-driver-control-target-2026-10-17, cwd probe/control-2026-10-17,
+acceptEdits/Haiku5.5. Disk verified and exact native peer PID42813/start
+Sat Oct17 16:03:11UTC/CLI2.1.299 observed idle. Focus restored to the existing
+controller and Codex. No workload/stop/replacement has been sent.
+Plan: diagnostics/native-control-plan-2026-10-17.json. It binds one target,
+one native stop, no retry/permission change/broker recovery/work-chat action.
+Sequence: exact live/idle preflight; bounded tool-free workload; observed busy;
+one exact controller native stop; exact call/result+accepted receipt+same-epoch
+idle; only then exact replacement receipt/causal reply. Any refusal or uncertainty
+ends the trial without replacement.
+Prerequisite remains the actual controller's earlier refusal: peer instruction
+was not accepted as direct human authorization for cross-chat stop. Taylor's
+standing authorization here permits preparing the test, but must not be forged
+as direct input in Claude. Controller is existing Claude Desktop chat
+claude-driver-interrupt-scratch-2026-10-15. Exact proposed human text is saved
+in plan.humanInstruction; it explicitly says wait for the planned request and
+preserve native human-input protections. No stop now and no peer retry before
+that changed authorization condition. Goal active; no live trial handle pending.
+Source unchanged; existing current pressure/harness checks retained. Historical
+22unknowns and sealed-epoch mismatch still prevent legacy broker handoff;
+Codex bridge fixes remain parked.
+
 ## Historical unknown receipt inventory — October 17
 
 Previous turn: progress (foreground/CLI receipt binding fix). Bounded diagnostic
