@@ -5,6 +5,9 @@ source fingerprints, durable jobs, reports and cleanup. The dated sections below
 retain historical evidence; their NEXT statements are not current instructions.
 
 Healthy native send/stop/steer and scoped control checks have prior native proof.
+The restored October17 pair now passes actual native-send MCP contracts in both
+Codex (23-32-50-846Z) and Claude (23-37-13-536Z),18checks each. These prove
+receipt and causal reply through the enrolled route, not unattended recovery.
 Exact standby enrollment, renewal refresh, cold routing, proof-bound rebind and
 automatic recovery/rebind composition now exist. Current enrollment still has
 automatic recovery disabled. Actual successful native cold recovery/rebind,

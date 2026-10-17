@@ -1,3 +1,22 @@
+## October 17 restored generation qualified through actual Claude MCP
+
+Previousbatch6d3eeee. Fresh primary9d62 status verified live-native idle PID82655,
+readiness/policy true,0unknown,61slots before test. Ran actual headless Claude MCP
+native-send enrolled route once on current host source, exact existing interrupt
+recipient. Report harness-native-native-send-claude-2026-10-17T23-37-13-536Z.json
+PASS18checks: exact two submissions/same durable job/reused, native receipt,
+derived request, chosen controller, no maintenance children, native acceptance,
+independent recipient message and causal reply, preserved target/globalconfig,
+no controller model turn, source unchanged. No new test chat or permissions.
+This qualifies restored pair through both actual harnesses (prior Codex report
+23-32-50-846Z). It does not qualify cold recovery or auto enablement. Both native
+services retain exact epochs/idle/readiness/policy/0unknown after test.
+NEXT: absent-primary cold/rebind native qualification after persisted trust;
+primary still live, automatic recovery disabled. No new archive/wake/renewal/app
+restart/process signal/CUA. Legacy observer ownership and parked work unchanged.
+The --help invocation of native harness refused argument validation before effects;
+script has no help mode. Used source to verify exact supported flags before test.
+
 ## October 17 historical human-rebind proof rejects incomplete evidence
 
 Previous batch da92824. Fresh enrolled status still wait/primary-live on exact
