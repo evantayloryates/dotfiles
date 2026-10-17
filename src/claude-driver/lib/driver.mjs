@@ -203,7 +203,7 @@ export const OPS = [
   {
     name: 'steer_session', title: 'Steer a Claude session explicitly',
     description: 'Queue a follow-up (mode:queue), or stop the active turn, verify idle, then send the replacement instruction (mode:interrupt). Queuing is not immediate steering. Capture a session_events cursor beforehand and read back the response. Refuses the broker and caller.',
-    schema: { properties: { session: S, message: { type: 'string' }, mode: { type: 'string', enum: ['queue', 'interrupt'] }, via_broker: VIA_BROKER,
+    schema: { properties: { session: S, controller_session:S, message: { type: 'string' }, mode: { type: 'string', enum: ['queue', 'interrupt'] }, via_broker: VIA_BROKER,
       transport:{type:'string',enum:['native','peer-direct'],description:'Explicit experimental peer-direct supports queue only; interrupt still requires native stop.'},
       operation_id:{type:'string',description:'Stable single-publication identity required for peer-direct queue.'},
       receipt_timeout_sec:{type:'number',minimum:0.1,maximum:60,description:'Absolute peer-direct queue admission/receipt budget, default15 seconds.'} }, required: ['session', 'message', 'mode'] },
@@ -211,13 +211,14 @@ export const OPS = [
       const rec = resolveSession(args.session)
       if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to steer the broker or caller', { category: 'gate' })
       if(args.transport==='peer-direct'){
-        if(args.mode!=='queue'||args.via_broker!==undefined)throw new DriverError('peer-direct steering supports queue only and cannot combine via_broker',{category:'bad_args'})
+        if(args.mode!=='queue'||args.via_broker!==undefined||args.controller_session!==undefined)throw new DriverError('peer-direct steering supports queue only and cannot combine via_broker',{category:'bad_args'})
         ctx.tier='peer-direct'
         const sent=await sendDirectRecipient({operationId:args.operation_id,session:rec.sessionId,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal,absoluteDeadline:ctx.directDeadline})
         return {...sent,steeringMode:'queue',stopped:false,verified:true,experimental:true,applied:false,verification:'Exact native user receipt only; ordinary next-priority delivery does not interrupt. Observe the causal response before claiming application.'}
       }
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
-      if(args.mode==='interrupt'&&enrolledMetadataController(rec.sessionId,{}))throw new DriverError('enrolled interrupt steering requires distinct durable stop/replacement phases; use separately observed stop and send until composition is qualified',{category:'native_steer_unqualified',detail:{dispatched:false,retrySafe:true}})
+      const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
+      if(controller){ctx.tier='independent-native-steer';if(args.mode==='interrupt')return (await import('./native-steer-route.mjs')).routeNativeSteer(rec.sessionId,controller,args,ctx);return {...await (await import('./native-send-route.mjs')).routeNativeSend(rec.sessionId,controller,args,ctx),steeringMode:'queue',stopped:false,applied:false}}
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }

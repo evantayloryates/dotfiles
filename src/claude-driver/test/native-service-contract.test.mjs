@@ -49,3 +49,11 @@ test('native send MCP acceptance never substitutes for an independently correlat
  assert.equal(nativeContractReplyEvidence(out,{nativeSend:true}).nativeSendAccepted,true);assert.equal(nativeContractReplyEvidence({...out,result:{...out.result,applied:true}},{nativeSend:true}).receiptVerified,false)
  const checks=Object.fromEntries(['processSucceeded','noExternalToolCalls','freshSchema','exactTwoSubmissions','sameJob','verifiedNativeReceipt','derivedRequestId','noRefusedCalls','noModelTurn','sourceUnchanged','globalConfigUnchanged','finalMarker','selectedServiceMatches','noMaintenanceChildren','nativeSendAccepted','targetConfigUnchanged'].map(k=>[k,true]));assert.equal(classifyNativeContractChecks(checks,{nativeSend:true}).nativeContractVerified,false);checks.targetUserReceiptVerified=true;checks.recipientReplyVerified=true;assert.equal(classifyNativeContractChecks(checks,{nativeSend:true}).ok,true)
 })
+
+
+test('steering contract instructs distinct phase identities and rejects a shared or missing stop phase',async()=>{
+ const {nativeSteerContractRequirements,nativeContractReplyEvidence}=await import('../scripts/native-service-contract.mjs'),prompt=nativeSteerContractRequirements(),stop='j'+'1'.repeat(32),send='j'+'2'.repeat(32),r={route:'independent-native-interrupt',verified:true,receiptVerified:true,nativeAccepted:true,applied:false,delivery:'delivered',messageId:'12345678-1234-4234-8234-123456789abc',stopReceipt:'stopped',phaseContexts:{stop,send},stopRequestId:'rpeer'+stop.slice(1),sendRequestId:'rpeer'+send.slice(1),requestId:'rpeer'+send.slice(1)}
+ assert.match(prompt,/route independent-native-interrupt/);assert.match(prompt,/phaseContexts.stop/);assert.match(prompt,/phaseContexts.send/);assert.doesNotMatch(prompt,/route independent-native-send/)
+ assert.equal(nativeContractReplyEvidence({result:r},{nativeSend:true,nativeSteer:true}).derivedRequestIds,true)
+ for(const change of [x=>x.phaseContexts.stop=send,x=>x.stopReceipt='requested',x=>delete x.stopRequestId,x=>x.requestId='rpeer'+'3'.repeat(32)]){const x=structuredClone(r);change(x);assert.equal(nativeContractReplyEvidence({result:x},{nativeSend:true,nativeSteer:true}).receiptVerified,false)}
+})

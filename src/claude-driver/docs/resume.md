@@ -1,3 +1,67 @@
+Final04352d46 checks: fullpressure v2-2026-10-17T22-11-07-943Z.json1/1/sourceChangedfalse; synthetic10checks each harness-v2-claude-2026-10-17T22-10-54-026Z.json and harness-v2-codex-2026-10-17T22-10-54-026Z.json.
+
+## October 17 durable interrupt steering and evidence correction
+
+Previousbatch publisheda028d42. Implemented native-steer-route with parent ledger,
+distinct deterministic native phase contexts (NOT separately scheduled driverjobs),
+record-before-stop/after-stop/before-send/after-send, full two-grant/capacity/deadline
+preflight and exact controller/target epoch guard. Only recognized stopped/alreadyidle
+plus verified sameepochidle allows replacement. Cancel/unknown/changedepoch/diskfailure
+stops progression; ledgerexisting refuses replay. Public enrolled steer interrupt
+now uses this route, queue reuses single native send. Optional controller_session
+supported, peer-direct remainsqueueonly. Nativeeffects partially applicable, notatomic.
+Originalqueuedmessages remainpreserved; busyqueuedwork may preventidle verification.
+Fourfocusedordering/identity/cancel/persistence tests and oneMCPsemantic testPASS.
+
+IMPORTANT CORRECTION superseding priora028d42 busy Bash/sleep claim: exact original
+Bash toolresult toolu_01UbrvBn27VdsR8nA5vsMyB2 was PreToolUse refusal ofstandalone
+foregroundsleep. Nativebusy observation+stopped receipt proves active-turnstop,
+NOT a running subprocess interruption. No subprocessstart/cancellation was proved.
+Preserveoriginalrecords; don't cite earlier7event/isError as subprocessproof.
+Firstnewsteerforegroundfixture similarlyrefused; idle stop/replacementstillworked,
+but NOTbusyproof. Supportedbackgroundsleep/Monitor alternative then refusedby
+sealedservicepolicy (onlyepochboundwait/checkentry), no commandran, no bypass.
+Policyrefusals preserved; do not weakenpolicy to satisfyfixture.
+
+Changedconditionfixture: toolfreecount1..2000. Sendjdf5804674a834b9e861f150e0896ed59,
+nativebusyPID90418 independentlyobserved BEFOREsteer. Parentj71a4121cdff546dc980daddab15a1279
+completed withstopRequest rpeer6d2a8ab20f90c10449a3456c6ca403e2 then replacement
+rpeerfae611700b72a2e69bfb03e8f003291f. Exactstopped/sameepochidle precededsend;
+replyNATIVE_STEER_COUNT_OK independentlycorrelated bysender/body/capturedcursor/
+causalpath,6events/hasMorefalse, noCOUNT_FINISHED marker. This provesbusy MODELturn
+interruption+replacement, notchildprocesskill. Reattachsameparent reusedtrue,
+routeledgerhash7b5836c2... unchanged, no newnativepublication.
+Initialidlecompositionparentj66bfd48966be440f9e4c3623dde16d0c retained too.
+
+Extendedexistingfilteredharness --native-steer, separateclaimmode, freshschema,
+exactpublicsteer/double-submit/sameparent, distinctphaseIDs, independentledgerphase
+order/native stopreceipt-time before sendintent-time, causalreply/settingsproof.
+ActualClaudeharness-native-native-steer-claude-2026-10-17T22-09-23-449Z.json and
+Codexharness-native-native-steer-codex-2026-10-17T22-10-17-413Z.json EACH:
+nativeContractVerified:true, EVERY19mechanicalchecktrue EXCEPTfinalMarkerfalse;
+okfalse/failureCategoryharness_output_format retained. Clients returned
+NATIVE_MCP_FAILED CORRECTLY because harnessprompt erroneouslystillrequired
+independent-native-send andrpeerparentID. Actualsteerreturnsinterrupt/twophaseIDs.
+No native replays. Fixedpromptnowrequiresactualroute/phaseidentities; regressiontest
+rejectsshared/missing/pendingphases. Originalfailedreportsnotrewritten aspasses.
+BothactualMCP runs were IDLE stop/replacement, busy proofis separateCLIabove.
+Finalprompt-fixsource04352d46b547ff43dc39560b02c46a521229e822cae8d9e5d5d7056c43d96f9e;
+actualMCPmechanicalproofsource6002a427; originalCLIsteercode2e712c715; controllersealed
+506797c3. SourcechangesafterMCP areprompt/testonly, no native routechange.
+Finalfullpressure/bothsyntheticreports checkpointed next; nofinalpromptfreshnative
+replayclaimed. If finalformat acceptance required, use READONLYreview/reattachof
+exactoriginalcompletedparent/key and refusemissingparent; don'tsendagainforgreen.
+
+CURRENTcontrollerdd6abdf29e2e415f873b08b9e2893cc6 ready/policytrue,PID31678/
+start20:14:51UTC;14settled/0unknown+1terminalpolicynegative,17remainingof32.
+Target90418/start21:37:26UTC, ownedbypassscope unchanged. Allwork inprivateplan
+metadataControlTrial; legacybrokerobserverownslegacyrecovery, watcherpaused,
+noCUA/auth/permission/restart/manualkill/newchats. Codex-driver/1Passwordparked.
+NEXT: correct finalformatMCP acceptance byexistingjob read-onlyreattach withoutnew
+nativeeffects; revieworiginalfull11live/creation/focus requirements and resumed
+unattendedlifecycle qualification. Don'tsubstitutemoreequivalentcount/metadata
+loopsforremainingoriginalinterface/servicecoverage. Goalactive.
+
 ## October 17 native stop capability and busy CLI proof
 
 Previousbatch published da7ac3c (genericnative send). Added explicit separately

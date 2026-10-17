@@ -1421,5 +1421,11 @@ recognized native receipt and same-process idle observation. Pending reconnectio
 or changed/unknown epoch stays unresolved and does not permit replacement.
 Native stop preserves existing queued messages. Actual CLI idle and running Bash
 sleep tests passed on sealed506797c3. Stop-specific MCP coverage remains pending.
-Enrolled `steer_session mode:interrupt` currently refuses before effects: its
-stop/replacement phases require distinct durable identities before qualification.
+Enrolled `steer_session mode:interrupt` now records distinct deterministic native
+stop/replacement phase identities under its durable parent. Both grants, capacity
+and epochs are checked before effects; a pending stop or missing same-epoch idle
+observation prevents replacement. Inspect retained route phases on partial failure.
+Busy tool-free model interruption and replacement passed CLI; both actual MCP
+clients mechanically verified the route, with preserved harness final-format
+failures caused by an obsolete prompt. Earlier Bash sleep fixtures were policy
+refusals, not subprocess interruption proof. No queued-work discard is promised.
