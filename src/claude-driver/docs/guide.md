@@ -899,3 +899,10 @@ unknown means no matched notification in the retained window, unavailable means
 the journal could not be stably inspected. Neither proves generation readiness,
 consent authority, serving or unload. Readiness still needs the generation-bound
 native receipt. This diagnostic never dispatches, retries or changes consent.
+
+`terminalRefusalRequestIds` identifies only independently reviewed missing-request
+invalid_request callbacks: exact source/epoch/helper/policy observations and
+confirmed absence of protocol/effect records. It is separate from published
+`settledRequestIds`. Other refusal reasons stay unresolved. Status remains read-only;
+terminal review neither writes synthetic native results nor authorizes retirement.
+Quiescence and concurrent admission must be addressed before a later transition.

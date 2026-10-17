@@ -1,3 +1,40 @@
+## Missing-request refusal terminal review — October 17
+
+Previous turn progressed native prepare/activate/refusal/read qualification.
+Added narrow independent terminal review for invalid_request with missing protocol
+request only. Callback marker alone still insufficient. Requires exact ready and
+intent/time; live validated sealed context; same build/bootstrap/generation/session/
+PID/start helper completion, correct sealed broker-check script, verified native
+ancestor; matching bound policy and unique native Bash policy audit in the intent
+through helper-completion interval; affirmative absence of request, control, native
+admission, module result and standard result. Unexpected reads/errors remain
+unresolved, not absent. Other refusal reasons remain unresolved, especially
+already-dispatched. Native policy audit lacks requestId and is explicitly only a
+unique temporal policy observation, never native MCP admission on its own.
+
+Status separates terminalRefusalRequestIds from settledRequestIds. This establishes
+scoped no-native-MCP callback disposition, not standard lifecycle settlement or
+retirement authorization. It writes no result/control and does not clear evidence.
+Six focused tests cover exact positive path, missing/foreign/duplicate/late audit,
+wrong source/epoch/ancestor, competing artifacts and forged outcomes.
+
+Actual current db2 generation review: one settled public read0a6679..., one terminal
+missing-request refusal161bd0..., no unresolved attempts. Original intent/refusal/
+helper byte hashes unchanged; no send. Older d5 generation remains one settled read
+and unresolved9022... self-test, lacking callback marker; no terminal upgrade.
+Evidence empty-receiver-activation.json terminalRefusalReview under
+probe/scratch-native-read-2026-10-17. Same native contexts independently verified.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-42-43-959Z.json.
+Both filtered harnesses ten checks pass, unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-42-31-341Z.json.
+Next: quiesce admission with scoped private STOP and revalidate all attempt state
+under the correct lifecycle locks before any retirement. Status snapshots never
+exclude concurrent new requests or authorize filesystem changes. Preserve native
+loader-generated files and settings ownership; filesystem movement alone is not
+native unload or physical process retirement. Then recovery/always-on proof.
+Goal active, Codex fixes parked; no pending sender/worker/waiter.
+
 ## Native input resolved; prepared/activated receiver serving verified — October 17
 
 Taylor enabled/submitted native hot-reload input. Goal is active again. Fresh
