@@ -26,6 +26,9 @@ test('staging seals a verified reusable snapshot without activating it',async()=
  const reused=await releases.stageRelease();assert.equal(reused.reused,true)
  assert.equal(releases.validateRelease(staged.build).protocol,7)
  assert.equal(lstatSync(join(staged.root,'scripts/broker-wait.mjs')).mode&0o222,0)
+ assert.equal(existsSync(join(staged.root,'candidates/native-peer-service/register.js')),true)
+ assert.equal(readFileSync(join(staged.root,'candidates/native-peer-service/register.js'),'utf8'),readFileSync(new URL('../candidates/native-peer-service/register.js',import.meta.url),'utf8'))
+ const generated=execFileSync(process.execPath,['--input-type=module','-e',`import {buildNativePeerServicePackage} from ${JSON.stringify('file://'+join(staged.root,'lib/native-peer-service-package.mjs'))};console.log(buildNativePeerServicePackage({id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}).hashes['hooks/register.js'])`],{encoding:'utf8'}).trim();assert.match(generated,/^[a-f0-9]{64}$/)
 })
 test('an active pin renders only sealed paths and retains its protocol',()=>{
  const activation=releases.commitRelease(staged.build,identity,()=>{broker.prepareBrokerDir();return readFileSync(join(state.BROKER_DIR,'CLAUDE.md'),'utf8')})

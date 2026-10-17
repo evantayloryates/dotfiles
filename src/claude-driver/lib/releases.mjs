@@ -12,7 +12,7 @@ const SOURCE=dirname(dirname(fileURLToPath(import.meta.url)))
 const RELEASES=join(STATE_DIR,'releases')
 export const RUNTIME_POINTER=join(BROKER_DIR,'runtime.json')
 export const HANDOFF_OWNER='claude-driver-qualified-runtime-handoff'
-const roots=['server.mjs','cli.mjs','broker-template','lib','scripts','docs']
+const roots=['server.mjs','cli.mjs','broker-template','lib','scripts','docs','candidates']
 const hex=/^[a-f0-9]{64}$/
 const fail=()=>{throw new DriverError('broker release integrity check failed; preserve STOP and reconcile runtime.json',{category:'broker_runtime_invalid'})}
 function present(path){try{lstatSync(path);return true}catch(e){if(e.code==='ENOENT')return false;throw e}}

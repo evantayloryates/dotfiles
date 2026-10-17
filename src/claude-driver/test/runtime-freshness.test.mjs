@@ -55,3 +55,13 @@ test('a recipient control rechecks source after waiting behind another caller',a
  }finally {release();op.run=original}
 })
 after(()=>rmSync(root,{recursive:true,force:true}))
+
+test('candidate module edits invalidate loaded runtime provenance before effects',async()=>{
+ const fresh=join(root,'candidate-change');cpSync(new URL('..',import.meta.url),fresh,{recursive:true})
+ const {runtimeState:state}=await import(join(fresh,'lib/build.mjs'))
+ const {runOp:run}=await import(join(fresh,'lib/driver.mjs'))
+ assert.equal(state().restartRequired,false)
+ appendFileSync(join(fresh,'candidates/native-peer-service/register.js'),'\n// synthetic candidate source change\n')
+ assert.equal(state().restartRequired,true)
+ await assert.rejects(run('send_message',{session:'missing',message:'synthetic'}),e=>e.category==='runtime_stale'&&e.detail.dispatched===false)
+})

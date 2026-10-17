@@ -1,14 +1,17 @@
 // Candidate only. Public native calls remain top-level for the native validator.
 // CONFIG is supplied as immutable generated source, never by peer input.
 const attempted=new Set()
-let active=false
+let active=false,ready=false
 export function register(on){on('session.receive',receiveServiceRead);on('session.start',recordServiceReady)}
 async function recordServiceReady($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
   if((session===CONFIG.brokerSession||session===CONFIG.brokerSession.slice(6))&&cwd===CONFIG.brokerCwd&&Number.isFinite(now)&&now>=CONFIG.notBefore&&now<=CONFIG.deadline){
    const file=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
-   if(!await $.fs.exists(file))await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
+   if(!await $.fs.exists(file)){
+    await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
+    ready=true
+   }
   }
  }catch{} // Absence is not readiness; native loader errors remain independent.
  return next(event)
@@ -19,9 +22,20 @@ async function receiveServiceRead($,event,next){
  const prefix='<cross-session-message from-name="claude-driver" from-mode="bypass">\n',suffix='\n</cross-session-message>'
  if(text.startsWith(prefix)&&text.endsWith(suffix))text=text.slice(prefix.length,-suffix.length)
  if(!text.startsWith(CONFIG.token+' '))return next(event)
+ if(text===CONFIG.token+' ready'){
+  if(active)return {consumed:'service-read-busy'}
+  active=true
+  try{
+   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
+   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-not-ready'}
+   if(!ready)await recordServiceReady($,{},()=>{})
+   return {consumed:ready&&await $.fs.exists(CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json')?'service-read-ready':'service-read-not-ready'}
+  }catch{return {consumed:'service-read-not-ready'}}finally{active=false}
+ }
  // Owned control prefix never falls through into model input, even malformed.
  const requestId=text.slice(CONFIG.token.length+1)
  if(!/^rpeer[a-f0-9]{32}$/.test(requestId))return {consumed:'service-read-refused'}
+ if(!ready)return {consumed:'service-read-not-ready'}
  if(attempted.has(requestId))return {consumed:'service-read-already-attempted'}
  if(attempted.size>=CONFIG.maxRequests)return {consumed:'service-read-capacity'}
  attempted.add(requestId) // reserve before any await, including failed ownership
@@ -32,6 +46,7 @@ async function receiveServiceRead($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-refused'}
+  if(!await $.fs.exists(CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'))return {consumed:'service-read-not-ready'}
   if(await $.fs.exists(CONFIG.brokerCwd+'/STOP')||await $.fs.exists(CONFIG.brokerCwd+'/stop-rescue-arm.json')||await $.fs.exists(CONFIG.brokerCwd+'/mechanical-probe.json'))return {consumed:'service-read-stopped'}
   const intent=CONFIG.brokerCwd+'/.native-service-'+requestId+'.intent.json',response=CONFIG.brokerCwd+'/.native-service-'+requestId+'.result.json'
   if(await $.fs.exists(intent)||await $.fs.exists(response))return {consumed:'service-read-prior-evidence'}

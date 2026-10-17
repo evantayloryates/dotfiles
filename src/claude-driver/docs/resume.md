@@ -1,3 +1,39 @@
+## Candidate activation gate and runtime dependency provenance — October 17
+
+Previous turn: actual bounded scratch readiness/read succeeded. Existing durable
+service host already screens readiness at enrollment and read admission. Candidate
+receiver itself lacked activation gating, so it now requires its own successful
+in-memory initialization and ready-file presence before any lifecycle checkpoint.
+Exact token+ready is consumed as a zero-native-operation activation challenge;
+foreign/expired identities, persistence errors and stale receipt after module
+reload cannot arm it. Fresh configuration/generation is required after reload.
+Plain and optional marker variants both set readiness only after successful owned
+receipt publication. Existing cancellation/capacity/STOP and duplicate protections
+remain.13 focused service tests pass. This candidate was not loaded into legacy
+broker; no legacy version/epoch/baseline guard was relaxed.
+
+Review also found package generators read candidates/*.js that runtimeFingerprint
+and sealed snapshots omitted. Runtime identity now includes recursively discovered
+candidate JS, releases copy candidates, and standalone pinned entry computes the
+same identity. Historical releases without candidates keep their prior formula.
+Regression proves candidate-source mutation makes loaded runtime stale and refuses
+effects before resolution; sealed snapshot can actually generate a candidate
+package.22 release/freshness tests pass. No live pointer or sealed release changed.
+
+First pressure report17:43:52.104Z has ok:false/sourceChanged:true because test
+source changed during that run; retained. Earlier harness passes predate final
+provenance change and do not qualify final source. Final unchanged-source evidence:
+pressure/v2-2026-10-17T17-44-59-485Z.json,1/1pass; filtered Claude/Codex(gpt-6-sol)
+pressure/harness-v2-{claude,codex}-2026-10-17T17-44-47-666Z.json, all ten checks
+pass and configs unchanged. Shared service candidate memory recorded.
+
+Next: current-version durable enrollment needs an explicit owned scratch service
+binding and lifecycle checkpoint integration, rather than loosening legacy hardcoded
+MOD_PROBE guards. Keep actual scratch serving proof separate from this synthetic
+candidate gate. Then qualify generation turnover, physical retirement, cold/warm
+recovery and always-on behavior. Current bounded scratch module files retained,
+no background jobs, original unknowns untouched. Goal active; Codex fixes parked.
+
 ## Explicit readiness precedes bounded native workload — October 17
 
 Previous turn: actual module read verified after reload boundary. Scratch module

@@ -5,12 +5,12 @@ import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.
 import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
 const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
 const target='local_22222222-2222-4222-8222-222222222222',r1='rpeer'+'1'.repeat(32),r2='rpeer'+'2'.repeat(32),r3='rpeer'+'3'.repeat(32)
-function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000,controlCheck=false}={}){
+function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000,controlCheck=false,autoStart=true}={}){
  const pkg=buildNativePeerServicePackage({...config,...controlCheck?{controlCheck:true}:{}}),hooks=new Map();let checks=0,reads=0,queued=0
  const register=runInNewContext(pkg.files['hooks/register.js'].replace('export function register','function register')+';register',{Set,Object,JSON,Date,Number,Array})
  register((event,fn)=>hooks.set(event,fn))
  const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),read:async p=>JSON.stringify(files.get(p)),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
- return {files,$,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:(id,kind='peer')=>hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'}),counts:()=>({checks,reads,queued})}
+ return {files,$,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:async(id,kind='peer')=>{if(autoStart)await hooks.get('session.start')($,{},()=>{});return hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'})},counts:()=>({checks,reads,queued})}
 }
 test('owned readiness records zero calls once, and expired or foreign start refuses',async()=>{
  const s=setup();assert.equal(await s.start(),'next');await s.start()
@@ -99,4 +99,19 @@ test('cancellation arriving during admitted checkpoint is observed before native
  assert.equal((await s.send(r1)).consumed,'service-read-cancelled-before-call')
  assert.equal((await s.send(r1)).consumed,'service-read-already-attempted')
  assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
+})
+
+test('receiver requires its own successful activation before checkpoint; stale readiness cannot rearm reload',async()=>{
+ const cold=setup({autoStart:false});assert.equal((await cold.send(r1)).consumed,'service-read-not-ready');assert.deepEqual(cold.counts(),{checks:0,reads:0,queued:0})
+ assert.equal((await cold.send('ready')).consumed,'service-read-ready');assert.deepEqual(cold.counts(),{checks:0,reads:0,queued:0})
+ assert.equal((await cold.send(r1)).consumed,'service-read-result-captured')
+ const reload=setup({files:cold.files,autoStart:false});assert.equal((await reload.send('ready')).consumed,'service-read-not-ready');await reload.start();assert.equal((await reload.send(r2)).consumed,'service-read-not-ready');assert.deepEqual(reload.counts(),{checks:0,reads:0,queued:0})
+ cold.files.delete(config.brokerCwd+'/.native-service-'+config.id+'.ready.json');assert.equal((await cold.send(r2)).consumed,'service-read-not-ready');assert.equal(cold.counts().reads,1)
+ const foreign=setup({autoStart:false});foreign.$.session.id=async()=>target;assert.equal((await foreign.send('ready')).consumed,'service-read-not-ready');assert.equal(foreign.files.size,0)
+ const human=setup({autoStart:false});assert.equal(await human.send('ready','human'),'queued');assert.equal(human.files.size,0)
+})
+
+test('failed ready persistence and expired activation cannot admit checkpoint',async()=>{
+ const s=setup({autoStart:false});s.$.fs.write=async()=>{throw Error('synthetic disk failure')};assert.equal((await s.send('ready')).consumed,'service-read-not-ready');assert.equal((await s.send(r1)).consumed,'service-read-not-ready');assert.deepEqual(s.counts(),{checks:0,reads:0,queued:0})
+ const expired=setup({autoStart:false});await expired.send('ready');expired.$.clock.now=async()=>2001;assert.equal((await expired.send('ready')).consumed,'service-read-not-ready');assert.equal((await expired.send(r1)).consumed,'service-read-refused');assert.deepEqual(expired.counts(),{checks:0,reads:0,queued:0})
 })

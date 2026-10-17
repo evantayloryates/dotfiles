@@ -4,10 +4,14 @@ async function recordServiceReady($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return next(event)
+  const readyFile=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
+  if(await $.fs.exists(readyFile))return next(event)
   const marker='claude-driver-service-marker-'+CONFIG.id
   const registration=await $.command.register({name:marker,description:'Owned native service lifecycle marker',immediate:true})
-  const readyFile=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
-  if(!await $.fs.exists(readyFile))await $.fs.write(readyFile,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
+  if(!await $.fs.exists(readyFile)){
+   await $.fs.write(readyFile,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
+   ready=true
+  }
   const file=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.marker.json'
   if(!await $.fs.exists(file))$.clock.after(250,async()=>{
    try{
