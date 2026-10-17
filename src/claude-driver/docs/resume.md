@@ -1,3 +1,66 @@
+## Enrolled targets route ordinary metadata calls automatically — October 17
+
+Previous turn progressed/published2895cd5. Added metadata-controller-index.mjs and
+broker_service_enroll_metadata. Explicit enrollment validates existing ready/native
+policy/idle target sealedcapability; requests ZERO nativeeffects. Immutable bounded
+owned row under metadata-controller-targets/<exacttarget>/<exactcontroller>.json
+binds controller session/cwd and exact targetsession/cwd/PID/start. Repeatedsame
+entry is idempotent; retarget/conflict refuses without overwriting evidence.
+Read only exacttargetdirectory, exactlyone candidate; missing/noenrollment yields
+oldroute, but present malformed/ambiguous/stale/unsafeindex refuses beforedispatch.
+No workchatcontent scan or implicitenrollment. Controllergeneration renewal may
+preserve exacttarget; targetepochchange still requires future controlledrebind.
+
+Public rename_session, pin_session and set_session_config now choose enrolled
+controller if metadata_controller omitted. Explicitargument still choosesexact
+controller. Existingdurableparent/fieldchildren/targetguard/nativepolicy/aggregate
+readback remain; nolegacyfallback for enrolledtarget failures or unsupported
+model/mode/via_broker mixing. Calls require driver_submit on independentroute;
+direct non-durable wrapper remains a usability consideration. Sevenfocusedtests
+cover wholebatch and immutable/idempotentindex, changedepoch refusal, ambiguity,
+unsafeentries, staleepoch/nonexistentpeer/movedrecord and explicitchoice nodiscovery.
+
+FINAL HOST c2df416398568b98cb1eb09cb765c3f30737db6a9fff535f4fb6f0d2c87c363e.
+CURRENT controller remains7d6d39a0c744462293211e8d9d3b5b3d/SEALEDcb292923,
+PID31678/start20:14:51UTC; target74c54e49/PID13591/start20:57:38UTC;
+targetreadservice9475...unchanged. Nativecallback/guard unchanged, no extra renewal.
+Enrollmentj82df3407f5f841ac87fd3028798d2a14 verified; repeat reusedtrue/nativeeffects0.
+
+Extended EXISTING liveharness with --metadata-config --enrolled-route; separate
+metadata-enrolled claimmode. Exact submissions genuinely OMIT metadata_controller.
+ActualClaude18checks PASS: harness-native-metadata-enrolled-claude-
+2026-10-17T21-33-16-283Z.json, parentj334186c19e28447a8354e3c4db775d10.
+Ordinary(no controllerarg) restorejc733bef99e4e48a5b101b112ffe1ffaa verified.
+ActualCodexgpt-6-sol18checks PASS: harness-native-metadata-enrolled-codex-
+2026-10-17T21-33-55-051Z.json, parentjbabeca753c544d608c67f544c246bb02.
+Both changed allthree title/pin/effort, exactderivednativechildren, sameparentreuse,
+independentreadback/no-modelturn/unchangedconfig/source/no maintenanceallpass.
+Ordinaryfinalrestorej4c5b06b2b2634972b720636667acf12f verified; titlechild
+j330cd340c1324d7797996ab16c566b87/pinj64b767d6e6ce49609a8f717b95d28eab/
+effortj43e74f59d34f40a39cd8b00dae7a014e. Samekeyreattach sameparent and parentledger/
+nativeevidence bytes unchanged. Mixed ordinary title+modelj64ba9f6c78084a4a8a78c54aefe5a721
+failedbad_args BEFORErouteledger/child/nativeeffect; didnotfall back. Finalstatus
+26settled/0unresolved/27reservedof32. Fixture originaltitle/toolsource/pinnedfalse/
+explicitHigh/Haiku5.5/bypass/sameepoch. Privateplan enrolledRouteFinal retainsproof.
+Finalresults in testplan reloaded from authoritative jobs after overlapping helper
+artifact writes; service parent/child ledgers and nativeevidence are authoritative.
+No lost nativeeffect or replay; execute future privateplan helpers sequentially.
+
+Finalpressure v2-2026-10-17T21-33-19-299Z.json1/1/sourceChangedfalse. Bothsynthetic
+10checks pass currenthost: harness-v2-claude-2026-10-17T21-32-58-813Z.json and
+harness-v2-codex-2026-10-17T21-32-59-913Z.json. AttachedcachedMCP not refreshed by
+freshheadless proof. Full originalscope notcomplete; no always-on claim.
+
+NEXT changed-condition step: implement controlled targetepoch rebinding with
+retained oldenrollment/history, compare-and-swap/exclusivewriter admission, oldPID
+absence and a newly explicitlysealed/currentready controller target. Never delete
+index or silently replace authority. Prove stale enrollment refuses, then exact
+rebind after owned cold target recovery; this closes a real recovery gap rather
+than expanding newcontrollerarguments. Current27/32capacity may justify renewed
+controller for nextwork. Then original model/mode/create/messaging/steer/full11live
+and sustainedresidency gates. Goalactive/watcherpaused; legacyobserver ownsbroker;
+no apprestart/kill/auth/CUA; Codex-driver/1Password separate.
+
 ## Real Claude/Codex public mutation MCP contracts passed — October 17
 
 Previous turn progressed/publishedcc8492d. Extended EXISTING native-service-contract,

@@ -1323,3 +1323,27 @@ to reconcile and restore through a separate durable request. Read the original
 parent and children first after any failure or disconnect; never rerun the harness
 to infer outcome. A failed report stays failed, with any retrospective review saved
 separately. Restore only known settled fields; unknown effects require reconciliation.
+
+### Default metadata routing for explicitly enrolled targets
+
+`broker_service_enroll_metadata {session:<controller>,session_id:<target>,experimental:true}`
+validates an already-installed, ready native metadata controller and its exact
+owned idle target, then retains an immutable enrollment. It requests no native
+effects. Repeating the same enrollment is idempotent; a changed epoch or conflicting
+controller refuses without replacing the existing evidence.
+
+After enrollment, ordinary durable rename_session, pin_session and
+set_session_config calls for that target select the controller automatically.
+No controller argument is needed. Targets without enrollment retain the prior
+route. Enrolled targets never fall back to the legacy broker when stale, ambiguous,
+unavailable, expired, uncertain or asked for unsupported model/permission fields.
+An explicit metadata_controller still chooses that exact controller directly.
+
+The index reads only the exact target's owned bounded enrollment directory, never
+work-chat contents. Multiple entries, malformed rows and unsafe filesystem entries
+refuse selection. The native policy, current generation, target epoch and receipt
+checks remain authoritative after selection. Renewals preserving the exact target
+can keep enrollment. Target epoch changes currently require a future controlled
+rebind transition; silent retargeting is deliberately refused, not auto-recovered.
+Use --metadata-config --enrolled-route with the live native harness to qualify
+this argument-free route under its separate one-shot claim mode.

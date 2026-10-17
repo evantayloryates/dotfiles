@@ -1,3 +1,15 @@
+## October 17 enrolled default-route addendum
+
+Already-qualified controllers can now be explicitly enrolled once for an exact
+owned target epoch. Ordinary durable rename/pin/configuration calls omit the
+controller argument. Both actual Claude/Codex MCP mutation harnesses pass18checks
+with that argument absent and real title/pin/effort changes. Finalhostc2df4163,
+sealedcontrollercb292923; fullpressure and bothsynthetic contracts pass. Fixture
+restored/no replay/26settled/0unknown. Immutable enrollment refuses stale epochs,
+conflicts and unsafe filesystem entries without legacy fallback. Controlled epoch
+rebind is still NEXT; current enrollment cannot silently follow a restartedtarget.
+Original remaining capabilities/live/residency gates remain incomplete.
+
 ## October 17 real public mutation MCP addendum
 
 Fresh actual Claude and configured Codexgpt-6-sol MCP clients each passed18checks
