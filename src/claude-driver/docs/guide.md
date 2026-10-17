@@ -915,6 +915,19 @@ model message and does not restart apps or change permissions. Returned readines
 is an observation at verification time; installation never establishes serving.
 The new generation still needs actual bound policy audit before public reads.
 
+`broker_service_policy_probe {session,service_id,experimental:true,timeout_sec?}`
+is the durable negative qualification path. Submit through `driver_submit`; its job
+ID determines exactly one missing request ID. It holds the private read lifecycle
+lock, verifies installed source/epoch/readiness/no STOP, consumes one permanent slot,
+records before-send metadata and delivers once. No protocol request/control is
+created and no native MCP request is authorized. Success requires the exact existing
+terminal missing-request screen: actual policy audit, completed bound helper,
+refusal marker and absence of request/control/admission/results. It proves this
+negative path only; use a separately authorized public read for positive serving
+proof. Same-key job reattachment never resends. Timeout, worker loss or cancellation
+preserves the original request/slot/evidence; inspect status and original attempt,
+never issue a fresh key to retry uncertainty. No permission decision is synthesized.
+
 Independent status reports `activationPhaseObserved` from a strictly matched
 checkpoint and `activationEffectsAssessed:false`; a phase never proves the next
 or previous effect. `nativeInputRequired` describes a verified live waiting peer,

@@ -952,6 +952,12 @@ export const OPS = [
     },
   },
   {
+    name:'broker_service_policy_probe',title:'Qualify one native receiver policy path',readOnly:false,
+    description:'Experimental durable missing-request negative probe on an already loaded exact owned independent receiver. Consumes one permanent slot, sends once, creates no protocol request/control, and verifies native policy audit/helper/refusal with no native MCP request. Requires driver_submit identity. No model instruction, restart, permission change, automatic retry or positive serving claim. Timeout preserves original attempt for inspection.',
+    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'integer',minimum:1,maximum:60}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('policy probe requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-policy-probe.mjs')).probeIndependentServicePolicy(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,timeoutMs:(args.timeout_sec??20)*1000})},
+  },
+  {
     name:'broker_service_read',title:'Read metadata through an enrolled native receiver',readOnly:false,
     description:'Experimental serialized get_session read through an already loaded owned receiver. Checks exact epoch/bytes/readiness and controls, enqueues one request, records one peer delivery and reconciles native result. Never installs, wakes, restarts or retries. Returns settlement metadata only; cancelled or uncertain work requires request inspection.',
     schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},session:{type:'string',description:'Explicit independent receiver UUID; session_id remains the metadata target.'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},

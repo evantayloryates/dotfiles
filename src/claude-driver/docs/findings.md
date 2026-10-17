@@ -1135,3 +1135,12 @@ completed on same native epoch with unchanged shared files/history and zero jour
 growth. Fresh readiness followed install; no policy audit on the new generation yet.
 This is explicit one-shot orchestration, not scheduled automatic recovery or serving
 qualification. Original job reattachment preserves ledger and successor identity.
+
+### Durable negative policy qualification (October 17)
+
+Policy probe now has one durable job/request, permanent capacity reservation and
+private lifecycle lock. Native jobjecd36ad6999c4b048a4d45f59e376fb1 verified exact
+missing-request audit/helper/refusal/absence proof, then separate public read
+ja93978a8866f4cfa8dcc71c709f15bb7 verified matching target metadata. No native journal
+growth/model turn. Probe reattachment preserved evidence. Negative qualification
+never claims positive serving; uncertainty retains original request and slot.

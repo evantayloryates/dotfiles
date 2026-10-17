@@ -1,3 +1,41 @@
+## Durable native negative policy probe qualified — October 17
+
+Added broker_service_policy_probe, explicit experimental independent receiver and
+one durable driver_submit identity. Parent job maps to exact rpeer request and
+exclusive global probe record. Private child holds broker read-lifecycle lock,
+checks exact installed source/epoch/idle/readiness/no STOP/arms, refuses prior
+unresolved attempts, reserves permanent slot, checkpoints before one send. No
+protocol request/control created. Uses existing strict terminal missing-request
+screen through attempt reviewer: native policy audit/helper/refusal/exact absent
+request/control/admission/results. Never broad no-effect/positive serving claim.
+Bounded timeout/cancellation/worker-loss leaves original identity/slot and evidence,
+no cleanup replay; status reviews delayed terminal evidence without resending.
+
+Six focused probe/refusal tests pass: each effect/checkpoint failure, timeout,
+cancelled/invalid input and narrow proof gates. Frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-26-31-896Z.json. Both filtered synthetic-store harnesses
+all10checks pass, source/config unchanged: pressure/harness-v2-{claude,codex}-
+2026-10-17T19-27-09-895Z.json. Host sourcea655b302273f60b1fbbeaca3ca35cfd050f3537a93c147692d4a974dabda2f67;
+receiver remains pinned4316b7ee634ce41c5306c142b0dc5df06ac438017ba2dc9e233692710ef1d627.
+
+Actual probejecd36ad6999c4b048a4d45f59e376fb1 on service44e1287366824bfe82e42a32458e9635
+completed terminalRefusalVerified/policyInvocationObserved/scopedNoNativeMcpQualified,
+servingQualifiedfalse. Exact request rpeerecd36ad6999c4b048a4d45f59e376fb1. Same-key
+reattachment samejob and probe/send/refusal hashes unchanged. Separate positive
+public readja93978a8866f4cfa8dcc71c709f15bb7/requestmatchingrpeer suffix completed,
+receiptVerified/publishedtrue,cleanupPendingfalse; native tool
+ toolu_plugin_851b2962c7314615aa935cd7d446f8f0. Persisted target session/title/cwd/
+archive fields match current control8f. Entire probe+read native journalgrowth0.
+Status2/6slots used, one settled read/one terminal refusal/no unresolved. Native
+PID20499/start15:48:23UTC unchanged, readiness/policy audit observed. No model
+message, app restart or permissions change. No active sender/worker/waiter.
+Existing plan durablePolicyProbe*/durablePolicyProbeRead/Verification holds evidence.
+
+Next integrate renewal readiness waiting and durable probe identity, then automatic
+bounded renewal decisions/read routing. These are explicit one-shot operations,
+not scheduled always-on or crash/cold/deleted-session recovery. Physical process
+retirement/current-chat cached MCP refresh remain open. Goal active, Codex fixes parked.
+
 ## Durable one-shot stable receiver renewal — October 17
 
 Added broker_service_renew, requires experimental opt-in and durable driver_submit
