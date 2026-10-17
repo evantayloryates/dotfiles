@@ -1,5 +1,5 @@
 // Metadata-only fixture. CONFIG is generated and fixed before native validation.
-let active=false
+let active=false,ready=false
 export function register(on){on('session.receive',receiveScratchRead)}
 async function receiveScratchRead($,event,next){
  if(event?.origin?.kind!=='peer'||typeof event.text!=='string')return next(event)
@@ -7,12 +7,20 @@ async function receiveScratchRead($,event,next){
  const prefix='<cross-session-message from-name="claude-driver" from-mode="bypass">\n',suffix='\n</cross-session-message>'
  if(text.startsWith(prefix)&&text.endsWith(suffix))text=text.slice(prefix.length,-suffix.length)
  if(!text.startsWith(CONFIG.token))return next(event)
- const slot=CONFIG.requests.indexOf(text)
- if(slot<0||active)return {consumed:'scratch-read-refused'}
+ const readiness=text===CONFIG.token+'ready',slot=CONFIG.requests.indexOf(text)
+ if((!readiness&&slot<0)||active)return {consumed:'scratch-read-refused'}
  active=true
  try{
   const now=await $.clock.now(),session=await $.session.id(),cwd=await $.session.cwd()
   if(!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline||(session!==CONFIG.receiver&&session!==CONFIG.receiver.slice(6))||cwd!==CONFIG.cwd)return {consumed:'scratch-read-refused'}
+  const readyFile=CONFIG.cwd+'/.native-scratch-read-'+CONFIG.id+'.ready.json'
+  if(readiness){
+   if(await $.fs.exists(readyFile))return {consumed:'scratch-read-ready-prior-attempt'}
+   await $.fs.write(readyFile,JSON.stringify({schemaVersion:1,scope:'owned-scratch-read-ready',probeId:CONFIG.id,receiver:CONFIG.receiver,target:CONFIG.target,cwd:CONFIG.cwd,registeredAt:now,deadline:CONFIG.deadline,nativeCallsRequested:0})+'\n')
+   ready=true
+   return {consumed:'scratch-read-ready'}
+  }
+  if(!ready||!await $.fs.exists(readyFile))return {consumed:'scratch-read-not-ready'}
   const stem=CONFIG.cwd+'/.native-scratch-read-'+CONFIG.id+'-'+slot,intent=stem+'.intent.json',resultFile=stem+'.result.json'
   if(await $.fs.exists(intent)||await $.fs.exists(resultFile))return {consumed:'scratch-read-prior-attempt'}
   await $.fs.write(intent,JSON.stringify({schemaVersion:1,scope:'owned-scratch-read-intent',probeId:CONFIG.id,slot,receiver:CONFIG.receiver,target:CONFIG.target,startedAt:now})+'\n')

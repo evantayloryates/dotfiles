@@ -1,3 +1,35 @@
+## Explicit readiness precedes bounded native workload — October 17
+
+Previous turn: actual module read verified after reload boundary. Scratch module
+now recognizes fixed token+ready, validates exact receiver/cwd/lifetime, writes
+one generation-bound ready receipt with nativeCallsRequested0, then arms its
+in-memory readiness. Reads refuse before that handshake or if receipt disappears.
+An existing ready file cannot arm a fresh module instance; it refuses rather than
+overwriting. Reload requires a fresh configured generation. Five focused tests
+pass, including pre-read refusal, duplicate ready, stale receipt, wrong identity,
+expiry, concurrency and two-slot limit. No public generic relay added.
+
+New native trial: probe/scratch-native-read-2026-10-17/readiness-c815b8b299ae.
+Preserved previous module source; native validation passed; updated only owned
+register file atomically after exact original hashes and idle bypass epoch check.
+First zero-operation challenge reached model before reload, no ready receipt;
+retained failure. After its turn ended, second challenge produced exact bound
+ready receipt without journal growth. Verified receipt/time/target/cwd/package
+hashes/same PID42813-start16:03:11 before dispatching metadata slot0. Its native
+get_session result matches independent target scratch74 identity/title/cwd,
+isError:false,25ms. Descriptor-bound native journal unchanged across read; zero
+assistant rows. Slot1 unused, no native mutations or model calls by module.
+This is scoped serving/readiness evidence, not always-on or recovery proof.
+
+Current-source pressure1/1pass: pressure/v2-2026-10-17T17-42-03-138Z.json.
+Filtered Claude/Codex(gpt-6-sol) both pass ten checks, unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-41-50-767Z.json.
+Shared service candidate memory recorded. Next: durable enrollment integration
+must verify an activation receipt before workload and handle generation reload
+without replay. Then qualify unload/retirement/recovery; old broker22unknowns
+remain untouched. Current bounded module files retained, no background job
+started. Goal active; Codex bridge fixes parked.
+
 ## Native module metadata read served after turn boundary — October 17
 
 Native journal queue-operation at17:35:34.241Z confirms the person enabled
