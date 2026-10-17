@@ -1,7 +1,7 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
-import {archiveTargetValid,archiveControlArguments,archiveObservationMatches,archiveTargetPreflightMatches} from '../lib/native-archive-control.mjs'
+import {archiveTargetValid,archiveControlArguments,archiveObservationMatches,archiveTargetPreflightMatches,wakeTargetPreflightMatches,wakeControlArguments,WAKE_TARGET_MESSAGE} from '../lib/native-archive-control.mjs'
 const session='local_11111111-1111-4111-8111-111111111111',target='local_22222222-2222-4222-8222-222222222222',binding={sessionId:session,receiverCwd:'/owned/probe/controller'},t={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'synthetic'}
 test('sealed archive capability accepts one distinct same-probe target epoch',()=>{
  assert.equal(archiveTargetValid(t,binding),true)
@@ -17,6 +17,9 @@ test('archive observation binds original epoch, receipt bytes and actual persist
 test('retired history cannot authorize archive after a same-process successor or target mode change',()=>{
  const build='a'.repeat(64),service='b'.repeat(32),request='rpeer'+'c'.repeat(32),make=()=>({target:t,record:{sessionId:target,cwd:t.cwd,isArchived:false,permissionMode:'bypassPermissions'},peer:{pid:t.pid,procStart:t.procStart,status:'idle',hostSessionId:target,cwd:t.cwd},history:{serviceId:service,sessionId:target,verified:true,verificationMode:'historical-retired',sourceDisposition:'files-retired',admissionStopped:true,stopMarkerMatchesGeneration:true,terminalAttemptReviewComplete:true,unresolvedRequestIds:[],nativeEpoch:{pid:t.pid,procStart:t.procStart},settledRequestIds:[request],build,generation:1},selection:{selector:{serviceId:service,sessionId:target,pid:t.pid,procStart:t.procStart,build,generation:1},pointer:{build,generation:1}},targetServiceId:service,familyRequestId:request,pinned:false,openPrCount:0})
  assert.equal(archiveTargetPreflightMatches(make()),true)
+ const cold={...make(),peer:null,oldPidAbsent:true,currentPeerAbsent:true};assert.equal(wakeTargetPreflightMatches(cold),true)
+ for(const change of [x=>x.oldPidAbsent=false,x=>delete x.oldPidAbsent,x=>x.currentPeerAbsent=false,x=>x.selection.selector.serviceId='d'.repeat(32),x=>x.history.unresolvedRequestIds=['unknown'],x=>x.record.isArchived=true,x=>x.record.permissionMode='acceptEdits',x=>x.pinned=true]){const x=structuredClone(cold);change(x);assert.equal(wakeTargetPreflightMatches(x),false)}
+ assert.deepEqual(wakeControlArguments(t),{session_id:target,message:WAKE_TARGET_MESSAGE})
  for(const change of [x=>x.selection.selector.serviceId='d'.repeat(32),x=>x.selection.pointer.generation=2,x=>x.selection.selector.pid=43,x=>x.record.permissionMode='acceptEdits',x=>x.peer.status='working',x=>x.history.unresolvedRequestIds=['original'],x=>x.pinned=true,x=>x.openPrCount=1,x=>x.history.settledRequestIds=[]]){const x=make();change(x);assert.equal(archiveTargetPreflightMatches(x),false)}
  assert.equal(archiveTargetPreflightMatches(),false)
 })

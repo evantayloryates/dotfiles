@@ -1,3 +1,61 @@
+## Fixed native wake implemented; workspace trust rejects cold startup — October 17
+
+Implemented broker_service_wake_target using existing durable native transaction,
+sealed target, target activation lock, repeated preflight, one-send callback and
+native receipt admission. Original PID must be absent and no target peer observed;
+target must remain exact unarchived bypass record with stopped/retired terminal
+selector and empty native family proof. Only fixed tool-free COLD_RECEIVER_READY
+message; no arbitrary text/consent. Receipt never proves applied reply/new process.
+Verified native errors settle as failed without replay; malformed/unadmitted ones
+stay unresolved. Current host source92d850ec257d5a4b7dea24fca3e89c2b5a26a3e1dd28726ace7248a4754a977a.
+
+Controller renewal jde12578406fc4e4e91913d5865f3cb22 passed native readiness/policy
+in same PID31678/start20:14:51UTC. CURRENT transport service:
+de12578406fc4e4e91913d5865f3cb22, installed sealed source
+07a6cd56d70f73d5ea23c859645165a00f678e568067c300d3cb21edd8bd5562.
+Target capability retained exactly; previous a24b9... retired intact.
+
+ONE wake jf278abaa292e45fc9b68795842cb6f2f (request rpeerf278abaa292e45fc9b68795842cb6f2f)
+returned native isError:true, explicit delivery:undelivered, message_id
+657dbc5e-a25e-4f13-8c31-ec99a73591c0. Error: Workspace requires trust approval
+before starting a session. Native tool receipt toolu_plugin_0fb2f38445504df39815f098d12fa611.
+Original parent outcome_unknown retained. Independent read-only reconciliation
+plus exact receipt publication now statefailed/receiptVerifiedtrue; controller
+status independently no unresolved requests. No new wake/replay. Target peer absent.
+Plan scopedNativeWake and wakeControllerRenewal retain exact submission/results.
+
+Taylor supplied /Users/taylor/Desktop/check.png. Read image: exact interrupt scratch
+selected, bypass visible, historic module notifications, NO trust dialog visible.
+Independently current target still unarchived/bypass/exactcwd/peerabsent. Native
+installed app source bounded window around error independently confirms fresh
+workspace trust assertion on startup; opening record does not invoke prompt.
+Source window SHA8e8054d2b4789a19a55cf6793e17ffef8318ae8d57e206ad698db72b2570b16e.
+Actual source says saveTrust is native UI route; do not invoke private IPC/write
+app trust state or manufacture accepted trust. Human input requested in existing
+Claude Desktop interrupt scratch: type ready and Enter, answer native trust prompt
+if shown, otherwise report reply/error here. This is first current trust blocker
+turn, not blocked threshold. Goal remains active; watcher stays paused.
+
+Final-source pressure v2-2026-10-17T20-43-52-216Z.json passed1/1 unchanged source;
+both actual headless synthetic harnesses passed10checks: Claude
+harness-v2-claude-2026-10-17T20-43-33-185Z.json and Codexgpt-6-sol
+harness-v2-codex-2026-10-17T20-43-34-284Z.json. Focused33tests/nativevalidator passed
+before native test; final failure-settlement focused10tests passed. No coldrebind
+or serving claim. Earlier superseded first pressure handle8874 hung after source
+changed caused runtime_stale worker failures, unbounded wait in v2.test.mjs.
+Verified exact own child71130/parent70176/v2test, terminated ONLY synthetic test
+child; parent exitedfailed, reportv2-2026-10-17T20-43-54-264Z.json retains failures
+and sourceChangedtrue. No native process killed. Original tests have unbounded
+worker polling; bound those waits in future to preserve failures promptly.
+
+Next when Taylor responds, observe target peer/events using saved pre-wake cursor;
+if exact new epoch exists, independently qualify tool-free reply and coldrebind
+retained6ab7657958214ec59f5b73dd52387b8e onto current source. Do not send duplicate
+wake if peer exists. If native trust still unapproved, preserve exact gate and
+investigate supported visible startup flow, no trust bypass. Keep Codex bridge
+fixes/1Password separate, legacy observer owns legacy broker. No approval needed
+for routine authorized tests once native human gate is cleared.
+
 ## Native controller renewal preserves sealed cold target — October 17
 
 Fixed generic renewal dropping the optional archiveTarget capability. Preparation

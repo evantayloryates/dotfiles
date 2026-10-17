@@ -63,6 +63,14 @@ test('archive callback requires exact sealed target and never accepts injected c
  const unsealed=setup({checkpoint:{dispatch:true,op:'archive_session',args}});await unsealed.send(r1);assert.equal(unsealed.counts().reads,0)
 })
 
+test('wake callback requires exact sealed target and never accepts injected consent or self',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},archiveTarget={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'synthetic'},configPatch={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',archiveTarget},args={session_id:target,message:'Reply exactly COLD_RECEIVER_READY. Do not invoke tools or change files, settings or permissions.'}
+ const s=setup({configPatch,checkpoint:{dispatch:true,op:'send_message',args}});let calls=0;s.$.mcp.call=async(server,op,a)=>{calls++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'send_message');assert.equal(JSON.stringify(a),JSON.stringify(args));return {isError:false,content:[{type:'text',text:'synthetic wake receipt'}]}}
+ assert.equal((await s.send(r1)).consumed,'service-read-result-captured');await s.send(r1);assert.equal(calls,1)
+ for(const altered of [{...args,session_id:config.brokerSession},{...args,message:'arbitrary command'},{...args,_consent:true}]){const t=setup({configPatch,checkpoint:{dispatch:true,op:'send_message',args:altered}});await t.send(r1);assert.equal(t.counts().reads,0)}
+ const unsealed=setup({checkpoint:{dispatch:true,op:'send_message',args}});await unsealed.send(r1);assert.equal(unsealed.counts().reads,0)
+})
+
 test('different concurrent requests cannot overwrite an in-flight shared checkpoint',async()=>{
  const s=setup();let release,entered
  const started=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve),original=s.$.tool.call

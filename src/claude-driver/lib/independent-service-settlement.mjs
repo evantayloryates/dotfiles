@@ -29,6 +29,6 @@ export async function settleIndependentServiceResult(session,serviceId,requestId
   let published=false
   try{if(JSON.stringify(ordered(json(file)))!==JSON.stringify(ordered(native)))refuse()}catch(error){if(error.code!=='ENOENT')throw error;writeJsonAtomic(file,native);published=true}
   if(JSON.stringify(ordered(json(file)))!==JSON.stringify(ordered(native)))refuse()
-  return {serviceId,requestId,receiptVerified:true,state:reviewed.result.ok?'completed':'failed',source:native.source,nativeToolUseId:reviewed.nativeToolUseId,published,...archiveObservation?{archiveVerified:true,targetSession:archiveObservation.sessionId,previousPidObservedAbsent:true}:{},controlHistoryPreserved:true,releaseAuthorized:false}
+  return {serviceId,requestId,receiptVerified:true,state:reviewed.result.ok?'completed':'failed',source:native.source,nativeToolUseId:reviewed.nativeToolUseId,published,...request.ops[0].op==='send_message'?{wakeNativeReceiptVerified:true,nativeProcessAssessed:false,messageApplied:false,servingQualified:false}:{},...archiveObservation?{archiveVerified:true,targetSession:archiveObservation.sessionId,previousPidObservedAbsent:true}:{},controlHistoryPreserved:true,releaseAuthorized:false}
  },{timeoutMs:5000})
 }

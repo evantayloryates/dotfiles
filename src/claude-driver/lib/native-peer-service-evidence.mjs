@@ -1,7 +1,7 @@
 import {screenNativePeerAdmission} from './native-peer-evidence.mjs'
 import {screenNativePeerResult} from './native-peer-result.mjs'
 import {NATIVE_FAMILY_QUERY} from './native-family-preflight.mjs'
-import {archiveControlArguments,archiveObservationMatches} from './native-archive-control.mjs'
+import {archiveControlArguments,archiveObservationMatches,wakeControlArguments} from './native-archive-control.mjs'
 // Readiness only. Does not prove serving, admission, tool success or quiescence.
 export function screenNativeServiceReady({config,ready,now}={}){
  const keys=['schemaVersion','scope','serviceId','brokerSession','brokerCwd','build','registeredAt','deadline','maxRequests','nativeCallsRequested','modelCallsRequested']
@@ -24,10 +24,12 @@ export function screenNativeServiceResult({config,ready,intent,receipt,request,e
  const report={probeId:id,startedAt:intent.startedAt,completedAt:receipt.receivedAt,nativeCallReturned:true,resultWasError:receipt.isError,failureCategory:null}
  const family=request.ops?.[0]?.op==='list_sessions'
  const archive=request.ops?.[0]?.op==='archive_session'
+ const wake=request.ops?.[0]?.op==='send_message'
+ if(wake&&(!config.serviceStateBinding||!config.archiveTarget||receipt.targetSession!==config.archiveTarget.sessionId))return refused
  if(family&&(!config.serviceStateBinding||receipt.targetSession!==config.brokerSession))return refused
  if(archive&&(!config.serviceStateBinding||!config.archiveTarget||receipt.targetSession!==config.archiveTarget.sessionId||receipt.isError||!archiveObservationMatches(archiveObservation,{config,requestId:request.id,receipt,now})))return refused
- const correlated=screenNativePeerAdmission({config:perRequest,epoch,pointer,request,entry,admission,control,report,...family?{expectedOperation:'list_sessions',expectedArguments:NATIVE_FAMILY_QUERY}:archive?{expectedOperation:'archive_session',expectedArguments:archiveControlArguments(config.archiveTarget)}:{}})
- const result=screenNativePeerResult({config:perRequest,requestId:request.id,report,receipt:{schemaVersion:1,scope:'owned-native-peer-result',probeId:id,requestId:request.id,brokerSession:receipt.brokerSession,targetSession:receipt.targetSession,startedAt:receipt.startedAt,receivedAt:receipt.receivedAt,isError:receipt.isError,content:receipt.content},admission:correlated,family,archive})
+ const correlated=screenNativePeerAdmission({config:perRequest,epoch,pointer,request,entry,admission,control,report,...family?{expectedOperation:'list_sessions',expectedArguments:NATIVE_FAMILY_QUERY}:wake?{expectedOperation:'send_message',expectedArguments:wakeControlArguments(config.archiveTarget)}:archive?{expectedOperation:'archive_session',expectedArguments:archiveControlArguments(config.archiveTarget)}:{}})
+ const result=screenNativePeerResult({config:perRequest,requestId:request.id,report,receipt:{schemaVersion:1,scope:'owned-native-peer-result',probeId:id,requestId:request.id,brokerSession:receipt.brokerSession,targetSession:receipt.targetSession,startedAt:receipt.startedAt,receivedAt:receipt.receivedAt,isError:receipt.isError,content:receipt.content},admission:correlated,family,archive,wake})
  if(!result)return refused
  return {receiptVerified:true,requestId:request.id,result,nativeToolUseId:admission.toolUseId,standardLifecycleSettlementAssessed:false,releaseAuthorized:false}
 }

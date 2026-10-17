@@ -1161,3 +1161,23 @@ this existing capability. This does not authorize dispatch: the operation's nati
 admission, target generation and postcondition checks still apply. Ordinary
 receivers retain no archive capability. New and inherited targets cannot be
 combined. Status exposes only this bounded target metadata, never the receiver token.
+
+
+### Fixed cold-target wake experiment
+
+`broker_service_wake_target` accepts the same exact sealed controller/target,
+retired target generation and empty-family receipt references as scoped archive.
+It additionally requires the original PID absent, no observed current target peer,
+an unarchived bypass record and unchanged stopped/retired terminal selector.
+The target activation lock spans the request; preflight is repeated before the
+single send. The only admitted native call is `send_message` with the fixed
+instruction to reply COLD_RECEIVER_READY without tools or changes. No arbitrary
+message or `_consent` argument is admitted. Native consent/trust gates remain.
+
+A native error receipt can settle a failed attempt without a retry; it does not
+become unknown merely because it failed. A successful native receipt still does
+not prove applied reply, new process or serving readiness. Observe those
+independently before cold rebind. Reconcile uncertain attempts by their existing
+request ID. An explicit undelivered workspace-trust refusal requires the native
+human trust/startup flow; do not write trust state, fabricate consent or repeat
+sends while that condition is unchanged.

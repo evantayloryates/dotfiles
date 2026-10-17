@@ -47,3 +47,10 @@ test('shared host reconciliation refuses missing enrollment and malformed identi
   await assert.rejects(reconcileNativeServiceResult(service,request),error=>error.category==='native_service_result_refused'&&error.message==='native service result evidence refused; no replay')
  }
 })
+
+test('fixed wake receipt proves native call only, and rejects arbitrary text or consent',()=>{
+ const make=()=>{const x=fixture();x.config.serviceStateBinding={version:1};x.config.archiveTarget={sessionId:target,cwd:'/owned/target',pid:50,procStart:'old'};x.request.ops=[{op:'send_message',args:{session_id:target,message:'Reply exactly COLD_RECEIVER_READY. Do not invoke tools or change files, settings or permissions.'}}];x.receipt.content=[{type:'text',text:'synthetic native wake acknowledgement'}];return x}
+ const failed=make();failed.receipt.isError=true;failed.receipt.content=[{type:'text',text:'Workspace requires trust approval; undelivered'}];const failure=screenNativeServiceResult(failed);assert.equal(failure.receiptVerified,true);assert.equal(failure.result.ok,false)
+ const r=screenNativeServiceResult(make());assert.equal(r.receiptVerified,true);assert.equal(r.releaseAuthorized,false);assert.equal(r.servingQualified,undefined)
+ for(const change of [x=>x.request.ops[0].args.message='run arbitrary tools',x=>x.request.ops[0].args._consent=true,x=>x.request.ops[0].args.session_id=owner,x=>delete x.config.archiveTarget,x=>delete x.config.serviceStateBinding,x=>x.control.dispatched=[]]){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
+})
