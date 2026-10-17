@@ -30,16 +30,17 @@ export function standbyBindingsForSession(standby,{dir=root}={}){
 export function standbyRefreshAllowed(before,after,expected){
  return hex.test(expected||'')&&standbyEnrollmentDigest(before)===expected&&sameEpoch(before.primary,after.primary)&&sameEpoch(before.standby,after.standby)
 }
-async function qualified(args,{signal}={}){
+async function qualified(args,{signal,allowAbsentPrimary=false,primaryEpoch}={}){
  const plan=await inspectStandbyRecovery(args.session,args.service_id,args.session_id,args.target_service_id,args.family_request_id,{signal})
- if(plan.action!=='wait'||plan.reason!=='primary-live')throw Error('standby enrollment requires qualified live primary and standby')
- const epoch=(session,service)=>{const r=getRecord(session),p=peerRecord(session),selected=loadReceiverSelection(r.cwd);if(!p||selected.selector.sessionId!==session||selected.selector.serviceId!==service||p.pid!==selected.selector.pid||p.procStart!==selected.selector.procStart)throw Error('enrollment selection changed');return {sessionId:session,serviceId:service,cwd:r.cwd,pid:p.pid,procStart:p.procStart}}
+ if(!(plan.action==='wait'&&plan.reason==='primary-live')&&!(allowAbsentPrimary===true&&plan.action==='recover'&&plan.coldRecoveryEligible===true))throw Error('standby enrollment requires qualified live primary and standby')
+ const epoch=(session,service)=>{const r=getRecord(session),native=peerRecord(session),p=native??(allowAbsentPrimary&&session===args.session_id?primaryEpoch:null),selected=loadReceiverSelection(r.cwd);if(!p||selected.selector.sessionId!==session||selected.selector.serviceId!==service||p.pid!==selected.selector.pid||p.procStart!==selected.selector.procStart)throw Error('enrollment selection changed');return {sessionId:session,serviceId:service,cwd:r.cwd,pid:p.pid,procStart:p.procStart}}
  return validateStandbyEnrollment({schemaVersion:1,primary:epoch(args.session_id,args.target_service_id),standby:epoch(args.session,args.service_id),familyRequestId:args.family_request_id,enrolledAt:Date.now()},args.session_id)
 }
-export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify=qualified,historyRoot=join(STATE_DIR,'standby-enrollment-history'),automaticRecovery,recoveryParentJobId}={}){
+export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify=qualified,historyRoot=join(STATE_DIR,'standby-enrollment-history'),automaticRecovery,recoveryParentJobId,allowAbsentPrimary=false}={}){
  if(!sid.test(args.session_id||''))throw Error('exact primary required')
  return withLock('standby-enrollment-'+args.session_id,async()=>{
-  let after=validateStandbyEnrollment(await qualify(args,{signal}),args.session_id);const before=readStandbyEnrollment(args.session_id,{dir})
+  const before=readStandbyEnrollment(args.session_id,{dir});if(allowAbsentPrimary===true&&(!before||expectedSha256!==standbyEnrollmentDigest(before)))throw Error('absent primary refresh requires exact existing binding')
+  let after=validateStandbyEnrollment(await qualify(args,{signal,allowAbsentPrimary,primaryEpoch:allowAbsentPrimary?before.primary:undefined}),args.session_id)
   if(automaticRecovery!==undefined&&typeof automaticRecovery!=='boolean')throw Error('automatic recovery must be explicit boolean')
   if(automaticRecovery!==undefined||before?.schemaVersion===2)after=validateStandbyEnrollment({...after,schemaVersion:2,automaticRecovery:automaticRecovery??before.automaticRecovery},args.session_id)
   mkdirSync(dir,{recursive:true,mode:0o700});owned(dir);const file=join(dir,args.session_id+'.json')
@@ -49,12 +50,12 @@ export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify
   const row=readStandbyEnrollment(args.session_id,{dir});return {enrolled:true,verified:true,reused:!!before&&expectedSha256===undefined,enrollmentSha256:standbyEnrollmentDigest(row),primarySession:row.primary.sessionId,primaryServiceId:row.primary.serviceId,standbySession:row.standby.sessionId,standbyServiceId:row.standby.serviceId,familyRequestId:row.familyRequestId,enrollmentFile:file,automaticRecoveryEnabled:row.schemaVersion===2&&row.automaticRecovery===true,nativeEffectsPerformed:false}
  },{signal,timeoutMs:30000})
 }
-export async function inspectEnrolledStandby(primary,{signal}={}){
+export async function inspectEnrolledStandby(primary,{signal,allowStandbyMaintenance=false}={}){
  const row=readStandbyEnrollment(primary);if(!row)return {enrolled:false,effectsPerformed:false}
  const r=getRecord(primary),c=getRecord(row.standby.sessionId),unqualified=reason=>({enrolled:true,action:'inspect',reason,coldRecoveryEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:standbyEnrollmentDigest(row)})
  if(!r||!c||r.cwd!==row.primary.cwd||c.cwd!==row.standby.cwd)return unqualified('enrolled-record-changed')
  const selected=loadReceiverSelection(r.cwd),standby=loadReceiverSelection(c.cwd)
  if(selected.selector.serviceId!==row.primary.serviceId||standby.selector.serviceId!==row.standby.serviceId)return unqualified('enrolled-generation-changed')
- const plan=await inspectStandbyRecovery(row.standby.sessionId,row.standby.serviceId,row.primary.sessionId,row.primary.serviceId,row.familyRequestId,{signal})
+ const plan=await inspectStandbyRecovery(row.standby.sessionId,row.standby.serviceId,row.primary.sessionId,row.primary.serviceId,row.familyRequestId,{signal,allowStandbyMaintenance})
  return {...plan,enrolled:true,automaticRecoveryEnabled:row.schemaVersion===2&&row.automaticRecovery===true,enrollmentSha256:standbyEnrollmentDigest(row)}
 }

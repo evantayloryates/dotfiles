@@ -1555,5 +1555,21 @@ standby. It inventories at most 128 owned binding files, retains each prior dige
 before turnover, and reports per-primary `standbyEnrollmentRefreshes`. The normal
 same-epoch CAS and native scope qualification still apply; it does not retarget a
 PID or carry a retired generation as authority. A failed refresh leaves the prior
-binding stale and reports `qualified:false`. This refresh requires a qualified
-live primary; it does not establish renewal/recovery when that primary is absent.
+binding stale and reports `qualified:false`. Normal reciprocal refresh requires a qualified live primary. The internal cold
+admission path can instead refresh an exact existing binding after independently
+proving the original primary absent. It requires the old digest and retained
+primary epoch; it cannot create an absent-primary enrollment or change either
+native process identity. That absent-primary path remains natively unqualified.
+
+
+Before cold admission, an expired, low-margin or exhausted standby may require
+one same-process generation renewal. The internal planner may return
+`renew-standby` only after checking actual original-primary absence, exact sealed
+scope, terminal retained family and zero unknown effects. This is not cold
+eligibility and causes no effects by itself. Live or still-present primaries,
+STOP markers, changed identities and unknown effects never grant this renewal.
+The original recovery parent records a deterministic `standbyRenewContextId`
+before renewal, retains the old digest, checks the renewed binding and rechecks
+cold admission before submitting its one recovery child. A failed/uncertain
+renewal, CAS or checkpoint stops the original request. The current enrollment
+remains disabled until this complete native path is qualified.

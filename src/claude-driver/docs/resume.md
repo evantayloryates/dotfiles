@@ -1,3 +1,48 @@
+## October 17 absent-primary standby lease admission candidate
+
+Previousbatch published1638339. Cold admission can now distinguish a structurally
+qualified standby whose lease margin/capacity alone requires renewal. Internal
+allowStandbyMaintenance planner returns renew-standby ONLY AFTER independently
+absent primary/old OS PID, exact retained family/scope/terminal history/0unknown.
+Live or still-present primary, STOP, busy actor or changed/unknown evidence never
+grants renewal. Public read-only default plan still fails closed without effects.
+
+Original recovery parent records before/after standby renewal and deterministic
+standbyRenewContextId(native context, not scheduled driverjob). Reuses existing
+renewIndependentService under standby generation lock. Internal absentPrimaryBinding
+requires exact existing primary/digest/standby service and independently repeats
+renew-standby plan before preparing. No new target, wake or permission authority.
+After same-process turnover, internal enrollment refresh may use absent primary's
+retained exact epoch only with existing digest, cold-qualified native plan and
+same-epoch CAS. Cannot create absent enrollment or retarget either PID. Original
+parent validates successful reciprocal refresh, actor successor, same primary
+service/family/epochs/automatic setting; retains prior digest, updates current
+digest, then rechecks cold eligibility before one cold child. Unknown renewal,
+CAS, checkpoint or changed admission stops without replay.
+
+Focused22tests PASS across planner/admission/enrollment/renewal: expired/low-margin/
+exhausted lease requires actual absence and all structural gates; healthy skips
+renewal; failures/changed guards/checkpoints never advance/repeat; absent refresh
+requires existing exact digest before qualifier. Full isolated
+v2-2026-10-17T23-03-35-572Z.json1/1PASS/sourceunchanged. Both filtered
+harness-v2-{claude,codex}-2026-10-17T23-03-11-145Z.json10checks each PASS.
+FINALHOST3193bc187ba86fa413556a0b6fc0c2a4e921dddc02552b1878f197ca2cc95b35. No native absent-primary renewal/cold/rebind was performed.
+Prior native healthy standby renewal/coexistence remains e607 source evidence.
+
+Current primarycb68, standby5f126077aa5c412c9b23713d07071de6, binding
+a2a38331a437289d5cf630ef72801fef54d82d973a957c8043bf87df67eb0f6e unchanged. Actual
+status waitprimary-live/effectsfalse/recoveryAttemptedfalse/automaticRecoveryEnabled:false.
+No new native messages, wakes, generation turnover, app restart, archivecycle,
+process termination, newchat, permission/input change. Runtime source changes do
+not hot-change either sealed service.
+
+NEXT: native absent-primary/expired-standby renewal -> cold recovery -> exact
+standby rebind -> subsequent ordinary control qualification before enabling auto
+routing. Do not treat synthetic cases as native success. No deliberate current-
+primary failure solely for green. Broad appquit/bothgone/naturalpressure/creation/
+fork/archive/window/person gates remain. Goal active; legacyobserver owns legacy
+recovery, watcher paused, Codex-driver and 1Password parked.
+
 ## October 17 standby renewal retains reciprocal enrollment — native qualified
 
 Previousbatch published10ec858. Public enrolled-controller lookup does not require
