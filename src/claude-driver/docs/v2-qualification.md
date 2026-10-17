@@ -1,3 +1,60 @@
+## Second native cycle: persisted trust, one wake, new peer and cold rebind passed — October 17
+
+No runtime edits; source remains92d850ec257d5a4b7dea24fca3e89c2b5a26a3e1dd28726ace7248a4754a977a.
+Revalidated both live idle receivers/readiness/no unresolved. Explicit NEW controller
+preparation j9a2d9461af6e43d6878826b8e205b33c sealed current target interruptPID89369/
+start20:45:45UTC (no silent retarget). Prior transportde125... quiescedjc42c211f7ee746c396e51563599a121d,
+retiredjb1501766cefd41a2b8badb3e4a64ed5d. Controller activationjf089b6847fdf431eae22253cc0474dc7,
+actualready/policyjaa80079e34464f8a918fda90e7799683 verified samePID31678/start20:14:51UTC.
+CURRENT transport controller service9a2d9461af6e43d6878826b8e205b33c.
+
+Target native familyj1edf9c5944d24041adcabd77fa20d389 independently parsed0members;
+record unpinned/noPR/noWorktree/bypass. Targeta371... quiescej787125c474814cb8810f3d199d186f23,
+retirejdcceb2e61826466fbed232f95043fb06 completed five terminal attempts/no unresolved.
+Native archivej1da8c4b6f8e64f4f8dcaa9a70f95ca6b verified actual persistedarchive and
+PID89369absence, receipttoolu_plugin_a2e2d24ddb1c4fbd98fd1f21a1786ff1. Intentional
+archive, not crash/governor. Unarchivej97f4ab5dd8de438fb67cbfba4999b12f restoredrecord/
+focus; independent targetpeerabsent/oldPIDabsent before wake. No open/retry needed.
+
+ONE native wakej2bbc05a3fe764356965771925aae333b completed receipt
+toolu_plugin_2b48a481e0b74a3d9b59aa56864ec702, native delivery:delivered/message_id
+c7e93f62-2836-4193-813a-62f1657a996b. No human step this cycle. New nativePID96997/
+startSatOct17 20:49:14UTC observed busy thenidle. Pre-captured cursor independently
+observed userUUIDe2199bc9-fc94-4094-bb0a-87ee0f307b34, exact hostInjected peer origin
+from transportcontroller, followed by metadata-only ancestors and assistant
+b6638cc4-fb80-4f90-bdf4-de280feb9c4a/end_turn/COLD_RECEIVER_READY/tools0.
+Journal lacks native message_id (do not claim exact message-ID match); exact
+post-cursor origin/time/known fixed reply and lineage retained. Native receipt
+alone remains distinct from this independent applied reply/process evidence.
+
+Preparedj6195ac63602d49d3a32d70804b1554df; coldactivationj30a270aa10cc47418a5d3814a6e9a732
+retained olda371...selector and absentPID89369, installed onPID96997. Actualready,
+identical stable anchor/settingshashes, policyj15cd161035084e5c8b2c807834848a99 and
+native readj21f32c3e459c444c8b982cc0c0c32a76 passed; receipt
+toolu_plugin_aefc9e7efbd44973a2fda1f056513238, no unresolved. CURRENT interrupt
+service6195ac63602d49d3a32d70804b1554df. Transport9a2... remains sealed to OLD89369:
+cannot dispatch archive/wake to newer epoch without explicit fresh preparation.
+
+Actual real-MCP current-route harnesses BOTH pass14checks on recovered6195...:
+harness-native-current-claude-2026-10-17T20-50-06-029Z.json and
+harness-native-current-codex-2026-10-17T20-50-07-175Z.json (configuredgpt-6-sol).
+Source/globalconfig unchanged, exacttwo submissions/sameparent/derivedread/native
+receipt/no modelturn/no maintenance all verified. No further synthetic repeats
+because runtime/tests unchanged and last pressure passed. Private existing plan
+secondNativeCycle retains every request/job/result/cursor/receipt/epoch/hash/harness;
+local cycle-two.mjs helper only submits/re-attaches exact persisted child identities.
+No legacyrestart/CUA/keyboard/quarantine/auth/permission edits.
+
+This proves ONE complete post-trust intentional archive→exit→unarchive→nativewake
+→fixedreply→coldrebind→real-MCP read cycle without human intervention. The first
+cycle needed human trust. Not a crash/app-restart/deleted-session or unattended
+supervisor proof. Next promote the tested coordinated sequence into a bounded
+durable service-level recovery operation with before/after child checkpoints,
+original identity reattachment and explicit failure/unknown handling. Existing
+current-route handles read/renew/probe but not this cold lifecycle. Avoid endless
+manual proof cycles or broad app restart while legacyobserver owns legacybroker.
+Goalactive; watcherpaused; Codex bridge fixes/1Password separate.
+
 ## Supported module entry loaded; native input wait now observed — October 17
 
 Previous blocked state was based on unverified loading/consent. Taylor's screenshot

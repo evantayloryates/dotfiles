@@ -1190,3 +1190,13 @@ Stable hook/settings hashes remained identical and retired selector was retained
 This proves post-trust cold rebind; automatic cold wake and crash recovery remain
 separate acceptance gates. Test worker startup waits are bounded and reject
 terminal workers so a source-change failure cannot hang pressure evidence forever.
+
+
+After the one-time human trust approval, a second scoped native cycle on the same
+scratch completed archive/physical exit/unarchive/one native wake/new-process
+observation/tool-free fixed reply/cold rebind/native policy and metadata reads,
+with both fresh MCP harnesses passing. This is one observed post-trust recovery
+cycle. The steps were explicitly coordinated using durable child jobs; unattended
+supervision, arbitrary crashes/app restarts and deleted-session replacement are
+not established by this result. A new target epoch requires a newly sealed
+controller capability; old capabilities are never silently retargeted.
