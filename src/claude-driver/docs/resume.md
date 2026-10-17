@@ -1,3 +1,21 @@
+## Family preflight contract prepared, native query still pending — October 17
+
+Added lib/native-family-preflight.mjs with a fixed caller-family query
+{include_archived:true,limit:100,linked:true}. Pure normalized-metadata review
+refuses broadened query keys/values, absent/full-limit responses, malformed or
+duplicate IDs, caller inclusion and missing/extra/duplicate ownership reviews.
+Even passing review grants no archive authorization or physical-exit proof.
+It does not parse native content, qualify its receipt/epoch, or infer ownership.
+Three focused tests pass. Frozen-source pressure1/1passes at
+pressure/v2-2026-10-17T20-03-17-452Z.json; filtered synthetic-store Claude/Codex
+harnesses each pass10checks at pressure/harness-v2-claude-2026-10-17T20-03-11-408Z.json
+and pressure/harness-v2-codex-2026-10-17T20-03-11-409Z.json. These are synthetic
+operation/store checks, not native family or recovery qualification.
+No native query, module installation, process control,
+permission change or app restart performed. Existing get_session receiver remains
+unchanged. Next integrate a separately receipt-qualified native family read through
+the independent service, then use this preflight before scoped lifecycle testing.
+
 ## Explicit cold epoch rebind admission prepared, not executed — October 17
 
 Extended experimental activation with cold_rebind:true, requires stable_hook:true.
