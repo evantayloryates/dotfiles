@@ -1014,9 +1014,14 @@ export const OPS = [
   },
   {
     name:'broker_service_enroll_standby',title:'Bind one exact independent standby',
-    description:'Explicit exact live-primary/standby generation and terminal empty-family enrollment. Filesystem only, no wake or automatic failover. Existing bindings require expected digest for same-epoch refresh; prior bytes retained. Changed sessions/epochs refuse.',
-    schema:{required:['session','service_id','session_id','target_service_id','family_request_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string'},session_id:{type:'string'},target_service_id:{type:'string'},family_request_id:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit standby enrollment required');return (await import('./standby-enrollment.mjs')).enrollStandby(args,{signal:ctx.signal,expectedSha256:args.expected_enrollment_sha256})},
+    description:'Explicit exact live-primary/standby generation and terminal empty-family enrollment. Filesystem only, no immediate wake. Explicit automatic_recovery:true enables later request-triggered recovery after independent absence checks. Existing bindings require expected digest for same-epoch refresh; prior bytes retained. Changed sessions/epochs refuse.',
+    schema:{required:['session','service_id','session_id','target_service_id','family_request_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string'},session_id:{type:'string'},target_service_id:{type:'string'},family_request_id:{type:'string'},expected_enrollment_sha256:{type:'string'},automatic_recovery:{type:'boolean'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit standby enrollment required');return (await import('./standby-enrollment.mjs')).enrollStandby(args,{signal:ctx.signal,expectedSha256:args.expected_enrollment_sha256,automaticRecovery:args.automatic_recovery})},
+  },
+  {
+    name:'broker_service_recover_enrolled',title:'Recover through one exact standby enrollment',
+    description:'Experimental durable one-shot cold recovery from an exact enrollment digest. Independently absent original process, no current peer, qualified standby and zero unknowns required. Rechecks before child publication; never archives a live primary or repeats an uncertain wake. No app restart or permissions. New epoch leaves standby rebind explicitly pending.',
+    schema:{required:['session','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit recovery required');return (await import('./enrolled-recovery.mjs')).recoverEnrolledController(args.session,{...ctx,expectedSha256:args.expected_enrollment_sha256})},
   },
   {
     name:'broker_service_standby_status',title:'Inspect an enrolled standby',readOnly:true,

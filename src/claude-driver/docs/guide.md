@@ -1495,8 +1495,8 @@ session/service and a retained empty-family request ID. It reads current native
 and historical evidence and returns eligibility only. `wait: primary-live` forbids
 cold recovery; changed generations, unknown effects, STOP, stale family proof or
 unqualified standby fail closed. Missing peer state never establishes a crash.
-The staged standby is not yet wired into automatic control routing. Generation
-renewal must refresh retained family proof before future cold recovery.
+Request-triggered cold routing requires an explicitly enabled exact enrollment.
+Generation renewal must refresh retained family proof before cold recovery.
 
 ### Durable standby enrollment
 
@@ -1504,7 +1504,21 @@ renewal must refresh retained family proof before future cold recovery.
 verified terminal empty-family receipt. Existing bindings are immutable without an
 exact `expected_enrollment_sha256`; refresh preserves both native epochs and keeps
 the prior bytes in history. `broker_service_standby_status` inspects the retained
-binding without effects. Enrollment does not enable automatic cold recovery.
+binding without effects. Enrollment defaults to automatic recovery disabled.
+Explicit `automatic_recovery:true` opts into request-triggered recovery; changing
+an existing choice requires the exact prior digest. Renewal preserves that choice.
+The deployed scratch binding remains disabled pending native cold qualification.
+
+`broker_service_recover_enrolled` is an experimental durable one-shot operation
+requiring the exact binding digest. It and enabled control routing require actual
+original-process absence, no current peer, no unresolved effects, qualified sealed
+standby and the retained empty-family proof. Checks repeat before publishing one
+stable recovery child. No live primary archive, app restart or permission change
+is implied. Inspect the original parent/child after uncertainty; never replay it.
+Recovered control results expose `coldRecoveryJobId` and `standbyRebindRequired`.
+A new primary epoch does not automatically update the standby's sealed authority;
+rebind/reseal remains a separate unqualified step. These paths do not establish
+unattended recovery from app quit or loss of both controllers.
 
 Primary renewal captures a fresh family receipt and refreshes an enrolled binding.
 It needs capacity for policy, family and a later operation. A failed standby

@@ -1,3 +1,48 @@
+## October 17 trust confirmation and enrolled recovery routing candidate
+
+Taylor supplied /Users/taylor/Desktop/check-1.png and confirmed accepting its
+native workspace trust prompt. Screenshot names the exact interrupt scratch cwd
+and shows bypass permissions; it depicts the prompt before acceptance. Current
+CLI independently verifies interrupt PID90418/start21:37:26 UTC idle, readiness
+and native policy observed, zero unresolved requests, unchanged standby3e8045.
+No additional human trust step is required by this observation.
+
+Candidate adds explicit schema-v2 automaticRecovery boolean to exact standby
+bindings. V1 remains disabled; enabling/disabling requires existing digest CAS;
+ordinary same-epoch renewal preserves explicit v2 choice. Added enrolled cold
+recovery composition: independent absence/retained family/exact standby and target
+scope checked before ledger and again before one stable durable recovery child.
+Unknown child, changed admission, missing restored role or new-epoch verification
+halts without replay. Original parent ledger retains submission, child and outcome.
+Recovered epochs explicitly require standby rebind; current epoch CAS still refuses
+retargeting. Ordinary controller maintenance consults this only after status failure
+and only for explicitly enabled enrollment. No global restart or background wake.
+
+LIVE negative enrolledRecoveryLiveRefusal jea3e3e17209a439fb5527540ae81b6fa
+refused before ledger/child: primary remains live, no effects. Binding unchanged,
+digest905865a4622eef6f6f5a9dd59db218be64ce471f3754d8bc80349217b9a02869,
+automaticRecoveryEnabled:false. Do not replay negative parent. No native cold
+recovery has been qualified or enabled; do not infer always-on behavior.
+
+Focused19 tests pass. Full isolated v2-2026-10-17T22-51-29-004Z.json passes1/1;
+both filtered harness-v2-{claude,codex}-2026-10-17T22-51-{16-390,17-547}Z.json
+pass10 checks each. Source0fa6c2cb5591600d023820051da594d5bc509fdabe8228911c1516d64f872339.
+Healthy native Codex send coexistence passed all18 checks in
+harness-native-native-send-codex-2026-10-17T22-51-56-916Z.json: exact recipient
+receipt/causal reply, same durable job and no maintenance/recovery children. Initial
+invocation used nonexistent harness-native.mjs and failed before any native effect;
+correct existing entrypoint harness-native-service.mjs supplied this evidence.
+Final delta preserves post-recovery error effects/retrySafe:false in send/stop.
+FINALHOST38891079243d43296f5f8a8b8ee38ee46c85aa8974838892295e0dbcf3c6e4b3.
+Full isolated v2-2026-10-17T22-52-53-822Z.json passes1/1, both filtered harnesses
+harness-v2-{claude,codex}-2026-10-17T22-52-32-{346,345}Z.json pass10each on final
+source. Native coexistence predates only final error bookkeeping; no claim of
+native cold qualification. Existing sealed services remain unchanged.
+NEXT: actual absent-primary cold qualification,
+controlled standby rebind/reseal and appquit/bothgone cases remain incomplete.
+Goal active. Legacy observer retains recovery ownership; watcher paused. No CUA,
+keyboard, quarantine/auth changes, new chats or process termination.
+
 ## October 17 durable standby enrollment refreshes across primary renewal
 
 Previousbatch published80602ef. Addedstandby-enrollment.mjs andpublic
