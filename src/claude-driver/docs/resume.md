@@ -1,3 +1,59 @@
+## Owned settings retirement and live generation replacement — October 17
+
+Previous turn progressed durable locators and staged indexed successor2e21.
+Extended existing broker_service_retire with independent-only retire_settings:true.
+Global receiver activation lock serializes settings retirement against activation;
+private broker lock still covers current terminal/STOP/retired-source review.
+After module retirement, exact owned policy settings are exclusively moved to
+old namespace retired-settings.json, never deleted or overwritten. Ledger records
+before-move/hash and retained phase; exact backup can be read as uncheckpointed
+and explicitly finalized after partial move, without moving or overwriting again.
+Unrelated current/successor settings are preserved; legacy route refuses this flag.
+
+Historical-only context now inspects preserved retired source, not current watched
+path. A successor can occupy that path without redefining predecessor evidence.
+watchedPathAssessed:false makes this explicit; retirement ledger/STOP/inventory
+remain required, so an unretired installed source does not acquire history mode.
+Retired settings are verified against original policy hash and phase, independent
+of a successor's current settings. Live dispatch still uses current settings and
+strict installed generation; historical evidence never grants dispatch authority.
+Six focused tests cover retained old settings with unrelated successor bytes,
+corrupt backup refusal, missing retirement/drift and existing source/tree gates.
+
+Actual settings-retirement jobjca3ec970640f40abbe6896a80db384de preserved original
+db2 settings hash and STOP; shared settings path absent. Old history verified via
+retained-settings. Then existing empty-receiver activation job
+j4a980a08cc8a41feb65355053c80ac75 installed prepared successor
+2e2144d47ac746cc9b6ad646578b21e2 on SAME interrupt74/PID20499/start15:48:23UTC.
+Native watcher wrote fresh readiness automatically, no additional human consent.
+Sealed successor source dc9604... remains distinct from current host8de1fe... .
+Tool-free successor boundary jobj3dd2982ba06a48e79169c0150a39072f returned exact
+SUCCESSOR_POLICY_BOUNDARY_OK/tools0. Missing-request self-test
+rpeer02f63b522baf404cb8f2b5f73c6cfa21 retained valid native refusal/helper/policy
+and independently terminally reviewed; no unresolved attempts.
+
+Successor public read jobjd464f215658848479e243cd8271f6514 returned exact derived
+request rpeerd464f215658848479e243cd8271f6514; receiptVerified:true,published:true,
+cleanupPending:false. Native toolu_plugin_992300dcc85f4b88bfcfc3c0cc2623e8.
+Target control8f session/title/cwd/archive metadata independently matches.279ms
+module path, not SLA; native journal growth0. Same key reattached same job; result,
+admission/control hashes unchanged. Same idle native epoch. Old STOP and retained
+settings hashes unchanged; predecessor historical status still verifies while
+successor is installed. Successor budget2/4 used (self-test + settled read); two
+unused slots, no replay. No app restart/process signal/permission change.
+
+Evidence existing probe/scratch-native-read-2026-10-17/empty-receiver-activation.json
+settingsRetirement,successorActivation,successorBoundary,successorRefusal,successorRead.
+All original retired bytes, locators and failures remain. Current successor module
+and settings intentionally left live/bounded to its private deadline; old STOP stays.
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-58-11-158Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-57-58-138Z.json.
+Next supported native process disposition and actual warm/cold/record-loss recovery,
+current-source real harness integration and natural-pressure/always-on proof.
+Manual composition of verified operations is not unattended recovery qualification.
+No pending sender/worker/waiter. Goal active; Codex fixes and old d5 unknown untouched.
+
 ## Durable generation locators independent of app records — October 17
 
 Previous turn progressed retired-history mode without native version/peer reads.

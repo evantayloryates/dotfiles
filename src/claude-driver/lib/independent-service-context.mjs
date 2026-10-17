@@ -33,13 +33,13 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  if(!release||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId||!historicalOnly&&(!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd))refuse()
  const watchedModule=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods',session.slice(6),'desktop-bridge-native-peer-service')
  let module=watchedModule,retirement=null,sourceDisposition='installed'
- try{lstatSync(watchedModule)}catch(error){
-  if(error.code!=='ENOENT'||!allowRetired)refuse()
+ const useRetired=()=>{
   retirement=json(join(STATE_DIR,'retirement.json'))
   if(!independentRetirementLedgerMatches(retirement,{serviceId,pointer})||!independentStopMatches(json(join(BROKER_DIR,'STOP')),{serviceId,pointer}))refuse()
   module=join(STATE_DIR,'retired-module');sourceDisposition=retirement.phase==='files-retired'?'files-retired':'files-retired-uncheckpointed'
  }
- if(historicalOnly&&!retirement)refuse()
+ if(historicalOnly)useRetired()
+ else try{lstatSync(watchedModule)}catch(error){if(error.code!=='ENOENT'||!allowRetired)refuse();useRetired()}
  const source=bytes(join(module,'hooks/register.js')).toString('utf8'),prefix='const CONFIG=Object.freeze(',end=source.indexOf(');\n')
  if(!source.startsWith(prefix)||end<0)refuse()
  const config=JSON.parse(source.slice(prefix.length,end)),pkg=await buildSealedIndependentPackage(pointer.build,config),epoch={pid:pointer.pid,procStart:pointer.procStart,build:pointer.build}
@@ -47,8 +47,10 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  for(const[name,expected]of Object.entries(pkg.hashes))if(hash(bytes(join(module,name)))!==expected)refuse()
  if(retirement&&JSON.stringify(ordered(snapshotIndependentModule(module,pkg.hashes)))!==JSON.stringify(ordered(retirement.inventory)))refuse()
  const policy=json(join(BROKER_DIR,'stop-rescue-policy.json')),settings=nativePolicySettingsPath({pointer,policy,dir:BROKER_DIR})
- if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settings))!==policy.settingsHash)refuse()
+ let settingsEvidencePath=settings,settingsEvidence='current-settings'
+ if(retirement){try{const retained=join(STATE_DIR,'retired-settings.json');bytes(retained);if(!['before-move','retained'].includes(retirement.settingsPhase)||retirement.settingsSha256!==policy.settingsHash)refuse();settingsEvidencePath=retained;settingsEvidence=retirement.settingsPhase==='retained'?'retained-settings':'retained-settings-uncheckpointed'}catch(error){if(error.code!=='ENOENT')throw error}}
+ if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settingsEvidencePath))!==policy.settingsHash)refuse()
  if(requireIdle&&peer.status!=='idle')refuse()
- return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,verificationMode:historicalOnly?'historical-retired':'live-native',pkg,read:name=>json(join(BROKER_DIR,name))}
+ return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':'live-native',pkg,read:name=>json(join(BROKER_DIR,name))}
 }
 export {bytes as independentBytes,json as independentJson,ordered as independentOrdered}

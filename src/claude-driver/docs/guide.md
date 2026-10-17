@@ -935,7 +935,7 @@ For retained evidence after a receiver crash or app update, request
 read-only retired-source inspection. It never calls current version/peer observers,
 assesses native readiness, publishes receipts, dispatches or recovers. It reports
 `verificationMode:historical-retired`, `nativeEpochAssessed:false` and native status
-not-assessed. Installed source and legacy routing refuse this mode. The existing
+not-assessed. A verified retirement ledger and preserved retired source are required; current watched state is not assessed. Legacy routing refuses this mode. The existing
 app session record is still needed to resolve receiver cwd; deletion recovery
 requires a future independently owned generation index.
 
@@ -948,3 +948,16 @@ creation, readiness, native effect or recovery authority. Missing locators may u
 legacy app-record resolution; malformed or conflicting existing locators refuse.
 This preserves evidence lookup if the app record disappears, without deleting,
 recreating or silently switching the user’s chat.
+
+
+To free the shared settings path after independent module retirement, explicitly
+request `broker_service_retire {session, service_id, retire_settings:true,
+experimental:true}`. It verifies current ownership and preserves exact original
+bytes in the retired namespace, using exclusive movement rather than overwrite.
+The receiver activation lock prevents cooperating activation races. STOP and all
+receipts remain. Interrupted settings movement is inspected/finalized from exact
+retained bytes; it never triggers automatic restoration over successor settings.
+Historical status verifies retained settings and ignores current watched-module
+state, so predecessor evidence remains inspectable alongside an active successor.
+Then the existing empty-receiver activation path can install a prepared generation;
+loading, settings boundary and serving must still be independently qualified.
