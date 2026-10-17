@@ -1,3 +1,35 @@
+## Independent terminal-attempt inventory — October 17
+
+Previous turn made progress: public preparation and refusal receipts published.
+Activation review now adds read-only attempt inventory to independent status.
+It unions validated budget reservations with raw owned native intents, including
+attempts absent from host slots. Only full exact ready/intent/request/helper/native
+admission/control/runtime-policy binding review plus an already-published matching
+standard result counts as settled. Missing/malformed receipts remain unresolved.
+Refusal callbacks are listed separately and remain unresolved; this inventory
+never publishes, reconciles, authorizes retirement or claims native unload.
+Current-source pressure1/1pass: pressure/v2-2026-10-17T18-29-49-457Z.json.
+Both filtered harnesses ten checks pass with unchanged source/config:
+pressure/harness-v2-claude-2026-10-17T18-29-38-413Z.json and
+pressure/harness-v2-codex-2026-10-17T18-29-39-555Z.json.
+Four focused tests cover raw intents, missing records, forged publication,
+foreign/bounded inventory, successful result and corrupt admission/publication.
+
+Actual installed d5 generation status independently verified same receiver8f,
+PID42813/start16:03:11UTC, idle; one settled native read b584..., one unresolved
+policy self-test9022.... The self-test retains exact native helper completion but
+lacks historical callback refusal receipt. No inferred no-effect, retroactive
+receipt or replay. Intent/helper/original native result hashes unchanged across
+review. Evidence: public-read-d5e108a08b91ff3f3260f2a89b8d8584/plan.json
+attemptReview under probe/scratch-native-read-2026-10-17.
+
+This blocks blind replacement of this generation, not all engineering progress.
+Next activation implementation should support a verified empty owned scratch
+receiver separately from predecessor transitions; preserve the old generation
+and its unresolved history. An expired deadline alone never clears attempts.
+Then qualify new refusal receipts natively and implement controlled retirement.
+Physical process retirement, recovery/always-on remain open; goal active.
+
 ## Public preparation verified; refusal receipts added — October 17
 
 Added broker_service_prepare as a durable preparation-only operation for an

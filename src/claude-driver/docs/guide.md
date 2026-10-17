@@ -867,3 +867,11 @@ Exact helper dispatch:false callbacks may produce immutable no-dispatch receipts
 These prove only the scoped callback observation after strict evidence screening;
 retirement and lifecycle settlement still require independent helper, admission,
 control, source and native epoch review.
+
+Independent service status also inventories reserved IDs and owned native intents.
+`settledRequestIds` requires full historical native evidence and an exact existing
+standard published result. `unresolvedRequestIds` includes missing or malformed
+evidence; `callbackRefusalRequestIds` is a subset requiring further review.
+`terminalAttemptReviewComplete` describes this bounded inventory only;
+`retirementAuthorized` and `scopedUnloadQualified` remain false. Status never
+rewrites receipts or controls, and expiration never resolves uncertainty.
