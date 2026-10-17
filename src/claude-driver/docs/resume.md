@@ -1,3 +1,39 @@
+## Supported loader entry reached native input gate — October 17
+
+Previous turn progressed empty-receiver activation. Fresh status confirmed native
+receiver74/PID20499/start15:48:23UTC idle, installed context valid, readiness and
+policy loading absent. One durable direct loader-entry job
+jb9331be319684c41a0b2ac01f543e741/operation interrupt-native-loader-entry-20261017
+received exact native userf256a0b4-c958-4665-b82f-ff2832498648, message
+14e78ad6-601c-4d4f-9c2b-77e14481a453. Requested only builtin plugin-authoring
+Skill, no suggestions/files/other tools/permissions or consent-card response.
+Correlated toolu_019boZfpkT2Wduc8DT6kWEcN invoked Skill once with successful native
+result. Model claimed no human consent pending; native peer independently changed
+to waiting/input needed. Do not accept model claim as native state proof.
+
+Public status now reports nativeInputRequired:true plus observed activation phase
+installed. Checkpoint phases never imply effects; activationEffectsAssessed:false.
+Readiness and native policy remain false, reservations/attempts zero. No ready
+challenge or workload sent; no duplicate loader message. Private evidence:
+probe/scratch-native-read-2026-10-17/empty-receiver-activation.json loaderEntry.
+Human question pending in this Codex chat: inspect Claude Desktop existing
+claude-driver-interrupt-scratch-2026-10-15; if Enable hot reloading for this session,
+choose Enable for this session and Submit, otherwise report exact prompt wording.
+Skill explicitly forbids agent clicks on approval cards. Do not forge/replay input.
+This is native input gating, not a broker crash or permission-mode failure.
+
+Final pressure1/1pass: pressure/v2-2026-10-17T18-35-12-474Z.json.
+Both filtered harnesses ten checks pass with unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-34-58-508Z.json.
+Added strict phase-only ledger summary with regression for foreign ID, malformed
+phase/time/build and false serving claims. Partial activation status can retain
+observed phase even when installed context unqualified; status never resumes effects.
+Next after human response: verify same epoch, idle, unexpired bytes/config and
+actual consent/loading evidence before a single persisted ready challenge. Then
+qualify policy boundary/refusal receipt/public read. Independent work may continue
+on lifecycle recovery; no goal completion/blocked claim. Original d5 unresolved
+self-test and Codex bridge fixes remain untouched.
+
 ## Empty-receiver activation installed; readiness pending — October 17
 
 Previous turn progressed attempt inventory. Added broker_service_activate for a

@@ -9,3 +9,11 @@ export function summarizeIndependentBudget(config,slots){
  }
  return {configuredMaxRequests:config.maxRequests,reservedSlots:reserved.length,unreservedSlots:config.maxRequests-reserved.length,reservedRequestIds:reserved}
 }
+
+// A checkpoint records intention/progress, not whether its effect happened.
+export function summarizeIndependentActivationLedger(ledger,{serviceId,session}){
+ if(ledger===null)return {activationPhaseObserved:null,activationEffectsAssessed:false}
+ const phases=['created','installed',...['policy','pointer','settings','publish'].flatMap(p=>['before-'+p,'after-'+p])]
+ if(!ledger||ledger.schemaVersion!==1||ledger.kind!=='independent-service-activation'||ledger.serviceId!==serviceId||ledger.sessionId!==session||!phases.includes(ledger.phase)||!Number.isSafeInteger(ledger.at)||ledger.at<0||! /^[a-f0-9]{64}$/.test(ledger.build)||ledger.servingQualified!==false||ledger.scopedUnloadQualified!==false)throw Error('activation checkpoint unqualified')
+ return {activationPhaseObserved:ledger.phase,activationEffectsAssessed:false}
+}

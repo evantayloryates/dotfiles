@@ -885,3 +885,9 @@ record policy, pointer, settings and module publication; interrupted or failed
 activation requires inspection, never a blind retry or automatic rollback.
 Installation does not prove native loading, readiness, policy loading or serving.
 Human hot-reload consent remains independent and cannot be answered by this API.
+
+Independent status reports `activationPhaseObserved` from a strictly matched
+checkpoint and `activationEffectsAssessed:false`; a phase never proves the next
+or previous effect. `nativeInputRequired` describes a verified live waiting peer,
+not the cause of its prompt. Inspect the exact native chat; model prose, bypass
+mode and successful loader-tool return never establish consent or readiness.
