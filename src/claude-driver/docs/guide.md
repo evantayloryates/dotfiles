@@ -891,3 +891,11 @@ checkpoint and `activationEffectsAssessed:false`; a phase never proves the next
 or previous effect. `nativeInputRequired` describes a verified live waiting peer,
 not the cause of its prompt. Inspect the exact native chat; model prose, bypass
 mode and successful loader-tool return never establish consent or readiness.
+
+Independent status includes bounded `loaderNotificationObserved`, `loaderOutcome`
+and optional `loaderObservedAt` from the exact native session journal. Outcomes
+loaded/held/unbound/failed/declined/unanswered/off describe native notifications;
+unknown means no matched notification in the retained window, unavailable means
+the journal could not be stably inspected. Neither proves generation readiness,
+consent authority, serving or unload. Readiness still needs the generation-bound
+native receipt. This diagnostic never dispatches, retries or changes consent.

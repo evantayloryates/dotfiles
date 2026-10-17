@@ -1,3 +1,39 @@
+## Native loader notification observations — October 17
+
+Previous turn progressed supported loader entry/status and requested human input.
+Fresh same receiver74/PID20499/start15:48:23UTC remains waiting/input needed;
+no replayed loader message, ready challenge or workload. Human response still
+pending in this Codex chat. Do not manufacture or click consent.
+
+Added bounded native loader notification reader and independent status fields.
+Current installed2.1.299 Eo/Ro grammar distinguishes loaded, held (prompt cache),
+unbound, failed, declined, unanswered and off. Reader uses exact live peer-owned
+journal descriptor, no symlink, stable inode/size/times, at most256KiB/2048rows,
+exact enqueue/session/folder and timestamps within native process epoch. It emits
+metadata only; model prose/removal events/peer envelopes/foreign or future rows
+cannot qualify. Later negative/deferred outcomes supersede earlier loaded rows.
+Missing/changing/unreadable journal yields unavailable diagnostic without demoting
+independently verified installed context. ConsentAuthorized:false and
+ generationReadinessAssessed:false always; this observation never grants authority.
+
+Actual paired check: current interrupt74 has no loader notification and is waiting;
+older control8f has native loaded enqueue at17:35:34.241Z on same live epoch.
+Both installed contexts still independently verified; original d5 unresolved attempt
+unchanged. Evidence empty-receiver-activation.json loaderNotificationReview under
+probe/scratch-native-read-2026-10-17. Three focused grammar tests pass.
+Installed native prose says enable holds after restart, but no native restart or
+recovery proof is claimed. No app/process/permission change this turn.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-37-49-486Z.json.
+Both filtered harnesses ten checks pass with source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-37-33-146Z.json.
+Initial pressure/harness runs overlapped the final diagnostic error-handling edit;
+sourceChanged failures preserved (18:37 reports), not counted as qualification.
+Next after human reply: verify actual native outcome, same idle epoch and unexpired
+package; persist one ready challenge before bytes and verify exact new receipt.
+Native loading/serving, policy boundary, refusal receipts, controlled/physical
+retirement, recovery and always-on remain open. Goal active, Codex fixes parked.
+
 ## Supported loader entry reached native input gate — October 17
 
 Previous turn progressed empty-receiver activation. Fresh status confirmed native

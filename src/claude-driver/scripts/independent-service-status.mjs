@@ -5,6 +5,7 @@ import {BROKER_DIR,STATE_DIR} from '../lib/state.mjs'
 import {loadIndependentServiceContext,independentJson} from '../lib/independent-service-context.mjs'
 import {summarizeIndependentBudget,summarizeIndependentActivationLedger} from '../lib/independent-service-status.mjs'
 import {reviewIndependentAttempts} from '../lib/independent-service-attempts.mjs'
+import {observeNativeModLoading} from '../lib/native-mod-loading.mjs'
 import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
 const [session,serviceId]=process.argv.slice(2)
 let activation={activationPhaseObserved:null,activationEffectsAssessed:false}
@@ -18,5 +19,6 @@ try{
  const nativePolicyObserved=names.some(name=>{const a=c.read(name);return a.scope==='owned-native-policy-invocation'&&a.pid===pointer.pid&&a.procStart===pointer.procStart&&a.sessionId===session&&a.build===pointer.build&&a.generation===pointer.generation&&a.handlerSha256===policy.sha256&&a.settingsHash===policy.settingsHash&&Number.isFinite(a.at)&&a.at>=config.notBefore&&a.at>=Date.parse(pointer.activatedAt)&&a.at<=now})
  let readinessObserved=false
  try{readinessObserved=screenNativeServiceReady({config,ready:c.read('.native-service-'+serviceId+'.ready.json'),now:Math.min(now,config.deadline)})}catch(error){if(error.code!=='ENOENT')throw error}
- console.log(JSON.stringify({serviceId,sessionId:session,...activation,nativeInputRequired:c.peer.status==='waiting',verified:true,build:pointer.build,generation:pointer.generation,nativeEpoch:{pid:pointer.pid,procStart:pointer.procStart,status:c.peer.status},deadline:config.deadline,expired:now>config.deadline,readinessObserved,nativePolicyObserved,...budget,...attempts,servingQualified:false,recoveryAttempted:false}))
+ let loading;try{loading=observeNativeModLoading(c.peer,{now})}catch{loading={loaderNotificationObserved:false,loaderOutcome:'unavailable',consentAuthorized:false,generationReadinessAssessed:false}}
+ console.log(JSON.stringify({serviceId,sessionId:session,...activation,...loading,nativeInputRequired:c.peer.status==='waiting',verified:true,build:pointer.build,generation:pointer.generation,nativeEpoch:{pid:pointer.pid,procStart:pointer.procStart,status:c.peer.status},deadline:config.deadline,expired:now>config.deadline,readinessObserved,nativePolicyObserved,...budget,...attempts,servingQualified:false,recoveryAttempted:false}))
 }catch{console.log(JSON.stringify({serviceId,sessionId:session,...activation,verified:false,servingQualified:false,recoveryAttempted:false,reason:'independent-service-context-unqualified'}))}
