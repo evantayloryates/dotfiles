@@ -1,3 +1,47 @@
+## Explicit retired-history verification without live native dependencies — October 17
+
+Previous turn progressed filesystem retirement and scoped receive interception
+absence proof. Read-only process mechanism review found native-resource-process
+qualifies spawned probe children, not desktop CLI retirement. No old stop grant,
+process signal, native stop, app restart or session mutation used this turn.
+Physical retirement still unproven; do not substitute turn-stop for process exit.
+
+Added broker_service_status historical:true with explicit independent session.
+Only retired watched-directory-absent generations qualify. Verifies retained
+active pointer/sealed generator/package/inventory, own STOP, policy/settings and
+attempt history; no current app-version or peer read and no current permission-
+mode requirement. Live/default status and all mutation/dispatch paths retain strict
+current version/peer/mode gates. Historical mode refuses requireIdle or installed
+source and cannot be requested for reads or legacy status. Driver lifecycle audit
+marks versions not assessed rather than resolving current versions for this path.
+
+Output verificationMode historical-retired,nativeEpochAssessed:false, process
+status not-assessed, loaderOutcome not-assessed,nativeInputRequired:null,
+servingQualified:false. Readiness/native policy fields remain retained historical
+observations, not new live qualification. Receipt reconciliation remains live-bound;
+this change does not permit offline publication or semantic outcome rewriting.
+
+Isolated retired fixture uses module loader hooks making versions()/peerRecord()
+THROW if touched; historical verification passes even current record mode manual.
+Default live path hits refused version guard; requireIdle/installed source/drifted
+retirement generation refuse. Fixture owns all files and never invokes native app.
+Two focused tests pass. Actual explicit historical public inspection of db2 retired
+generation verifies source and history; retirement/STOP/original result hashes
+unchanged. No actual process exit or app-update experiment performed. Evidence:
+probe/scratch-native-read-2026-10-17/empty-receiver-activation.json
+retiredHistoricalInspection. Same native host can remain alive during this test.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-51-53-740Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-51-39-234Z.json.
+Remaining: historical resolution still obtains the app's session record to derive
+owned receiver cwd. Durable independent generation index is needed before user
+archive/delete or unavailable record can be handled without guessing paths. Add
+that before destructive-lifecycle tests, then supported physical process disposition,
+generation replacement, warm/cold recovery and always-on qualification. No pending
+sender/worker/waiter; all retired files/settings/STOP retained. Goal active,
+Codex fixes and old d5 unresolved self-test remain untouched.
+
 ## Filesystem retirement and receive-callback absence verified — October 17
 
 Previous turn progressed scoped quiescence. Extended existing broker_service_retire

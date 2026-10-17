@@ -24,12 +24,13 @@ export async function buildSealedIndependentPackage(build,config){
  if(typeof buildNativePeerServicePackage!=='function')refuse()
  return buildNativePeerServicePackage(config)
 }
-export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false}={}){
- const record=getRecord(session),version=versions()
- if(independentServiceState(session,serviceId,record)!==STATE_DIR||version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions')refuse()
+export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false}={}){
+ if(historicalOnly&&(!allowRetired||requireIdle))refuse()
+ const record=getRecord(session),version=historicalOnly?null:versions()
+ if(independentServiceState(session,serviceId,record)!==STATE_DIR||!historicalOnly&&(version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions'))refuse()
  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),STATE_DIR,BROKER_DIR]){const st=lstatSync(path);if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==process.getuid())refuse()}
- const release=activeRelease(),pointer=release?.pointer,peer=peerRecord(session,pointer?.pid)
- if(!release||!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId)refuse()
+ const release=activeRelease(),pointer=release?.pointer,peer=historicalOnly?null:peerRecord(session,pointer?.pid)
+ if(!release||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId||!historicalOnly&&(!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd))refuse()
  const watchedModule=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods',session.slice(6),'desktop-bridge-native-peer-service')
  let module=watchedModule,retirement=null,sourceDisposition='installed'
  try{lstatSync(watchedModule)}catch(error){
@@ -38,6 +39,7 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
   if(!independentRetirementLedgerMatches(retirement,{serviceId,pointer})||!independentStopMatches(json(join(BROKER_DIR,'STOP')),{serviceId,pointer}))refuse()
   module=join(STATE_DIR,'retired-module');sourceDisposition=retirement.phase==='files-retired'?'files-retired':'files-retired-uncheckpointed'
  }
+ if(historicalOnly&&!retirement)refuse()
  const source=bytes(join(module,'hooks/register.js')).toString('utf8'),prefix='const CONFIG=Object.freeze(',end=source.indexOf(');\n')
  if(!source.startsWith(prefix)||end<0)refuse()
  const config=JSON.parse(source.slice(prefix.length,end)),pkg=await buildSealedIndependentPackage(pointer.build,config),epoch={pid:pointer.pid,procStart:pointer.procStart,build:pointer.build}
@@ -47,6 +49,6 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  const policy=json(join(BROKER_DIR,'stop-rescue-policy.json')),settings=nativePolicySettingsPath({pointer,policy,dir:BROKER_DIR})
  if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settings))!==policy.settingsHash)refuse()
  if(requireIdle&&peer.status!=='idle')refuse()
- return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,pkg,read:name=>json(join(BROKER_DIR,name))}
+ return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,verificationMode:historicalOnly?'historical-retired':'live-native',pkg,read:name=>json(join(BROKER_DIR,name))}
 }
 export {bytes as independentBytes,json as independentJson,ordered as independentOrdered}

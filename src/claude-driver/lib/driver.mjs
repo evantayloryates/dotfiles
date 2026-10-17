@@ -904,8 +904,8 @@ export const OPS = [
   {
     name:'broker_service_status',title:'Inspect owned native receiver metadata',readOnly:true,
     description:'Experimental bounded enrollment, filesystem and existing settlement metadata inspection. Does not send, reconcile, install or infer native unload from missing files.',
-    schema:{required:['service_id'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session:{type:'string',description:'Explicit independent receiver UUID; omitted for the legacy route.'}}},
-    run:async(args,ctx)=>args.session!==undefined?(await import('./independent-service-result.mjs')).inspectIndependentService(args.session,args.service_id,{signal:ctx.signal}):(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id),
+    schema:{required:['service_id'],properties:{historical:{type:'boolean',description:'Explicit read-only retired-source history; requires session and does not inspect current app version or native peer.'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session:{type:'string',description:'Explicit independent receiver UUID; omitted for the legacy route.'}}},
+    run:async(args,ctx)=>{if(args.historical===true&&args.session===undefined)throw new DriverError('historical inspection requires explicit independent receiver',{category:'bad_args'});return args.session!==undefined?(await import('./independent-service-result.mjs')).inspectIndependentService(args.session,args.service_id,{signal:ctx.signal,historical:args.historical===true}):(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id)},
   },
   {
     name:'broker_service_retire',title:'Retire an owned native receiver',readOnly:false,
@@ -1155,7 +1155,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
   const t0 = Date.now(),operationId=lifecycleContext().operationId
   if(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
-  const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
+  const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: name==='broker_service_status'&&args.historical===true?{app:null,cli:null,assessment:'not-assessed-historical'}:versions(), driver: DRIVER_VERSION }
   trace('operation-start')
   const checkRuntime=()=>{
     const safeObservation=op.readOnly&&!(name==='window_state'&&args.precise)||name==='broker_status'&&!args.revive

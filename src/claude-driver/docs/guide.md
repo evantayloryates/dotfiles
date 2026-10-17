@@ -928,3 +928,13 @@ Filesystem retirement does not prove native unload or process retirement.
 Status and receipt reconciliation can explicitly verify retired source/inventory
 while the same native epoch remains available; ordinary reads cannot use it.
 Omitting `session` keeps the existing legacy expiry-based retirement behavior.
+
+
+For retained evidence after a receiver crash or app update, request
+`broker_service_status {session, service_id, historical:true}`. This is explicit,
+read-only retired-source inspection. It never calls current version/peer observers,
+assesses native readiness, publishes receipts, dispatches or recovers. It reports
+`verificationMode:historical-retired`, `nativeEpochAssessed:false` and native status
+not-assessed. Installed source and legacy routing refuse this mode. The existing
+app session record is still needed to resolve receiver cwd; deletion recovery
+requires a future independently owned generation index.
