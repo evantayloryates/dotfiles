@@ -1,3 +1,44 @@
+## Versioned native lifecycle declaration audit before cold tests — October 17
+
+Added lib/native-lifecycle-surface.mjs and explicit read-only
+scripts/mod-lifecycle-surface-299.mjs --session <owned receiver>. ExactCLI2.1.299,
+verified idle receiver/current selector, bounded owned generated declaration files,
+source hashes and unchanged context required. Report only API method names/input
+fields and fixed lifecycle facts; no declaration evaluation or lifecycle calls.
+Source hashes retained even when semantic admission fails.2focused mutation tests
+pass; final frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-53-01-287Z.json. Before final context/hash-retention refinement,
+both filtered synthetic-store harnesses10checks pass unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-51-31-376Z.json. Final refinement
+also executed actual audit successfully; it adds diagnostics only, no native effect.
+
+Actual generated-surface report pressure/mod-lifecycle-surface-299-
+2026-10-17T19-52-39-914Z.json/sourcee0e898f3c013e9c44407eb7635cf98efb4ed5eb251d437d381a23857011ece0b
+qualifies declaration evidence only. Session API has16methods, none exit/close/
+dispose/stop/archive. turn.abort and ccd stop_session describe model turn interruption;
+stop_session explicitly leaves session open/idle, so not physical retirement.
+Archive declaration says process stop and possible related-session/worktree effects;
+delete requires human card in EVERY mode; unarchive preserves conversation. These
+are descriptions, not executed implementation or physical/recovery proof. Exact
+4tool inputs retained; app-owned _consent fields are never manufactured.
+Initial lookup assumed start_session in ccd_session_mgmt and missed; namespace
+assumption preserved as unqualified discoveryMiss, no invocation attempted.
+
+Metadata-only preflight of exact interrupt74 scratch: worktreePathnull, notpinned,
+no openPR.969disk session records inspected locally for exact cwd and directID
+references; no other samecwd/directreferences found, no rawrecords/transcripts
+exported. This does NOT qualify native archive-family scope. Existing plan
+lifecycleMetadataPreflight/lifecycleDeclarationSurfaceReview retains bounded counts,
+reporthash and limitations. No stop/archive/delete/unarchive, signal, app restart,
+consent or auth change. Current0e39service still installed2/32slots; no worker or
+sender started by audit. Legacy broker unknowns/observer ownership untouched.
+
+Next qualify native family/ownership scope and the actual bounded lifecycle control
+path before a reversible disposable-session archive/reopen experiment. Do not
+substitute turn-stop, module retirement or declarations for actual process absence.
+Cold/crash/deleted-session and physical-process proof remain open; deletion's human
+card remains a platform gate. Goal active; Codex fixes parked, cached MCP separate.
+
 ## Actual deadline expiry routes through one qualified renewal — October 17
 
 Changed no executable source this turn. Used supported renewaljb37794d774c84952807c0781b1d8fefa

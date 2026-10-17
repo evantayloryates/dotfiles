@@ -1209,3 +1209,12 @@ read performed one qualified renewal child and one read child on a fresh generat
 persisted targetmetadata verified, originaldeadline/STOP/history and sharedfiles
 preserved, same-key ledgers unchanged, zero native journalgrowth. This qualifies
 on-demand expiry recovery on the same nativeepoch, not app/crash/cold recovery.
+
+### Versioned lifecycle declarations are not process proof (October 17)
+
+Read-only generated2.1.299 surface audit records16session methods/no direct exit,
+exact lifecycle tool inputs, turn-only stop, archive's declared process/family/
+worktree effects and deletion's always-human card. Owned scratch disk metadata
+showed no worktree/samecwd/directID references, but native family scope remains
+unqualified. No lifecycle call, signal or restart was attempted. Actual cold/physical
+recovery requires independent ownership and executed native evidence.

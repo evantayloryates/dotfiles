@@ -1082,3 +1082,16 @@ read, with preserved predecessor history and no native model turn. These are
 same-process, on-demand paths; they do not establish app/cold/crash/deleted-session
 recovery or an unattended daemon. A retained successful job is historical evidence,
 not current readiness; use current status/plan for the present selected generation.
+
+### Native lifecycle surface audit
+
+Run `node src/claude-driver/scripts/mod-lifecycle-surface-299.mjs --session <owned receiver>`
+for a bounded declaration-only report tied to currentCLI2.1.299, selected receiver,
+owned generated type hashes and unchanged read context. It performs no lifecycle
+call. Current declarations distinguish turn stop (session stays open/idle) from
+archive (declared process stop with possible family/worktree effects). No direct
+process-exit session method is declared; this does not rule out another native
+mechanism. Deletion always retains its human approval card. Before actual cold
+experiments, independently qualify target ownership/family/worktree scope and the
+exact control path. Never infer physical exit/recovery from this report or a
+successful stop/retirement send.
