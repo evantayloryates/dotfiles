@@ -1412,3 +1412,14 @@ Causal observation exposes `nativeHostPeer` sender/body digest metadata; bounded
 exact-body/sender and reply-lineage matching is correlation, not UUID linkage or
 general task completion. Actual Claude/Codex fresh MCP send contracts passed18checks
 each on host3669f135; busy/queue lifecycle and generic stop/steer remain unqualified.
+
+### Enrolled native stop (October 17)
+
+A NEW controller may seal `metadata_stop_control:true`; this is separate from
+send/model grants. Durable `stop_session` on its enrolled recipient requires a
+recognized native receipt and same-process idle observation. Pending reconnection
+or changed/unknown epoch stays unresolved and does not permit replacement.
+Native stop preserves existing queued messages. Actual CLI idle and running Bash
+sleep tests passed on sealed506797c3. Stop-specific MCP coverage remains pending.
+Enrolled `steer_session mode:interrupt` currently refuses before effects: its
+stop/replacement phases require distinct durable identities before qualification.

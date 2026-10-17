@@ -1,3 +1,57 @@
+## October 17 native stop capability and busy CLI proof
+
+Previousbatch published da7ac3c (genericnative send). Added explicit separately
+sealed metadata_stop_control:true / metadataStopControl, static exacttarget native
+stop_session callback, admission-time sameepoch/knownbusy guards and durable public
+stop_session route on enrolledcontroller (optionalcontroller_session). Send/model
+grants do not confer stop. Native stop acceptance preserves stopped/already_idle/
+requested distinction; route returns verifiedidle only after samePID/procStart,
+registeredtarget/bypass/scope observation. Requested/reconnect, missingreceipt,
+epochchange, cancelledobservation and idletimeout cannot authorize replacement.
+Native queued work is preserved. Native API epoch check is admission-time, not
+atomic targetepoch conditioning inside appAPI; don't overstate it.
+
+Installed2.42304.0/2.1.299 source B5chunk SHA
+f5d162e3e6047c12ca0cee15d72574e316513df6a65d52e89e2d456a4a3022ff rechecked exact
+stop strings and waiting/start refusal; no private APIexecution. Focused31 callback/
+receiptchecks PASS including separategrant, singlecall/dedupe, injection/foreign
+refusal, pendingnotidle and receiptadmission. Earlierfocused37checks PASS too.
+Oldsendonly00acontroller negativej542b38f2a9b44739b5f74ce6754bcbde failed
+native_stop_unqualified/dispatchedfalse/retrySafetrue. Preservedfailure.
+
+Newcontroller dd6abdf29e2e415f873b08b9e2893cc6 sealed506797c3a50044090d49bebf3625a63d3f6308fde5011983fcba9ec08e8484d9;
+preparedjdd6..., old00aquiescej4b92ea98f320470aa87555df1190e7ef/retirej5ef27ca5b02e47d78e291c1c2c4449cd
+reviewed4terminal/0unknown; activateje30b277e55dd4dc190e44b4e78dc71aa withstablehook;
+policynegativejb22bc7b726f9432fb413b81cc4ddbd25 passed. SamecontrollerPID31678/
+start20:14:51UTC, sametarget90418/start21:37:26UTC, enrollmentunchanged.
+IdleCLIstopj79496af4317e41da8423d5598d4407bf completed withalready_idle/stoppedfalse.
+Busytestsendja7ab303fdd794fd0acb94ba0e4e731fa accepted once. Capturedoriginalcursor,
+observedBash toolcall plus nativebusy BEFOREstop. NativeCLIstop
+je3b2d90c339f483abc82eb38dc80530a returnedexactstopped, sameepochidle in~1.1s.
+Original30secondsleep hadnotnaturallycompleted (~7s between send/stop);
+poststopjournal contains correlated Bash toolresult isError:true, nofinishedmarker,
+7events/hasMorefalse. This is actualbusystop proof, not justidlenoop. No manualkill.
+Controller3settled/0unknown+1terminalpolicynegative, ready/policytrue; targetidle.
+
+Foundoriginalsteer_session interrupt reused parentctxjobId forstop ANDsend; would
+collideat second rpeer identity aftera realstop. Enrolledinterrupt composition now
+explicitly refusesBEFOREeffects until distinctdurablephases implemented. Negative
+j61821817e4114981a1c17fd100c5b097 verifiesdispatchedfalse/retrySafetrue; not counted
+as successfulsteering. Queue-only native path stillsinglepublication.
+Finalhost102ac294930553bebf0dfba9c7c4f62db629e2f5b2e798eb90e88c1e46bd7f29
+addsthispreflightguard; sealedstopcallbackunchanged506797c3. Fullpressurefinal
+v2-2026-10-17T22-06-02-044Z.json1/1sourceunchanged. BothsyntheticMCP finalsource
+harness-v2-codex-2026-10-17T22-05-46-912Z.json andmatchingClaude run checkpointed.
+No ACTUALstop-specificClaude/CodexMCPcontractyet; existinggenericfixture harness
+is not that proof. No freshnative sendcontract onnewstopgeneration claimed.
+
+NEXT: implement persistedsteer route with distinct deterministicstop/send request
+identities, preflightBOTHgrants/capacity/epoch, preservedphasefailures and no replay;
+verifybusy stop→idle→replacement ordering+causalreplacementreply. Extendexisting
+filteredMCPcontract forstop/steer onbothclients. Then originalcreation/focus/full11
+live/unattendedresidency remain. Goalactive, watcherpaused, legacyobserverownsbroker;
+no CUA/auth/permissions/globalrestart/otherchatmessaging. Codex-driver/1Passwordparked.
+
 ## October 17 generic native send qualification
 
 Added separately sealed metadata_send_control:true capability, fixed exact-target

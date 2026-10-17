@@ -14,8 +14,9 @@ import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.
 import {resolveClaudeBinary} from '../lib/paths.mjs'
 const present=p=>{try{lstatSync(p);return true}catch(e){if(e.code!=='ENOENT')throw e;return false}}
 try{
- const [session,serviceId,life,capacity,pid,start,archiveJson,metadataJson,modelFlag,sendFlag]=process.argv.slice(2),lifetimeSec=Number(life),maxRequests=Number(capacity),record=getRecord(session)
- if(sendFlag!==undefined&&sendFlag!=='send')throw Error('send capability')
+ const [session,serviceId,life,capacity,pid,start,archiveJson,metadataJson,modelFlag,sendFlag,stopFlag]=process.argv.slice(2),lifetimeSec=Number(life),maxRequests=Number(capacity),record=getRecord(session)
+ if(stopFlag!==undefined&&stopFlag!=='stop')throw Error('stop capability');
+ if(sendFlag!==undefined&&!['send','none'].includes(sendFlag))throw Error('send capability')
  if(modelFlag!==undefined&&modelFlag!=='model'&&modelFlag!=='none')throw Error('model capability')
  if(independentServiceState(session,serviceId,record)!==STATE_DIR||record.permissionMode!=='bypassPermissions'||record.isArchived||!Number.isInteger(lifetimeSec)||lifetimeSec<60||lifetimeSec>3600||!Number.isInteger(maxRequests)||maxRequests<1||maxRequests>128||present(STATE_DIR))throw Error('namespace')
  const guard=()=>{const peer=peerRecord(session,Number(pid));if(!peer||peer.procStart!==start||peer.cwd!==record.cwd||peer.status!=='idle'||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299')throw Error('epoch')}
@@ -24,7 +25,7 @@ try{
  const save=()=>writeFileSync(planFile,JSON.stringify(plan,null,2),{mode:0o600});save()
  const release=await stageRelease();guard();if(release.build!==RUNTIME_BUILD)throw Error('source changed')
  const archiveTarget=archiveJson===undefined?undefined:JSON.parse(archiveJson),metadataTarget=metadataJson===undefined?undefined:JSON.parse(metadataJson)
- const now=Date.now(),binding={version:1,id:serviceId,receiverCwd:record.cwd,sessionId:session,build:release.build},config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:session,brokerCwd:BROKER_DIR,build:release.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests,serviceStateBinding:binding,...archiveTarget?{archiveTarget}:{},...metadataTarget?{metadataTarget}:{},...modelFlag==='model'?{metadataModelControl:true}:{},...sendFlag==='send'?{metadataSendControl:true}:{}},pkg=buildNativePeerServicePackage(config),candidate=join(STATE_DIR,'module-candidate')
+ const now=Date.now(),binding={version:1,id:serviceId,receiverCwd:record.cwd,sessionId:session,build:release.build},config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:session,brokerCwd:BROKER_DIR,build:release.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests,serviceStateBinding:binding,...archiveTarget?{archiveTarget}:{},...metadataTarget?{metadataTarget}:{},...modelFlag==='model'?{metadataModelControl:true}:{},...sendFlag==='send'?{metadataSendControl:true}:{},...stopFlag==='stop'?{metadataStopControl:true}:{}},pkg=buildNativePeerServicePackage(config),candidate=join(STATE_DIR,'module-candidate')
  plan.release=release;plan.config=config;plan.hashes=pkg.hashes;plan.phase='before-candidate';save()
  for(const[name,body]of Object.entries(pkg.files)){mkdirSync(join(candidate,name,'..'),{recursive:true,mode:0o700});writeFileSync(join(candidate,name),body,{flag:'wx',mode:0o600})}
  plan.phase='before-validation';save();const validation=spawnSync(resolveClaudeBinary(),['plugin','validate',candidate],{env:{HOME:homedir(),PATH:'/usr/bin:/bin'},encoding:'utf8',timeout:20000,maxBuffer:65536});writeFileSync(join(STATE_DIR,'validation.txt'),String(validation.stdout??'')+String(validation.stderr??''),{flag:'wx',mode:0o600});if(validation.status!==0){plan.phase='validation-failed';save();writeFileSync(join(STATE_DIR,'validation-failure.json'),JSON.stringify({status:validation.status,signal:validation.signal,errorCode:validation.error?.code}),{flag:'wx',mode:0o600});throw Error('validation failed')}guard()

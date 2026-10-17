@@ -217,6 +217,7 @@ export const OPS = [
         return {...sent,steeringMode:'queue',stopped:false,verified:true,experimental:true,applied:false,verification:'Exact native user receipt only; ordinary next-priority delivery does not interrupt. Observe the causal response before claiming application.'}
       }
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
+      if(args.mode==='interrupt'&&enrolledMetadataController(rec.sessionId,{}))throw new DriverError('enrolled interrupt steering requires distinct durable stop/replacement phases; use separately observed stop and send until composition is qualified',{category:'native_steer_unqualified',detail:{dispatched:false,retrySafe:true}})
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
@@ -232,9 +233,11 @@ export const OPS = [
   {
     name: 'stop_session', title: 'Interrupt a Claude session turn',
     description: 'Use the app native stop_session control and verify the live process becomes non-busy. Refuses the broker and the caller. Stopping is separate from cancelling a driver job.',
-    schema: { properties: { session: S, via_broker: VIA_BROKER }, required: ['session'] },
+    schema: { properties: { session: S, controller_session:S, via_broker: VIA_BROKER }, required: ['session'] },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
+      if(controller){ctx.tier='independent-native-stop';return (await import('./native-stop-route.mjs')).routeNativeStop(rec.sessionId,controller,args,ctx)}
       if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to stop the broker or caller', { category: 'gate' })
       const before = peerRecord(rec.sessionId)
       if (!before || before.sessionId !== (rec.cliSessionId || rec.sessionId.replace(/^local_/, ''))) throw new DriverError('stop requires a verified native recipient epoch', { category: 'verify_mismatch' })
@@ -955,8 +958,8 @@ export const OPS = [
   {
     name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,
     description:'Experimental preparation only in an idle driver-owned bypass scratch receiver. Creates a fresh private namespace, sealed release and native-validated candidate. Never publishes/replaces a module, changes settings, sends, wakes or raises permissions. Reattach durable jobs with the same key.',
-    schema:{required:['session','experimental'],properties:{metadata_send_control:{type:'boolean',enum:[true]},metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control,metadataSendControl:args.metadata_send_control})},
+    schema:{required:['session','experimental'],properties:{metadata_stop_control:{type:'boolean',enum:[true]},metadata_send_control:{type:'boolean',enum:[true]},metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control,metadataSendControl:args.metadata_send_control,metadataStopControl:args.metadata_stop_control})},
   },
   {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,

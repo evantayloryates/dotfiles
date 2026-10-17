@@ -74,3 +74,10 @@ test('generic send acceptance needs its separate capability and exact epoch admi
  const r=screenNativeServiceResult(x);assert.equal(r.receiptVerified,true);assert.equal(r.sendReceipt.nativeAccepted,true);assert.equal(r.sendReceipt.applied,false)
  for(const change of [v=>delete v.config.metadataSendControl,v=>delete v.admission.metadataTarget,v=>v.request.nativeMetadataTargetBinding.pid=51,v=>v.receipt.targetSession=owner,v=>v.receipt.content[0].text='Message will be delivered pending tool execution',v=>v.request.ops[0].args.message=' bad ']){const v=structuredClone(x);change(v);assert.equal(screenNativeServiceResult(v).receiptVerified,false)}
 })
+
+test('stop receipt settlement preserves pending versus idle and requires its separate exact epoch admission',()=>{
+ const x=fixture(),t={sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch'};x.config.serviceStateBinding={version:1};x.config.metadataTarget=t;x.config.metadataStopControl=true;x.request.nativeMetadataTargetBinding={version:1,...t};x.admission.metadataTarget={...x.request.nativeMetadataTargetBinding,observedAt:1059};x.request.ops=[{op:'stop_session',args:{session_id:target}}];x.receipt.content=[{type:'text',text:`Session ${target} is idle; nothing to stop.`}]
+ const r=screenNativeServiceResult(x);assert.equal(r.receiptVerified,true);assert.equal(r.stopReceipt.stopState,'already_idle');assert.equal(r.stopReceipt.applied,false)
+ const pending=structuredClone(x);pending.receipt.content[0].text=`Asked session ${target} to stop; its host is reconnecting (or it runs in the cloud), so the interrupt lands when the link is back. Check get_session before assuming it stopped.`;assert.equal(screenNativeServiceResult(pending).stopReceipt.stopState,'requested')
+ for(const change of [v=>delete v.config.metadataStopControl,v=>delete v.admission.metadataTarget,v=>v.request.nativeMetadataTargetBinding.pid=51,v=>v.receipt.isError=true,v=>v.request.ops[0].args._consent=true,v=>v.receipt.content[0].text='Stopped eventually']){const v=structuredClone(x);change(v);assert.equal(screenNativeServiceResult(v).receiptVerified,false)}
+})
