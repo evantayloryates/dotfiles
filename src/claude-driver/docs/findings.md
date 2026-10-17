@@ -1238,3 +1238,10 @@ anchor/settings. Default same-process gate unchanged. Synthetic tests/pressure a
 both harnesses pass; no native cold activation or restart yet. Ownership snapshot
 also found a live idle but non-serving legacy broker with stale epoch evidence;
 observer ownership preserved. Liveness is not a recovered serving channel.
+
+### Historical rebind evidence completeness (October 17)
+
+Human-assisted retired receipts require explicit empty unresolved inventory, strict
+terminal review and a present bounded native tool ID. Missing values cannot stand
+in for verified absence or a correlated tool receipt. Regression tests cover these
+malformed cases; no additional native recovery authority is granted.

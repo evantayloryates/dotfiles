@@ -1,3 +1,22 @@
+## October 17 historical human-rebind proof rejects incomplete evidence
+
+Previous batch da92824. Fresh enrolled status still wait/primary-live on exact
+9d62 primary,08b10 standby,binding1aedf3; automatic recovery remains disabled.
+No new native wake, archive, send or service turnover. Native unarchive does not
+resolve the observed person-only trust gate and was not added speculatively.
+
+Historical retired receipt validator now requires an explicit array of unresolved
+requests, exactly true terminal review, and a present bounded native tool ID before
+comparing IDs. Missing inventory or two absent IDs previously could pass those
+individual checks. Regression cases reject both, malformed inventory and nonboolean
+review; full valid receipt still passes. This strengthens human-assisted proof only;
+it grants no cold-start or trust authority. Focused3tests PASS, both fresh filtered
+harnesses PASS10checks each (23-36-16-857Z Claude,23-36-18-037Z Codex).
+Full isolated v2-2026-10-17T23-36-53-609Z.json PASS1/1/source unchanged. Current sealed native
+services unchanged; no new native cold success claimed. NEXT remains qualifying an
+actual absent-primary cold recovery after persisted trust, then exact standby rebind.
+The previous status-only turn was no progress; this turn hardens a concrete proof gap.
+
 ## October 17 manual archive exposed native trust gate; services restored with human assistance
 
 Previousbatch published89b8a46. Taylor manually archived exact transport scratch.
