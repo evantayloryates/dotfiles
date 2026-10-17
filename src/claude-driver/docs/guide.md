@@ -1343,7 +1343,31 @@ The index reads only the exact target's owned bounded enrollment directory, neve
 work-chat contents. Multiple entries, malformed rows and unsafe filesystem entries
 refuse selection. The native policy, current generation, target epoch and receipt
 checks remain authoritative after selection. Renewals preserving the exact target
-can keep enrollment. Target epoch changes currently require a future controlled
-rebind transition; silent retargeting is deliberately refused, not auto-recovered.
+can keep enrollment. Target epoch changes require the controlled rebind transition below; silent
+retargeting is deliberately refused, not auto-recovered.
 Use --metadata-config --enrolled-route with the live native harness to qualify
 this argument-free route under its separate one-shot claim mode.
+
+
+### Controlled metadata enrollment rebind after recovery
+
+Inspect `broker_service_metadata_binding {session:<target>}` to get the exact
+current enrollment and enrollmentSha256. After scoped recovery, prepare/activate
+and verify a controller explicitly sealed to the new target epoch. Then submit
+`broker_service_rebind_metadata` with controller `session`, target `session_id`,
+`expected_enrollment_sha256` and `experimental:true`. The same controller/session/
+folders must remain; PID and start time must change, and the old PID must be absent
+(not merely missing peer metadata). Reused/present old PIDs refuse admission.
+
+Enrollment and rebind writers share one target lock. Rebind requires current ready
+native capability and a matching expected old digest; it retains the old row under
+metadata-controller-history before atomic active-row replacement. Immediately before
+publication it rechecks native qualification, the expected digest and old PID
+absence. A lost compare-and-swap never overwrites a competing winner. Readers may
+refuse a transient/unqualified enrollment; they never fall back to another authority.
+
+The binding operation requests no native effects and does not restart processes,
+change permissions or prove unattended recovery. After interruption inspect the
+active binding, retained history and original job; history alone does not prove
+publication. Reattach the same durable job rather than forcing a stale digest or
+erasing the index. Verify a fresh ordinary metadata operation against the new epoch.

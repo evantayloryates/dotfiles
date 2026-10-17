@@ -984,6 +984,17 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('scoped archive requires experimental durable submission',{category:'bad_args'});return (await import('./independent-service-result.mjs')).readIndependentService(args.session,args.service_id,args.session_id,{archiveControl:{serviceId:args.target_service_id,familyRequestId:args.family_request_id},timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal,jobId:ctx.jobId,progress:ctx.progress})},
   },
   {
+    name:'broker_service_metadata_binding',title:'Inspect one metadata enrollment',readOnly:true,
+    description:'Read one exact bounded enrollment and compare-and-swap digest; does not assess native serving or discover chats.',
+    schema:{required:['session'],properties:{session:{type:'string'}}},run:async args=>(await import('./metadata-controller-index.mjs')).inspectMetadataEnrollment(args.session),
+  },
+  {
+    name:'broker_service_rebind_metadata',title:'Rebind an enrolled metadata target epoch',readOnly:false,
+    description:'Explicit controlled same-controller/same-target rebind after original PID absence and current sealed ready metadata capability. Requires exact prior enrollment digest, retains immutable old binding before atomic replacement and serializes enrollment writers. No native effects, process restart, permission change or silent retargeting.',
+    schema:{required:['session','session_id','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},session_id:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('metadata rebind requires explicit opt-in',{category:'bad_args'});return (await import('./metadata-controller-index.mjs')).rebindMetadataController(args.session,args.session_id,args.expected_enrollment_sha256,{signal:ctx.signal})},
+  },
+  {
     name:'broker_service_enroll_metadata',title:'Enroll an existing sealed metadata controller',readOnly:false,
     description:'Bind one already-qualified owned controller to its exact sealed target epoch for default public title/pin/effort routing. No native effects, discovery, permission changes, creation or fallback. Stale or ambiguous enrollment refuses dispatch; renewal may preserve the same target but never retarget it.',
     schema:{required:['session','session_id','experimental'],properties:{session:{type:'string'},session_id:{type:'string'},experimental:{type:'boolean',enum:[true]}}},

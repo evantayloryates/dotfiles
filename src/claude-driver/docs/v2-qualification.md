@@ -1,3 +1,18 @@
+## October 17 controlled epoch-rebind addendum
+
+Exact expected-digest/same-scope rebind now retains prior enrollment before atomic
+replacement and rechecks oldPIDabsence/current native capability. Fiveindex tests
+cover interrupted retention, stale digests, reused/live PIDs and competingwriters.
+Native intentional archive/wake cycle produced targetPID90418; stale default call
+refused before dispatch. Explicit reseal/rebind retained oldhistory, rejected stale
+CAS and preserved state on samejob reattachment. Both real Claude/Codex ordinary
+MCP mutation contracts then passed18checks each and fixtures were restored. Final
+source9521d90f, controllerbff3df8a/targetread491b51dd. Fullpressure/syntheticcontracts
+pass;12settled/0unknown currentmetadatahistory. This proves controlled recovery
+steps, not unattended orchestration, unexplained crash or global app restart.
+Original model/mode/generic messaging/steer/create/full live and residency gates
+remain incomplete; earlier addenda retain their historical epochs and limitations.
+
 ## October 17 enrolled default-route addendum
 
 Already-qualified controllers can now be explicitly enrolled once for an exact

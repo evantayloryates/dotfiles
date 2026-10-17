@@ -1,3 +1,73 @@
+## Controlled target-epoch rebind passed after intentional cold cycle — October 17
+
+Previous turn progressed/publishedb756b0c. Added read-only broker_service_metadata_binding
+(exactrow/digest, servingnotassessed) and explicit broker_service_rebind_metadata.
+Enrollment/rebind writers share targetlock. Rebind requires exact priorcanonical
+SHA256, samecontroller/session/cwds, changedtargetPID/start, oldPID ABSENT (present/
+reusedPIDrefuses), and currentready/nativepolicy/idleownedtarget/newsealedcapability.
+It retains oldrow in metadata-controller-history BEFORE atomicreplacement, then
+rechecks qualification/digest/PIDabsence immediately beforepublication. LostCAS
+cannot overwrite winner. Interrupted historyretention is not publicationproof;
+inspectbinding/originaljob. No nativeeffect, permission, restart or arbitraryretarget
+in rebindoperation. Fivefocusedindex tests pass including history/interruption/CAS.
+
+FINAL HOST AND SEALED runtime
+9521d90f8a0e2a9907bdcec7be9366f898abda35ccd6c7e9f7dc8f0296a2742b.
+Old-live rebindnegative jf840bb740efe4c6bbe68a6630061451e failedretrySafe/dispatchedfalse.
+Prepared archivecontrollerd9dc4c0b0c1942e8a3dd733fd1e6c40a from currenttarget13591;
+oldmetadata7d6...quiesced/retired with27terminalattempts/0unknown. Archiveactivation
+j800c3dda68be483fb00cb4e39d9a87f6/policyj78a9dc327d2544fd82fce09ffc047419 passed.
+ONE public cycle parentj66bb01d59a454f20ae459094ba5d87a0 completed all10children:
+familyjf84e68503afd487eb488d946188a3765, quiescej44282635f01c4cbf9924a132d00689e6,
+retirej6d472e1400de4965979a4911ac3c6784, archivej8bec78d408944a1aacd6d55bd4eecbd8,
+unarchivej2fc22e0bf25a4cccb7b3119ebd5f1017, wakej5bbcbbbfbbb1415db1d0e4334de3bdf1,
+preparej491b51ddc2a74c0795ef441a54522ff0, activatejbee7f6103c5d4232b843fde2b39545a7,
+policyj0a8e66f828bc4114890ded5d7129e557, readjc99325ed824a4f5ea6be4d0a904cf097.
+Intentionalnativearchive13591exit/absence, fixedwake/newprocess/fixedreply/ready/
+policy/read/settingsanchor preserved. NewtargetPID90418/startSatOct17 21:37:26UTC.
+This is intentionalarchive recovery, NOT an unexplained crash/governor/appupdate.
+CURRENT TARGET READ service491b51ddc2a74c0795ef441a54522ff0; old9475...retired.
+
+Ordinary pin stale-enrollmentnegativej25955e6f56294ee1b7fc7f397a80dcd2 refused
+BEFOREdispatch; oldbinding didnotfollownewPID. Explicit newmetadata preparation
+jbff3df8a553f4b078531d948f34b789b sealed newtarget90418. Archived9...controller
+quiesced/retired/0unknown; newbff...activatedj0f28c67d054b4fc3a39127320b19f2ea,
+ready/policyjffbd979b3a8146eca79e0f537fae02f2. CURRENT METADATA CONTROLLER
+bff3df8a553f4b078531d948f34b789b/PID31678/start20:14:51UTC, samecontrollerprocess.
+Explicit CAS rebindj456f275c4c2f4472856a21628e737e4a passed, nativeeffects0:
+old digest d0f9bbb448a8ac9ea13fd30fb0fd309d6f8a7902ba0257c02f4935557ddaaf16
+new digest 1a1112541aa2b8966b18e703980d9eb5c4a558d214a9e5fa01dc92469e5a0598.
+Old row remains exact in history/<target>/<oldhash>.json. Olddigestnegative
+j33c9bc1cf952437aaba10d3e46f28d33 refused; noforcedpublication. Same-key original
+rebindreattach reusedsamejob; activebinding AND retainedhistory bytes unchanged.
+
+Both fresh actualenrolledrouteMCP mutationcontracts on recoveredtarget/newbinding
+PASS18checks (actualtitle/pin/effortchange/derivednativechildren/no-modelturn/state
+readback/source/globalconfig/parentreuse): Claude harness-native-metadata-enrolled-
+claude-2026-10-17T21-38-25-956Z.json parentj4b895375a5494dafa1b3263fa391a6de;
+Codexgpt-6-sol harness-native-metadata-enrolled-codex-2026-10-17T21-39-07-946Z.json
+parentj563abf2ae7ef4ccc92b400de9e70779e. Claude restorej007517e1eab84108ac99232084c3e3da
+then finalCodexrestorej63f48463a038440db420bb489e0a3126 passed ordinary(no controller)
+route. Fixture originaltitle/toolsource/unpinned/explicitHigh/Haiku5.5/bypass/new90418.
+Finalmetadatastatus12settled/0unknown/13reservedof32. Privateplan rebindFinal retains
+rows/historydigest/status/reports; recoveryparent preserves fullnativecycleevidence.
+No indexdeletion, unknownreplay, apprestart, sessionkill, CUA or auth/permissionchange.
+
+Finalpressure v2-2026-10-17T21-37-04-211Z.json1/1/sourceChangedfalse. Bothsynthetic
+10checks finalsource: harness-v2-claude-2026-10-17T21-36-43-113Z.json and
+harness-v2-codex-2026-10-17T21-36-44-249Z.json. Allsourcefrozen duringliveparents.
+Recovery roleturnover/newmetadatareseal/rebind were explicit separate durablesteps;
+this does NOT establish unattended automatic recovery or full always-onbridge.
+
+NEXT: refresh originalrequirement frontier and choose largest unserved functional
+interface gap (model/config and generic native messaging/stop/steer remain on legacy
+TierB). Avoid more equivalent coldcycles now: enrollmentrestarttransition is proven.
+Reuse exacttarget admission/durablepublication/result separation for newnativeops,
+retaining platformhumanconsent and all originalcreate/focus/full11live gates. A
+future durable orchestrator can compose roleturnover/recovery/reseal/rebind; not yet
+unattended. Goalactive/watcherpaused, legacyobserver ownsbroker; Codexdriver/1Password
+separate. Do not wakelegacy or silently mark historical unknowns settled.
+
 ## Enrolled targets route ordinary metadata calls automatically — October 17
 
 Previous turn progressed/published2895cd5. Added metadata-controller-index.mjs and

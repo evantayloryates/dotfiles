@@ -27,3 +27,20 @@ test('default selection is exact and stale enrollment never becomes legacy fallb
  for(const patch of [{peer:()=>({pid:43,procStart:'original epoch',hostSessionId:target})},{peer:()=>({pid:42,procStart:'new epoch',hostSessionId:target})},{peer:()=>null},{record:()=>({cwd:'/moved'})}])assert.throws(()=>enrolledMetadataController(target,{}, {...deps,...patch}),/no fallback/)
  assert.equal(enrolledMetadataController(target,{metadata_controller:controller},{read:()=>assert.fail('no discovery')}),controller)
 })
+
+test('controlled epoch rebind refuses live/reused old PID, wrong scope and stale digest',async()=>{
+ const {metadataEnrollmentDigest,metadataRebindAllowed}=await import('../lib/metadata-controller-index.mjs'),next={...row,target:{...row.target,pid:43,procStart:'new epoch'},enrolledAt:200},args={prior:row,next,expectedSha256:metadataEnrollmentDigest(row),oldProcess:null}
+ assert.equal(metadataRebindAllowed(args),true)
+ for(const patch of [{oldProcess:{pid:42,procStart:'original epoch'}},{oldProcess:{pid:42,procStart:'reused epoch'}},{expectedSha256:'a'.repeat(64)},{next:{...next,controllerSession:'local_33333333-3333-4333-8333-333333333333'}},{next:{...next,target:{...next.target,cwd:'/other/target'}}},{next:{...next,target:{...next.target,pid:42}}}])assert.equal(metadataRebindAllowed({...args,...patch}),false)
+})
+test('history precedes atomic rebind, and a lost compare-and-swap never overwrites the winning enrollment',async()=>{
+ const {publishMetadataRebind,metadataEnrollmentDigest}=await import('../lib/metadata-controller-index.mjs'),{writeJsonAtomic}=await import('../lib/state.mjs'),dir=mkdtempSync(join(tmpdir(),'metadata-rebind-')),historyDir=join(dir,'history'),targetDir=join(dir,'active'),next={...row,target:{...row.target,pid:43,procStart:'new epoch'},enrolledAt:200},expectedSha256=metadataEnrollmentDigest(row)
+ try{
+  const {file}=retainMetadataControllerEnrollment(row,{dir:targetDir}),before=readFileSync(file)
+  await assert.rejects(publishMetadataRebind({target,expectedSha256,next,dir:targetDir,historyDir,inspect:()=>null,guard:async()=>{assert.deepEqual(readFileSync(join(historyDir,target,expectedSha256+'.json')),before);throw Error('interrupted before publication')}}),/interrupted/);assert.deepEqual(readFileSync(file),before)
+  const r=await publishMetadataRebind({target,expectedSha256,next,dir:targetDir,historyDir,inspect:()=>null,guard:async()=>{}});assert.equal(r.oldPidObservedAbsent,true);assert.deepEqual(readMetadataControllerEnrollment(target,{dir:targetDir}),next);assert.deepEqual(readFileSync(r.historyFile),before)
+  await assert.rejects(publishMetadataRebind({target,expectedSha256,next,dir:targetDir,historyDir,inspect:()=>null,guard:async()=>assert.fail('stale digest must refuse before guard')}),/unqualified/)
+  const winner={...next,target:{...next.target,pid:44,procStart:'winning epoch'}},desired={...next,target:{...next.target,pid:45,procStart:'desired epoch'}},hash=metadataEnrollmentDigest(next)
+  await assert.rejects(publishMetadataRebind({target,expectedSha256:hash,next:desired,dir:targetDir,historyDir,inspect:()=>null,guard:async()=>writeJsonAtomic(file,winner)}),/unqualified/);assert.deepEqual(readMetadataControllerEnrollment(target,{dir:targetDir}),winner)
+ }finally{rmSync(dir,{recursive:true})}
+})
