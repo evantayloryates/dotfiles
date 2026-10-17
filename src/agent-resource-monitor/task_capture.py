@@ -1,9 +1,10 @@
 """Allowlisted task identity and bounded, read-only Docker process snapshots."""
+import datetime as dt
 import os
 import re
 import shlex
 
-POLICY = 'guest-task-lineage-v2'
+POLICY = 'guest-task-delta-v3'
 TOOLS = {'yarn', 'npm', 'npx', 'pnpm', 'eslint', 'tsc', 'tsserver', 'jest', 'vitest',
          'mocha', 'tsx', 'ts-node', 'next', 'webpack', 'vite', 'turbo', 'prettier',
          'lint-staged', 'husky', 'node-gyp', 'rollup', 'esbuild', 'babel', 'metro', 'nx'}
@@ -121,17 +122,31 @@ def task_context(proc, by_pid):
     return nearest
 
 
+def cpu_time_seconds(value):
+    days = 0
+    if '-' in value:
+        day, value = value.split('-',1)
+        if not day.isdigit():
+            raise ValueError('invalid CPU days')
+        days = int(day)
+    parts = value.split(':')
+    if len(parts) not in (2, 3) or not all(part.isdigit() for part in parts):
+        raise ValueError('invalid CPU time')
+    return days*86400 + sum(int(part)*60**power for power,part in enumerate(reversed(parts)))
+
+
 def parse_top(output):
     rows = []; malformed = 0
     lines = output.splitlines()
-    if not lines or not re.match(r'^PID\s+PPID\s+RSS\s+', lines[0]):
+    if not lines or not re.match(r'^PID\s+PPID\s+RSS\s+%CPU\s+TIME\s+ELAPSED\s+COMMAND$', lines[0]):
         raise ValueError('unsupported process header')
     for line in lines[1:2049]:
         try:
             if len(line)>16384:
                 raise ValueError('long row')
-            pid, ppid, rss, cpu, elapsed, command = line.split(None, 5)
+            pid, ppid, rss, cpu, cpu_time, elapsed, command = line.split(None, 6)
             pid, ppid, rss, elapsed = map(int, (pid,ppid,rss,elapsed)); cpu = float(cpu)
+            cpu_seconds = cpu_time_seconds(cpu_time)
             if min(pid,ppid,rss,elapsed)<0 or not 0<=cpu<=100000:
                 raise ValueError('invalid counters')
             argv = shlex.split(command)
@@ -140,6 +155,7 @@ def parse_top(output):
             base = os.path.basename(argv[0])
             identity, evidence = guest_identity(command, argv)
             rows.append(dict(pid=pid,ppid=ppid,rss_bytes=rss*1024,cpu_lifetime_percent=cpu,
+                             cpu_time_seconds=cpu_seconds,
                              elapsed_seconds=elapsed,exe=base if base in EXECUTABLES else 'other',
                              task_identity=identity, identity_evidence=evidence))
         except (ValueError,TypeError):
@@ -169,7 +185,7 @@ def parse_top(output):
                 identity_covered=sum(bool(p.get('task_identity')) and 'mode' not in p['task_identity'] for p in chosen.values()),
                 task_context_covered=sum(bool(p.get('task_context')) for p in chosen.values()),
                 named_task_context_covered=sum(bool((p.get('task_context') or {}).get('identity',{}).get('task')) for p in chosen.values()),
-                limits='CPU is a lifetime average, RSS is a point snapshot. Guest PIDs/elapsed time are not host PID/start identities or swap ownership. Parent task context is provenance, not proof of the worker task. Unknown identities stay unknown. Arguments, environment and paths are not retained.')
+                limits='CPU is a lifetime average until paired with a later snapshot; CPU time has one-second resolution. RSS is a point snapshot. Guest PIDs/elapsed time are not host PID/start identities or swap ownership. Parent task context is provenance, not proof of the worker task. Unknown identities stay unknown. Arguments, environment and paths are not retained.')
 
 
 def guest_rankings(docker, containers, run, now):
@@ -189,7 +205,7 @@ def guest_rankings(docker, containers, run, now):
     for c in selected:
         # Docker top asks the daemon for a process listing; no docker exec,
         # workload process creation, container pause, or guest filesystem reads.
-        r=run([docker,'top',c['ID'],'-eo','pid,ppid,rss,pcpu,etimes,args'],timeout=2,limit=256*1024)
+        r=run([docker,'top',c['ID'],'-eo','pid,ppid,rss,pcpu,time,etimes,args'],timeout=2,limit=256*1024)
         item=dict(container_id=c['ID'],timestamp=now(),**{k:r[k] for k in
                   ('status','duration_ms','truncated') if k in r})
         if r.get('truncated'):
@@ -204,3 +220,40 @@ def guest_rankings(docker, containers, run, now):
                 output_limit_per_container_bytes=256*1024,process_limit_per_container=24,
                 status='ok' if all(c['status']=='ok' for c in results) else 'partial',
                 limits='At most two containers per window; no retries. Snapshot ranking is observational, not causal proof.')
+
+
+def guest_deltas(first, second, elapsed_seconds):
+    """Pair only retained same-lifetime guest rows; never infer missing work."""
+    out = []
+    valid_intervals = 0
+    old_containers = {c['container_id']: c for c in first.get('containers', []) if c.get('status') == 'ok'}
+    for container in second.get('containers', []):
+        prior = old_containers.get(container['container_id'])
+        if not prior or container.get('status') != 'ok':
+            continue
+        interval = elapsed_seconds
+        try:
+            interval = (dt.datetime.fromisoformat(container['timestamp'].replace('Z','+00:00')) -
+                        dt.datetime.fromisoformat(prior['timestamp'].replace('Z','+00:00'))).total_seconds()
+        except (KeyError,ValueError,TypeError):
+            pass
+        if interval <= 0:
+            continue
+        valid_intervals += 1
+        old = {p['pid']:p for p in prior.get('processes', [])}
+        for p in container.get('processes', []):
+            q = old.get(p['pid'])
+            if not q or abs((p['elapsed_seconds']-q['elapsed_seconds'])-interval)>2:
+                continue
+            delta = p['cpu_time_seconds']-q['cpu_time_seconds']
+            if delta < 0:
+                continue
+            out.append(dict(container_id=container['container_id'], pid=p['pid'],
+                            cpu_seconds_delta=delta, cpu_percent_interval=100*delta/interval,
+                            interval_seconds=interval,
+                            rss_bytes=p['rss_bytes'], rss_delta_bytes=p['rss_bytes']-q['rss_bytes'],
+                            task_identity=p.get('task_identity'), task_context=p.get('task_context')))
+    out.sort(key=lambda x:x['cpu_seconds_delta'], reverse=True)
+    return dict(status='ok' if valid_intervals else 'invalid_interval',elapsed_seconds=elapsed_seconds,processes=out[:24],
+                matched_process_count=len(out),
+                limits='Only retained same-container PID and elapsed-age matches. CPU time has one-second resolution; short jobs and unretained rows are missed. RSS is not additive with host Docker VM footprint. No guest disk or swap ownership is inferred.')

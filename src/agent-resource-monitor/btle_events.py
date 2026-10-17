@@ -12,6 +12,27 @@ from btle_watch import ROOT
 BASELINE = '2026-10-11T18:37:08.934414+00:00'
 DISPATCH = pathlib.Path(__file__).with_name('btle_event_dispatch.mjs')
 
+def receipt_health(root, state):
+    """Match callback receipt by exact client ID; queue acceptance is separate."""
+    receipts=set()
+    for path in (root/'event-receipts.json',root.parent/'focus/event-receipts.json'):
+        try:
+            data=json.loads(path.read_text())
+        except (FileNotFoundError, ValueError):
+            continue
+        records=data if isinstance(data,list) else data.get('receipts',[data] if data.get('clientUserMessageId') else []) if isinstance(data,dict) else []
+        for item in records:
+            if isinstance(item,dict) and item.get('clientUserMessageId'):
+                receipts.add(item['clientUserMessageId'])
+    for item in state.get('deliveries',[]):
+        item['receipt_status']='received' if item['client_id'] in receipts else 'not_verified'
+    state['delivery_health']={
+        'accepted':len(state.get('deliveries',[])),
+        'received':sum(x['receipt_status']=='received' for x in state.get('deliveries',[])),
+        'unverified':sum(x['receipt_status']!='received' for x in state.get('deliveries',[])),
+        'pending':len(state.get('pending',{})),
+        'limits':'Queue acceptance is not chat receipt. Missing receipts never trigger a resend; reconcile pending sends by exact client ID.'}
+
 def focus_events(root, state):
     try:
         return _focus_events(root,state)
@@ -134,6 +155,10 @@ def run(root=ROOT, send=True):
                 pending=state['pending'][incident]
                 pending['result']=result
                 if result.get('verified'):
+                    state.setdefault('deliveries',[]).append(dict(client_id=pending['client_id'],
+                        queue_id=pending.get('queue_id'),incident=incident,accepted_at=now,
+                        event_ids=[e['id'] for e in pending['events']]))
+                    state['deliveries']=state['deliveries'][-1000:]
                     state['acknowledged']+= [e['id'] for e in pending['events']]
                     del state['pending'][incident]
             except (subprocess.TimeoutExpired,ValueError) as error:
@@ -141,6 +166,7 @@ def run(root=ROOT, send=True):
                 pending=state['pending'][incident]
                 pending['last_error']=type(error).__name__
         state['acknowledged']=list(dict.fromkeys(state['acknowledged']))[-1000:]
+        receipt_health(root,state)
         watcher.write_json(path,state)
         return state
 

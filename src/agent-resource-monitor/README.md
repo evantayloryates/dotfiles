@@ -377,20 +377,25 @@ recognizes extensionless tools such as `tsc` and `eslint`, plus allowlisted
 Yarn/npm/pnpm task identifiers and boolean flags. Inline code, unknown task
 names, forwarded arguments, workspace names and paths are excluded. Captured
 parents retain task identity so short workers can be traced through Yarn.
-Diagnostic policy `late-stack-v1` keeps stack eligibility open throughout the
-window after the one-time Docker snapshot. Jobs run serially, with at most two
+Diagnostic policy `late-stack-guest-pair-v2` keeps stack eligibility open throughout the
+window after the one-time Docker stats snapshot. Jobs run serially, with at most two
 stack attempts across all jobs and no retry of the same PID/start lifetime.
 Late stacks append to `diagnostics.json`, preserving the earlier Docker result
 and failed attempts. Each stack and Docker snapshot has its own timestamp.
 Timeouts and PID changes consume the budget; the worker revalidates lifetimes
 immediately before sampling. Status and capture reports expose the policy.
-After the one Docker snapshot, `early-task-guest-v1` requests read-only
+After the one Docker stats snapshot, `guest-task-delta-v3` requests read-only
 `docker top` rankings from at most two busy/large containers. Each request has
 a two-second/256 KiB cap, considers at most 2,048 rows and saves at most 24
 CPU/RSS workers and parents. No `docker exec`, guest file reads or workload
 processes are introduced. Arguments are parsed transiently into the same safe
-task schema and discarded. CPU is a lifetime average and RSS is a snapshot;
-these do not measure guest swap ownership or host physical disk traffic.
+task schema and discarded. During a natural 90-second capture, a second bounded
+`docker top` reading after 65 seconds pairs retained guest PID and elapsed age
+with the first reading. The paired CPU-time delta has one-second resolution and
+misses short or unretained jobs; RSS remains a snapshot. These do not measure
+guest swap ownership or host physical disk traffic. `pmset -g therm` is also
+captured once; it reports warning state when available, not fan RPM or a
+temperature, and an absent recorded warning is not proof of a cool Mac.
 Timeouts, truncation and partial coverage stay explicit; no retries occur.
 Status records `task_capture_policy`, `task_capture_sha256` and identity
 coverage so the helper loaded by the observer can be verified independently.
@@ -418,7 +423,10 @@ Install with `agent-resource-monitor install-focus`; inspect with
 and workloads running. Data is private under `data/agent_resource_monitor/focus`.
 No automatic deletion or remediation occurs; storage exhaustion is a failure.
 The existing event relay coalesces rotations into one incident and the hourly
-evaluation reviews new evidence as a fallback. Queue acceptance is not receipt.
+evaluation reviews new evidence as a fallback. Accepted queue IDs are retained
+in a delivery ledger; `event-receipts.json` entries match exact
+`clientUserMessageId` values. Queue acceptance is not receipt, and missing
+receipts never cause automatic replay.
 See [thrash-strategy.md](thrash-strategy.md) for thresholds, the hypothesis
 ledger, measured verification and attribution/delivery limits.
 

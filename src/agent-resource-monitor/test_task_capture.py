@@ -28,10 +28,10 @@ class TaskCapture(unittest.TestCase):
             self.assertNotIn('/private/',output)
 
     def test_guest_rankings_preserve_hot_process_and_ancestry_without_arguments(self):
-        rows=['PID PPID RSS %CPU ELAPSED COMMAND']
-        rows += [f'{i} 1 {i*10} 0.0 20 /private/SECRET --password SECRET' for i in range(1,101)]
-        rows += ['201 1 100 0.0 10 node /private/yarn.js run test:gateway --token SECRET',
-                 '202 201 2048 230.0 1 node /private/node_modules/.bin/tsc --noEmit --secret SECRET']
+        rows=['PID PPID RSS %CPU TIME ELAPSED COMMAND']
+        rows += [f'{i} 1 {i*10} 0.0 00:00:00 20 /private/SECRET --password SECRET' for i in range(1,101)]
+        rows += ['201 1 100 0.0 00:00:01 10 node /private/yarn.js run test:gateway --token SECRET',
+                 '202 201 2048 230.0 00:00:02 1 node /private/node_modules/.bin/tsc --noEmit --secret SECRET']
         result=t.parse_top('\n'.join(rows))
         self.assertEqual(result['process_count'],102)
         self.assertLessEqual(len(result['processes']),24)
@@ -60,8 +60,8 @@ class TaskCapture(unittest.TestCase):
 
     def test_invalid_and_oversized_guest_rows_have_explicit_coverage(self):
         with self.assertRaises(ValueError):t.parse_top('SECRET')
-        result=t.parse_top('PID PPID RSS %CPU ELAPSED COMMAND\n1 0 -1 20 0 node SECRET\n'+
-                           '\n'.join(f'{i} 0 0 0 1 sleep SECRET' for i in range(2,2052)))
+        result=t.parse_top('PID PPID RSS %CPU TIME ELAPSED COMMAND\n1 0 -1 20 00:00:01 0 node SECRET\n'+
+                           '\n'.join(f'{i} 0 0 0 00:00:00 1 sleep SECRET' for i in range(2,2052)))
         self.assertTrue(result['row_limit_hit'])
         self.assertEqual(result['rows_considered'],2048)
         self.assertEqual(result['malformed_rows'],1)
@@ -70,14 +70,14 @@ class TaskCapture(unittest.TestCase):
 
     def test_next_process_titles_are_anchored_and_do_not_retain_versions(self):
         for title in ['next-server', 'next-server (v15.4.5)', 'next-server (v15.4.5-canary.12)']:
-            result=t.parse_top('PID PPID RSS %CPU ELAPSED COMMAND\n1 0 2048 40 20 '+title)
+            result=t.parse_top('PID PPID RSS %CPU TIME ELAPSED COMMAND\n1 0 2048 40 00:00:08 20 '+title)
             proc=result['processes'][0]
             self.assertEqual(proc['task_identity'], {'tool':'next','role':'server'})
             self.assertEqual(proc['identity_evidence'],'process-title')
             self.assertNotIn('v15',json.dumps(result))
         for title in ['node -e next-server', 'sh -c next-server', 'next-server SECRET',
                       '/private/next-server (v15.4.5)', 'next-server (SECRET)']:
-            result=t.parse_top('PID PPID RSS %CPU ELAPSED COMMAND\n1 0 2048 40 20 '+title)
+            result=t.parse_top('PID PPID RSS %CPU TIME ELAPSED COMMAND\n1 0 2048 40 00:00:08 20 '+title)
             self.assertNotEqual(result['processes'][0]['identity_evidence'],'process-title')
             self.assertNotIn('SECRET',json.dumps(result))
 
@@ -97,16 +97,16 @@ class TaskCapture(unittest.TestCase):
             self.assertEqual(t.identify(['node',path])['mode'],'unrecognized_entrypoint')
 
     def test_named_task_ancestry_survives_pruning_without_becoming_worker_identity(self):
-        lines=['PID PPID RSS %CPU ELAPSED COMMAND',
-               '1 0 1 0 100 yarn workspace SECRET run build:server:development --token SECRET',
-               '2 1 1 0 90 sh -c SECRET',
-               '3 2 1 0 80 node /private/node_modules/next/dist/server/lib/start-server.js',
-               '208 3 10000 0 70 next-server (v15.4.5)']
+        lines=['PID PPID RSS %CPU TIME ELAPSED COMMAND',
+               '1 0 1 0 00:00:00 100 yarn workspace SECRET run build:server:development --token SECRET',
+               '2 1 1 0 00:00:00 90 sh -c SECRET',
+               '3 2 1 0 00:00:00 80 node /private/node_modules/next/dist/server/lib/start-server.js',
+               '208 3 10000 0 00:00:00 70 next-server (v15.4.5)']
         # Saturate the retained parent budget, but context uses the full bounded
         # snapshot. No extra Docker call or guest filesystem lookup is needed.
-        lines += [f'{i} {i+300} 10 {300-i} 70 sleep SECRET' for i in range(101,109)]
-        lines += [f'{i+300} 0 1 0 80 sh -c SECRET' for i in range(101,109)]
-        lines += [f'{i} 0 {11000+208-i} 0 70 sleep SECRET' for i in range(201,208)]
+        lines += [f'{i} {i+300} 10 {300-i} 00:00:00 70 sleep SECRET' for i in range(101,109)]
+        lines += [f'{i+300} 0 1 0 00:00:00 80 sh -c SECRET' for i in range(101,109)]
+        lines += [f'{i} 0 {11000+208-i} 0 00:00:00 70 sleep SECRET' for i in range(201,208)]
         result=t.parse_top('\n'.join(lines));by={p['pid']:p for p in result['processes']}
         worker=by[208];context=worker['task_context']
         self.assertEqual(worker['task_identity'],{'tool':'next','role':'server'})
@@ -129,11 +129,30 @@ class TaskCapture(unittest.TestCase):
         rows=[p(i,i+1,10+i) for i in range(1,6)]+[p(6,0,30,task)]
         self.assertIsNone(t.task_context(rows[0],{x['pid']:x for x in rows}))
         # Unknown direct worker remains unknown despite a recognized parent.
-        output=t.parse_top('PID PPID RSS %CPU ELAPSED COMMAND\n1 0 1 0 20 yarn run lint\n2 1 2048 99 10 node /private/SECRET.js')
+        output=t.parse_top('PID PPID RSS %CPU TIME ELAPSED COMMAND\n1 0 1 0 00:00:00 20 yarn run lint\n2 1 2048 99 00:00:09 10 node /private/SECRET.js')
         child=next(x for x in output['processes'] if x['pid']==2)
         self.assertEqual(child['task_identity']['mode'],'unrecognized_entrypoint')
         self.assertEqual(child['task_context']['identity']['task'],'lint')
         self.assertNotIn('SECRET',json.dumps(output))
+
+    def test_guest_cpu_deltas_require_same_lifetime(self):
+        self.assertEqual(t.cpu_time_seconds('1-00:00:02'),86402)
+        with self.assertRaises(ValueError):t.cpu_time_seconds('SECRET')
+        def container(remaining, cpu, rss=1024):
+            return {'container_id':'a'*12,'status':'ok','processes':[
+                dict(pid=42,elapsed_seconds=remaining,cpu_time_seconds=cpu,rss_bytes=rss,
+                     task_identity={'tool':'next','role':'server'})]}
+        first={'containers':[container(100,5)]}
+        second={'containers':[container(130,17,2048)]}
+        result=t.guest_deltas(first,second,30)
+        self.assertEqual(result['processes'][0]['cpu_percent_interval'],40)
+        self.assertEqual(result['processes'][0]['rss_delta_bytes'],1024)
+        self.assertEqual(t.guest_deltas(first,{'containers':[container(10,2)]},30)['matched_process_count'],0)
+        self.assertEqual(t.guest_deltas(first,second,0)['status'],'invalid_interval')
+        first['containers'][0]['timestamp']='2026-10-17T12:00:00+00:00'
+        second['containers'][0]['timestamp']='2026-10-17T12:00:40+00:00'
+        second['containers'][0]['processes'][0]['elapsed_seconds']=140
+        self.assertEqual(t.guest_deltas(first,second,30)['processes'][0]['cpu_percent_interval'],30)
 
 
 if __name__=='__main__':unittest.main()

@@ -24,7 +24,7 @@ import task_capture
 ROOT = watcher.data_root() / 'focus'
 VERSION = 1
 IDENTITY_POLICY = 'early-task-v1'
-DIAGNOSTIC_POLICY = 'late-stack-v1'
+DIAGNOSTIC_POLICY = 'late-stack-guest-pair-v2'
 PRESSURE_POLICY = 'independent-pressure-v1'
 PRESSURE_INTERVAL = 2.
 INTERVAL = 5.
@@ -338,7 +338,25 @@ def stack_frames(output):
                      and not re.search(r'(Thread_|thread name|DispatchQueue|/Users/|/Volumes/)', line))[:128*1024]
 
 
-def diagnostics(path, targets, include_docker=True):
+def thermal_state(output):
+    """Record warning availability, not a fan speed or temperature guess."""
+    fields = {}
+    for label, key in (('thermal warning level', 'thermal_warning'),
+                       ('performance warning level', 'performance_warning'),
+                       ('CPU power status', 'cpu_power_status')):
+        match = re.search(r'^\s*(?:No '+re.escape(label)+r' has been recorded|'+re.escape(label)+r':\s*([^\n]+))',
+                          output, re.I | re.M)
+        fields[key] = (match.group(1).strip()[:80] if match and match.group(1) else None)
+    return dict(status='recorded' if any(v is not None for v in fields.values()) else 'no_recorded_state',
+                fan_rpm=None, **fields,
+                limits='pmset warning state only. It does not expose fan RPM or current temperature; absent recorded warnings do not prove a cool machine.')
+
+
+def diagnostics(path, targets, include_docker=True, guest_followup=False):
+    try:
+        previous = json.loads((path/'diagnostics.json').read_text())
+    except FileNotFoundError:
+        previous = None
     result = dict(timestamp=monitor.now(), stacks=[], limitation=LIMITS,
                   diagnostic_policy=DIAGNOSTIC_POLICY, task_capture_policy=task_capture.POLICY)
     for p in targets[:2]:
@@ -356,6 +374,10 @@ def diagnostics(path, targets, include_docker=True):
                                     status='captured' if frames else r['status'] if r['status']!='ok' else 'no_frames',
                                     frames=frames, duration_ms=r['duration_ms'], truncated=r.get('truncated',False)))
     docker = next((x for x in ('/usr/local/bin/docker','/opt/homebrew/bin/docker') if Path(x).exists()), None)
+    if include_docker:
+        therm = watcher.run(['/usr/bin/pmset','-g','therm'],timeout=2,limit=4096)
+        result['thermal'] = dict(timestamp=monitor.now(),command_status=therm['status'],
+                                 **thermal_state(therm.get('output','')))
     if docker and include_docker:
         r = watcher.run([docker,'stats','--no-stream','--format','{{json .}}'], timeout=3, limit=65536)
         result['docker'] = {k:v for k,v in r.items() if k!='output'}
@@ -371,17 +393,23 @@ def diagnostics(path, targets, include_docker=True):
                 docker,result['docker'].get('containers',[]),watcher.run,monitor.now)
         else:
             result['guest_processes'] = dict(status='not_run_stats_unavailable',policy=task_capture.POLICY)
+    if guest_followup and docker and previous and previous.get('guest_processes',{}).get('containers'):
+        first = previous['guest_processes']
+        ids = [dict(ID=c['container_id']) for c in first['containers'] if c.get('status')=='ok']
+        second = task_capture.guest_rankings(docker,ids,watcher.run,monitor.now)
+        result['guest_processes_followup'] = second
+        try:
+            elapsed = monitor.epoch(second['containers'][0]['timestamp'])-monitor.epoch(first['containers'][0]['timestamp'])
+        except (IndexError, KeyError, ValueError):
+            elapsed = 0
+        result['guest_process_deltas'] = task_capture.guest_deltas(first,second,elapsed)
     # Evidence runs diagnostic jobs serially. A later stack job must retain the
     # earlier Docker snapshot and all prior attempts, including failures.
-    try:
-        previous = json.loads((path/'diagnostics.json').read_text())
-    except FileNotFoundError:
-        previous = None
     if previous is not None:
         result['updated_at'] = result['timestamp']
         result['timestamp'] = previous['timestamp']
         result['stacks'] = previous.get('stacks', []) + result['stacks']
-        for key in ('docker','guest_processes'):
+        for key in ('docker','guest_processes','thermal','guest_processes_followup','guest_process_deltas'):
             if key not in result and key in previous:
                 result[key] = previous[key]
     watcher.write_json(path/'diagnostics.json', result)
@@ -399,6 +427,7 @@ class Evidence:
         self.previous_hot = set()
         self.diagnostic_thread = None
         self.docker_requested = False
+        self.guest_followup_requested = False
         self.stack_attempted = set()
         self.bytes = 0
         watcher.write_json(self.path/'metadata.json', dict(version=VERSION, incident=incident,
@@ -453,14 +482,22 @@ class Evidence:
                              and lifetime(p) not in self.stack_attempted],
                             key=lambda p:p.get('cpu_percent') or 0, reverse=True)[:remaining]
         include_docker = not self.docker_requested and (bool(candidates) or time.monotonic()-self.started >= 30)
-        if not candidates and not include_docker:
+        guest_followup = False
+        if self.docker_requested and not self.guest_followup_requested and time.monotonic()-self.started >= 65:
+            try:
+                initial = json.loads((self.path/'diagnostics.json').read_text()).get('guest_processes',{})
+                guest_followup = any(c.get('status')=='ok' for c in initial.get('containers',[]))
+            except (OSError,ValueError):
+                pass
+        if not candidates and not include_docker and not guest_followup:
             return
         # Reserve attempts before launch: timeout, exit and PID changes all count
         # against the same two-attempt budget. Docker runs once per window.
         self.stack_attempted.update(lifetime(p) for p in candidates)
         self.docker_requested |= include_docker
+        self.guest_followup_requested |= guest_followup
         self.diagnostic_thread = threading.Thread(target=diagnostics, args=(self.path,candidates),
-                                                   kwargs=dict(include_docker=include_docker), daemon=True)
+                                                   kwargs=dict(include_docker=include_docker,guest_followup=guest_followup), daemon=True)
         self.diagnostic_thread.start()
 
     def report(self, state):
@@ -480,6 +517,7 @@ class Evidence:
                      census_samples=sum(r.get('census_sample_available',True) for r in self.rows),
                      pressure_only_samples=sum(not r.get('census_sample_available',True) for r in self.rows),
                      docker_requested=self.docker_requested,
+                     guest_followup_requested=self.guest_followup_requested,
                      limits=LIMITS,
                      totals_note='Totals count completed selected census intervals once; pressure-only rows have no counters. Census intervals can straddle window boundaries. Prelude excluded; not whole-lifetime totals.',
                      next_tests=['Compare birth/exit chronology with the pressure slope and per-lifetime deltas.',

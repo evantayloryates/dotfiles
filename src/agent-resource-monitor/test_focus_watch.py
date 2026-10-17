@@ -161,21 +161,43 @@ class Focus(unittest.TestCase):
     def test_docker_diagnostic_integrates_guest_rankings_once_and_bounds_calls(self):
         stats='\n'.join(json.dumps(dict(ID=f'{i:012x}',CPUPerc=f'{i}%',MemUsage=f'{i}GiB / 12GiB')) for i in range(1,4))
         def run(args,**kw):
-            if args[1]=='stats':output=stats
+            if args[-1]=='therm':output='Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded'
+            elif args[1]=='stats':output=stats
             else:
                 self.assertEqual(args[1],'top')
                 self.assertEqual(kw,dict(timeout=2,limit=256*1024))
-                output='PID PPID RSS %CPU ELAPSED COMMAND\n7 0 1024 50.0 3 node /private/yarn.js run test:gateway --token SECRET\n'
+                output='PID PPID RSS %CPU TIME ELAPSED COMMAND\n7 0 1024 50.0 00:00:02 3 node /private/yarn.js run test:gateway --token SECRET\n'
             return dict(status='ok',returncode=0,output=output,duration_ms=1,truncated=False)
         with tempfile.TemporaryDirectory() as d, patch.object(f.Path,'exists',return_value=True), \
              patch.object(f.watcher,'run',side_effect=run) as runner:
             f.diagnostics(Path(d),[],include_docker=True)
             result=json.loads((Path(d)/'diagnostics.json').read_text())
-            self.assertEqual(runner.call_count,3)
+            self.assertEqual(runner.call_count,4)
             self.assertEqual(len(result['guest_processes']['containers']),2)
             self.assertEqual(result['guest_processes']['containers'][0]['processes'][0]['task_identity']['task'],'test:gateway')
+            self.assertEqual(result['thermal']['status'],'no_recorded_state')
+            self.assertIsNone(result['thermal']['fan_rpm'])
             self.assertNotIn('SECRET',json.dumps(result))
             self.assertNotIn('/private/',json.dumps(result))
+
+    def test_followup_preserves_first_snapshot_and_computes_same_lifetime_cpu(self):
+        def snapshot(stamp, age, cpu):
+            return dict(status='ok',containers=[dict(container_id='a'*12,status='ok',timestamp=stamp,
+                processes=[dict(pid=7,elapsed_seconds=age,cpu_time_seconds=cpu,rss_bytes=1024,
+                                task_identity={'tool':'next','role':'server'})])])
+        first=snapshot('2026-10-17T12:00:00+00:00',100,5)
+        second=snapshot('2026-10-17T12:00:30+00:00',130,17)
+        with tempfile.TemporaryDirectory() as d, patch.object(f.Path,'exists',return_value=True), \
+             patch.object(f.task_capture,'guest_rankings',side_effect=[first,second]) as guests, \
+             patch.object(f.watcher,'run',return_value=dict(status='ok',output='{}',duration_ms=1,truncated=False)):
+            path=Path(d)
+            f.diagnostics(path,[],include_docker=True)
+            f.diagnostics(path,[],include_docker=False,guest_followup=True)
+            result=json.loads((path/'diagnostics.json').read_text())
+            self.assertEqual(guests.call_count,2)
+            self.assertEqual(result['guest_processes'],first)
+            self.assertEqual(result['guest_process_deltas']['processes'][0]['cpu_percent_interval'],40)
+            self.assertEqual(result['stacks'],[])
 
     def test_early_node_identity_uses_existing_budget_and_survives_report(self):
         class Census:
@@ -262,7 +284,7 @@ class Focus(unittest.TestCase):
             e.report('captured')
             report = json.loads((e.path/'analysis.json').read_text())
             self.assertEqual(report['stack_attempts_reserved'],2)
-            self.assertEqual(report['diagnostic_policy'],'late-stack-v1')
+        self.assertEqual(report['diagnostic_policy'],'late-stack-guest-pair-v2')
 
     def test_prelude_missing_identity_and_self_never_start_stack_jobs(self):
         with tempfile.TemporaryDirectory() as d, patch.object(f.threading,'Thread') as thread:

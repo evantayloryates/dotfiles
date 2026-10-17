@@ -2,6 +2,19 @@ import json,tempfile,unittest
 from pathlib import Path
 import btle_events as e
 class RelayTests(unittest.TestCase):
+ def test_queue_acceptance_is_distinct_from_exact_chat_receipt(self):
+  with tempfile.TemporaryDirectory() as f:
+   root=Path(f)/'btle';root.mkdir();(Path(f)/'focus').mkdir()
+   state={'deliveries':[dict(client_id='exact-a',queue_id='queue-a'),dict(client_id='exact-b',queue_id='queue-b')],
+          'pending':{'other':dict(client_id='exact-c')}}
+   e.receipt_health(root,state)
+   self.assertEqual(state['delivery_health']['unverified'],2)
+   e.watcher.write_json(root/'event-receipts.json',dict(receipts=[dict(clientUserMessageId='exact-a',received_at='now'),
+       dict(clientUserMessageId='other-id',received_at='now')]))
+   e.receipt_health(root,state)
+   self.assertEqual(state['delivery_health']['received'],1)
+   self.assertEqual(state['delivery_health']['pending'],1)
+   self.assertEqual(state['deliveries'][1]['receipt_status'],'not_verified')
  def test_recovered_prepared_health_is_retained_without_send_but_uncertain_is_not_cancelled(self):
   with tempfile.TemporaryDirectory() as f:
    r=Path(f);status=r/'status.json';path=r/'event-relay.json'

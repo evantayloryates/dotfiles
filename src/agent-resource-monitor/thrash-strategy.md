@@ -15,6 +15,15 @@ The previous one-minute process cadence missed short-lived work and obscured
 its CPU/I/O chronology. Container probes also timed out during severe pressure.
 Large retained allocations identify exposure to pressure, not the trigger.
 
+October 17 release candidate: a second bounded guest process reading pairs
+CPU time across a natural capture, and `pmset` records the warning state. The
+Mac currently reports no recorded thermal warning, which is not a fan-speed or
+temperature measurement. A read-only live smoke of the shared Kickoff DevPod
+found a large Next server near 2.2 GiB guest RSS while its paired ten-second
+CPU counter stayed flat. That is retained working set, not evidence that Next
+was driving the fan during that interval. The shared baseline and two standing
+QA slots were left running.
+
 ## Capture now, without interrupting existing work
 
 `focus_watch.py` is an independent unprivileged LaunchAgent. The original
@@ -47,13 +56,19 @@ recorder and BTLE watcher keep their current processes and captures intact.
    one-second unprivileged stack attempts per window. Only symbol/count frames
    are saved; no prompts, command strings, thread names or user file paths.
    Failed/changed/exited targets are recorded and not escalated automatically.
-   Policy `late-stack-v1` schedules serial diagnostic jobs: the Docker snapshot
+   Policy `late-stack-guest-pair-v2` schedules serial diagnostic jobs: the Docker snapshot
    at 30 seconds does not close later stack eligibility. Attempts are reserved
    before launch and limited to two across the entire window, including failed
    attempts; each PID/start lifetime is attempted once. Later stacks preserve
    the earlier Docker result and attempt records, with separate timestamps.
-6. Docker stats are asynchronous, output-bounded and time-bounded. Failure is
-   explicit; stale container memory is never presented as current attribution.
+6. Docker stats are asynchronous, output-bounded and time-bounded. A second
+   `docker top` reading after 65 seconds pairs retained process CPU time where
+   container ID, PID and elapsed age agree; it does not repeat Docker stats.
+   Each of at most two containers gets at most two two-second, 256 KiB top
+   attempts per window. One-second CPU-time resolution and ranking limits mean
+   short jobs can be missed. `pmset -g therm` has a separate two-second cap;
+   no fan RPM or temperature is inferred. Failure is explicit; stale container
+   memory is never presented as current attribution.
 7. Persistent pressure permits another bounded window after 15 minutes.
    Rotations remain the same incident until 120 seconds of verified quiet
    pressure and <70% host busy. Cooldown survives observer restarts. A sampling
@@ -61,7 +76,9 @@ recorder and BTLE watcher keep their current processes and captures intact.
 8. Existing five-minute deterministic relay sends one completed-window event
    and a recovery event per incident, plus actionable monitoring failures.
    Queue acceptance and chat receipt remain separate; stable client IDs
-   reconcile uncertain sends without blind retries. No polling model calls
+   reconcile uncertain sends without blind retries. Accepted client and queue
+   IDs remain in a ledger; only an exact client ID in a callback receipt proves
+   chat receipt. Missing receipts do not cause a replay. No polling model calls
    are added. Hourly review remains a fallback.
 9. Captures are private under `data/agent_resource_monitor/focus/`. Eight MiB
    per window, 256 MiB retained budget, five GiB disk reserve. No automatic
