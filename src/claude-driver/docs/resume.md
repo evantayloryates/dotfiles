@@ -1,3 +1,26 @@
+## Archive target generation race closed before native dispatch — October 17
+
+Audit found historical retired target status could remain valid after same-process
+successor installation. Added parent-held target global independent-activation lock
+through controller worker and postcondition observation (same key as activation/
+retirement), plus exact current target selector/pointer match to retired generation,
+build and sealed PID/start. Target must still be bypass/idle and scoped. Pure
+preflight rejects stale history with new selector, generation, epoch or mode.
+Actual lock integration test holds activation lock, verifies archive queues while
+unrelated target runs, cancels queued work without worker admission, then permits
+one remaining worker after release. No native archive or target mutation performed.
+
+Nine focused tests pass. Final frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T20-22-19-767Z.json. Filtered synthetic-store harnesses each
+10checks pass: pressure/harness-v2-{claude,codex}-2026-10-17T20-22-01-104Z.json.
+These qualify host race controls, not native lifecycle/recovery. Installed controller
+remains source81a56... (unchanged callback); current host adds admission guards.
+Rechecked exact transportPID31678/start20:14:51UTC still waiting,
+nativeInputRequiredtrue/readinessfalse/0slots. Existing asynchronous request for
+human hot-reload response remains pending; do not repeat sends or fabricate input.
+Plan archiveGenerationRaceReview records finding/fix and gate. Next actual loader
+readiness/policy/read then target STOP/retire/archive/reopen/coldrebind/read as below.
+
 ## Sealed archive controller installed; transport hot-reload input pending — October 17
 
 Taylor completed transport bypass+ready. Independently verified exact existing

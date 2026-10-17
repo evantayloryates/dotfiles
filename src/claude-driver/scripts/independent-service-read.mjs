@@ -12,9 +12,9 @@ import {deliver} from '../lib/peer-direct.mjs'
 import {getRecord,readPins,openPrs} from '../lib/sessions.mjs'
 import {peerRecord} from '../lib/peer-direct.mjs'
 import {inspectIndependentService} from '../lib/independent-service-result.mjs'
-import {readReceiverFile} from '../lib/receiver-runtime-selection.mjs'
+import {loadReceiverSelection,readReceiverFile} from '../lib/receiver-runtime-selection.mjs'
 import {parseNativeFamilyMetadata} from '../lib/native-family-preflight.mjs'
-import {archiveControlArguments} from '../lib/native-archive-control.mjs'
+import {archiveControlArguments,archiveTargetPreflightMatches} from '../lib/native-archive-control.mjs'
 import {inspectNativeResourcePid} from '../lib/native-resource-process.mjs'
 import {NATIVE_FAMILY_QUERY} from '../lib/native-family-preflight.mjs'
 import {sleep} from '../lib/paths.mjs'
@@ -38,7 +38,7 @@ try{
    if(!qualified)throw Error('native policy not observed')
    if(archive){
     const t=config.archiveTarget,r=getRecord(target),p=peerRecord(target),h=await inspectIndependentService(target,targetServiceId,{historical:true})
-    if(!t||t.sessionId!==target||!r||r.isArchived||r.cwd!==t.cwd||r.worktreePath||readPins().has(target)||openPrs(r).length||!p||p.pid!==t.pid||p.procStart!==t.procStart||p.status!=='idle'||!h.verified||h.verificationMode!=='historical-retired'||h.sourceDisposition!=='files-retired'||!h.admissionStopped||!h.stopMarkerMatchesGeneration||!h.terminalAttemptReviewComplete||h.unresolvedRequestIds.length||h.nativeEpoch.pid!==t.pid||h.nativeEpoch.procStart!==t.procStart||!h.settledRequestIds.includes(familyRequestId))throw Error('archive target unqualified')
+    if(!t||t.sessionId!==target||!archiveTargetPreflightMatches({target:t,record:r,peer:p,history:h,selection:loadReceiverSelection(t.cwd),targetServiceId,familyRequestId,pinned:readPins().has(target),openPrCount:r?openPrs(r).length:null}))throw Error('archive target unqualified')
     const file=join(t.cwd,'.claude-driver-services',targetServiceId,'broker','results',familyRequestId+'.native.json'),receipt=JSON.parse(readReceiverFile(file,65536)),rows=receipt.results?.length===1&&receipt.results[0].op==='list_sessions'&&receipt.results[0].ok===true?parseNativeFamilyMetadata(receipt.results[0].result,target):null
     if(receipt.id!==familyRequestId||receipt.source!=='native-peer-service-result'||rows===null||rows.length!==0)throw Error('archive family scope unqualified')
    }

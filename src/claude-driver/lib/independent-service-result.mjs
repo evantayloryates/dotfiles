@@ -7,6 +7,7 @@ import {DriverError} from './paths.mjs'
 import {randomUUID} from 'node:crypto'
 import {existsSync,writeFileSync} from 'node:fs'
 import {STATE_DIR,ensureDir,writeJsonAtomic} from './state.mjs'
+import {withIndependentArchiveTarget} from './independent-archive-admission.mjs'
 const exec=promisify(execFile)
 import {independentServiceState} from './independent-service-location.mjs'
 import {readIndependentGenerationLocator} from './independent-service-index.mjs'
@@ -20,6 +21,7 @@ export async function readIndependentService(session,serviceId,targetSession,{ti
  const state=independentServiceState(session,serviceId,getRecord(session))
  if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(targetSession||'')||typeof family!=='boolean'||(family?targetSession!==session:targetSession===session)||!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>60000||jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid independent read arguments',{category:'bad_args'})
  if(archiveControl!==undefined&&(!archiveControl||family||Object.keys(archiveControl).sort().join(',')!=='familyRequestId,serviceId'||!/^rpeer[a-f0-9]{32}$/.test(archiveControl.familyRequestId)||!/^[a-f0-9]{32}$/.test(archiveControl.serviceId)))throw new DriverError('invalid archive control',{category:'bad_args'})
+ const execute=async()=>{
  const requestId=independentServiceRequestId(jobId),file=join(ensureDir(join(STATE_DIR,'independent-service-jobs')),requestId+'.json')
  const record={requestId,session,serviceId,targetSession,...family?{operation:'list_sessions'}:archiveControl?{operation:'archive_session',archiveControl}:{},jobId:jobId??null,at:Date.now(),state:'prepared'}
  if(existsSync(file))throw new DriverError('independent request identity already exists; reconcile without replay',{category:'outcome_unknown',detail:{requestId,retrySafe:false}})
@@ -30,6 +32,8 @@ export async function readIndependentService(session,serviceId,targetSession,{ti
  writeJsonAtomic(file,{...record,state:reply.ok?'completed':'unresolved',result:reply.ok?reply.result:undefined,error:reply.ok?undefined:reply.error})
  if(!reply.ok)throw new DriverError('independent native read refused or unresolved; inspect original request',{category:reply.error?.requestId?'outcome_unknown':'independent_service_read_refused',detail:{requestId:reply.error?.requestId??requestId,retrySafe:reply.error?.retrySafe===true}})
  return reply.result
+ }
+ return archiveControl?withIndependentArchiveTarget(targetSession,execute,{signal}):execute()
 }
 // Child starts with its own state namespace before any lifecycle module loads.
 // This operation only reconciles existing evidence; it cannot send or dispatch.

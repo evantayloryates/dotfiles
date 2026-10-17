@@ -1,7 +1,7 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
-import {archiveTargetValid,archiveControlArguments,archiveObservationMatches} from '../lib/native-archive-control.mjs'
+import {archiveTargetValid,archiveControlArguments,archiveObservationMatches,archiveTargetPreflightMatches} from '../lib/native-archive-control.mjs'
 const session='local_11111111-1111-4111-8111-111111111111',target='local_22222222-2222-4222-8222-222222222222',binding={sessionId:session,receiverCwd:'/owned/probe/controller'},t={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'synthetic'}
 test('sealed archive capability accepts one distinct same-probe target epoch',()=>{
  assert.equal(archiveTargetValid(t,binding),true)
@@ -13,4 +13,10 @@ test('archive observation binds original epoch, receipt bytes and actual persist
  assert.equal(archiveObservationMatches(o,args),true)
  for(const change of [{pidAbsent:false},{archived:false},{pid:43},{procStart:'reused'},{observedAt:99},{observedAt:121},{nativeTextSha256:'foreign'},{extra:true}])assert.equal(archiveObservationMatches({...o,...change},args),false)
  assert.equal(archiveObservationMatches(o,{...args,receipt:{...receipt,content:null}}),false)
+})
+test('retired history cannot authorize archive after a same-process successor or target mode change',()=>{
+ const build='a'.repeat(64),service='b'.repeat(32),request='rpeer'+'c'.repeat(32),make=()=>({target:t,record:{sessionId:target,cwd:t.cwd,isArchived:false,permissionMode:'bypassPermissions'},peer:{pid:t.pid,procStart:t.procStart,status:'idle',hostSessionId:target,cwd:t.cwd},history:{serviceId:service,sessionId:target,verified:true,verificationMode:'historical-retired',sourceDisposition:'files-retired',admissionStopped:true,stopMarkerMatchesGeneration:true,terminalAttemptReviewComplete:true,unresolvedRequestIds:[],nativeEpoch:{pid:t.pid,procStart:t.procStart},settledRequestIds:[request],build,generation:1},selection:{selector:{serviceId:service,sessionId:target,pid:t.pid,procStart:t.procStart,build,generation:1},pointer:{build,generation:1}},targetServiceId:service,familyRequestId:request,pinned:false,openPrCount:0})
+ assert.equal(archiveTargetPreflightMatches(make()),true)
+ for(const change of [x=>x.selection.selector.serviceId='d'.repeat(32),x=>x.selection.pointer.generation=2,x=>x.selection.selector.pid=43,x=>x.record.permissionMode='acceptEdits',x=>x.peer.status='working',x=>x.history.unresolvedRequestIds=['original'],x=>x.pinned=true,x=>x.openPrCount=1,x=>x.history.settledRequestIds=[]]){const x=make();change(x);assert.equal(archiveTargetPreflightMatches(x),false)}
+ assert.equal(archiveTargetPreflightMatches(),false)
 })

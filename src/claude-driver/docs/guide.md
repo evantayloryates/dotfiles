@@ -90,7 +90,10 @@ bypass target and its PID/start epoch into that generation; it cannot retarget.
 `broker_service_archive` requires durable submission, that controller, the target
 generation already stopped and files-retired with no unresolved attempts, and its
 verified empty native family receipt. It dispatches one fixed native archive call
-through the ordinary permission hook. Settlement requires both the native receipt
+through the ordinary permission hook. The parent holds the target's global
+activation lock through the worker and postcondition review; the current selector
+must still name the exact retired generation/epoch. Old history cannot authorize
+archive of a same-process successor. Settlement requires both the native receipt
 and independent persisted archive/PID-absence observation, which is retained for
 historical review even after the target reopens. It never deletes, elevates
 permissions, restarts an app or retries uncertain work. Native archive/recovery
