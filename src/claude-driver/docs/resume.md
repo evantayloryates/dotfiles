@@ -1,3 +1,48 @@
+## October 17 proof-bound standby reseal/rebind candidate
+
+Previous batch published6ca1a9f. Implemented broker_service_rebind_standby using
+original enrolled recovery parent + its original completed native recovery child.
+Proof must match exact old binding digest, actor/primary IDs, old service IDs and
+old PID/start; child verifies preserved role/settings/anchor/no unknowns and parent
+verifies same new primary epoch. Failed/uncertain/cycle/changed/mismatched proof
+cannot authorize epoch change. Normal standby CAS still refuses epoch retargets.
+
+New rebind composes EXISTING runIndependentRenewal phases and native primitives:
+prepare same standby with archiveTarget recovered primary; quiesce/retire old role;
+stable-hook activate/readiness/policy/verify new role preserving settings+anchor.
+Both exact owned bypass idle epochs and selectors checked at every phase. Recovered
+primary needs initial180s margin, family+later-operation capacity, no unknowns and
+current readiness/policy. After turnover, one deterministic native family context
+on recovered primary precedes proof-bound CAS enrollment; old canonical bytes are
+retained, v2 automatic choice preserved. No process wake/restart/kill/new chat or
+permission/input change. New operation remains explicit and not automatically
+invoked from cold routing yet. Recovered control continues to expose
+standbyRebindRequired:true until the separate verified rebind finishes.
+
+Five rebind tests PASS: exact transition,16 corrupt/uncertain proof refusals,
+phase order, each failed/changed phase stops, retained-proof filesystem epoch CAS
+with old-byte retention/opt-in preservation/stale CAS rejection. Full isolated
+v2-2026-10-17T22-55-42-839Z.json1/1PASS/sourceunchanged. Both filtered
+harness-v2-{claude,codex}-2026-10-17T22-55-16-403Z.json10checks each PASS.
+FINALHOSTe675ca1b5e4694df83cb83354d0c934daddcb61c7ef2f6159ef7284b8a8e86ee.
+
+Native negative standbyRebindMissingProof j5a84427c1eb94ad990a43caba05f6526
+references failed cold parent jea3...; correctly refuses standby_rebind_unqualified,
+dispatched:false before rebind ledger/effects. Do not replay either negative.
+Binding unchanged905865a4622eef6f6f5a9dd59db218be64ce471f3754d8bc80349217b9a02869;
+primarycb68...live/standby3e8045...; actual standby status waitprimary-live,
+recoveryAttempted:false and automaticRecoveryEnabled:false. Prior native healthy
+send18checks evidence remains on preceding0fa6 source, not newnativecoldproof.
+
+NEXT: successful actual absent-primary recovery + this rebind native qualification
+and eventual composition without recursive primary-route locking. No deliberate
+current-primary termination/archive cycle solely for green. Do not enable auto
+recovery before native qualification; rebind/full appquit/bothcontrollerslost,
+naturalpressure and broader creation/fork/archive/window gates remain incomplete.
+Existing checkpoint metadataControlTrial.standbyRebindCandidate retains exact
+source/tests/negative job. Goal active, watcher paused, legacyobserver owns legacy
+broker recovery. Codex-driver and 1Password remain parked.
+
 ## October 17 trust confirmation and enrolled recovery routing candidate
 
 Taylor supplied /Users/taylor/Desktop/check-1.png and confirmed accepting its

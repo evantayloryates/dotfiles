@@ -1516,8 +1516,18 @@ standby and the retained empty-family proof. Checks repeat before publishing one
 stable recovery child. No live primary archive, app restart or permission change
 is implied. Inspect the original parent/child after uncertainty; never replay it.
 Recovered control results expose `coldRecoveryJobId` and `standbyRebindRequired`.
-A new primary epoch does not automatically update the standby's sealed authority;
-rebind/reseal remains a separate unqualified step. These paths do not establish
+A new primary epoch does not automatically update the standby's sealed authority.
+Use experimental durable `broker_service_rebind_standby` with the original
+`recovery_parent_job_id` and exact old `expected_enrollment_sha256`. It accepts only
+completed enrolled-recovery and native child receipts matching that binding. It
+reuses generation preparation, quiescence, retirement, stable-hook activation and
+native policy qualification to reseal the same standby process for the recovered
+primary. It captures a fresh primary family receipt, then replaces the binding by
+CAS, retaining old bytes and the automatic-recovery choice. Both processes must
+remain the exact owned idle epochs throughout. It never wakes a process or
+repurposes another session. Failed/uncertain phases stop without replay. This
+rebind implementation has synthetic and native-refusal evidence; the successful
+native path remains unqualified until an actual cold recovery supplies its proof. These paths do not establish
 unattended recovery from app quit or loss of both controllers.
 
 Primary renewal captures a fresh family receipt and refreshes an enrolled binding.

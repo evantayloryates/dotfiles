@@ -1,3 +1,4 @@
+import {readStandbyRebindProof,standbyRecoveryTransitionAllowed} from './standby-rebind-proof.mjs'
 import {join} from 'node:path'
 import {createHash} from 'node:crypto'
 import {mkdirSync,lstatSync,writeFileSync} from 'node:fs'
@@ -28,7 +29,7 @@ async function qualified(args,{signal}={}){
  const epoch=(session,service)=>{const r=getRecord(session),p=peerRecord(session),selected=loadReceiverSelection(r.cwd);if(!p||selected.selector.sessionId!==session||selected.selector.serviceId!==service||p.pid!==selected.selector.pid||p.procStart!==selected.selector.procStart)throw Error('enrollment selection changed');return {sessionId:session,serviceId:service,cwd:r.cwd,pid:p.pid,procStart:p.procStart}}
  return validateStandbyEnrollment({schemaVersion:1,primary:epoch(args.session_id,args.target_service_id),standby:epoch(args.session,args.service_id),familyRequestId:args.family_request_id,enrolledAt:Date.now()},args.session_id)
 }
-export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify=qualified,historyRoot=join(STATE_DIR,'standby-enrollment-history'),automaticRecovery}={}){
+export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify=qualified,historyRoot=join(STATE_DIR,'standby-enrollment-history'),automaticRecovery,recoveryParentJobId}={}){
  if(!sid.test(args.session_id||''))throw Error('exact primary required')
  return withLock('standby-enrollment-'+args.session_id,async()=>{
   let after=validateStandbyEnrollment(await qualify(args,{signal}),args.session_id);const before=readStandbyEnrollment(args.session_id,{dir})
@@ -37,7 +38,7 @@ export async function enrollStandby(args,{signal,dir=root,expectedSha256,qualify
   mkdirSync(dir,{recursive:true,mode:0o700});owned(dir);const file=join(dir,args.session_id+'.json')
   if(!before){if(expectedSha256!==undefined)throw Error('expected standby binding missing');writeFileSync(file,JSON.stringify(after)+'\n',{flag:'wx',mode:0o600})}
   else if(expectedSha256===undefined){if(JSON.stringify({...before,enrolledAt:after.enrolledAt})!==JSON.stringify(after))throw Error('standby binding already exists; exact digest required')}
-  else{if(!standbyRefreshAllowed(before,after,expectedSha256))throw Error('standby compare-and-swap or epoch changed');const history=join(historyRoot,args.session_id);mkdirSync(history,{recursive:true,mode:0o700});owned(history);const prior=join(history,expectedSha256+'.json'),bytes=JSON.stringify(before)+'\n';try{writeFileSync(prior,bytes,{flag:'wx',mode:0o600})}catch(e){if(e.code!=='EEXIST'||readReceiverFile(prior,8192).toString()!==bytes)throw e}if(standbyEnrollmentDigest(readStandbyEnrollment(args.session_id,{dir}))!==expectedSha256)throw Error('standby binding changed');writeJsonAtomic(file,after)}
+  else{const recoveryProof=recoveryParentJobId===undefined?null:readStandbyRebindProof(before,recoveryParentJobId);if(!standbyRefreshAllowed(before,after,expectedSha256)&&!(recoveryProof&&standbyEnrollmentDigest(before)===expectedSha256&&standbyRecoveryTransitionAllowed(before,after,recoveryProof)))throw Error('standby compare-and-swap or epoch changed');const history=join(historyRoot,args.session_id);mkdirSync(history,{recursive:true,mode:0o700});owned(history);const prior=join(history,expectedSha256+'.json'),bytes=JSON.stringify(before)+'\n';try{writeFileSync(prior,bytes,{flag:'wx',mode:0o600})}catch(e){if(e.code!=='EEXIST'||readReceiverFile(prior,8192).toString()!==bytes)throw e}if(standbyEnrollmentDigest(readStandbyEnrollment(args.session_id,{dir}))!==expectedSha256)throw Error('standby binding changed');writeJsonAtomic(file,after)}
   const row=readStandbyEnrollment(args.session_id,{dir});return {enrolled:true,verified:true,reused:!!before&&expectedSha256===undefined,enrollmentSha256:standbyEnrollmentDigest(row),primarySession:row.primary.sessionId,primaryServiceId:row.primary.serviceId,standbySession:row.standby.sessionId,standbyServiceId:row.standby.serviceId,familyRequestId:row.familyRequestId,enrollmentFile:file,automaticRecoveryEnabled:row.schemaVersion===2&&row.automaticRecovery===true,nativeEffectsPerformed:false}
  },{signal,timeoutMs:30000})
 }
