@@ -87,3 +87,10 @@ the retired request. This preserves unknown outcomes and prevents a sweep from
 silently manufacturing definitive results for old work. The native hook rechecks
 independently: helper admission does not freeze the active pointer or prove an
 effect occurred. Existing settled-handoff and retirement gates remain required.
+
+A binding-aware active runtime also requires a matching installed native policy
+before enqueue: the policy must declare binding version1 and effect admission1,
+match the active release build, and bind the exact live session/PID/start. An
+older installed hook cannot inherit a capability merely from a new runtime
+pointer. Failure publishes no request and sends no wake. Policy capability claims
+are checked against the policy's own sealed release manifest.

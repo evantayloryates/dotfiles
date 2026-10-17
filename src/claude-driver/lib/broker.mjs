@@ -6,6 +6,7 @@
 // needed → poll results/<id>.json
 // (bounded) → the caller verifies against disk ground truth.
 
+import {nativeRequestPolicyMatches} from './native-request-binding.mjs'
 import {auditRequests} from './request-audit.mjs'
 import {lifecycleEvent,withLifecycleContext} from './lifecycle-log.mjs'
 import { randomUUID } from 'node:crypto'
@@ -187,6 +188,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
     validateBatchAdmission(ops,{native:info.live.entrypoint==='claude-desktop',indexed:info.batchAdmission?.verified===true})
     if(info.live.entrypoint==='claude-desktop'&&ops.some(o=>!['get_session','list_sessions','list_groups','get_window_layout'].includes(o.op))&&rescuePolicy?.nativeEffectAdmissionVersion!==1)throw new DriverError('native effect admission policy is missing or legacy; no effect enqueued',{category:'broker_native_admission_required',detail:{dispatched:false,retrySafe:true}})
+    if(info.live.entrypoint==='claude-desktop'&&!nativeRequestPolicyMatches(info,rescuePolicy))throw new DriverError('native request generation requires its matching binding-aware hook and live epoch; no request enqueued',{category:'broker_native_generation_policy_mismatch',detail:{dispatched:false,retrySafe:true}})
     const id = newRequestId(),pulse=requestTrigger(id,Number(protocolVersion()))
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
     if (signal?.aborted || Date.now() >= deadline) throw new DriverError('cancelled or expired before enqueue', { category: signal?.aborted ? 'cancelled' : 'broker_timeout' })

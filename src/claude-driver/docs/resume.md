@@ -1,3 +1,27 @@
+## Generation-aware runtime requires matching native hook — October 17
+
+Previous turn: helper generation fence passed. Activation audit found a separate
+installed-hook boundary: a new runtime manifest alone does not prove the installed
+Stop-rescue handler understands request bindings. Current native enqueue now
+requires policy nativeRequestBindingVersion1, effect-admission1, matching release
+build, session and livePID/start when active runtime declares binding1. Refuses
+broker_native_generation_policy_mismatch before request publication/wake. New
+policy installations declare binding1; policy validation refuses a capability
+claim against a release manifest that lacks it. Legacy runtimes keep their prior
+contract without gaining fencing proof. No live policy or pointer changed.
+
+Full pressure1/1pass, unchanged source:
+pressure/v2-2026-10-17T16-29-53-279Z.json. Filtered Claude/Codex(gpt-6-sol)
+harnesses pass with source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-29-47-803Z.json.
+Service candidate memory recorded. New isolated policy matrix rejects
+missing policy/capability, unsupported version, different handler build and each
+foreign native identity field. Existing policy install/validation and native-hook
+boundary suites pass. This completes matching runtime/helper/hook prerequisites
+for the candidate only; native hook serving on CLI2.1.299 and old-instance
+retirement remain unqualified. Existing22unknown outcomes remain untouched.
+Goal active; no native effects in this turn; Codex bridge fixes parked.
+
 ## Helper generation fence preserves retired work — October 17
 
 Previous turn: progress (native generation-binding candidate). Shared pure
