@@ -1095,3 +1095,13 @@ mechanism. Deletion always retains its human approval card. Before actual cold
 experiments, independently qualify target ownership/family/worktree scope and the
 exact control path. Never infer physical exit/recovery from this report or a
 successful stop/retirement send.
+
+Explicit `broker_service_activate {...,stable_hook:true,cold_rebind:true}` admits a
+prepared replacement on a verified NEW native epoch only after exact predecessor
+history is files-retired, owned STOP matches and all attempts are terminal. The
+predecessor PID must be absent in two scoped process observations; a live/reused
+PID or observation error refuses. Same-process turnover keeps its existing epoch
+requirement; cold mode is never implicit. Anchor/settings stay exact and old selector
+is retained. This option does not restart/open the app, raise permissions, answer
+native consent, prove module loading or repair unretired/unresolved crash state.
+Cold admission is synthetic-tested; actual cold activation is still unqualified.

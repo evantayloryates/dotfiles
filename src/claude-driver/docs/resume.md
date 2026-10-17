@@ -1,3 +1,46 @@
+## Explicit cold epoch rebind admission prepared, not executed — October 17
+
+Extended experimental activation with cold_rebind:true, requires stable_hook:true.
+Default same-process path unchanged. Cold mode requires a DIFFERENT independently
+verified current native epoch, exact old retired-source/ownedSTOP/terminal history,
+unchanged anchor/settings and distinct generation. Scoped existing PID observer
+must report oldPID absent before and after review (also repeated by activation
+preflight and before selector mutation); live/reused/unknown PID refuses. Oldselector
+still retained exclusively. No cold inference from missing peer metadata or send.
+Fresh receiver guard still enforces registered idle bypass scratch and exact native
+version/cwd/PID/start. Cold option performs no navigation/restart/consent/permission
+change. It requires retained predecessor and cannot adopt an empty/unqualified path.
+
+Seven focused turnover/activation tests pass, including explicit cold flag, changed
+new epoch, affirmative oldPID absence, live/sameepoch and unknown-attempt refusals.
+Frozen-source pressure1/1passes: pressure/v2-2026-10-17T19-58-01-566Z.json. Both
+filtered synthetic-store harnesses10checks pass source/configunchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-59-00-485Z.json. No actual cold
+activation, oldPID exit, native archive or app restart this turn; cold path remains
+unqualified natively. Current0e39receiver/settings/STOP/budgets unchanged.
+
+Lifecycle discovery corrected start_session namespace to ccd_session, not session_mgmt.
+get_session declarations describe native parentSessionId/detached. list_sessions
+linked:true scopes the CALLER's family, with boundedlimit; not arbitrary targetfamily
+and a full-limit response cannot prove completeness. Existing receiver module still
+admits distinct-target get_session only; no family query sent. Existing plan
+nativeFamilySurfaceDiscovery retains these facts and declaration-only limits.
+
+Before considering authorized app restart, bounded ownership snapshot found177job
+records/no queued or running jobs, and3idle registered desktop processes: current
+interrupt74/PID20499, control8f/PID42813, legacy35/PID79060. Legacy process start
+FriOct16 14:54:25UTC, unique epoch verified but residentfalse/waiterfalse and pinned
+runtime dependency epoch mismatch/template stale. This is liveness, not successful
+legacy recovery. Existing observer ownership/unknown legacy requests preserved;
+no duplicate wake or global restart. Plan coldRestartOwnershipSnapshot and
+legacyOwnershipReconciliation retain sanitized metadata; no chat messaging.
+
+Next add a bounded native caller-family metadata operation/control preflight for a
+scoped reversible process-disposition experiment, preserving legacy observer state.
+Then actual new-epoch rebind/read proof and offline crash/record-loss reconciliation.
+Cold mode cannot bypass native consent or deletion's human card, and is not automatic
+crash repair. Goal active; Codex fixes and attached cached MCP refresh separate.
+
 ## Versioned native lifecycle declaration audit before cold tests — October 17
 
 Added lib/native-lifecycle-surface.mjs and explicit read-only

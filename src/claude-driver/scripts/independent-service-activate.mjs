@@ -21,8 +21,8 @@ const ownedDir=p=>{const s=lstatSync(p);if(!s.isDirectory()||s.isSymbolicLink()|
 const hash=b=>createHash('sha256').update(b).digest('hex')
 let phase='namespace'
 try{
- const [session,serviceId,pid,start,hookMode]=process.argv.slice(2),record=getRecord(session),stableHook=hookMode==='--stable-hook'
- if(hookMode!==undefined&&!stableHook||process.argv.length>7)throw Error('hook mode')
+ const [session,serviceId,pid,start,hookMode,coldMode]=process.argv.slice(2),record=getRecord(session),stableHook=hookMode==='--stable-hook',coldRebind=coldMode==='--cold-rebind'
+ if(hookMode!==undefined&&!stableHook||coldMode!==undefined&&!coldRebind||coldRebind&&!stableHook||process.argv.length>8)throw Error('hook mode')
  if(independentServiceState(session,serviceId,record)!==STATE_DIR)throw Error('namespace')
  for(const d of [record.cwd,dirname(STATE_DIR),STATE_DIR])ownedDir(d)
  phase='preparation';const prep=json(join(STATE_DIR,'preparation.json')),config=prep.config,activation=join(STATE_DIR,'activation.json')
@@ -37,8 +37,9 @@ try{
  // overwrite them or interpret absent bookkeeping as proof of ownership.
  if(present(dest)||present(BROKER_DIR)||!stableHook&&present(settingsFile))throw Error('nonempty receiver')
  let predecessor=null
- const reviewPredecessor=()=>reviewReceiverTurnover({receiverCwd:record.cwd,artifact:policy.receiverHook,session,epoch:prep.epoch,nextServiceId:serviceId,inspect:id=>inspectIndependentService(session,id,{historical:true})})
+ const reviewPredecessor=()=>reviewReceiverTurnover({receiverCwd:record.cwd,artifact:policy.receiverHook,session,epoch:prep.epoch,nextServiceId:serviceId,inspect:id=>inspectIndependentService(session,id,{historical:true}),coldRebind})
  if(stableHook&&(present(policy.receiverHook.anchorPath)||present(policy.policy.receiverHook.selectorPath)||present(settingsFile))){predecessor=await reviewPredecessor();if(present(predecessor.retainedSelectorPath))throw Error('predecessor selector already retained')}
+ if(coldRebind&&!predecessor)throw Error('cold rebind requires retained predecessor')
  phase='directories';ownedDir(dirname(modRoot));if(present(modRoot))ownedDir(modRoot);if(present(sessionMods))ownedDir(sessionMods);if(present(settingsDir))ownedDir(settingsDir)
  const guard=()=>{const r=getRecord(session),peer=peerRecord(session,Number(pid));if(!peer||peer.procStart!==start||peer.cwd!==record.cwd||peer.status!=='idle'||peer.version!=='2.1.299'||peer.entrypoint!=='claude-desktop'||r.permissionMode!=='bypassPermissions'||r.isArchived||config.deadline<Date.now()+1000)throw Error('epoch')}
  phase='epoch';guard();phase='ledger';const ledger={schemaVersion:1,kind:'independent-service-activation',serviceId,sessionId:session,build:prep.build,epoch:prep.epoch,phase:'created',at:Date.now(),destination:dest,settingsFile,servingQualified:false,scopedUnloadQualified:false}

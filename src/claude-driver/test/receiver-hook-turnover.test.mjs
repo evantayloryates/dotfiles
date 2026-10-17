@@ -14,3 +14,12 @@ test('live/uncertain/foreign predecessor and changed anchor/settings fail before
  const mutations=[f=>f.history.verificationMode='live-native',f=>f.history.sourceDisposition='installed',f=>f.history.admissionStopped=false,f=>f.history.stopMarkerMatchesGeneration=false,f=>f.history.terminalAttemptReviewComplete=false,f=>f.history.unresolvedRequestIds=['unknown'],f=>delete f.history.unresolvedRequestIds,f=>f.history.build='f'.repeat(64),f=>f.history.generation++,f=>f.history.serviceId='f'.repeat(32),f=>f.epoch.pid++,f=>f.epoch.procStart='next',f=>f.artifact.anchorSha256='f'.repeat(64),f=>f.artifact.settingsSha256='f'.repeat(64),f=>f.nextServiceId=f.selected.selector.serviceId]
  for(const mutate of mutations){const f=fixture();mutate(f);assert.throws(()=>qualifyReceiverTurnover(f),/predecessor/)}
 })
+test('cold rebind is explicit and requires changed epoch plus affirmative old PID absence',()=>{
+ const f=fixture();f.epoch={pid:43,procStart:'new epoch'}
+ assert.throws(()=>qualifyReceiverTurnover(f),/epoch refused/)
+ assert.throws(()=>qualifyReceiverTurnover({...f,coldRebind:true}),/epoch refused/)
+ assert.throws(()=>qualifyReceiverTurnover({...f,coldRebind:true,oldPidAbsent:false}),/epoch refused/)
+ const r=qualifyReceiverTurnover({...f,coldRebind:true,oldPidAbsent:true});assert.equal(r.coldRebind,true);assert.equal(r.previousPid,42);assert.equal(r.previousPidObservedAbsent,true)
+ assert.throws(()=>qualifyReceiverTurnover({...fixture(),coldRebind:true,oldPidAbsent:true}),/epoch refused/)
+ f.history.unresolvedRequestIds=['unknown'];assert.throws(()=>qualifyReceiverTurnover({...f,coldRebind:true,oldPidAbsent:true}),/retirement refused/)
+})

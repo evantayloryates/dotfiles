@@ -1218,3 +1218,12 @@ worktree effects and deletion's always-human card. Owned scratch disk metadata
 showed no worktree/samecwd/directID references, but native family scope remains
 unqualified. No lifecycle call, signal or restart was attempted. Actual cold/physical
 recovery requires independent ownership and executed native evidence.
+
+### Explicit cold epoch admission boundary (October 17)
+
+Cold rebind is now an explicit activation option: changed independently verified
+new epoch, oldPID absent twice, retired/STOP/terminal predecessor and identical
+anchor/settings. Default same-process gate unchanged. Synthetic tests/pressure and
+both harnesses pass; no native cold activation or restart yet. Ownership snapshot
+also found a live idle but non-serving legacy broker with stale epoch evidence;
+observer ownership preserved. Liveness is not a recovered serving channel.
