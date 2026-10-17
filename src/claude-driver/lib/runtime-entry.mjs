@@ -9,6 +9,12 @@ import {pathToFileURL} from 'node:url'
 const hex=/^[a-f0-9]{64}$/
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const refuse=(reason='integrity-unqualified')=>{const error=new Error('pinned broker runtime failed integrity admission; no work claimed ['+reason+']');error.code='PINNED_RUNTIME_ADMISSION';error.admissionReason=reason;throw error}
+// Explicit opt-in for a new, independent lifecycle namespace under an owned
+// native receiver cwd. It cannot point at or adopt another broker generation.
+export function serviceStateBindingMatches({binding,dir,sessionId,build,receiverCwd}={}){
+ if(!binding||typeof binding!=='object'||Array.isArray(binding)||Object.keys(binding).sort().join(',')!=='build,id,receiverCwd,sessionId,version'||binding.version!==1||! /^[a-f0-9]{32}$/.test(binding.id)||!hex.test(binding.build)||binding.build!==build||binding.sessionId!==sessionId||! /^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(sessionId||'')||typeof binding.receiverCwd!=='string'||binding.receiverCwd==='/'||resolve(binding.receiverCwd)!==binding.receiverCwd||binding.receiverCwd!==receiverCwd)return false
+ return dir===join(binding.receiverCwd,'.claude-driver-services',binding.id,'broker')
+}
 // Per-request completed observations survive later shared helper entries. This
 // is evidence retention only: it never creates dispatch or native admission.
 export function retainCompletedCheck(dir,record){
@@ -26,7 +32,7 @@ function owned(path,dir=false){const s=lstatSync(path);if(s.isSymbolicLink()||s.
 function nativeBinding(pointer,dir) {
  // Legacy releases are preserved for controlled handoff. They must not produce
  // current-epoch qualification in a new host merely from an old entry record.
- if(!Object.hasOwn(pointer,'procStart'))return null
+ if(!Object.hasOwn(pointer,'procStart')){if(Object.hasOwn(pointer,'serviceStateBinding'))refuse('native-service-epoch-unbound');return null}
  if(typeof pointer.procStart!=='string'||!pointer.procStart)refuse('native-epoch-invalid')
  if(!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string')refuse('native-identity-invalid')
  const peers=process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR||join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'sessions')
@@ -36,7 +42,11 @@ function nativeBinding(pointer,dir) {
   const stat=fstatSync(fd);if(!stat.isFile()||stat.uid!==process.getuid()||stat.size>65536)refuse()
   const bytes=readFileSync(fd);if(bytes.length>65536)refuse();record=JSON.parse(bytes.toString('utf8'))
  }catch{refuse('native-peer-unavailable')}finally{if(fd!==undefined)closeSync(fd)}
- if(record.pid!==pointer.pid||record.procStart!==pointer.procStart||record.hostSessionId!==pointer.sessionId||record.sessionId!==pointer.sessionId.replace(/^local_/, '')||record.entrypoint!=='claude-desktop'||record.spare||record.parkedJobId||resolve(record.cwd||'/')!==resolve(dir))refuse('native-peer-identity-mismatch')
+ if(record.pid!==pointer.pid||record.procStart!==pointer.procStart||record.hostSessionId!==pointer.sessionId||record.sessionId!==pointer.sessionId.replace(/^local_/, '')||record.entrypoint!=='claude-desktop'||record.spare||record.parkedJobId)refuse('native-peer-identity-mismatch')
+ if(Object.hasOwn(pointer,'serviceStateBinding')){
+  if(!serviceStateBindingMatches({binding:pointer.serviceStateBinding,dir,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:record.cwd}))refuse('native-service-state-binding-mismatch')
+  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),dirname(dir),dir]){const st=lstatSync(path);if(st.isSymbolicLink()||!st.isDirectory()||st.uid!==process.getuid())refuse('native-service-state-directory-unowned')}
+ }else if(resolve(record.cwd||'/')!==resolve(dir))refuse('native-peer-identity-mismatch')
  let cursor=process.ppid
  for(let hop=0;hop<24&&cursor>1;hop++){
   let line
@@ -67,6 +77,7 @@ export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  }
  visit(root)
  if(manifest.schemaVersion!==1||manifest.build!==pointer.build||JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files||{}).sort()))refuse()
+ if(Object.hasOwn(pointer,'serviceStateBinding')&&manifest.nativeServiceStateBindingVersion!==1)refuse('native-service-state-capability-missing')
  const runtimeFiles=['server.mjs','cli.mjs','broker-template/CLAUDE.md']
  for(const folder of ['lib','scripts'])for(const name of readdirSync(join(root,folder)))if(name.endsWith('.mjs')||name.endsWith('.swift')||name.endsWith('.py'))runtimeFiles.push(folder+'/'+name)
  for(const file of Object.keys(files))if(file.startsWith('candidates/')&&file.endsWith('.js'))runtimeFiles.push(file)

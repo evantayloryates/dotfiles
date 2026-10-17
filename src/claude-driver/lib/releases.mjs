@@ -5,6 +5,7 @@ import {constants,openSync,closeSync,fstatSync,chmodSync,copyFileSync,existsSync
 import {dirname,join,resolve,sep} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {runtimeFingerprint} from './build.mjs'
+import {serviceStateBindingMatches} from './runtime-entry.mjs'
 import {BROKER_DIR,STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
 import {DriverError} from './paths.mjs'
 
@@ -52,6 +53,7 @@ export function validateRelease(build) {
      JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files).sort())||
      runtimeFingerprint(root)!==build)fail()
   for(const file of ['scripts/broker-wait.mjs','scripts/broker-check.mjs','broker-template/CLAUDE.md'])if(!files[file])fail()
+  if(Object.hasOwn(manifest,'nativeServiceStateBindingVersion')&&manifest.nativeServiceStateBindingVersion!==1)fail()
   const template=readFileSync(join(root,'broker-template/CLAUDE.md'),'utf8')
   const protocol=Number(template.match(/^Protocol version: (\d+)/m)?.[1])
   if(!Number.isInteger(protocol)||protocol<1)fail()
@@ -64,6 +66,7 @@ export function activeRelease() {
  try {
   const pointer=json(RUNTIME_POINTER)
   if(pointer.schemaVersion!==1||!hex.test(pointer.build)||!Number.isInteger(pointer.generation)||pointer.generation<1)fail()
+  if(Object.hasOwn(pointer,'serviceStateBinding')&&(!Object.hasOwn(pointer,'procStart')||!serviceStateBindingMatches({binding:pointer.serviceStateBinding,dir:BROKER_DIR,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:pointer.serviceStateBinding?.receiverCwd})))fail()
   if(Object.hasOwn(pointer,'procStart')&&(typeof pointer.procStart!=='string'||!pointer.procStart||!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string'))fail()
   if(Object.hasOwn(pointer,'nativeRequestBindingVersion')&&pointer.nativeRequestBindingVersion!==1)fail()
   if(!hex.test(pointer.bootstrapHash))fail()
@@ -72,6 +75,7 @@ export function activeRelease() {
   if(createHash('sha256').update(readFileSync(entry)).digest('hex')!==pointer.bootstrapHash)fail()
   const release=validateRelease(pointer.build)
   if(pointer.nativeRequestBindingVersion===1&&release.manifest.nativeRequestBindingVersion!==1)fail()
+  if(Object.hasOwn(pointer,'serviceStateBinding')&&release.manifest.nativeServiceStateBindingVersion!==1)fail()
   return {...release,pointer}
  }catch{fail()}
 }
@@ -127,7 +131,7 @@ export async function stageRelease({evidence=[]}={}) {
    for(const name of roots)copy(join(SOURCE,name),join(temp,name))
    const files=inventory(temp)
    if(runtimeFingerprint()!==build||runtimeFingerprint(temp)!==build)throw new DriverError('source changed during release staging',{category:'runtime_stale'})
-   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
+   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,nativeServiceStateBindingVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
    function seal(path){const stat=lstatSync(path);if(stat.isDirectory()){for(const name of readdirSync(path))seal(join(path,name));chmodSync(path,0o555)}else chmodSync(path,0o444)}
    seal(temp);renameSync(temp,target);validateRelease(build)
    return {build,root:target,reused:false,active:false}
@@ -138,13 +142,15 @@ export async function stageRelease({evidence=[]}={}) {
 // Called only under the broker lifecycle lock, after exact native admission.
 // A crash between pointer and instructions remains stopped. Current clients
 // reject the owned handoff STOP instead of clearing it on request admission.
-export function commitRelease(build,{sessionId,pid,procStart,nonce},render) {
+export function commitRelease(build,{sessionId,pid,procStart,nonce,serviceStateBinding},render) {
  if(!Number.isInteger(pid)||pid<=0||typeof procStart!=='string'||!procStart||typeof sessionId!=='string'||!/^local_[a-f0-9-]{36}$/.test(sessionId)||typeof nonce!=='string'||!nonce||nonce.length>128)throw new DriverError('release activation requires native PID and start epoch',{category:'broker_handoff_refused'})
+ if(serviceStateBinding!==undefined&&!serviceStateBindingMatches({binding:serviceStateBinding,dir:BROKER_DIR,sessionId,build,receiverCwd:serviceStateBinding?.receiverCwd}))throw new DriverError('release service namespace binding refused',{category:'broker_handoff_refused'})
  const release=validateRelease(build),prior=activeRelease()
+ if(serviceStateBinding!==undefined&&release.manifest.nativeServiceStateBindingVersion!==1)throw new DriverError('release lacks service namespace capability',{category:'broker_handoff_refused'})
  const before=existsSync(RUNTIME_POINTER)?readFileSync(RUNTIME_POINTER):null
  const instructions=join(BROKER_DIR,'CLAUDE.md'),oldText=existsSync(instructions)?readFileSync(instructions):null
  try {
-  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
+  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),...(serviceStateBinding!==undefined?{serviceStateBinding}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
   writeFileSync(instructions,render(),{mode:0o600})
  }catch(e){
   if(before)writeFileSync(RUNTIME_POINTER,before,{mode:0o600});else rmSync(RUNTIME_POINTER,{force:true})

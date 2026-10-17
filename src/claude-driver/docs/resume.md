@@ -1,3 +1,39 @@
+## Independent state binding for sealed helper; early timer failure fixed — October 17
+
+Previous turn: actual module reload fence qualified. Durable helper nativeBinding
+required record.cwd===broker dir, preventing independent state under the approved
+scratch cwd. Added opt-in serviceStateBinding version1: exact id32hex, receiver
+session UUID, normalized receiverCwd, release build, and exact path
+<receiverCwd>/.claude-driver-services/<id>/broker. Pointer and release capability
+must match; new snapshots declare nativeServiceStateBindingVersion1. Existing
+activations without this field retain their exact cwd equality rule. No live
+pointer, broker.json, module, policy or native state directory was changed.
+
+Standalone sealed entry retains actual native session/PID/start/ancestry checks;
+new namespace path components must be owned nonsymlink directories. Activation
+and activeRelease validate binding shape and release capability. New isolated
+service-state-binding tests execute the real sealed missing-request checkpoint
+with synthetic owned process metadata. Successful synthetic ancestor entry is
+recorded; altered binding/cwd, missing capability and symlinked namespace refuse.
+This qualifies isolated helper admission only, not actual desktop enrollment.
+Next: wire current receiver package/config to this independent state binding,
+then qualify its sealed checkpoint and native effect policy before durable reads.
+Do not reuse legacy broker state or relax its MOD_PROBE/version guards.
+
+Pressure initially failed1/411 at native-resource-program deadline test:
+pressure/v2-2026-10-17T17-49-20-931Z.json retained. Resource child timer could fire
+slightly before wall deadline and falsely record reason deadline. Callback now
+rechecks/rearms until deadline; deterministic early-timer fixture plus actual
+self-exiting child pass. No assertion weakened or failed artifact removed.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T17-50-00-365Z.json. Filtered Claude/Codex(gpt-6-sol) both
+pass ten checks and unchanged global configs:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-49-48-336Z.json.
+Shared service memory saved. Native scratch remains unarmed after reload;
+physical retirement, actual independent-state enrollment, recovery and always-on
+proof still open. Goal active; old22unknowns untouched, Codex fixes parked.
+
 ## Actual reload invalidates prior readiness — October 17
 
 Previous turn: candidate readiness and source provenance fixed. Current durable

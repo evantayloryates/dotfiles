@@ -29,3 +29,13 @@ test('expired child refuses before writing readiness',async()=>{
  const code=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',resolve)})
  assert.equal(code,64);assert.equal(fs.existsSync(root+'/.native-service-resource-'+serviceId+'.ready.json'),false)
 })
+
+test('early timer firing rearms instead of claiming deadline retirement',async()=>{
+ const {runInNewContext}=await import('node:vm'),serviceId='c'.repeat(32),deadline=10000,timers=[],files=new Map(),exits=[];let now=9000
+ class ClockDate extends Date{constructor(...args){super(...(args.length?args:[now]))}static now(){return now}}
+ const source=buildNativeResourceProgram({serviceId,deadline,evidenceRoot:root}).replace("import fs from 'node:fs';",'')
+ runInNewContext(source,{fs:{writeFileSync:(p,b)=>files.set(p,b)},Date:ClockDate,Math,JSON,process:{pid:42,ppid:41,on:()=>{},exit:code=>exits.push(code),stdout:{write:()=>{}}},setTimeout:(fn,ms)=>timers.push({fn,ms}),setInterval:()=>{}},{timeout:1000})
+ const stem=root+'/.native-service-resource-'+serviceId
+ now=9999;timers.shift().fn();assert.equal(files.has(stem+'.exit.json'),false);assert.deepEqual(exits,[]);assert.equal(timers[0].ms,1)
+ now=10000;timers.shift().fn();assert.deepEqual(exits,[0]);assert.equal(Date.parse(JSON.parse(files.get(stem+'.exit.json')).exitedAt),deadline)
+})

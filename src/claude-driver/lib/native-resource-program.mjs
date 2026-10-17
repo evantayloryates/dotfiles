@@ -18,7 +18,12 @@ function finish(reason,code){
 process.on('SIGTERM',()=>finish('SIGTERM',143));
 process.on('SIGINT',()=>finish('SIGINT',130));
 try{fs.writeFileSync(stem+'.ready.json',JSON.stringify(identity)+'\\n',{flag:'wx',mode:0o600})}catch{process.exit(73)}
-setTimeout(()=>finish('deadline',0),Math.max(1,config.deadline-Date.now()));
+function deadlineReached(){
+ const remaining=config.deadline-Date.now();
+ if(remaining>0){setTimeout(deadlineReached,remaining);return}
+ finish('deadline',0);
+}
+setTimeout(deadlineReached,Math.max(1,config.deadline-Date.now()));
 setInterval(()=>process.stdout.write('owned-resource-alive\\n'),250);
 `
 }
