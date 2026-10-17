@@ -937,9 +937,10 @@ export const OPS = [
   {
     name:'broker_service_result_reconcile',title:'Settle a reusable native receiver result',readOnly:false,
     description:'Experimental local receipt publication for one captured reusable receiver read. Requires exact enrollment, loaded bytes, original epoch, baseline and native admission. Never sends or replays. Settle before the next shared helper checkpoint; returns metadata only and preserves control history.',
-    schema:{required:['service_id','request_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},request_id:{type:'string',pattern:'^rpeer[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
-    run:async args=>{
+    schema:{required:['service_id','request_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},request_id:{type:'string',pattern:'^rpeer[a-f0-9]{32}$'},session:{type:'string',description:'Explicit receiver UUID for an independent bound namespace; omit for the legacy enrollment route.'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native service reconciliation requires explicit experimental opt-in',{category:'bad_args'})
+      if(args.session!==undefined)return (await import('./independent-service-result.mjs')).reconcileIndependentServiceResult(args.session,args.service_id,args.request_id,{signal:ctx.signal})
       return (await import('./native-peer-service-result.mjs')).reconcileNativeServiceResult(args.service_id,args.request_id)
     },
   },

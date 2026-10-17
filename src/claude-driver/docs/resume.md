@@ -1,3 +1,46 @@
+## Public durable independent result reconciliation — October 17
+
+Previous turn: actual native read settled and pre-dispatch cancellation passed.
+Added explicit optional session to existing broker_service_result_reconcile.
+Without session, legacy route unchanged. With exact receiver session, host derives
+only <receiver cwd>/.claude-driver-services/<service_id>, starts a bounded child
+with that state env before any lifecycle import, and never sends/dispatches.
+No caller-supplied filesystem root. Current qualification remains explicit
+app2.42304.0/CLI2.1.299, bypass, live exact peer and bound source/namespace.
+
+Child verifies owned nonsymlink state, sealed active release/bootstrap/inventory,
+actual peer PID/start/cwd/session, generated installed package byte hashes, policy
+settings path and script/settings hashes, request generation/effect-policy binding,
+ready/intent/retained checkpoint/admission/result/control through existing pure
+screenNativeServiceResult. Under request lock it publishes standard native result
+if absent or requires exact semantic equality if already present, then reads back.
+Returns settlement metadata only, preserves controls. Bad context/refusal sanitized;
+no retry or wake. Two focused namespace/schema tests pass; legacy opt-in preserved.
+
+Actual public durable jobj9215e84fc3a043c590ea85684f7bd84a completed for native
+request rpeer747057b883f24a86cc86818bb98a1497 with explicit receiver8f1d6d55 and
+service18e7d5f05162d0a528bef47cc51c6c47. receiptVerified:true,state completed,
+published:false, exact original toolu_plugin_65d72aa3eb704830910b8f4079e6568f.
+Same idempotency key reused same job; no new worker dispatch. Reconciliation works
+from retained per-request entry after subsequent cancellation helper changed shared
+entry. Wrong receiver(target74 instead of receiver8f) returned failed with
+independent_service_result_refused; original result/control/admission hashes
+unchanged. No namespace files created there or native operation sent. Evidence:
+admitted-read-18e7d5f05162d0a528bef47cc51c6c47/plan.json publicReconcile.
+
+This proves public reattachment/idempotent review of an already-published real
+receipt, not fresh public-route publication or independent public enrollment/read.
+Those remain next integration steps, followed by retirement and recovery/always-on.
+New public host build differs from unchanged native sealeda856...; both are recorded
+in job/source evidence. No native module/settings/policy changed this turn.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T18-07-42-302Z.json. Filtered Claude/Codex(gpt-6-sol) ten
+checks each pass; configs/source unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-07-29-865Z.json.
+Shared service memory recorded. All owned jobs terminal; no waiter running.
+Old22unknowns untouched; goal active, Codex bridge fixes parked.
+
 ## Actual admitted read settled; pre-dispatch cancellation verified — October 17
 
 Previous turn: actual current hook loading passed. Fresh bound generation

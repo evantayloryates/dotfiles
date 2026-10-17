@@ -1,0 +1,14 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {independentServiceState} from '../lib/independent-service-result.mjs'
+import {OPS,validateOp} from '../lib/driver.mjs'
+const session='local_11111111-1111-4111-8111-111111111111',service='a'.repeat(32)
+test('explicit receiver derives only its private generation namespace',()=>{
+ assert.equal(independentServiceState(session,service,{sessionId:session,cwd:'/owned/receiver'}),'/owned/receiver/.claude-driver-services/'+service)
+ for(const [s,id,record]of [[session,'../foreign',{sessionId:session,cwd:'/owned'}],['title',service,{sessionId:session,cwd:'/owned'}],[session,service,{sessionId:'foreign',cwd:'/owned'}],[session,service,{sessionId:session,cwd:'relative'}],[session,service,{sessionId:session,cwd:'/owned/../foreign'}],[session,service,{sessionId:session,cwd:'/'}],[session,service,null]])assert.throws(()=>independentServiceState(s,id,record),e=>e.category==='bad_args')
+})
+test('durable reconciliation retains explicit opt-in and legacy arguments',()=>{
+ const op=OPS.find(x=>x.name==='broker_service_result_reconcile');assert.equal(op.readOnly,false);assert.equal(op.schema.properties.session.type,'string')
+ const legacy={service_id:service,request_id:'rpeer'+'b'.repeat(32),experimental:true};assert.doesNotThrow(()=>validateOp(op.name,legacy));assert.doesNotThrow(()=>validateOp(op.name,{...legacy,session}))
+ assert.throws(()=>validateOp(op.name,{...legacy,experimental:false}))
+})

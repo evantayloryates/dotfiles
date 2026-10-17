@@ -841,3 +841,7 @@ Native broker receipt collection accepts only foreground records from the exact
 CLI session bound by its observation cursor. Sidechains, malformed sidechain
 flags, and missing/foreign CLI session identity cannot settle checkpoints or
 results. This does not grant replay or resolve historical unknown effects.
+
+### Independent receiver result reconciliation (experimental)
+
+From the calling harness, use `broker_service_result_reconcile` with `experimental:true`, the original `service_id` and `request_id`, and an explicit receiver `session` UUID. Wrap it in `driver_submit` with a stable idempotency key to survive client disconnects, then use `driver_wait` or `driver_job`. This is a tool/API operation, not a message to paste into Claude. Omitting `session` retains the legacy enrollment route. The independent route derives its namespace from the receiver record and verifies the live native epoch, sealed source, installed module, policy and correlated evidence. It never sends or replays the request; an existing result must match exactly. Current qualification is app2.42304.0/CLI2.1.299. This does not enroll a receiver or qualify recovery.
