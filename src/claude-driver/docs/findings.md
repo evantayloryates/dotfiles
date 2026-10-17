@@ -1162,3 +1162,13 @@ STOP/uncertainty override expiry/capacity; readiness/input/busy state never trig
 blind recovery. Current533f recommended read; stale821f recommended inspect, with
 unchanged budget/pointer hashes and zero native journal growth. Recommendations
 perform no effect and do not establish positive serving or automatic resumption.
+
+### On-demand native read route capacity renewal (October 17)
+
+Durable parent routes current-generation metadata through distinct real child jobs,
+with at most one renewal/probe/read and no uncertain replay. Real reads exhausted
+533f capacity6/6. Next parent automatically renewed via one7step child, then read on
+newbb97; matching persisted metadata and distinct probe/read identities verified.
+Same-key parent preserves route/renewal hashes, old STOP/history retained, zero
+native journal growth/model turn, shared hook/settings unchanged. This qualifies
+one on-demand capacity transition; expiry/cold/crash recovery remain separate gates.

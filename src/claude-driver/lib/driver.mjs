@@ -964,6 +964,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('policy probe requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-policy-probe.mjs')).probeIndependentServicePolicy(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,timeoutMs:(args.timeout_sec??20)*1000})},
   },
   {
+    name:'broker_service_read_current',title:'Read through the selected stable receiver',readOnly:false,
+    description:'Experimental durable on-demand metadata read through the currently selected owned stable receiver. Planner may perform at most one renewal and one policy probe, each as a distinct retained child job, then one read. STOP/input/busy/unknown or changed selection stops the route without replay. Requires driver_submit; no daemon, wake, app restart or permission changes. Parent cancellation does not prove child cancellation: inspect retained child job IDs.',
+    schema:{required:['session','session_id','experimental'],properties:{session:{type:'string'},session_id:{type:'string'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'integer',minimum:1,maximum:60}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('current read route requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-route.mjs')).routeIndependentRead(args.session,args.session_id,{jobId:ctx.jobId,signal:ctx.signal,timeoutMs:(args.timeout_sec??20)*1000})},
+  },
+  {
     name:'broker_service_read',title:'Read metadata through an enrolled native receiver',readOnly:false,
     description:'Experimental serialized get_session read through an already loaded owned receiver. Checks exact epoch/bytes/readiness and controls, enqueues one request, records one peer delivery and reconciles native result. Never installs, wakes, restarts or retries. Returns settlement metadata only; cancelled or uncertain work requires request inspection.',
     schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},session:{type:'string',description:'Explicit independent receiver UUID; session_id remains the metadata target.'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},

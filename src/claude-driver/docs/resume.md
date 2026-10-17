@@ -1,3 +1,53 @@
+## On-demand read routing with native capacity renewal — October 17
+
+Added broker_service_read_current: durable parent, exact current stable selector,
+valid distinct target before effects, per-receiver route lock. Pure bounded routing
+permits at most one renew, one probe and one read; no recursion/retry. STOP/wait/
+inspect/repeated maintenance/changed selection or uncertain child stops. Actual
+child driver_submit jobs retain deterministic keys before submission and realjobIDs
+before waiting; no synthetic child identity or probe/read request collision. Parent
+cancellation does not cancel/settle children; inspect retained child handles. Parent
+route ledger records all phases/results. Automatic renewal uses3600sec/32slots.
+Initial eight focused route/planner tests pass (all action paths, one-effect limits,
+uncertain child, changed selection, invalid target). Frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-35-10-907Z.json. Native/host source
+0ba5fc8137cb330462aaa8e0d505fd904b2d4fdebf8f3a30f1ff0a42e7d21837. Both filtered
+synthetic-store harnesses10checks pass source/configunchanged on this source:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-36-08-875Z.json.
+After native tests added explicit route-success check: child native result must have
+matching serviceId, receiptVerifiedtrue and statecompleted. Failed/foreign native
+result remains preserved after-read and cannot qualify parent success. Nine focused
+tests pass plus final frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-37-21-993Z.json. New predicate also reviewed retained actual
+native result read-only; no repeat dispatch. Native/harness source scope above is
+kept separate from this final additional guard.
+
+Healthy native parentj7f3892ca9de045919b80daa0a864c5c1 completed exactly one readchild
+j6a2b932d0df849cc860dd809f1f75198 against533f; targetmetadata independently matched.
+Samekey parent reattachment preserved route ledger, exactly one additional slot.
+Then bounded real capacity pressure used3real metadata reads to exhaust old533f6/6,
+not synthetic budget edits. Parentsj82b99fdcd28f436a91daba382d197397,
+j40ac8d1cd774401fa139ad85623cd170,jaabefecd8e034d769e433dc9ade8ada1 each readonly
+(one readchild). Fourth parentj1d28c9410b1b4eaaaa89f8258c38ef53 automatically selected
+renew on capacity exhaustion, retained childjbb972ca6ef564e77850b68749d319c85 (full
+7step renewal/built-inprobe), then one readchildjca64e5aee633404b96f000497c7a9584.
+Successorbb972ca6ef564e77850b68749d319c85 native public receiptVerified/publishedtrue,
+cleanupPendingfalse; all4pressure metadata payloads independently matchcontrol8f.
+Renew probe rpeerbb... differs from read rpeerca64... . Same parent reattachment
+preserves route+renewal ledger hashes. Old533f history/STOP and all6attempts terminal.
+Shared anchor/settings hash/inode/mtime/size unchanged. Across pressure+turnover+
+probe/read native journalgrowth0/events0. Original shell observation stopped on
+running fourth parent; polling exact same live job later completed it, no newjob.
+Currentbb97 capacity2/32used,30spare/no unresolved, deadline1792269345930,
+samePID20499/start15:48:23UTC. No active parent/child/sender/worker/waiter remains.
+Existing plan currentReadRoute/currentRouteCapacityPressure holds all identities.
+
+Next sustained/queued pressure and expiry-triggered routing evidence, then scoped
+cold/crash/deleted-session recovery and physical process proof. This establishes
+on-demand capacity renewal, not daemon/idle resumption or unrestricted always-on.
+Prior15sec readiness failure preserved. Current-chat cached MCP refresh separate.
+Goal active, Codex fixes parked.
+
 ## Read-only current-generation action planning — October 17
 
 Added broker_service_plan and pure planIndependentService. Before/after exact stable
