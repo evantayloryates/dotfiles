@@ -1,3 +1,34 @@
+## Native stop and replacement qualified once — October 17
+
+Previous turn: blocked (required bypass mode). Fresh current-source reads now verify
+bypassPermissions on controller local_74c54e49-972e-4dac-adfa-d23e01316119 and
+disposable target local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd, both idle/live.
+Taylor's exact direct-human stop grant was already independently verified.
+Ran one bounded tool-free integer workload on target; observed busyPID42813.
+One direct control request to controller produced exactly one native
+mcp__ccd_session_mgmt__stop_session({session_id: target}), with only ToolSearch
+otherwise permitted. Exact causal call toolu_01F6BNKNQJUxxUM4jc2sf5MH and result
+5b7f13db-4fc0-4c8e-8b2e-9c52c208116b parsed stopped. SamePID/start remained idle.
+Only then sent one replacement. Its native peer user7307bead-a69b-41af-9bdd-a6a24a2559ef
+and causal assistant6534f9d6-286b-416a-b591-2a7294730a27 verified exact replacement
+marker, zero tools, same epoch and final idle. No retries, permission changes,
+legacy broker wake/recovery, work-chat actions or quarantine changes.
+
+Private evidence: diagnostics/native-control-trial-2026-10-17.json; service
+candidate memory recorded. Durable jobs ja4e8ba01d1f84b9e8a97744efd351e6f,
+j0ac7587fbc3c4e62a8226b081b8f3d3b, j66481404c543455d9fbaea8cc82c8f24
+all completed; each send receipt alone remained applied:false until independent
+native control/causal reply verification. Source ee81baeef6fbe5eb3ca85f37cf017f1b36a0f0c238edb3fa52900c6b09755c19
+unchanged since passing full pressure and both filtered harness checks.
+
+Scope is one native stop plus subsequent replacement on one explicitly authorized
+scratch target. This resolves that prepared trial, not generic autonomous stop
+permission or always-on recovery. Legacy broker22unknowns, stale policy/pinned
+native epoch, cold-start recovery and sustained residency remain open. No live
+trial handle remains. Goal active; Codex bridge fixes remain parked. Next review
+current recovery frontier against these proven direct-control primitives without
+repinning stale broker or replaying unknown native effects.
+
 ## Migrated Stop-rescue script path fixed — October 17
 
 Previous turn: progress (independent cause isolation). Current source now accepts
