@@ -54,3 +54,9 @@ test('fixed wake receipt proves native call only, and rejects arbitrary text or 
  const r=screenNativeServiceResult(make());assert.equal(r.receiptVerified,true);assert.equal(r.releaseAuthorized,false);assert.equal(r.servingQualified,undefined)
  for(const change of [x=>x.request.ops[0].args.message='run arbitrary tools',x=>x.request.ops[0].args._consent=true,x=>x.request.ops[0].args.session_id=owner,x=>delete x.config.archiveTarget,x=>delete x.config.serviceStateBinding,x=>x.control.dispatched=[]]){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
 })
+
+test('metadata receipt requires independently persisted exact postcondition; native success alone stays unknown',()=>{
+ const make=()=>{const x=fixture();x.config.serviceStateBinding={version:1};x.config.metadataTarget={sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch'};x.request.ops=[{op:'set_session_title',args:{session_id:target,title:'new title'}}];x.receipt.content=[{type:'text',text:'native title acknowledgement'}];x.metadataObservation={schemaVersion:1,serviceId:x.config.id,requestId:rid,sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch',operation:'set_session_title',postcondition:{title:'new title',titleSource:'tool'},observedAt:1200,nativeTextSha256:createHash('sha256').update(x.receipt.content[0].text).digest('hex')};return x}
+ const good=make(),before=structuredClone(good);assert.equal(screenNativeServiceResult(good).receiptVerified,true);assert.deepEqual(good,before)
+ for(const change of [x=>delete x.metadataObservation,x=>delete x.config.metadataTarget,x=>x.metadataObservation.postcondition.titleSource='auto',x=>x.metadataObservation.pid=51,x=>x.request.ops[0].args._consent=true,x=>x.request.ops[0].args.title='other',x=>x.receipt.isError=true,x=>x.admission.toolUseId='foreign']){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
+})

@@ -1245,3 +1245,27 @@ woke, observed the new native process and fixed reply, cold-rebound, probed poli
 and read natively. Both recovered-receiver MCP harnesses passed. A repeated same-key
 submission reused the original parent without changing its ledger. This does not
 establish unexplained-crash or global app-restart recovery.
+
+
+### Experimental independent metadata controls
+
+Prepare an owned idle bypass controller using `broker_service_prepare` with explicit
+`metadata_target` `{sessionId,cwd,pid,procStart}`. This is mutually exclusive with
+`archive_target`; neither role silently acquires the other. Activate and observe
+native readiness/policy using the existing independent-service workflow.
+Submit `broker_service_control` through `driver_submit` with controller `session`,
+`service_id`, exact target `session_id`, `operation`, typed `value`, and
+`experimental:true`. Supported operations: `set_session_title` (nonempty title,
+max200characters), `set_pinned` (boolean), `set_session_effort`
+(low/medium/high/xhigh/max). No model/mode/consent or arbitrary tool capability.
+The global target activation lock serializes cooperating callers; one request has
+one native effect and independent persisted postcondition evidence. Reattach the
+same durable job after uncertainty; never replay with a new identity. Prior
+unresolved attempts refuse further metadata dispatch. Restoration is another
+explicit effect, and immutable historical snapshots retain earlier proof.
+
+This does not change generic rename/config routes. Current target epoch checks
+happen before dispatch and after effect, not atomically at native tool execution;
+a target restart in that interval is an open hardening gate. Keep this experimental
+and limited to the explicitly owned scratch fixture. A successful send or native
+acknowledgment alone never settles the requested state change.

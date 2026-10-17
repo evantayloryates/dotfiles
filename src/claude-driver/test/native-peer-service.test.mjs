@@ -165,3 +165,14 @@ test('exact helper refusal records bounded no-MCP evidence; malformed and admitt
  for(const checkpoint of [{dispatch:false,reason:'private-error'},{dispatch:false,reason:'cancelled',extra:'untrusted payload'},{dispatch:true,op:'archive',args:{session_id:target}}]){const s=setup({checkpoint});await s.send(r1);assert.equal(s.files.has(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json'),false);assert.equal(s.counts().reads,0)}
  const admitted=setup();await admitted.send(r1);assert.equal(admitted.files.has(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json'),false)
 })
+
+test('metadata role calls exact title/pin/effort tools once and excludes archive or injected consent',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},metadataTarget={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'epoch'},configPatch={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',metadataTarget}
+ for(const [op,args,server] of [['set_session_title',{session_id:target,title:'new title'},'ccd_session_mgmt'],['set_pinned',{session_id:target,pinned:false},'ccd_sidebar'],['set_session_effort',{session_id:target,effort:'low'},'ccd_session_mgmt']]){
+  const f=setup({configPatch,checkpoint:{dispatch:true,op,args}});let calls=0;f.$.mcp.call=async(s,o,a)=>{calls++;assert.equal(s,server);assert.equal(o,op);assert.deepEqual(JSON.parse(JSON.stringify(a)),args);return {isError:false,content:[{type:'text',text:'native metadata acknowledgement'}]}};await f.send(r1);await f.send(r1);assert.equal(calls,1)
+  for(const altered of [{...args,session_id:config.brokerSession},{...args,_consent:'not-authorized'},{...args,extra:true}]){const bad=setup({configPatch,checkpoint:{dispatch:true,op,args:altered}});await bad.send(r1);assert.equal(bad.counts().reads,0)}
+  const unsealed=setup({checkpoint:{dispatch:true,op,args}});await unsealed.send(r1);assert.equal(unsealed.counts().reads,0)
+ }
+ const bad=setup({configPatch,checkpoint:{dispatch:true,op:'archive_session',args:{session_id:target,reason:'claude-driver scoped recovery test'}}});await bad.send(r1);assert.equal(bad.counts().reads,0)
+ assert.throws(()=>setup({configPatch:{...configPatch,archiveTarget:metadataTarget}}),/invalid metadata target/)
+})

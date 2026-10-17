@@ -1,3 +1,13 @@
+## October 17 metadata-control addendum
+
+Experimental explicit target-bound title/pin/effort controls now have scoped native
+receipt/readback, concurrent change/restoration and same-key no-replay proof.
+See resume.md for exact sources, durable IDs, preserved namespace refusal and
+non-byte-identical fixture restoration. Host9aa31b3b / sealed-native99c11008.
+General Tier B routing, native target epoch check at the effect boundary, combined
+batch parent and original full live suite remain unqualified. The audit below
+predates this addendum; its report/source claims remain historical.
+
 # Current v2 requirements audit — October 17, 2026
 
 Overall qualification: **incomplete**. This audit preserves the original build

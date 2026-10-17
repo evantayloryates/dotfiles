@@ -1,3 +1,4 @@
+import {isMetadataOperation} from './native-metadata-control.mjs'
 import {screenNativeServiceResult} from './native-peer-service-evidence.mjs'
 import {screenNativeServiceRefusal,screenTerminalMissingRequestRefusal} from './native-service-refusal-evidence.mjs'
 import {nativeRequestBindingMatches} from './native-request-binding.mjs'
@@ -24,7 +25,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
   let settled=false
   try{
    const request=read('requests/'+id+'.json'),receipt=read('.native-service-'+id+'.result.json')
-   const reviewed=screenNativeServiceResult({config,epoch,pointer,request,receipt,ready:read('.native-service-'+config.id+'.ready.json'),intent:read('.native-service-'+id+'.intent.json'),entry:read('broker-check-'+id+'-0-g'+pointer.generation+'.completed.json'),admission:read('native-admission-'+id+'-0.json'),control:read('controls/'+id+'.json'),...request.ops?.[0]?.op==='archive_session'?{archiveObservation:read('.native-service-'+id+'.archive-observed.json')}:{},now})
+   const reviewed=screenNativeServiceResult({config,epoch,pointer,request,receipt,ready:read('.native-service-'+config.id+'.ready.json'),intent:read('.native-service-'+id+'.intent.json'),entry:read('broker-check-'+id+'-0-g'+pointer.generation+'.completed.json'),admission:read('native-admission-'+id+'-0.json'),control:read('controls/'+id+'.json'),...isMetadataOperation(request.ops?.[0]?.op)?{metadataObservation:read('.native-service-'+id+'.metadata-observed.json')}:{},...request.ops?.[0]?.op==='archive_session'?{archiveObservation:read('.native-service-'+id+'.archive-observed.json')}:{},now})
    if(reviewed.receiptVerified&&nativeRequestBindingMatches(request,pointer)&&request.nativeEffectAdmissionPolicy?.version===1&&request.nativeEffectAdmissionPolicy.handlerSha256===policy.sha256&&request.nativeEffectAdmissionPolicy.settingsHash===policy.settingsHash){
     const expected={id,source:'native-peer-service-result',results:[{op:request.ops[0].op,...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]}
     settled=JSON.stringify(ordered(read('results/'+id+'.native.json')))===JSON.stringify(ordered(expected))

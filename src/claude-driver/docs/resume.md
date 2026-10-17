@@ -1,3 +1,51 @@
+## Scoped metadata controls qualified experimentally — October 17
+
+Added explicit sealed `metadataTarget`, separate from and mutually exclusive with
+`archiveTarget`. Durable `broker_service_control` supports only title lock, pin
+and effort through exact native tools. General rename/config routing is unchanged.
+Host preflight requires an owned idle bypass scratch with exact PID/start, no PR
+or worktree; unresolved prior attempts block new controls. Independent immutable
+postcondition snapshots bind request, original target epoch and native receipt hash.
+A later restoration does not erase successful historical settlement.
+
+Native controller65343f043f7141fe8a1563188445931b runs sealed99c110086b0b5e682b7163c71b88f830c51c329f4fb474ba0ae42640927badae,
+PID31678/start20:14:51UTC. Explicit target74c54e49-972e-4dac-adfa-d23e01316119
+PID13591/start20:57:38UTC. Pin on/off, explicit High effort setup, concurrent
+three-field change and concurrent restoration passed with separate native receipts
+and persisted readback (change4697ms, restore4653ms). Native metadata read also
+passed. Final status10settled/0unresolved, actualready/nativepolicy,11/32slots.
+Same-key pin-restoration resubmission reused jfa83d0ed3f9e4e7d881b1555c697a2be;
+retained send/admission/postcondition evidence digest unchanged. Original title text
+and unpinned restored, effort explicitly High, titleSource tool, bypass/model
+unchanged. Original record lacked effort/titleSource: NOT byte-identical restoration.
+User screenshot check-1.png shows correct scratch trust prompt; user accepted it,
+and current exact live idle process verifies the resulting state.
+
+Preserved failure: first pin jb5936c03e1dc4d76929be049b28afb46 refused BEFORE
+publication because private service namespace hid parent registry. Fixed by explicit
+parent registry root, bounded owned nofollow read and subprocess regression; no
+native request replay. Renewed safely from be7... to653... before new test. Archive
+role negative j1635739f0c4e4981b3e0b65b248ebef1 refused before publication.
+
+Final HOST source9aa31b3b9cd5876d2fcc4a1dbeb304dd3c728c0b7e9cec5eec3aff31880536b2
+adds unresolved-predecessor host gate after sealed99 native trial. Focused34tests
+pass. Full pressure v2-2026-10-17T21-15-01-363Z.json1/1/sourceChangedfalse;
+synthetic Claude/Codex10checks each21:14:41/42 reports. Native trial is scoped
+control proof, NOT fresh real-MCP native harness proof for host9aa or full live11gates.
+Private authoritative plan: probe/scratch-native-read-2026-10-17/
+empty-receiver-activation.json metadataControlTrial (contains private enrollment;
+read only bounded selected fields). Earlier requirements audit remains historical.
+
+NEXT changed-condition step: add exact metadata-target epoch validation at native
+PreToolUse effect boundary, with new sealed capability/version and explicit renewal.
+Current checks are host before dispatch and post-effect observation; they do NOT
+atomically fence a user/app target restart between those points. Keep route
+experimental; do not claim stronger fencing. Then qualify current native positive/
+negative admission, batch/public generalroute. Full create/steer/live11gates remain.
+No unresolved metadata effects; current controller finite deadline/remainingbudget,
+not unattended always-on proof. Legacy observer owns recovery; watcher paused;
+Codex-driver/1Password separate. Goal active.
+
 ## Requirements audit refreshed; rename lock verification corrected — October 17
 
 Completed original-scope audit against brief.md, README, live-v2.mjs, current
