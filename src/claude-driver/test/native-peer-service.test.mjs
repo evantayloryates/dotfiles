@@ -55,6 +55,13 @@ test('only independent receiver can run the fixed bounded caller-family query',a
  await s.send(r1);assert.equal(calls,1)
  for(const altered of [{...args,linked:false},{...args,include_archived:false},{...args,limit:101},{...args,group:'scratch'}]){const t=setup({configPatch,checkpoint:{dispatch:true,op:'list_sessions',args:altered}});await t.send(r1);assert.equal(t.counts().reads,0)}
 })
+test('archive callback requires exact sealed target and never accepts injected consent or self',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},archiveTarget={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'synthetic'},configPatch={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',archiveTarget},args={session_id:target,reason:'claude-driver scoped recovery test'}
+ const s=setup({configPatch,checkpoint:{dispatch:true,op:'archive_session',args}});let calls=0;s.$.mcp.call=async(server,op,a)=>{calls++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'archive_session');assert.equal(JSON.stringify(a),JSON.stringify(args));return {isError:false,content:[{type:'text',text:'synthetic archive result'}]}}
+ assert.equal((await s.send(r1)).consumed,'service-read-result-captured');await s.send(r1);assert.equal(calls,1)
+ for(const altered of [{...args,session_id:config.brokerSession},{...args,reason:'other'},{...args,_consent:true}]){const t=setup({configPatch,checkpoint:{dispatch:true,op:'archive_session',args:altered}});await t.send(r1);assert.equal(t.counts().reads,0)}
+ const unsealed=setup({checkpoint:{dispatch:true,op:'archive_session',args}});await unsealed.send(r1);assert.equal(unsealed.counts().reads,0)
+})
 
 test('different concurrent requests cannot overwrite an in-flight shared checkpoint',async()=>{
  const s=setup();let release,entered

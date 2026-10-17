@@ -84,6 +84,18 @@ unqualified.
 
 ## V2 control interface
 
+For a scoped recovery controller, prepare an independent receiver with
+`archive_target:<exact scratch UUID>`. Preparation seals the distinct owned idle
+bypass target and its PID/start epoch into that generation; it cannot retarget.
+`broker_service_archive` requires durable submission, that controller, the target
+generation already stopped and files-retired with no unresolved attempts, and its
+verified empty native family receipt. It dispatches one fixed native archive call
+through the ordinary permission hook. Settlement requires both the native receipt
+and independent persisted archive/PID-absence observation, which is retained for
+historical review even after the target reopens. It never deletes, elevates
+permissions, restarts an app or retries uncertain work. Native archive/recovery
+execution remains unqualified until the actual scoped test passes.
+
 `broker_service_status {session,service_id,offline:true}` is a read-only inventory
 of the exact retained installed generation after affirmative predecessor PID
 absence. It is exclusive with historical mode. It rechecks PID absence and source

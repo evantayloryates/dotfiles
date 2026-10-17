@@ -1,3 +1,51 @@
+## Sealed archive controller installed; transport hot-reload input pending — October 17
+
+Taylor completed transport bypass+ready. Independently verified exact existing
+transportc0a18601-5a57-44d0-94ac-2fed3719e7ca/PID31678/start20:14:51UTC,
+idle2.1.299/bypass, no existing receiver module or settings. Existing chat reused;
+native start-session alternative deferred, no new chat created.
+
+Implemented optional prepare archive_target: seal exact distinct owned idle bypass
+scratch target cwd/PID/start into generation. Candidate only accepts fixed native
+archive_session args for that target; rejects self/other target/reason/_consent.
+Public durable broker_service_archive additionally requires target already stopped/
+files-retired with terminal history, no worktree/pin/openPR, exact live old epoch,
+and settled empty native caller-family receipt. Ordinary controller permission
+pipeline still owns native admission. Settlement requires archived disk state,
+oldPID absence/no observed same-host peer plus native callback/admission; immutable
+postcondition observation retained separately for historical attempt review after
+target reopens. Transport success/error alone stays unresolved; no deletion/replay.
+
+28focused tests pass incl bound target, native callback/refusal and postcondition
+corruption. Full frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T20-17-56-179Z.json. Filtered synthetic-store harnesses each
+10checks pass: pressure/harness-v2-claude-2026-10-17T20-17-35-711Z.json and
+pressure/harness-v2-codex-2026-10-17T20-17-35-712Z.json.
+
+Actual preparej515bd99ddc034ed8a1e9c3c34acc4a29 native validation passed; service
+515bd99ddc034ed8a1e9c3c34acc4a29 source81a56b0d352c39123dd54235088e30539e36dfb202291481ed8b3a94ecb8eb89
+seals interrupt74/PID20499/start15:48:23UTC. Activationj0ff785fa0889488fb1cec2373a9a1b4b
+installed module+stable settings, no readiness yet. Plan archiveControllerPrepare/
+archiveControllerActivate retain exact jobs. No archive/targetSTOP/retirement yet.
+
+Initial mods-load jobjbcefc0b1a47242b2acb5f58c8c5b2933 used WRONG skill name mods.
+Exact native user receipt matched, bounded response confirmed no tool calls/skill
+unavailable; failure preserved archiveControllerModsLoad. Corrected single job
+je08bb6d9f869463d87c49c0571c4a957 loaded Skill(plugin-authoring) once, exact tool
+toolu_012SNVGTPqnom5zzkBjLqnHi and correlated native user23eaae8d-d9e8-4caa-99a1-2e74421da63c.
+Captured cursor beforehand. Native peer independently changed idle→waiting;
+readinessfalse/policyfalse/nativeInputRequiredtrue, no request slots consumed.
+Model cannot confirm prompt wording; do not infer ready from its reply.
+
+Asked Taylor asynchronously in this Codex chat to open existing transport scratch
+in Claude Desktop and, IF it shows Enable hot reloading for this session?, select
+Enable for this session and Submit (otherwise report wording). Person-only loader
+consent remains native boundary even in bypass; never click/manufacture/replay it.
+Next recheck loading/native readiness, one tool-free boundary if policy snapshot
+needs refresh, negative policy probe and positive read. Only then scoped target
+quiesce/retire/archive, independent physical absence, reopen/new-epoch coldrebind/read.
+Legacy observer unknowns, watcher pause, Codex/1Password separation preserved.
+
 ## Delivered offline filesystem flow fixture-qualified; native bootstrap alternative — October 17
 
 Added test/independent-offline-retirement.test.mjs. Runs actual delivered STOP/

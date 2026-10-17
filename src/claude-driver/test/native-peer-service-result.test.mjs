@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {screenNativeServiceResult} from '../lib/native-peer-service-evidence.mjs'
+import {createHash} from 'node:crypto'
 const rid='rpeer'+'1'.repeat(32),owner='local_11111111-1111-4111-8111-111111111111',target='local_22222222-2222-4222-8222-222222222222',build='a'.repeat(64),iso=n=>new Date(n).toISOString()
 function fixture(){return {
  config:{id:'b'.repeat(32),brokerSession:owner,brokerCwd:'/owned',build,notBefore:500,deadline:3000,maxRequests:4},
@@ -30,6 +31,11 @@ test('family receipt requires independent binding, fixed scope and exact native 
  assert.equal(screenNativeServiceResult(good).releaseAuthorized,false)
  const empty=make();empty.receipt.content[0].text='No other sessions found.';assert.equal(screenNativeServiceResult(empty).receiptVerified,true)
  for(const change of [x=>delete x.config.serviceStateBinding,x=>x.request.ops[0].args.linked=false,x=>x.request.ops[0].args.limit=101,x=>x.request.ops[0].args.group='scratch',x=>x.receipt.targetSession=target,x=>x.receipt.content[0].text=JSON.stringify([{sessionId:owner}]),x=>x.receipt.content[0].text=JSON.stringify([{sessionId:target},{sessionId:target}]),x=>x.receipt.content[0].text='{}',x=>x.admission.toolUseId='foreign']){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
+})
+test('archive transport success stays unresolved without exact independent postcondition evidence',()=>{
+ const make=()=>{const x=fixture();x.config.serviceStateBinding={version:1};x.config.archiveTarget={sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch'};x.request.ops=[{op:'archive_session',args:{session_id:target,reason:'claude-driver scoped recovery test'}}];x.receipt.content=[{type:'text',text:'synthetic archive result'}];x.archiveObservation={schemaVersion:1,serviceId:x.config.id,requestId:rid,sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch',archived:true,pidAbsent:true,observedAt:1200,nativeTextSha256:createHash('sha256').update(x.receipt.content[0].text).digest('hex')};return x}
+ assert.equal(screenNativeServiceResult(make()).receiptVerified,true)
+ for(const change of [x=>delete x.archiveObservation,x=>x.archiveObservation.pidAbsent=false,x=>x.archiveObservation.archived=false,x=>x.receipt.isError=true,x=>x.request.ops[0].args.session_id=owner,x=>x.request.ops[0].args._consent=true,x=>x.config.archiveTarget.sessionId=owner,x=>delete x.config.archiveTarget]){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
 })
 
 test('shared host reconciliation refuses missing enrollment and malformed identity without leaking parse details',async()=>{

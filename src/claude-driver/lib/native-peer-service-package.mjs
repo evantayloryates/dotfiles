@@ -3,17 +3,20 @@ import {createHash} from 'node:crypto'
 import {buildNativeResourceProgram} from './native-resource-program.mjs'
 import {dirname,join} from 'node:path'
 import {serviceStateBindingMatches} from './runtime-entry.mjs'
+import {archiveTargetValid} from './native-archive-control.mjs'
 // Pure candidate generator. No installation, sends or receipt qualification.
 export function buildNativePeerServicePackage(config){
  const marked=config?.marker===true
  const resource=config?.resourceProbe===true
  const controlCheck=config?.controlCheck===true
  const bound=config?.serviceStateBinding!==undefined
- const keys=['id','token','brokerSession','brokerCwd','build','notBefore','deadline','maxRequests',...bound?['serviceStateBinding']:[],...marked?['marker','observeRetiredServiceId']:[],...resource?['resourceProbe']:[],...controlCheck?['controlCheck']:[]]
+ const archive=config?.archiveTarget!==undefined
+ const keys=['id','token','brokerSession','brokerCwd','build','notBefore','deadline','maxRequests',...bound?['serviceStateBinding']:[],...archive?['archiveTarget']:[],...marked?['marker','observeRetiredServiceId']:[],...resource?['resourceProbe']:[],...controlCheck?['controlCheck']:[]]
  if(!config||Object.getPrototypeOf(config)!==Object.prototype||Object.keys(config).sort().join(',')!==keys.sort().join(','))throw Error('invalid service configuration')
  if(!/^[a-f0-9]{32}$/.test(config.id)||!/^claude-driver service-read [a-f0-9]{32}$/.test(config.token)||!/^local_[a-f0-9-]{36}$/.test(config.brokerSession)||! /^[a-f0-9]{64}$/.test(config.build))throw Error('invalid service identity')
  if(bound){if(resource||config.serviceStateBinding.id!==config.id||!serviceStateBindingMatches({binding:config.serviceStateBinding,dir:config.brokerCwd,sessionId:config.brokerSession,build:config.build,receiverCwd:config.serviceStateBinding.receiverCwd}))throw Error('invalid service state binding')}
  else if(config.brokerCwd!=='/Users/taylor/.local/state/claude-driver/broker')throw Error('invalid service identity')
+ if(archive&&(!bound||!archiveTargetValid(config.archiveTarget,config.serviceStateBinding)))throw Error('invalid archive target')
  if(!Number.isSafeInteger(config.notBefore)||!Number.isSafeInteger(config.deadline)||config.deadline<=config.notBefore||config.deadline-config.notBefore>3600000||!Number.isInteger(config.maxRequests)||config.maxRequests<1||config.maxRequests>128)throw Error('invalid service bounds')
  if(marked&&!(config.observeRetiredServiceId===null||(/^[a-f0-9]{32}$/.test(config.observeRetiredServiceId)&&config.observeRetiredServiceId!==config.id)))throw Error('invalid previous marker identity')
  if(resource&&(!marked||config.deadline-config.notBefore>120000))throw Error('invalid resource probe bounds')
