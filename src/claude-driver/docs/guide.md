@@ -451,6 +451,29 @@ before native controls are available.
 
 ## 3. Choosing an op
 
+### Service and scratch chat permission requirement
+
+Taylor requires `bypassPermissions` for narrowly scoped bridge service and native
+scratch chats (standing instruction, October 17). Routine authorized bridge work
+must not repeatedly ask for approval. Keep exact chat, operation and test limits;
+bypass mode does not remove human-input protections or authorize other work chats.
+
+Provision these chats with `permission_mode:"bypassPermissions"` and
+`require_pool:true` in their exact scoped folder. Use the existing approved pool;
+an empty pool is a provisioning failure, not permission to import an acceptEdits
+service. Verify `get_session.permissionMode` before sending the first workload
+and again after recreation or recovery. A `permissionGap`, `verified:false`, or
+any mode below bypass leaves the service unready. Do not send its workload.
+
+Taylor has explicitly authorized raising the existing bridge scratch chats with
+`set_session_config`. Verify the persisted mode after the supported operation.
+If it refuses or presents a human permission card, preserve that gate and report
+the exact remaining action; do not edit app records, click approval cards, weaken
+Stop-rescue admission or silently continue in acceptEdits. Global/repo default
+mode alone is insufficient evidence for an existing chat. Synthetic negative
+fixtures may retain the lower mode required by their test.
+
+
 - New session with a task: `create_session {folder, title, first_message}`.
   Add `require_pool:true` with `permission_mode:"bypassPermissions"` when the
   harness needs a previously approved member and cannot accept an import

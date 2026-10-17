@@ -1,3 +1,33 @@
+## Required bypass service mode — October 17
+
+Taylor sent the direct human grant for the exact planned stop in the existing
+controller. Native foreground user UUID562b3ac7-a177-40ec-a717-00ae650bca6f,
+timestamp2026-10-17T16:17:36.010Z, exact-text SHA256
+057b77eb83b94cfc07962946a8b7976530ea71062535bc04d6093a5a9426ba37
+independently verified. The old missing-human-grant prerequisite below is resolved.
+
+Taylor also explicitly requires bypassPermissions for scoped bridge service and
+scratch chats, and authorizes routine scoped work without repeated approvals.
+These fixtures were explicitly created acceptEdits; global and repo defaults
+already specify bypass. Existing require_pool:true supplies fail-closed creation;
+guide now requires it and verified bypass readiness before service workloads.
+
+Current-source set_session_config on controller local_74c54e49-972e-4dac-adfa-d23e01316119
+requesting bypassPermissions failed broker_stop_rescue_refused: Stop rescue policy
+changed or failed admission; dispatched:false, retrySafe:true. No wake sent.
+No alternate path or repeated attempts. Controller, control target
+local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd and transport scratch
+local_c0a18601-5a57-44d0-94ac-2fed3719e7ca all read back acceptEdits.
+Exact policy subcause is unproven. Private diagnostic:
+bypass-service-scope-2026-10-17.json. Native plan now
+ authorized-awaiting-bypass-provisioning; controller and target must verify bypass
+before workload/stop/replacement. No control trial was sent. Next changed condition:
+supported mode raise succeeds, or Taylor selects Bypass permissions in the bottom
+left mode menu of each named Claude scratch chat; then recheck mode and native epoch.
+Never weaken admission to achieve that change. Legacy22unknowns and sealed-epoch
+mismatch remain; watcher paused, Codex bridge fixes parked. Goal active.
+Documentation-only checkpoint; existing source test evidence remains applicable.
+
 ## Exact disposable native control trial prepared — October 17
 
 Previous turn: progress (historical native journal receipt audit). Prepared a
