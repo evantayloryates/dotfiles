@@ -1200,3 +1200,12 @@ all3readers, one automatic renewal; third waited7.72sec then returned matching n
 metadata. Original failedjob preserved, no retry, zero native journalgrowth, shared
 files/history unchanged. This qualifies one bounded queued-renewal scenario, not
 unlimited queueing or a native latency SLA.
+
+### Real deadline expiry through current-route API (October 17)
+
+A supported60second generation was allowed to expire on actual wallclock with
+3unusedslots. Exact live status/plan showed expired/lifetime-margin. Next routed
+read performed one qualified renewal child and one read child on a fresh generation;
+persisted targetmetadata verified, originaldeadline/STOP/history and sharedfiles
+preserved, same-key ledgers unchanged, zero native journalgrowth. This qualifies
+on-demand expiry recovery on the same nativeepoch, not app/crash/cold recovery.

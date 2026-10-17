@@ -1,3 +1,39 @@
+## Actual deadline expiry routes through one qualified renewal — October 17
+
+Changed no executable source this turn. Used supported renewaljb37794d774c84952807c0781b1d8fefa
+to prepare60second/capacity4generationb37794d774c84952807c0781b1d8fefa. It completed
+native readiness/policy probe on samePID20499/start15:48:23UTC; one slot used.
+Confirmed live idle epoch and originaldeadline1792266436851, then waited actual
+wallclock beyond it without editing timestamps/budget or sending an old request.
+Postdeadline status verified expiredtrue with3unusedslots and no unresolved;
+currentplan recommended renew/lifetime-margin. This was genuine expiry, not capacity
+exhaustion or artificial clock mutation. Source remains e5069a2068af59888c17598e454671f67a0bc024972dcb93786fa7604f697dde.
+
+Routed parentjdc9ec715d42047948fad6a5dcea46a17 completed exactly one renewalchild
+j0e39125bc2f74cd5a9cef3f94513d021 (built-in probe) and one readchild
+j545a02b2dd9f4238a1eee7769db1c0db on fresh successor0e39125bc2f74cd5a9cef3f94513d021.
+Published native receiptVerifiedtrue/cleanupPendingfalse; native tool
+ toolu_plugin_649cac1c7631455fa16e7371fa8c9ba5. Persisted target session/title/cwd/
+archive fields match currentcontrol8f. Route firstdecision lifetime-margin verified.
+Sameparent/key reattachment preserves route+renewal ledger hashes. Oldexpired
+historical status verifies exact unchangeddeadline, ownSTOP, one terminal probe and
+3unusedslots. Shared anchor/settings hash/inode/size/mtime unchanged. Entire wait/
+expiry/renew/probe/read interval native journalgrowth0/events0. No model message,
+app restart, permission change or native effect attempted on expiredgeneration.
+
+Current0e39125bc2f74cd5a9cef3f94513d0212/32slots,30spare, no unresolved;
+deadline1792270059295, same idle nativeepoch. No active sender/parent/child/waiter.
+Existing plan expiryRouteSetup/Wait/ExpiredReview/expiryRoutedRead/Verification holds
+all clocks/status/jobs/receipts. Prior queue/readiness/format failures preserved.
+No repeated synthetic checks for evidence/docs-only changes; executable checks from
+prior turn remain applicable, and this native run exercises expiry-specific path.
+
+Next scoped cold/crash/deleted-session and physical-process recovery qualification,
+starting with supported lifecycle/ownership evidence; preserve legacyunknown work
+and observer ownership. On-demand expiry recovery does not prove an idle daemon,
+app restart recovery or changed native epoch repair. Attached cached MCP refresh
+still separate. Goal active; Codex fixes parked.
+
 ## Queued renewal admission failure reproduced and fixed — October 17
 
 Bounded native pressure used fresh capacity2generation99a5... (one probe consumed,

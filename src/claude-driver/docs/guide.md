@@ -1074,3 +1074,11 @@ read child, no maintenance, no external tools/config/source changes or native mo
 turn. Inspect original contract/jobs after failure; never regenerate identity to
 replay. Direct-read contracts and their historical failures/claims stay distinct.
 This fresh-client proof does not refresh an already cached MCP in an existing chat.
+
+Actual native current-route qualification covers capacity exhaustion, a reader
+queued beyond5seconds behind renewal, and a real expired60second generation with
+unusedcapacity. In each case exactly one qualified renewal precedes one metadata
+read, with preserved predecessor history and no native model turn. These are
+same-process, on-demand paths; they do not establish app/cold/crash/deleted-session
+recovery or an unattended daemon. A retained successful job is historical evidence,
+not current readiness; use current status/plan for the present selected generation.
