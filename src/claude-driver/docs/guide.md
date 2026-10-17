@@ -1149,3 +1149,15 @@ requirement; cold mode is never implicit. Anchor/settings stay exact and old sel
 is retained. This option does not restart/open the app, raise permissions, answer
 native consent, prove module loading or repair unretired/unresolved crash state.
 Cold admission is synthetic-tested; actual cold activation is still unqualified.
+
+
+### Sealed target preservation during receiver renewal
+
+Renewal copies an optional archive target only from a verified installed predecessor
+in the same native process epoch, with a complete terminal attempt review and no
+unresolved request IDs. The target session, cwd, original PID and process start
+remain identical; a cold target does not require a live peer merely to preserve
+this existing capability. This does not authorize dispatch: the operation's native
+admission, target generation and postcondition checks still apply. Ordinary
+receivers retain no archive capability. New and inherited targets cannot be
+combined. Status exposes only this bounded target metadata, never the receiver token.

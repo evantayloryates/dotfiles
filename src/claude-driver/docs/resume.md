@@ -1,3 +1,38 @@
+## Native controller renewal preserves sealed cold target — October 17
+
+Fixed generic renewal dropping the optional archiveTarget capability. Preparation
+now inherits only from a verified installed same-session/same-native-epoch
+predecessor with a complete terminal attempt review and no unresolved requests.
+Target identity/cwd/original PID/start are copied exactly, never refreshed from a
+new peer. Ordinary receivers stay capability-free; new/inherited targets conflict.
+Status returns bounded sealed target metadata only. Dispatch gates are unchanged.
+
+Native durable renewal ja24b9aa179c74a7ca9d3a2b527faeed3 completed. Predecessor
+515bd99ddc034ed8a1e9c3c34acc4a29 retired; current transport service is
+a24b9aa179c74a7ca9d3a2b527faeed3, source
+76964799d150bc63d3cf13b3a78c1b4220c6f0f6b13c53ea202471a56cde5dc7.
+Same PID31678/start20:14:51UTC, actual readiness and negative policy probe verified,
+31 spare slots, no unresolved attempts. Independently inspected successor retains
+interrupt74/cwd/PID20499/start15:48:23UTC exactly; target still has no native peer.
+No wake, cold activation, restart, consent or permission change performed.
+Plan capabilityPreservingRenewal retains submission/job/status and target absence.
+
+Focused checks10/10. Fresh pressure v2-2026-10-17T20-40-22-503Z.json passed1/1
+with sourceChangedfalse. Both actual headless synthetic harnesses passed10checks:
+harness-v2-claude-2026-10-17T20-38-23-963Z.json and
+harness-v2-codex-2026-10-17T20-38-25-126Z.json (configured gpt-6-sol).
+These are synthetic-store harness proofs, not native serving. Prior pressure exec
+session8874 remains running at checkpoint; it began before a caught error-path
+source correction. Poll original handle; never count it as unchanged-source proof,
+and preserve its final report/failure. Fresh pressure is authoritative for final code.
+
+Next implement fixed single native wake to the sealed interrupt target, with
+independent absent-old-epoch/retired-generation preflight and immutable native
+receipt/postcondition settlement; then renew the controller with preserved target,
+qualify actual wake/new peer and cold rebind. No duplicate sends or legacy/CUA
+fallback. Current controller service above supersedes prior section IDs. Goal
+active; watcher paused; Codex bridge fixes and 1Password remain separate.
+
 ## Native archive and physical exit verified; reopen has no new native peer — October 17
 
 Taylor completed transport hot-reload input. Exact native loader loaded notification

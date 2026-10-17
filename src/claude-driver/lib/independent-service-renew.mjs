@@ -52,7 +52,7 @@ export async function renewIndependentService(session,serviceId,{jobId,lifetimeS
    const before=await inspectIndependentService(session,serviceId)
    if(!before.verified||before.sourceDisposition!=='installed'||!before.terminalAttemptReviewComplete||before.unresolvedRequestIds?.length)throw Error('renewal predecessor unqualified')
    const results=await runIndependentRenewal({guard,record:async(phase,results)=>{ledger.phase=phase;ledger.results=results;ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)},
-    prepare:async()=>{const r=await prepareIndependentService(session,{jobId,lifetimeSec,maxRequests,signal});if(r.serviceId!==successorServiceId||r.prepared!==true)throw Error('preparation identity');return r},
+    prepare:async()=>{const r=await prepareIndependentService(session,{jobId,lifetimeSec,maxRequests,signal,inheritArchiveFrom:serviceId});if(r.serviceId!==successorServiceId||r.prepared!==true)throw Error('preparation identity');return r},
     quiesce:async()=>{const r=await quiesceIndependentService(session,serviceId,{signal});if(r.quiescent!==true||r.terminalAttemptReviewComplete!==true)throw Error('quiescence');return r},
     retire:async()=>{const r=await retireIndependentService(session,serviceId,{signal});if(r.filesRetired!==true)throw Error('retirement');return r},
     activate:()=>activateIndependentService(session,successorServiceId,{signal,stableHook:true}),
