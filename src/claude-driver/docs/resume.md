@@ -1,3 +1,31 @@
+## Standalone stable receiver entry built, not installed — October 17
+
+Added pure receiver-hook-artifact builder: embeds built-ins-only selector/file loader
+plus bounded stdin/child handler dispatch, fixed receiver settings command, hashes
+and paths. It hash-loads selected bootstrap, calls shared sealed inventory/native
+ancestry admission, rechecks selection, then runs only the fixed sealed handler with
+private state and PreToolUse argv. Child timeout4sec/output64KiB; output must be a
+PreToolUse object without an allow decision. Failures emit fixed sanitized denial.
+No workspace dependency imported by generated entry. Existing handler retains all
+request/admission/STOP checks. Builder has no install or activation effects.
+
+Actual staged executable test forwards to the sealed handler's denial; wrong
+session refuses in entry. Synthetic peer/real parent ancestry, not desktop proof.
+Initial executable run produced no output because /var paths resolve to /private/var
+in import.meta.url. Canonicalized direct-run identity; next run still failed because
+the existing handler's direct-run check also needed canonical argv. The wrapper now
+invokes the validated handler's realpath; broker argument/policy/hash unchanged.
+Failed pressure report retained: pressure/v2-2026-10-17T19-16-37-404Z.json,457/458
+pass with the new forwarding assertion failing. No failures erased or demoted.
+After correction eight focused tests pass and frozen-source pressure1/1 passes:
+pressure/v2-2026-10-17T19-17-06-436Z.json, sourceChanged:false.
+
+Still no candidate activation/selector publication; no live settings/module changes,
+messages or restart. Next integrate explicit anchored policy/lifecycle, then first
+native audit and two-generation turnover with identical settings/no model boundary.
+Do not infer native positive dispatch from synthetic denial forwarding. Goal active;
+Codex fixes remain parked.
+
 ## Shared sealed-runtime receiver hook admission — October 17
 
 Factored the existing bootstrap full sealed inventory/fingerprint verification into
