@@ -93,6 +93,14 @@ the app record disappeared. It never restarts, signals, installs STOP, retires
 files or permits replay. Readiness in this mode is explicitly historical. PID
 absence does not establish crash cause or prove no successor process exists.
 
+`broker_service_quiesce` and `broker_service_retire` also accept explicit
+`offline:true` for an independent generation. These mutation paths additionally
+refuse any observed live peer for the same host session, including a new epoch.
+They recheck process absence around effects, preserve STOP and original attempts,
+and refuse retirement until every attempt is terminal. They never kill a process,
+replay unknown work or resume the receiver. Positive actual crash retirement is
+still unqualified; the live-refusal boundary has been tested without file changes.
+
 `broker_service_family {session,service_id,experimental:true}` must be submitted
 through `driver_submit`. It makes exactly one independent-receiver native
 `list_sessions {linked:true,include_archived:true,limit:100}` call through the

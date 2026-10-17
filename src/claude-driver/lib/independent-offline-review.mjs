@@ -1,4 +1,5 @@
 import {inspectNativeResourcePid} from './native-resource-process.mjs'
+import {liveProcesses} from './sessions.mjs'
 // Observation only. A missing PID is never a crash cause or replay permission.
 export function requireIndependentEpochAbsent(pointer,inspect=inspectNativeResourcePid){
  const refuse=(category,message)=>{throw Object.assign(Error(message),{category})}
@@ -12,4 +13,14 @@ export async function reviewIndependentOfflineContext(pointer,review,inspect=ins
  const before=requireIndependentEpochAbsent(pointer,inspect),result=await review()
  requireIndependentEpochAbsent(pointer,inspect)
  return {result,observation:before}
+}
+// Mutations additionally refuse any observed peer for the same host, including
+// a new epoch or ambiguous duplicate peers. Never stop that successor for repair.
+export function requireIndependentOfflineMutation(pointer,session,{inspect=inspectNativeResourcePid,processes=liveProcesses}={}){
+ const observation=requireIndependentEpochAbsent(pointer,inspect)
+ if(pointer.sessionId!==session)throw Error('offline mutation owner changed')
+ const peers=processes()
+ if(!Array.isArray(peers)||peers.some(p=>p?.hostSessionId===session))throw Error('offline mutation session has a live peer')
+ requireIndependentEpochAbsent(pointer,inspect)
+ return observation
 }

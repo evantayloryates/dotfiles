@@ -1,3 +1,37 @@
+## Explicit offline STOP/retirement prepared; live refusal verified — October 17
+
+Extended independent quiesce/retire with explicit offline:true. Reuses full broker
+lock, ownedSTOP and terminal-attempt review, exact sealed module/settings evidence,
+exclusive retention moves and durable before/after ledgers. Missing app records
+use exact retained generation locator; no arbitrary folder discovery. Offline
+mutation additionally refuses ANY observed same-host live peer, including successor
+or ambiguous duplicate peers; oldPIDabsence rechecked around effects. Unknown
+attempts stay unresolved and prohibit retirement. No auto-restart/replay/STOPclear.
+Retired offline context preserves historical source; default live paths unchanged.
+
+Actual negative tests on live interrupt74/service6ab7:
+quiesce jobja82d53689ef2454c8097cc9f6b4ab52f and retirejob
+j64a2dc5e28854e85a986a552e8553ff8 both refused. Original failedjobs retained.
+Before/after STOP/quiescence/retirement absent, module/settings hashes identical;
+plan offlineMutationLiveRefusal records exact evidence. Positive actual absent
+process STOP/retirement remains unqualified.13focused tests pass including
+absent/reappearing/reused/new-peer/ambiguous-owner refusals and API opt-ins.
+Frozen-source pressure1/1passes: pressure/v2-2026-10-17T20-10-38-021Z.json.
+Filtered synthetic-store harnesses each10checks pass:
+pressure/harness-v2-claude-2026-10-17T20-10-19-197Z.json and
+pressure/harness-v2-codex-2026-10-17T20-10-19-198Z.json. These do not prove crash recovery.
+
+Scoped controller route identified: existing driver-created transport scratch
+local_c0a18601-5a57-44d0-94ac-2fed3719e7ca, cwdprobe/transport-2026-10-15,
+no live process/pinned/openPR, but acceptEdits. It is not eligible for bypass-only
+independent enrollment. Asked Taylor asynchronously in this Codex chat to open
+that exact existing Claude chat, select Bypass permissions and send ready, then
+reply here. Authorization is already standing; native permission interaction is
+human-only. Do not silently use acceptEdits or weaken enrollment. While pending,
+current interrupt receiver remains live/idle with no unresolved. Next use qualified
+transport controller for scoped archive/reopen and actual cold epoch proof; preserve
+legacy observer unknowns. Codex fixes and 1Password remain parked/separate.
+
 ## Read-only offline installed-generation inventory prepared — October 17
 
 Added explicit broker_service_status offline:true, exclusive with historical.

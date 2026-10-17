@@ -26,7 +26,7 @@ export async function buildSealedIndependentPackage(build,config){
  return buildNativePeerServicePackage(config)
 }
 export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false,historicalOnly=false,offlineOnly=false,historicalRecord}={}){
- if(historicalOnly&&(!allowRetired||requireIdle)||offlineOnly&&(historicalOnly||requireIdle||allowRetired)||historicalRecord!==undefined&&!historicalOnly&&!offlineOnly)refuse()
+ if(historicalOnly&&(!allowRetired||requireIdle)||offlineOnly&&(historicalOnly||requireIdle)||historicalRecord!==undefined&&!historicalOnly&&!offlineOnly)refuse()
  const evidenceOnly=historicalOnly||offlineOnly,record=evidenceOnly&&historicalRecord!==undefined?historicalRecord:getRecord(session),version=evidenceOnly?null:versions()
  if(independentServiceState(session,serviceId,record)!==STATE_DIR||!evidenceOnly&&(version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions'))refuse()
  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),STATE_DIR,BROKER_DIR]){const st=lstatSync(path);if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==process.getuid())refuse()}
@@ -60,6 +60,6 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  }
  if(requireIdle&&peer.status!=='idle')refuse()
  if(offlineOnly){requireIndependentEpochAbsent(pointer);if(JSON.stringify(ordered(activeRelease()?.pointer))!==JSON.stringify(ordered(pointer)))refuse()}
- return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':offlineOnly?'offline-installed':'live-native',offlineObservation,pkg,read:name=>json(join(BROKER_DIR,name))}
+ return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':offlineOnly?(retirement?'offline-retired':'offline-installed'):'live-native',offlineObservation,pkg,read:name=>json(join(BROKER_DIR,name))}
 }
 export {bytes as independentBytes,json as independentJson,ordered as independentOrdered}

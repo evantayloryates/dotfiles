@@ -14,6 +14,13 @@ test('offline inventory is explicit read-only mode and cannot combine with retir
  await assert.rejects(inspectIndependentService(session,service,{offline:true,historical:true}),e=>e.category==='bad_args')
  await assert.rejects(op.run({service_id:service,offline:true},{}),e=>e.category==='bad_args')
 })
+test('offline mutation flags remain independent-only explicit opt-ins',async()=>{
+ const {quiesceIndependentService}=await import('../lib/independent-service-quiesce.mjs'),{retireIndependentService}=await import('../lib/independent-service-retire.mjs')
+ for(const name of ['broker_service_quiesce','broker_service_retire']){const op=OPS.find(x=>x.name===name);assert.equal(op.readOnly,false);assert.equal(op.schema.properties.offline.type,'boolean');assert.doesNotThrow(()=>validateOp(name,{session,service_id:service,offline:true,experimental:true}));await assert.rejects(op.run({session,service_id:service,offline:true},{}),e=>e.category==='bad_args')}
+ await assert.rejects(quiesceIndependentService(session,service,{offline:'yes'}),e=>e.category==='bad_args')
+ await assert.rejects(retireIndependentService(session,service,{offline:'yes'}),e=>e.category==='bad_args')
+ await assert.rejects(OPS.find(x=>x.name==='broker_service_retire').run({service_id:service,offline:true,experimental:true},{}),e=>e.category==='bad_args')
+})
 test('durable reconciliation retains explicit opt-in and legacy arguments',()=>{
  const op=OPS.find(x=>x.name==='broker_service_result_reconcile');assert.equal(op.readOnly,false);assert.equal(op.schema.properties.session.type,'string')
  const legacy={service_id:service,request_id:'rpeer'+'b'.repeat(32),experimental:true};assert.doesNotThrow(()=>validateOp(op.name,legacy));assert.doesNotThrow(()=>validateOp(op.name,{...legacy,session}))

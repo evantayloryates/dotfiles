@@ -916,19 +916,19 @@ export const OPS = [
   {
     name:'broker_service_retire',title:'Retire an owned native receiver',readOnly:false,
     description:'Experimental exact-owner atomic filesystem retirement after legacy expiry/settlement, or independent scoped STOP and terminal review when session is explicit. Preserves bytes and evidence outside watched folder. Refuses epoch, baseline, controls, added files or unresolved requests. Filesystem retirement never proves native unload; no send, restart or permission change.',
-    schema:{required:['service_id','experimental'],properties:{retire_settings:{type:'boolean',description:'Independent only: preserve exact owned settings in retired state without overwriting any successor settings.'},session:{type:'string',description:'Explicit independent receiver; requires verified scoped STOP and terminal attempt review instead of legacy expiry.'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    schema:{required:['service_id','experimental'],properties:{offline:{type:'boolean',description:'Explicit independent-only absent-process retirement; refuses any live peer and preserves unresolved attempts. Never kills/restarts.'},retire_settings:{type:'boolean',description:'Independent only: preserve exact owned settings in retired state without overwriting any successor settings.'},session:{type:'string',description:'Explicit independent receiver; requires verified scoped STOP and terminal attempt review instead of legacy expiry.'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
     run:async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native service retirement requires explicit experimental opt-in',{category:'bad_args'})
-      if(args.session!==undefined)return (await import('./independent-service-retire.mjs')).retireIndependentService(args.session,args.service_id,{signal:ctx.signal,retireSettings:args.retire_settings===true})
-      if(args.retire_settings===true)throw new DriverError('settings retirement requires explicit independent receiver',{category:'bad_args'})
+      if(args.session!==undefined)return (await import('./independent-service-retire.mjs')).retireIndependentService(args.session,args.service_id,{signal:ctx.signal,retireSettings:args.retire_settings===true,offline:args.offline===true})
+      if(args.retire_settings===true||args.offline===true)throw new DriverError('settings retirement requires explicit independent receiver',{category:'bad_args'})
       return (await import('./native-service-ownership.mjs')).retireNativeService(args.service_id,{signal:ctx.signal})
     },
   },
   {
     name:'broker_service_quiesce',title:'Stop independent receiver admission',readOnly:false,
     description:'Experimental scoped admission stop under the native-read lifecycle lock. Waits for existing read transaction, verifies exact installed epoch, preserves owned STOP and reviews terminal attempts. Never clears STOP, dispatches, cancels effects, moves modules, changes permissions or claims native unload/process retirement. Interrupted work requires inspection.',
-    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent quiescence requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-quiesce.mjs')).quiesceIndependentService(args.session,args.service_id,{signal:ctx.signal})},
+    schema:{required:['session','service_id','experimental'],properties:{offline:{type:'boolean',description:'Explicit absent-process admission stop; no live peer may exist. Does not settle unknowns.'},session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent quiescence requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-quiesce.mjs')).quiesceIndependentService(args.session,args.service_id,{signal:ctx.signal,offline:args.offline===true})},
   },
   {
     name:'broker_service_activate',title:'Activate a prepared independent receiver',readOnly:false,

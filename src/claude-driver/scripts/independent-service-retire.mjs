@@ -9,13 +9,16 @@ import {snapshotIndependentModule} from '../lib/independent-module-tree.mjs'
 import {summarizeIndependentBudget} from '../lib/independent-service-status.mjs'
 import {reviewIndependentAttempts} from '../lib/independent-service-attempts.mjs'
 import {publishNativeServiceDirectory} from '../lib/native-service-enroll.mjs'
-const [session,serviceId,mode]=process.argv.slice(2),file=join(STATE_DIR,'retirement.json'),dest=join(STATE_DIR,'retired-module'),hash=b=>createHash('sha256').update(b).digest('hex'),same=(a,b)=>JSON.stringify(ordered(a))===JSON.stringify(ordered(b))
+import {requireIndependentOfflineMutation} from '../lib/independent-offline-review.mjs'
+const [session,serviceId,mode,receiverCwd,settingsMode]=process.argv.slice(2),offline=mode==='--offline',file=join(STATE_DIR,'retirement.json'),dest=join(STATE_DIR,'retired-module'),hash=b=>createHash('sha256').update(b).digest('hex'),same=(a,b)=>JSON.stringify(ordered(a))===JSON.stringify(ordered(b))
 const present=p=>{try{lstatSync(p);return true}catch(e){if(e.code==='ENOENT')return false;throw e}}
 try{
- const retireSettings=mode==='--settings'
+ if(offline?(typeof receiverCwd!=='string'||settingsMode!==undefined&&settingsMode!=='--settings'||process.argv.slice(2).length>5):(mode!==undefined&&mode!=='--settings'||process.argv.slice(2).length>3))throw Error('retirement mode')
+ const retireSettings=offline?settingsMode==='--settings':mode==='--settings'
  const result=await withLock('broker',async()=>{
   const guard=async()=>{
-   const c=await loadIndependentServiceContext(session,serviceId,{requireIdle:true,allowRetired:true}),q=json(join(STATE_DIR,'quiescence.json')),stop=json(join(BROKER_DIR,'STOP'))
+   const c=await loadIndependentServiceContext(session,serviceId,{requireIdle:!offline,allowRetired:true,offlineOnly:offline,...offline?{historicalRecord:{sessionId:session,cwd:receiverCwd}}:{}}),q=json(join(STATE_DIR,'quiescence.json')),stop=json(join(BROKER_DIR,'STOP'))
+   if(offline)requireIndependentOfflineMutation(c.pointer,session)
    if(q.serviceId!==serviceId||q.sessionId!==session||q.phase!=='quiescent'||!independentStopMatches(stop,{serviceId,pointer:c.pointer})||q.stopSha256!==hash(bytes(join(BROKER_DIR,'STOP'))))throw Error('not quiesced')
    const slots=Array.from({length:c.config.maxRequests},(_,slot)=>{try{return c.read('../native-service-budget-'+serviceId+'-'+slot+'.json')}catch(e){if(e.code!=='ENOENT')throw e;return null}}),budget=summarizeIndependentBudget(c.config,slots),attempts=reviewIndependentAttempts({context:c,reservedRequestIds:budget.reservedRequestIds,names:readdirSync(BROKER_DIR)})
    if(!attempts.terminalAttemptReviewComplete)throw Error('unresolved attempts');return {c,attempts}
@@ -26,8 +29,10 @@ try{
    const inventory=snapshotIndependentModule(c.module,c.pkg.hashes),ledger={schemaVersion:1,kind:'independent-service-retirement',serviceId,...Object.fromEntries(['sessionId','build','generation','pid','procStart'].map(k=>[k,c.pointer[k]])),phase:'before-move',at:Date.now(),inventory,auxiliaryContentsQualified:false,nativeUnloadQualified:false,processRetired:false}
    writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600});await guard()
    if(!same(snapshotIndependentModule(c.module,c.pkg.hashes),inventory))throw Error('module changed')
+   if(offline)requireIndependentOfflineMutation(c.pointer,session)
    publishNativeServiceDirectory(c.module,dest)
    if(present(c.watchedModule)||!same(snapshotIndependentModule(dest,c.pkg.hashes),inventory))throw Error('move uncertain')
+   if(offline)requireIndependentOfflineMutation(c.pointer,session)
    writeJsonAtomic(file,{...ledger,phase:'files-retired',retiredAt:Date.now()})
   }
   let retainedSettingsFile
@@ -38,14 +43,16 @@ try{
    else{
     if(hash(bytes(settings))!==c.policy.settingsHash)throw Error('settings changed')
     writeJsonAtomic(file,{...ledger,settingsPhase:'before-move',settingsSha256:c.policy.settingsHash})
+    if(offline)requireIndependentOfflineMutation(c.pointer,session)
     publishNativeServiceDirectory(settings,retained)
     if(hash(bytes(retained))!==c.policy.settingsHash)throw Error('settings move uncertain')
+    if(offline)requireIndependentOfflineMutation(c.pointer,session)
     writeJsonAtomic(file,{...ledger,settingsPhase:'retained',settingsSha256:c.policy.settingsHash,settingsRetiredAt:Date.now()})
    }
    retainedSettingsFile=retained
   }
   const reviewed=await guard();if(reviewed.c.sourceDisposition!=='files-retired')throw Error('retirement checkpoint incomplete')
-  return {serviceId,sessionId:session,filesRetired:true,registrationBytesPreserved:true,auxiliaryBytesPreserved:true,settingsPreserved:true,...retainedSettingsFile?{ownedSettingsRetired:true,retainedSettingsFile}:{},stopPreserved:true,terminalAttemptReviewComplete:true,attemptsReviewed:attempts.attemptsReviewed,retiredDirectory:dest,nativeUnloadQualified:false,processRetired:false,automaticResume:false}
+  return {serviceId,sessionId:session,...offline?{offline:true,previousPidObservedAbsent:true}:{},filesRetired:true,registrationBytesPreserved:true,auxiliaryBytesPreserved:true,settingsPreserved:true,...retainedSettingsFile?{ownedSettingsRetired:true,retainedSettingsFile}:{},stopPreserved:true,terminalAttemptReviewComplete:true,attemptsReviewed:attempts.attemptsReviewed,retiredDirectory:dest,nativeUnloadQualified:false,processRetired:false,automaticResume:false}
  },{timeoutMs:60000})
  console.log(JSON.stringify(result))
 }catch{console.error('independent retirement refused; preserve module bytes, STOP and original retirement record');process.exitCode=1}
