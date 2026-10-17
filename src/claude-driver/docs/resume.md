@@ -1,3 +1,69 @@
+## Public durable recovery cycle passed; final self guard tested — October 17
+
+Added broker_service_recover in independent-service-recovery.mjs. One durable
+parent composes existing child primitives with exclusive per-target recovery lock,
+wx parent intent, fixed idempotency keys, before/after steps and retained child
+observations. Default cold mode requires originalPIDabsent/nopeer and retained
+empty family receipt; can quiesce/retire offline installed source or preserve
+already-retired terminal history. Explicit cycle:true intentionally archives a
+healthy owned scratch after fresh emptyfamily/terminal review. Controller stays
+sealed to exact target epoch, no retarget. Native wake/refusal, newepoch, bounded
+postcursor fixedreply/zero-tools lineage, prepare/coldactivate/ready/policy/read,
+then stable anchor/settings/no-unresolved checks. No kill/restart/delete/permission
+raise/trust bypass. Failed/unknown child stops; reattachment observes original
+parent and never restarts children. Self-target caller rejected before filesystem.
+Rejected reply observation retained bounded in private recovery ledger.
+
+NATIVE public cycle tested on source
+7b73bc8c443ab6b20927fe89a91ebda050b049d5ea8bcb84f41827a80c5bf773.
+New controller preparationjad2fe72095f04e99b033168c16c54e02 sealed oldtarget96997/
+20:49:14UTC. Old9a2... quiesce/retire retained; newcontrollerad2fe72095f04e99b033168c16c54e02
+activated j2b48053132a047409317994894bc82ac; policyj0254b4b4368643b1bddf8e54db86c780.
+CURRENT controller ad2fe72095f04e99b033168c16c54e02/PID31678/start20:14:51UTC.
+
+ONE public parentj679872e6af884635a622e3695289c9fd completed in20.864seconds with
+32 before/after checkpoints and10 completed childjobs, no manual interleaving:
+familyj78da393c565b4c3eb15d5f30ba2d6fe2, quiescej7d003224a9354f0bb8f258ac8c31a548,
+retirej3646fa408b464f5c8ce7a19b1b3c606c, archivejacc845037df94d5a99d16f875bde1d3d,
+unarchivejdd8cef3ac5cc4f4c93571c5ff0f8c507, wakej1f04b4262d594569b0dafc40cfc8db15,
+preparejc3f1c806560b4a64854958254bae69a5, activatej222821af746f4129ac7741ba54f24a72,
+policyjca895974e8534e149e7806feaebeb1e8, readj1601384df6f840a099de48b734e968d1.
+Actual native archive receipttoolu_plugin_3fd0790e8182461dbb12376be397c1f1;
+wake receipttoolu_plugin_53f138d29fea4bcf962218895f276b71. NewPID5972/start
+SatOct17 20:54:10UTC/correctcwd. Persistedreplyea9fa0e6-6f9c-4aab-ad0d-059ea2f44a8e
+COLD_RECEIVER_READY/tools0 with postcursor lineage; no human input. New service
+c3f1c806560b4a64854958254bae69a5 (CURRENT interrupt receiver), actual ready/policy
+and readreceipttoolu_plugin_3c1c22535adb44aba63afa988124f8d8. Final anchor/settings
+preserved/no unresolved. Parent returned nativeColdRecoveryQualifiedtrue and
+unattendedSupervisionQualifiedfalse. TWO actual resubmissions same saved request
+reused SAME parent, recovery ledger bytes unchanged/no child replay.
+
+Both fresh real-MCP current-route harnesses on recoveredc3f1... passed14checks:
+harness-native-current-claude-2026-10-17T20-54-38-295Z.json and
+harness-native-current-codex-2026-10-17T20-54-39-452Z.json (configuredgpt-6-sol).
+Native cycle/harness proof is source7b73...; subsequent self-call refusal and
+rejected-reply-observation retention hardened host code without altering native
+callback. FINAL sourceb1a2fdd466d7e85f6aaedce78df836a5a853e722ffe00a6dad650ec598536f0e.
+Final focused7tests, pressurev2-2026-10-17T20-55-32-595Z.json1/1 unchanged source,
+and both headless synthetic harnesses10/10:
+harness-v2-claude-2026-10-17T20-55-14-536Z.json,
+harness-v2-codex-2026-10-17T20-55-15-662Z.json. Self guard actual env-bound negative
+case refuses before any state access. Installed receivers remain sealedsource7b73.
+Existing private plan orchestratedRecoverySetup and global
+independent-service-recoveries/j679872e6af884635a622e3695289c9fd.json retain full evidence.
+
+Next: qualify DEFAULT cold entry natively (currently pure-mode tests only), using
+an exact freshly sealed controller and retained emptyfamily/stoppedretired target
+whose originalPID is independently absent. An intentional scoped archive can
+establish this absent state without killing a process; then one public cold mode
+parent should skip family/archive and preserve oldSTOP/history. Do not claim crash
+or offline-installed success from cycle mode. After that, integrate bounded
+supervision/read-route recovery with explicit inventory/selection and status;
+current controller capability is sealed to OLD96997, not current5972. Never
+silently retarget it. Unknown historical control-scratch attempt remains parked.
+Goalactive; watcherpaused; no legacybroker/globalapprestart/CUA/keyboard/auth changes;
+Codex bridge fixes and1Password separate.
+
 ## Second native cycle: persisted trust, one wake, new peer and cold rebind passed — October 17
 
 No runtime edits; source remains92d850ec257d5a4b7dea24fca3e89c2b5a26a3e1dd28726ace7248a4754a977a.

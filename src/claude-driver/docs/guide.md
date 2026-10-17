@@ -1200,3 +1200,31 @@ cycle. The steps were explicitly coordinated using durable child jobs; unattende
 supervision, arbitrary crashes/app restarts and deleted-session replacement are
 not established by this result. A new target epoch requires a newly sealed
 controller capability; old capabilities are never silently retargeted.
+
+
+### Durable sealed-target recovery
+
+Submit `broker_service_recover` using `driver_submit`, with exact controller
+`session`/`service_id`, target `session_id`/`target_service_id`, and
+`experimental:true`. Default cold mode requires an absent original PID, no current
+target peer and `family_request_id` pointing to an already-qualified empty native
+family receipt. Existing retired terminal source is preserved; installed offline
+source uses the existing offline quiesce/retire gates. The target must remain an
+owned bypass scratch in the same probe scope and the controller must already be
+sealed to that exact target epoch. A live target is refused in cold mode.
+
+`cycle:true` explicitly requests an intentional scratch recovery test: fresh
+family, quiesce/retire, native archive/verified exit, unarchive, one fixed wake,
+independent new process and tool-free reply, cold rebind, readiness, policy probe,
+native read and final stable-settings checks. One actual public cycle passed in
+20.864seconds with ten retained child jobs; repeated identical submissions reused
+the original parent without changing its ledger. Default cold entry remains a
+separate native acceptance gate. This operation is not an unattended supervisor.
+
+Parent checkpoints and original child IDs survive failure/cancellation. Reattach
+with the same idempotency key or inspect the parent and children; this observes
+state and does not resume or replay an interrupted effect. A human trust gate
+stays a human gate. A failed native delivery is retained as failed; uncertain
+outcomes stay uncertain. Recovery refuses to archive/retire its own Claude caller.
+No global app restart, process kill, delete, trust/permission change or legacy
+broker wake is part of this operation.
