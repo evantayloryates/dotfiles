@@ -1257,7 +1257,8 @@ Submit `broker_service_control` through `driver_submit` with controller `session
 `service_id`, exact target `session_id`, `operation`, typed `value`, and
 `experimental:true`. Supported operations: `set_session_title` (nonempty title,
 max200characters), `set_pinned` (boolean), `set_session_effort`
-(low/medium/high/xhigh/max). No model/mode/consent or arbitrary tool capability.
+(low/medium/high/xhigh/max), and set_session_model only with the separate explicit
+model capability described below. No permission-mode/consent or arbitrary tools.
 The global target activation lock serializes cooperating callers; one request has
 one native effect and independent persisted postcondition evidence. Reattach the
 same durable job after uncertainty; never replay with a new identity. Prior
@@ -1287,12 +1288,12 @@ No discovery across work chats, automatic enrollment/renewal or legacy fallback.
 
 For example, `set_session_config` arguments are
 `{session:"local_<target UUID>",metadata_controller:"local_<controller UUID>",title:"Locked title",pinned:false,effort:"high"}`.
-This explicit route supports only title, pin and effort. Any `model`,
-`permission_mode` or `via_broker` argument rejects the entire request before a
-child is submitted. Omitting `metadata_controller` preserves the existing route.
+This route supports title, pin and effort, plus model only when its controller
+was explicitly granted model control. Model requests on an ungranted controller,
+and any permission_mode or via_broker mixing, reject before a child is submitted. Omitting `metadata_controller` preserves the existing route.
 
 The parent holds the existing public recipient-control lock and applies fields
-in title, pin, effort order, with a separate durable native child and persisted
+in title, pin, model (when requested), effort order, with a separate durable native child and persisted
 postcondition per field. Other low-level independent controls retain their own
 per-effect locks; this is not an atomic multi-field transaction. The parent
 rechecks controller selection/target epoch between fields and verifies the final
@@ -1371,3 +1372,26 @@ change permissions or prove unattended recovery. After interruption inspect the
 active binding, retained history and original job; history alone does not prove
 publication. Reattach the same durable job rather than forcing a stale digest or
 erasing the index. Verify a fresh ordinary metadata operation against the new epoch.
+
+### Explicit model capability for enrolled metadata controllers
+
+Preparing a NEW metadata controller with `metadata_model_control:true` and an
+explicit `metadata_target` seals model selection into that generation. This is
+not granted to existing title/pin/effort controllers by a host upgrade. Renewals
+preserve the verified predecessor's grant; archive controllers cannot acquire it.
+The native callback and PreToolUse policy both require the explicit model flag.
+
+With that grant, ordinary durable set_session_config supports `model` alongside
+title, pin and effort. Without it, a model-containing batch refuses before any
+child, including an otherwise valid title change. Permission-mode and legacy-route
+mixing remain refused. Use full model IDs from the app picker; aliases are rejected
+and the app remains authoritative for which IDs it currently offers. Successful
+settlement requires the exact persisted model plus native target admission and an
+immutable receipt-bound postcondition. A native acknowledgment alone is insufficient.
+
+Model changes apply from the next turn. Configuration verification does not prove
+that an inference turn used the model. `harness-native-service --metadata-config
+--enrolled-route --target-model <full model ID>` uses a separate one-shot model
+contract, verifies four distinct native child receipts and an independently changed
+model, and still requires no model turn in either scratch. Restore the baseline
+through a separate reconciled durable request before running the next harness.

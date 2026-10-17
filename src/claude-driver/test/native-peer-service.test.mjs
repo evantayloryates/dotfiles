@@ -176,3 +176,11 @@ test('metadata role calls exact title/pin/effort tools once and excludes archive
  const bad=setup({configPatch,checkpoint:{dispatch:true,op:'archive_session',args:{session_id:target,reason:'claude-driver scoped recovery test'}}});await bad.send(r1);assert.equal(bad.counts().reads,0)
  assert.throws(()=>setup({configPatch:{...configPatch,archiveTarget:metadataTarget}}),/invalid metadata target/)
 })
+
+test('model mutation requires an explicitly granted model capability and calls the exact native tool once',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},metadataTarget={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'epoch'},base={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',metadataTarget},args={session_id:target,model:'claude-opus-5-5'},checkpoint={dispatch:true,op:'set_session_model',args}
+ const old=setup({configPatch:base,checkpoint});await old.send(r1);assert.equal(old.counts().reads,0)
+ const f=setup({configPatch:{...base,metadataModelControl:true},checkpoint});let calls=0;f.$.mcp.call=async(server,op,value)=>{calls++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'set_session_model');assert.deepEqual(JSON.parse(JSON.stringify(value)),args);return {isError:false,content:[{type:'text',text:'native model acknowledgement'}]}};await f.send(r1);await f.send(r1);assert.equal(calls,1)
+ for(const value of [{...args,_consent:true},{...args,model:'opus'},{...args,session_id:config.brokerSession}]){const bad=setup({configPatch:{...base,metadataModelControl:true},checkpoint:{...checkpoint,args:value}});await bad.send(r1);assert.equal(bad.counts().reads,0)}
+ assert.throws(()=>setup({configPatch:{...base,metadataModelControl:false}}),/invalid metadata model/)
+})

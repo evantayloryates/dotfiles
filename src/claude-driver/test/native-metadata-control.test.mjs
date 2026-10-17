@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {createHash} from 'node:crypto'
 import {metadataControlArguments,metadataStateMatches,metadataTargetPreflightMatches,metadataObservationMatches,metadataTargetRegistered,metadataPriorAttemptsClear} from '../lib/native-metadata-control.mjs'
 const target={sessionId:'local_22222222-2222-4222-8222-222222222222',cwd:'/owned/probe/target',pid:42,procStart:'epoch'}
-test('only three typed metadata operations exist, and title equality alone cannot prove a lock',()=>{
+test('typed metadata operations reject ambiguous aliases, and title equality alone cannot prove a lock',()=>{
  assert.deepEqual(metadataControlArguments(target,'set_pinned',false),{session_id:target.sessionId,pinned:false})
  for(const [op,v]of [['set_session_title',''],['set_session_title','x'.repeat(201)],['set_session_title',true],['set_pinned','true'],['set_session_effort','unbounded'],['set_session_permission_mode','bypassPermissions']])assert.throws(()=>metadataControlArguments(target,op,v),/unqualified/)
  const r={sessionId:target.sessionId,isArchived:false,title:'same',titleSource:'auto'}
@@ -40,4 +40,12 @@ test('unresolved predecessors block new metadata while its own reserved pre-send
  assert.equal(metadataPriorAttemptsClear({unresolvedRequestIds:[old]},current),false)
  assert.equal(metadataPriorAttemptsClear({unresolvedRequestIds:[current,old]},current),false)
  assert.equal(metadataPriorAttemptsClear({},current),false)
+})
+
+test('model postcondition requires the explicit capability and exact persisted model, never an acknowledgement alone',()=>{
+ const config={id:'a'.repeat(32),metadataTarget:target},request={id:'rpeer'+'b'.repeat(32),ops:[{op:'set_session_model',args:metadataControlArguments(target,'set_session_model','claude-opus-5-5')}]},receipt={receivedAt:new Date(100).toISOString(),content:[{type:'text',text:'native model acknowledgement'}]},o={schemaVersion:1,serviceId:config.id,requestId:request.id,sessionId:target.sessionId,cwd:target.cwd,pid:42,procStart:'epoch',operation:'set_session_model',postcondition:{model:'claude-opus-5-5'},observedAt:110,nativeTextSha256:createHash('sha256').update(receipt.content[0].text).digest('hex')}
+ assert.equal(metadataObservationMatches(o,{config,request,receipt,now:120}),false);config.metadataModelControl=true;assert.equal(metadataObservationMatches(o,{config,request,receipt,now:120}),true)
+ assert.equal(metadataObservationMatches({...o,postcondition:{model:'claude-haiku-5-5'}},{config,request,receipt,now:120}),false)
+ for(const model of ['opus','claude','x'.repeat(200),'claude-opus-5-5\0'])assert.throws(()=>metadataControlArguments(target,'set_session_model',model))
+ assert.equal(metadataStateMatches({sessionId:target.sessionId,isArchived:false,model:'claude-opus-5-5'},false,'set_session_model',request.ops[0].args),true)
 })

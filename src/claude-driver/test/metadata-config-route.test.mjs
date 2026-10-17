@@ -2,7 +2,7 @@ import {test} from 'node:test'
 import assert from 'node:assert/strict'
 import {metadataConfigOperations,runMetadataConfigBatch} from '../lib/metadata-config-route.mjs'
 const target='local_22222222-2222-4222-8222-222222222222',good={metadataVerified:true,receiptVerified:true,state:'completed'}
-test('whole metadata batch is validated before any field, and cannot mix a permission/model/legacy request',()=>{
+test('whole metadata batch is validated before any field, and rejects permission/legacy mixing and invalid model aliases',()=>{
  assert.deepEqual(metadataConfigOperations(target,{title:'locked',pinned:false,effort:'high'}).map(x=>x.field),['title','pinned','effort'])
  for(const args of [{title:'valid',effort:'bad'},{title:'valid',model:'opus'},{title:'valid',permission_mode:'bypassPermissions'},{pinned:true,via_broker:true},{title:' '},{}])assert.throws(()=>metadataConfigOperations(target,args))
 })

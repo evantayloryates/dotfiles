@@ -36,3 +36,11 @@ test('title metadata bytes do not imply a model turn, but incomplete or actual-t
  assert.equal(nativeTargetNoModelTurn(o),true);assert.equal(nativeTargetNoModelTurn({...o,events:[]}),true)
  for(const patch of [{hasMore:true},{events:[{type:'assistant'}]},{events:[{type:'user'}]},{events:[{}]},{bytesRead:undefined},{cursor:undefined}])assert.equal(nativeTargetNoModelTurn({...o,...patch}),false)
 })
+
+test('model MCP mode requires all four exact children and independent actual model-change proof',async()=>{
+ const {nativeContractReplyEvidence,classifyNativeContractChecks}=await import('../scripts/native-service-contract.mjs'),fields=['title','pinned','model','effort'],result={verified:true,route:'independent-metadata',serviceId:c.serviceId,sessionId:c.submission.arguments.session_id,childJobs:{},results:{}}
+ for(const[i,k]of fields.entries()){const child='j'+String(i+1).repeat(32);result.childJobs[k]=child;result.results[k]={receiptVerified:true,metadataVerified:true,state:'completed',serviceId:result.serviceId,targetSession:result.sessionId,requestId:'rpeer'+child.slice(1)}}
+ assert.equal(nativeContractReplyEvidence({result},{metadataConfig:true,metadataModel:true}).receiptVerified,true);assert.equal(nativeContractReplyEvidence({result},{metadataConfig:true}).receiptVerified,false)
+ const bad=structuredClone(result);bad.results.model.metadataVerified=false;assert.equal(nativeContractReplyEvidence({result:bad},{metadataConfig:true,metadataModel:true}).receiptVerified,false)
+ const checks=Object.fromEntries(['processSucceeded','noExternalToolCalls','freshSchema','exactTwoSubmissions','sameJob','verifiedNativeReceipt','derivedRequestId','noRefusedCalls','noModelTurn','sourceUnchanged','globalConfigUnchanged','finalMarker','selectedServiceMatches','noMaintenanceChildren','metadataChildrenVerified','stateVerified','fixtureStateChanged','targetNoModelTurn'].map(k=>[k,true]));assert.equal(classifyNativeContractChecks(checks,{metadataConfig:true,metadataModel:true}).nativeContractVerified,false);checks.modelChanged=true;assert.equal(classifyNativeContractChecks(checks,{metadataConfig:true,metadataModel:true}).ok,true)
+})

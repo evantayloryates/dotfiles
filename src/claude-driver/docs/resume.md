@@ -1,3 +1,74 @@
+## Explicit model capability verified through native CLI and both MCP clients — October 17
+
+Previous turn progressed/published3cbcc5b. Originalinterface modelselection remained
+unserved by independentcontroller; added explicit metadata_model_control:true to
+NEW metadata preparation, metadataModelControl:true sealedconfig/policy/status,
+static native set_session_model callback, admissionflagcheck, exact persistedmodel
+postcondition and public configbatch support. Existingmodel-ungrantedcontrollers
+remain scoped to originalthreeoperations; no hostupgrade implicitly grants model.
+Renewal code preserves verifiedpredecessor flag; no archive/permission authority.
+Full app model IDs required, aliases refused. Installed2.42304/2.1.299 publictool
+contract reviewed from .vite/build/index.chunk-B5tintml.js SHA
+f5d162e3e6047c12ca0cee15d72574e316513df6a65d52e89e2d456a4a3022ff: offeredmodel
+validation, setModel from NEXTturn, selfrefusal, bypass no prompt. Defaultoldsource
+extractor first refused stale snapshotmember; retained refusal, used bounded
+existingB5member without weakening helper. No private appAPI execution.
+
+Draft review caught undefinedoperation fieldselector before native model tests;
+fixed, exactmodel postcondition regression added. Initialfocused33/34 testfailure
+was old modelalias expectation; aliases now rejected, testpasses. Allfailures remain
+in transcript; no native effect happened in draftvalidation. Focusedcore36checks
+and model-MCP contract9checks pass; fullpressure confirms wholefixturecompatibility.
+Ungrantedscope live mixedtitle/modelnegativej968b69e365c34a3bbc7c104ea394bc84
+failedpreflight atcreated, childrenEMPTY, no title/nativeeffects or legacyfallback.
+
+Intermediatehost82f4d720 passed21:44:10pressure/synthetic; then modelharness/schema
+contract added. FINAL HOST AND SEALED source
+3cb091a3549a9bd21d6198763fab00b04bc94b9b54ee42de784f8e7a33fd4f96.
+Explicitgrantpreparej3900308cc7f146cdbc75dc4dc108f5ed validated nativeplugin; oldbff...
+controller quiescedj169eadbdfdf04af8a5e24ce2948ece02/retiredj08828fdd8b7a4efaa6390ef779399772
+with13terminalattempts/0unknown. Newmodelcontroller3900308cc7f146cdbc75dc4dc108f5ed
+activatedje21d9aeb23e947d0808df35e2257f604, ready/modelcaptrue/nativepolicy
+j01af7b12b8c94b519875716229096887. SamecontrollerPID31678/start20:14:51UTC,
+target90418/start21:37:26UTC. Enrollment and targetread491b51dd unchanged.
+
+Model-only ordinary set_session_config j34f2d5be05af4fe485d6dd39713336cd switched
+targetHaiku5.5 toOpus5.5 with exact native modelchildj1b4a4e7f46324e96967f821dd61fe24e;
+restorej177b130e92304ae8a7133a4ce03eedee verified Haiku5.5. No inference turn required.
+Extended EXISTING filtered harness with --target-model/fullID and separate
+metadata-model claimmode; exactfour distinct children plus independent modelChanged
+proof required. ActualClaude19checks PASS: harness-native-metadata-model-claude-
+2026-10-17T21-46-16-848Z.json, parentj3d9b2bbe71e34f5592da497c6e8587db.
+Fourfieldrestorejd79cf33b0f5349c0923825ebe4fff19b verified before Codextest.
+ActualCodexgpt-6-sol19checks PASS: harness-native-metadata-model-codex-
+2026-10-17T21-47-26-344Z.json, parentj1a6e339fa2dd479b8c334b0bc6f672f6.
+Both changedtitle/pin/model/effort; sameparentreuse/derivednativechildren/readback/
+no-modelturn/source/globalconfig/serviceselectionallpass. This proves NEXTturn
+configuration, NOT actual modelinference/outputquality or price/billingbehavior.
+
+Finalrestorej9d5575f95cda4474856f983f551612e5, children titlej4af493279b864e8f911a18af9def9f49/
+pinj60dc0afb8a764858bd74b1bcaf1c4bf5/modeljf2b685c6372b4461b8674b394c27b5c7/
+effortj340059a426084fad8b8e0b03089b2741. Originaltitle/toolsource/unpinned/Haiku5.5/
+explicitHigh/bypass restored, exactsameepoch. Reattachsamekey reusedsameparent and
+parentledger/nativeevidence hashunchanged. CURRENTmodelcontroller390...status
+18settled/0unknown/19reservedof32. Privateplan modelCapabilityFinal retains reports,
+oldcapnegativechildrenempty/currentstatus/fixture/no-replaydigest.
+Final fullpressure v2-2026-10-17T21-45-26-935Z.json1/1/sourceChangedfalse. Both
+synthetic10checks finalsource: harness-v2-claude-2026-10-17T21-45-00-161Z.json /
+harness-v2-codex-2026-10-17T21-45-01-295Z.json. No runtimeedits duringliveparents.
+
+NEXT: largest remaininginterfacegap is generic native messaging/stop/steer still
+on nonservinglegacyTierB (peer-direct messaging exists, but defaultnative path is
+not qualified through independentcontroller). Reuse sealed exacttarget/durable
+publication/nativeadmission and distinguish delivery from application. Preserve
+busy-state/stop/replacement order and outcome_unknown; do not simply broaden idle
+metadata guard to arbitrary tools. Permissionmode remains native-person-gated.
+Originalcreation/focus/full11live and unattendedresidency/recovery stillincomplete.
+Do not run more equivalentmetadata/recovery variants instead of those requirements.
+Goalactive/watcherpaused; legacyobserver ownsbroker; no apprestart/kill/auth/CUA;
+Codex-driver/1Password separate. Tool descriptions/public guidance should continue
+being reconciled as new routes replace old single-broker implementation details.
+
 ## Controlled target-epoch rebind passed after intentional cold cycle — October 17
 
 Previous turn progressed/publishedb756b0c. Added read-only broker_service_metadata_binding

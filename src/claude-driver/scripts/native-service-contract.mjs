@@ -11,15 +11,15 @@ export function permittedNativeContractCall(contract,jobs,name,args={}){
  return false
 }
 const requiredOperationalChecks=['processSucceeded','noExternalToolCalls','freshSchema','exactTwoSubmissions','sameJob','verifiedNativeReceipt','derivedRequestId','noRefusedCalls','noModelTurn','sourceUnchanged','globalConfigUnchanged']
-export function classifyNativeContractChecks(checks,{routeCurrent=false,metadataConfig=false}={}){
- const required=metadataConfig?[...requiredOperationalChecks,'selectedServiceMatches','noMaintenanceChildren','metadataChildrenVerified','stateVerified','fixtureStateChanged','targetNoModelTurn']:routeCurrent?[...requiredOperationalChecks,'selectedServiceMatches','noMaintenanceChildren']:requiredOperationalChecks
+export function classifyNativeContractChecks(checks,{routeCurrent=false,metadataConfig=false,metadataModel=false}={}){
+ const required=metadataConfig?[...requiredOperationalChecks,'selectedServiceMatches','noMaintenanceChildren','metadataChildrenVerified','stateVerified','fixtureStateChanged','targetNoModelTurn',...metadataModel?['modelChanged']:[]]:routeCurrent?[...requiredOperationalChecks,'selectedServiceMatches','noMaintenanceChildren']:requiredOperationalChecks
  const nativeContractVerified=!!checks&&required.every(k=>checks[k]===true),ok=nativeContractVerified&&checks.finalMarker===true
  return {ok,nativeContractVerified,failureCategory:ok?null:nativeContractVerified?'harness_output_format':'native_contract_failed'}
 }
-export function nativeContractReplyEvidence(out,{routeCurrent=false,metadataConfig=false}={}){
+export function nativeContractReplyEvidence(out,{routeCurrent=false,metadataConfig=false,metadataModel=false}={}){
  if(metadataConfig){
-  const r=out?.result,children=r?.childJobs,fields=['effort','pinned','title'],exact=children&&Object.keys(children).sort().join(',')===fields.join(',')&&r?.results&&Object.keys(r.results).sort().join(',')===fields.join(','),ids=exact?fields.map(k=>children[k]):[]
-  const verified=!!(exact&&new Set(ids).size===3&&ids.every(id=>/^j[a-f0-9]{32}$/.test(id))&&fields.every(k=>{const v=r.results[k];return v?.receiptVerified===true&&v.metadataVerified===true&&v.state==='completed'&&v.serviceId===r.serviceId&&v.targetSession===r.sessionId&&v.requestId==='rpeer'+children[k].slice(1)}))
+  const r=out?.result,children=r?.childJobs,fields=metadataModel?['effort','model','pinned','title']:['effort','pinned','title'],exact=children&&Object.keys(children).sort().join(',')===fields.join(',')&&r?.results&&Object.keys(r.results).sort().join(',')===fields.join(','),ids=exact?fields.map(k=>children[k]):[]
+  const verified=!!(exact&&new Set(ids).size===fields.length&&ids.every(id=>/^j[a-f0-9]{32}$/.test(id))&&fields.every(k=>{const v=r.results[k];return v?.receiptVerified===true&&v.metadataVerified===true&&v.state==='completed'&&v.serviceId===r.serviceId&&v.targetSession===r.sessionId&&v.requestId==='rpeer'+children[k].slice(1)}))
   return {receiptVerified:r?.verified===true&&r.route==='independent-metadata'&&verified,metadataChildrenVerified:verified,derivedRequestIds:verified,serviceId:r?.serviceId,noMaintenanceChildren:!!exact}
  }
  const result=routeCurrent?out?.result?.result:out?.result,children=routeCurrent?out?.result?.childJobs:null

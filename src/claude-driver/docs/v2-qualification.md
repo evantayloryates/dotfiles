@@ -1,3 +1,17 @@
+## October 17 model-selection addendum
+
+An explicit separately sealed model capability now supports ordinary durable
+set_session_config on enrolled targets. Old controllers refuse model-containing
+batches before children; permission-mode authority is unchanged. Native CLI and
+actual Claude/Codex MCP19-check contracts each verified Haiku5.5→Opus5.5, four exact
+native children, independent state and restoration without an inference turn.
+Final source3cb091a3/controller3900308c; fullpressure and bothsynthetic contracts
+pass. Fixture restored,18settled/0unknown; sameparent reattachment preserves evidence.
+This qualifies next-turn model configuration within the owned enrolled-target
+scope, not inference quality, arbitrary work-chat control or full originalcompletion.
+Generic native messaging/stop/steer, permission-mode gates, creation/full live and
+unattended lifecycle behavior remain incomplete.
+
 ## October 17 controlled epoch-rebind addendum
 
 Exact expected-digest/same-scope rebind now retains prior enrollment before atomic
