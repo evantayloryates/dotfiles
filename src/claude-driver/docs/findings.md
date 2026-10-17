@@ -1172,3 +1172,12 @@ newbb97; matching persisted metadata and distinct probe/read identities verified
 Same-key parent preserves route/renewal hashes, old STOP/history retained, zero
 native journal growth/model turn, shared hook/settings unchanged. This qualifies
 one on-demand capacity transition; expiry/cold/crash recovery remain separate gates.
+
+### Native queued current reads with duplicate key (October 17)
+
+Three concurrent distinct routed reads plus one duplicate submission completed as
+three parent/readchild/request identities, exactly3newslots. Duplicate returned the
+same parent. Persisted target metadata matched; native receipt intervals were
+nonoverlapping446/410/596ms, parent queue-inclusive1217/2280/3638ms. Zerojournal
+bytes/model turns, no unresolved attempts. This is a small healthy-queue sample,
+not a latency SLA or queued-renewal/unbounded-load qualification.

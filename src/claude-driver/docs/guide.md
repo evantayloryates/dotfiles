@@ -914,6 +914,9 @@ looping. Selection changes stop before read; underlying operations still enforce
 current admission. No daemon, model wake, restart or permission change. Parent
 cancellation does not establish child cancellation: inspect recorded child job IDs
 before any continuation; queued/running children may still finish independently.
+The current route admission mutex has a5second wait bound. Three queued healthy
+reads plus a duplicate key were natively qualified; waiting behind a long renewal
+remains a separate pressure gate. Parent timing includes queue and child overhead.
 
 `broker_service_plan {session,service_id,read_timeout_sec?}` is read-only routing
 policy for the currently selected stable generation. It verifies selector equality

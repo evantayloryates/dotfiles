@@ -1,3 +1,33 @@
+## Queued routed reads and duplicate submission native pressure — October 17
+
+Previous turn implemented bounded current read routing/capacity renewal. This turn
+changed no executable source; exercised final hostf6901d752f7e1a3556a7a43b500091dfff859ae00b1c7c0729b9d8ccca9c6357
+against pinned receiver0ba5... on currentbb972ca6ef564e77850b68749d319c85.
+Submitted3distinct current-read parents concurrently plus one duplicate of the first
+key. Actual parentsj77963545f8a64919883929368045c3b0,
+j6558611a8fb943b6af96545dd76a7463,ja49614aedc89453f8244c9b6de4dd33b allcompleted.
+Fourth submission reused first exactjob. Three distinct real readchildren/requests,
+no renew/probe children, each persisted target session/title/cwd/archive metadata
+independently matchedcontrol8f. Actual capacity delta exactly3, from2/32to5/32.
+
+Native intervals sorted byreceipt do not overlap:446ms,410ms,596ms. Parent elapsed
+including queue1217ms,2280ms,3638ms. These are sampled timings, not latency SLA.
+Native journalgrowth0/events0, samePID20499/start15:48:23UTC. All5current attempts
+terminal (four reads plus one probe), no unresolved,27spare slots. Deadline remains
+1792269345930. No model message, app restart, permission change or hand-edited budget.
+No active parent/child/sender/worker/waiter. Existing plan
+currentRouteQueuePressure retains submissions/jobs/outcomes/verified receipts and
+native interval proof. Earlier readiness timeout remains preserved. No repeat
+synthetic suite was needed for docs/evidence-only changes; prior executable checks
+remain applicable and this native run also exercised the final result-success guard.
+
+Next fresh real Claude/Codex MCP clients through the new current-route API (earlier
+native MCP qualification used direct explicit service read), then queued renewal,
+expiry routing and scoped cold/crash/deleted-session recovery. This small healthy
+queue does not establish unbounded queue or callers waiting behind renewal. Current
+route admission lock still has its existing5second wait bound. Goal active; Codex
+fixes parked, current-chat cached MCP refresh separate.
+
 ## On-demand read routing with native capacity renewal — October 17
 
 Added broker_service_read_current: durable parent, exact current stable selector,
