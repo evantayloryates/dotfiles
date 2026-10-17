@@ -1154,3 +1154,11 @@ verified positive metadata read. Same native epoch, no model/journal growth, sta
 files/history unchanged. This demonstrates7step renewal qualification, not a latency
 SLA or autonomous crash recovery. Native loader latency must be observed rather than
 inferred from publication; installation does not make policy readiness immediate.
+
+### Read-only service action planning (October 17)
+
+Current-generation planner compares stable selector before/after exact live status.
+STOP/uncertainty override expiry/capacity; readiness/input/busy state never triggers
+blind recovery. Current533f recommended read; stale821f recommended inspect, with
+unchanged budget/pointer hashes and zero native journal growth. Recommendations
+perform no effect and do not establish positive serving or automatic resumption.

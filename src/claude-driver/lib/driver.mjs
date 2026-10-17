@@ -908,6 +908,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.historical===true&&args.session===undefined)throw new DriverError('historical inspection requires explicit independent receiver',{category:'bad_args'});return args.session!==undefined?(await import('./independent-service-result.mjs')).inspectIndependentService(args.session,args.service_id,{signal:ctx.signal,historical:args.historical===true}):(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id)},
   },
   {
+    name:'broker_service_plan',title:'Plan the next stable receiver action',readOnly:true,
+    description:'Read-only exact selected-generation decision: read, renew, probe, wait, stop or inspect. Verifies stable selector before/after live status. STOP and unresolved attempts override expiry/capacity; missing native evidence never grants recovery. Uses a90second renewal margin. No dispatch, reservation, restart, prompt, repair or background scheduling; read admission is rechecked by the actual read operation.',
+    schema:{required:['session','service_id'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},read_timeout_sec:{type:'integer',minimum:1,maximum:60}}},
+    run:async(args,ctx)=>(await import('./independent-service-plan.mjs')).inspectIndependentServicePlan(args.session,args.service_id,{signal:ctx.signal,readTimeoutMs:(args.read_timeout_sec??20)*1000}),
+  },
+  {
     name:'broker_service_retire',title:'Retire an owned native receiver',readOnly:false,
     description:'Experimental exact-owner atomic filesystem retirement after legacy expiry/settlement, or independent scoped STOP and terminal review when session is explicit. Preserves bytes and evidence outside watched folder. Refuses epoch, baseline, controls, added files or unresolved requests. Filesystem retirement never proves native unload; no send, restart or permission change.',
     schema:{required:['service_id','experimental'],properties:{retire_settings:{type:'boolean',description:'Independent only: preserve exact owned settings in retired state without overwriting any successor settings.'},session:{type:'string',description:'Explicit independent receiver; requires verified scoped STOP and terminal attempt review instead of legacy expiry.'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},

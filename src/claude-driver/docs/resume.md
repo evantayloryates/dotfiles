@@ -1,3 +1,31 @@
+## Read-only current-generation action planning — October 17
+
+Added broker_service_plan and pure planIndependentService. Before/after exact stable
+selector equality plus live status/native epoch/source identity required. Actions:
+read/renew/probe/wait/stop/inspect. Own STOP and unresolved attempts precede expiry/
+capacity; unqualified/historical/control/native observations inspect. Native input,
+busy or unobserved readiness waits.90sec lifetime margin or no capacity recommends
+renew; missing policy audit recommends probe only with capacity for probe+read.
+No automatic effect, reservation, wake, restart, prompt, scheduling or authorization.
+Actual operations still revalidate admission. Four focused policy tests pass with
+STOP/unknown/malformed/busy/loading/expiry/capacity/read/probe cases. Frozen-source
+pressure1/1passes: pressure/v2-2026-10-17T19-33-02-755Z.json. Both filtered synthetic-store harnesses
+all10checks pass source/configunchanged: pressure/harness-v2-{claude,codex}-
+2026-10-17T19-33-16-706Z.json.
+
+Actual current533f plan returned read with4spare slots; stale821f returned inspect/
+selected-generation-changed. Before/after pointer/budget hashes and reserved IDs
+unchanged, native journalgrowth0. Existing plan stableReceiverPlanReview holds this
+read-only evidence. No new native send/read/renewal/probe in this turn; current533f
+remains2/6slots, no unresolved, deadline1792269039143 on same native epoch. Previous
+15second renewal failure remains intact; no active sender/worker/waiter.
+
+Next connect bounded on-demand read routing to these decisions, preserving durable
+one-attempt identities and one-renewal budget rather than recursive retry. Then
+sustained pressure and authorized recovery qualification. Planner is not automatic
+resumption or always-on service. Crash/cold/deleted-session/physical process proof
+and current-chat cached MCP refresh remain open. Goal active; Codex fixes parked.
+
 ## Renewal includes native readiness and policy qualification — October 17
 
 Renewal now checkpoints7steps: prepare/quiesce/retire/activate/readiness/policyProbe/

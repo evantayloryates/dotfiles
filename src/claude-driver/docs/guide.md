@@ -902,6 +902,17 @@ One actual same-epoch turnover has qualified native reads without another model
 boundary. This does not establish automatic renewal, cold recovery or app restart
 recovery. Do not manually replace selectors or clear predecessor STOP.
 
+`broker_service_plan {session,service_id,read_timeout_sec?}` is read-only routing
+policy for the currently selected stable generation. It verifies selector equality
+before/after live status and returns read/renew/probe/wait/stop/inspect. Owned STOP
+and unresolved attempts take priority over capacity or expiry. Historical, missing,
+malformed or changed-generation evidence never enables recovery. Native input/busy
+or unobserved loading waits. A90second lifetime margin or exhausted capacity
+recommends renewal; missing policy audit recommends a probe only when another slot
+remains for a read. These are recommendations, not effects, authorization or a
+scheduler; actual read/renew/probe operations revalidate their own gates. A read plan
+is not a persisted receipt, positive serving proof or latency guarantee.
+
 `broker_service_renew {session,service_id,experimental:true,lifetime_sec?,max_requests?}`
 requires `driver_submit`: its durable job ID determines the successor generation.
 It prepares first, then stops and terminally reviews the predecessor, preserves its
