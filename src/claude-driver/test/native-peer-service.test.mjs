@@ -184,3 +184,10 @@ test('model mutation requires an explicitly granted model capability and calls t
  for(const value of [{...args,_consent:true},{...args,model:'opus'},{...args,session_id:config.brokerSession}]){const bad=setup({configPatch:{...base,metadataModelControl:true},checkpoint:{...checkpoint,args:value}});await bad.send(r1);assert.equal(bad.counts().reads,0)}
  assert.throws(()=>setup({configPatch:{...base,metadataModelControl:false}}),/invalid metadata model/)
 })
+
+test('generic native send is a separate sealed grant and cannot inject consent, target or alternate tools',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},metadataTarget={sessionId:target,cwd:'/owned/probe/target',pid:42,procStart:'epoch'},base={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',metadataTarget},args={session_id:target,message:'Reply exactly TEST_OK.'},checkpoint={dispatch:true,op:'send_message',args}
+ const old=setup({configPatch:base,checkpoint});await old.send(r1);assert.equal(old.counts().reads,0)
+ const f=setup({configPatch:{...base,metadataSendControl:true},checkpoint});let calls=0;f.$.mcp.call=async(s,o,a)=>{calls++;assert.equal(s,'ccd_session_mgmt');assert.equal(o,'send_message');assert.deepEqual(JSON.parse(JSON.stringify(a)),args);return {isError:false,content:[{type:'text',text:'native send acknowledgement'}]}};await f.send(r1);await f.send(r1);assert.equal(calls,1)
+ for(const value of [{...args,_consent:true},{...args,session_id:config.brokerSession},{...args,message:' trailing '},{...args,message:'\0'}]){const bad=setup({configPatch:{...base,metadataSendControl:true},checkpoint:{...checkpoint,args:value}});await bad.send(r1);assert.equal(bad.counts().reads,0)}
+})

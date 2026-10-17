@@ -30,7 +30,7 @@ try{
  phase='candidate';const release=validateRelease(prep.build),pkg=await buildSealedIndependentPackage(prep.build,config),candidate=join(STATE_DIR,'module-candidate')
  verifyNativeServiceDirectory(candidate,pkg.hashes)
  const policyFactory=stableHook?(await import(pathToFileURL(join(release.root,'lib/native-service-policy.mjs')).href)).buildNativeServicePolicy:buildNativeServicePolicy
- const policy=policyFactory({binding:config.serviceStateBinding,metadataTarget:config.metadataTarget,metadataModelControl:config.metadataModelControl,epoch:prep.epoch,brokerDir:BROKER_DIR,scriptSha256:hash(bytes(join(release.root,'scripts/broker-stop-rescue.mjs'))),stableHook})
+ const policy=policyFactory({binding:config.serviceStateBinding,metadataTarget:config.metadataTarget,metadataModelControl:config.metadataModelControl,metadataSendControl:config.metadataSendControl,epoch:prep.epoch,brokerDir:BROKER_DIR,scriptSha256:hash(bytes(join(release.root,'scripts/broker-stop-rescue.mjs'))),stableHook})
  if(stableHook&&!policy.receiverHook)throw Error('sealed stable hook capability')
  phase='destination';const modRoot=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods'),sessionMods=join(modRoot,session.slice(6)),dest=join(sessionMods,'desktop-bridge-native-peer-service'),settingsDir=join(record.cwd,'.claude'),settingsFile=join(settingsDir,'settings.json')
  // Existing settings/modules need an explicit predecessor transition. Never

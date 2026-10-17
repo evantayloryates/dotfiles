@@ -13,12 +13,13 @@ export function buildNativePeerServicePackage(config){
  const bound=config?.serviceStateBinding!==undefined
  const archive=config?.archiveTarget!==undefined
  const metadata=config?.metadataTarget!==undefined
- const keys=['id','token','brokerSession','brokerCwd','build','notBefore','deadline','maxRequests',...bound?['serviceStateBinding']:[],...archive?['archiveTarget']:[],...metadata?['metadataTarget']:[],...config?.metadataModelControl!==undefined?['metadataModelControl']:[],...marked?['marker','observeRetiredServiceId']:[],...resource?['resourceProbe']:[],...controlCheck?['controlCheck']:[]]
+ const keys=['id','token','brokerSession','brokerCwd','build','notBefore','deadline','maxRequests',...bound?['serviceStateBinding']:[],...archive?['archiveTarget']:[],...metadata?['metadataTarget']:[],...config?.metadataModelControl!==undefined?['metadataModelControl']:[],...config?.metadataSendControl!==undefined?['metadataSendControl']:[],...marked?['marker','observeRetiredServiceId']:[],...resource?['resourceProbe']:[],...controlCheck?['controlCheck']:[]]
  if(!config||Object.getPrototypeOf(config)!==Object.prototype||Object.keys(config).sort().join(',')!==keys.sort().join(','))throw Error('invalid service configuration')
  if(!/^[a-f0-9]{32}$/.test(config.id)||!/^claude-driver service-read [a-f0-9]{32}$/.test(config.token)||!/^local_[a-f0-9-]{36}$/.test(config.brokerSession)||! /^[a-f0-9]{64}$/.test(config.build))throw Error('invalid service identity')
  if(bound){if(resource||config.serviceStateBinding.id!==config.id||!serviceStateBindingMatches({binding:config.serviceStateBinding,dir:config.brokerCwd,sessionId:config.brokerSession,build:config.build,receiverCwd:config.serviceStateBinding.receiverCwd}))throw Error('invalid service state binding')}
  else if(config.brokerCwd!=='/Users/taylor/.local/state/claude-driver/broker')throw Error('invalid service identity')
  if(archive&&(!bound||!archiveTargetValid(config.archiveTarget,config.serviceStateBinding)))throw Error('invalid archive target')
+ if(config.metadataSendControl!==undefined&&(config.metadataSendControl!==true||!metadata))throw Error('invalid native send capability')
  if(config.metadataModelControl!==undefined&&(config.metadataModelControl!==true||!metadata))throw Error('invalid metadata model capability')
  if(metadata&&(!bound||archive||marked||controlCheck||!metadataTargetValid(config.metadataTarget,config.serviceStateBinding)))throw Error('invalid metadata target')
  if(!Number.isSafeInteger(config.notBefore)||!Number.isSafeInteger(config.deadline)||config.deadline<=config.notBefore||config.deadline-config.notBefore>3600000||!Number.isInteger(config.maxRequests)||config.maxRequests<1||config.maxRequests>128)throw Error('invalid service bounds')
@@ -45,6 +46,6 @@ export function buildNativePeerServicePackage(config){
  }
  const quote=x=>"'"+x.replaceAll("'","'\\''")+"'",checkpoint=join(bound?dirname(config.brokerCwd):'/Users/taylor/.local/state/claude-driver','releases',config.build,'scripts/broker-check.mjs')
  const constants='const RECEIVER_CWD='+JSON.stringify(bound?config.serviceStateBinding.receiverCwd:config.brokerCwd)+',CHECKPOINT_PREFIX='+JSON.stringify('/opt/homebrew/bin/node '+quote(checkpoint)+' ')+',CHECKPOINT_DIR='+JSON.stringify(quote(config.brokerCwd))+';\n'
- const files={'.claude-plugin/plugin.json':JSON.stringify({name:'desktop-bridge-native-peer-service',version:config.metadataModelControl?'0.7.0':metadata?'0.6.0':bound?'0.5.0':controlCheck?'0.4.0':resource?'0.3.0':marked?'0.2.0':'0.1.0',description:'Bounded lifecycle-admitted metadata receiver candidate'})+'\n','hooks/hooks.json':'{"modules":["./register.js"]}\n','hooks/register.js':'const CONFIG=Object.freeze('+JSON.stringify(config)+');\n'+constants+source}
+ const files={'.claude-plugin/plugin.json':JSON.stringify({name:'desktop-bridge-native-peer-service',version:config.metadataSendControl?'0.8.0':config.metadataModelControl?'0.7.0':metadata?'0.6.0':bound?'0.5.0':controlCheck?'0.4.0':resource?'0.3.0':marked?'0.2.0':'0.1.0',description:'Bounded lifecycle-admitted metadata receiver candidate'})+'\n','hooks/hooks.json':'{"modules":["./register.js"]}\n','hooks/register.js':'const CONFIG=Object.freeze('+JSON.stringify(config)+');\n'+constants+source}
  return {files,hashes:Object.fromEntries(Object.entries(files).map(([p,s])=>[p,createHash('sha256').update(s).digest('hex')]))}
 }

@@ -1395,3 +1395,20 @@ that an inference turn used the model. `harness-native-service --metadata-config
 contract, verifies four distinct native child receipts and an independently changed
 model, and still requires no model turn in either scratch. Restore the baseline
 through a separate reconciled durable request before running the next harness.
+
+### Enrolled native sending (October 17)
+
+A NEW exact-target controller may opt into `metadata_send_control:true`.
+For an explicitly enrolled recipient, ordinary durable `send_message` selects
+that controller; optional `controller_session` binds it explicitly. Old roles
+without the capability refuse before dispatch. No silent legacy fallback occurs.
+The callback admits only its sealed recipient epoch, known idle/working/busy/running
+state, registered owned scratch and bypass mode; metadata edits still require idle.
+
+`nativeAccepted:true`, `delivery` and `messageId` verify native API acceptance.
+`applied:false` stays false: inspect the recipient separately. Current Claude
+host-injected peer messages omit the returned message ID in the target journal.
+Causal observation exposes `nativeHostPeer` sender/body digest metadata; bounded
+exact-body/sender and reply-lineage matching is correlation, not UUID linkage or
+general task completion. Actual Claude/Codex fresh MCP send contracts passed18checks
+each on host3669f135; busy/queue lifecycle and generic stop/steer remain unqualified.

@@ -68,3 +68,9 @@ test('metadata receipt requires independently persisted exact postcondition; nat
 
  for(const change of [x=>delete x.metadataObservation,x=>delete x.config.metadataTarget,x=>x.metadataObservation.postcondition.titleSource='auto',x=>x.metadataObservation.pid=51,x=>x.request.ops[0].args._consent=true,x=>x.request.ops[0].args.title='other',x=>x.receipt.isError=true,x=>x.admission.toolUseId='foreign']){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
 })
+
+test('generic send acceptance needs its separate capability and exact epoch admission, never proves application',()=>{
+ const x=fixture(),t={sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch'};x.config.serviceStateBinding={version:1};x.config.metadataTarget=t;x.config.metadataSendControl=true;x.request.nativeMetadataTargetBinding={version:1,...t};x.admission.metadataTarget={...x.request.nativeMetadataTargetBinding,observedAt:1059};x.request.ops=[{op:'send_message',args:{session_id:target,message:'Reply exactly OK.'}}];x.receipt.content=[{type:'text',text:`Message delivered to session ${target}; its turn has started on it. (delivery: delivered; message_id: 12345678-1234-4234-8234-123456789abc)`}]
+ const r=screenNativeServiceResult(x);assert.equal(r.receiptVerified,true);assert.equal(r.sendReceipt.nativeAccepted,true);assert.equal(r.sendReceipt.applied,false)
+ for(const change of [v=>delete v.config.metadataSendControl,v=>delete v.admission.metadataTarget,v=>v.request.nativeMetadataTargetBinding.pid=51,v=>v.receipt.targetSession=owner,v=>v.receipt.content[0].text='Message will be delivered pending tool execution',v=>v.request.ops[0].args.message=' bad ']){const v=structuredClone(x);change(v);assert.equal(screenNativeServiceResult(v).receiptVerified,false)}
+})

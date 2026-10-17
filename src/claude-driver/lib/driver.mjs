@@ -613,13 +613,13 @@ export const OPS = [
     title: 'Send a message into a session',
     description:
       'Deliver a message to a desktop session as a user turn (labelled as coming from the broker or you). Wakes an idle session even with no running process. Native transport reports delivered or queued. Explicit experimental peer-direct requires a live qualified peer and reports received only after its exact native user receipt; application remains unverified.',
-    schema: { properties: { session: S, message: { type: 'string' }, via_broker: VIA_BROKER,
+    schema: { properties: { session: S, message: { type: 'string' }, via_broker: VIA_BROKER,controller_session:{type:'string',description:'Optional exact enrolled native-send controller; otherwise choose target enrollment. Requires durable submission and explicit sealed send capability.'},
       transport: { type:'string',enum:['native','peer-direct'],description:'Default native broker route. Experimental peer-direct requires operation_id and a qualified live peer; never wakes or falls back.' },
       operation_id:{type:'string',description:'Stable single-publication identity required for peer-direct. Reuse to reconcile; never change it to retry an unknown send.'},
       receipt_timeout_sec:{type:'number',minimum:0.1,maximum:60,description:'Peer-direct receipt budget, default15 seconds. Timeout preserves uncertainty.'} }, required: ['session', 'message'] },
     run: async (args, ctx) => {
       if(args.transport==='peer-direct'){
-        if(args.via_broker!==undefined)throw new DriverError('peer-direct cannot be combined with via_broker',{category:'bad_args'})
+        if(args.via_broker!==undefined||args.controller_session!==undefined)throw new DriverError('peer-direct cannot be combined with via_broker',{category:'bad_args'})
         ctx.tier='peer-direct'
         const result=await sendDirectRecipient({operationId:args.operation_id,session:args.session,message:args.message,timeoutMs:Math.ceil((args.receipt_timeout_sec??15)*1000)},{signal:ctx.signal,absoluteDeadline:ctx.directDeadline})
         return {...result,verified:true,experimental:true,verification:'Exact native user receipt only; applied:false. Observe recipient response separately.'}
@@ -627,6 +627,8 @@ export const OPS = [
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
       const rec = resolveSession(args.session)
       if (rec.isArchived) throw new DriverError('session is archived; unarchive it first', { category: 'bad_state' })
+      const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
+      if(controller){ctx.tier='independent-native-send';return (await import('./native-send-route.mjs')).routeNativeSend(rec.sessionId,controller,args,ctx)}
       const b = await tierB(ctx, [{ op: 'send_message', args: { session_id: rec.sessionId, message: args.message } }])
       if (b.handback) return b.handback
       const res = txt(b.results[0].result)
@@ -953,8 +955,8 @@ export const OPS = [
   {
     name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,
     description:'Experimental preparation only in an idle driver-owned bypass scratch receiver. Creates a fresh private namespace, sealed release and native-validated candidate. Never publishes/replaces a module, changes settings, sends, wakes or raises permissions. Reattach durable jobs with the same key.',
-    schema:{required:['session','experimental'],properties:{metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control})},
+    schema:{required:['session','experimental'],properties:{metadata_send_control:{type:'boolean',enum:[true]},metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control,metadataSendControl:args.metadata_send_control})},
   },
   {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,

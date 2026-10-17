@@ -1,3 +1,43 @@
+## October 17 generic native send qualification
+
+Added separately sealed metadata_send_control:true capability, fixed exact-target
+native callback, busy-aware exact epoch admission and durable public send_message
+routing through the enrolled controller. Existing ungranted controllers refuse
+before dispatch; send capability grants neither archive nor permission changes.
+Native acceptance settles publication only (delivered/queued, messageId,
+nativeAccepted:true, applied:false). No uncertain send is replayed.
+
+Final host source3669f1359e33a707a6a8e75f1b7dbec07a7e4b1ce62fa223de1fd06932f069fc.
+Native controller00a80cb4b85949c8ab776985d4e4d881 remains sealed8d1d09fc, PID31678;
+target90418/readservice491b51dd unchanged. Old3900308c retired19terminal/0unknown.
+Explicit native-send grant/policy and original CLI sendj9c5289224a774cf4ba83d78f627249a6
+verified API acceptance; target produced exact NATIVE_GENERIC_CLI_OK without tools.
+Original observer failed: app-native host injection omits returnedmessageId in its
+journal origin, and context refresh adds user records. Preserved failure and a
+separate retrospective reconciliation from ORIGINAL cursor,109443bytes/25events.
+No resend. New observer proves exact native sender/body SHA256 and complete causal
+assistant end_turn in bounded cursor window, rejecting duplicate peer roots,
+foreign sender/body, missing ancestors and tools. Explicitly DOES NOT claim
+returned UUID-to-journal linkage; messageIdAvailable:false records that limit.
+Only sender/digest metadata is added under include_causality; user body stays private.
+
+45 focused tests PASS. Fullpressure v2-2026-10-17T22-02-16-244Z.json1/1 unchanged.
+Bothsynthetic10checks: harness-v2-claude-2026-10-17T22-02-02-383Z.json and
+harness-v2-codex-2026-10-17T22-02-02-381Z.json. ActualfreshMCP18checks EACH PASS:
+harness-native-native-send-claude-2026-10-17T22-01-45-237Z.json and
+harness-native-native-send-codex-2026-10-17T22-02-21-300Z.json. One publicmessage
+perclient, duplicate submission reusedsamejob, exactderivedrequest/service,
+recipientreply/settingsunchanged/globalconfig/sourcechecks pass. Controller gets
+no inference turn. Busy/queued delivery parser and busy admission have synthetic
+coverage only; no real busy/queue/interrupt/steer qualification claimed.
+
+NEXT: generic native stop/steer with busy-state/stop/replacement ordering and
+outcome_unknown reconciliation; then originalcreation/focus/full11live and
+unattended residency/recovery gates. Avoid equivalent send/metadata repetitions.
+Attached old MCP remains stale; freshharness qualification does not refresh it.
+Legacyobserver owns broker recovery; watcherpaused; no CUA/auth/input/permission
+changes, apprestart/sessionkill/newchats; Codex-driver and1Password parked.
+
 ## October 17 model-selection addendum
 
 An explicit separately sealed model capability now supports ordinary durable
