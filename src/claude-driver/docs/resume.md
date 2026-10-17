@@ -1,3 +1,63 @@
+## Native archive and physical exit verified; reopen has no new native peer — October 17
+
+Taylor completed transport hot-reload input. Exact native loader loaded notification
+20:29:59.688Z, same transportPID31678/start20:14:51UTC idle, readinesstrue. No further
+native input required. One tool-free boundaryjef1b9d2ef227487dbe4de99ce4b59996 replied
+POLICY_BOUNDARY_OK/tools0. Negative policy probej067664c58adc452cb5c776297b2d1493
+verified actual policy/helper/refusal with no nativeMCP. Positive read
+j4484ac9aa3ac4efb86830156ce5b50d4 settled receipt toolu_plugin_f677d6c9590d4d65b80fe40e4a6d06b7.
+Refreshed target familyj921828716a8e4cecbb9d5eb5aebb82d5 settled native receipt
+toolu_plugin_6054d6d4482a42ac88420ed914071759; independently parsed0members.
+
+Target interrupt74/service6ab7657958214ec59f5b73dd52387b8e verified bypass/idle,
+PID20499/start15:48:23UTC, no worktree or unresolved attempts. Quiesce
+jbf92b804c5094cd0b202412325175118 completed with ownedSTOP/terminalreview3attempts.
+Retirejc229463b95dd47039b492d7f4b7676a5 preserved full module/settings/STOP.
+Scoped archivej9e363c22b9654b3d827385a252c89bb4 then completed with native receipt
+toolu_plugin_4fe2a95807fa4988acd4da4974d599ad. Independent persisted archive true,
+oldPID20499 absent, no target peer. Postcondition snapshot retained separately;
+archive is known intentional operation, not inferred crash/governor eviction.
+No exit-code claim. Controller retained native receipt/statecompleted/cleanupfalse.
+
+Unarchivej1071366700c64a24aecf7f40622734fe succeeded via supported deep link with
+focusrestore/nothingtorestore. Same target record unarchived/bypass/samecwd, BUT
+no native peer. Openj02ee6b525f49459f8baf6699ea92a089 completed navigation with
+wait_native_sec20 and native-peer-timeout/verifiedfalse; poll running originaljob
+to terminal, no repeated open/restart. Fresh later check still oldPIDabsent and
+no new peer. Preserve timeout as failure of native-process qualification, not
+failed navigation or a crash. No cold activation attempted without a new epoch.
+
+Controller archive history remains independently settled after target unarchive,
+with no unresolved attempts: verifies retained postcondition history semantics.
+Existing plan archiveControllerLoaded/PolicyBoundary/PolicyProbe/PositiveRead,
+archiveTargetFamilyRefresh/Before/Quiesce/Retire, scopedNativeArchive/Reopen/Open,
+archiveHistoryAfterReopen retain exact jobs, receipts and metadata.
+Next qualify one fixed native wake via current controller (send_message scope to
+same sealed target), independently observe new peer and receipt before coldrebind.
+Do not retry native archive, clear targetSTOP, use legacy broker/keyboard/CUA, or
+infer serving from reopened record. Platform goal still reports blocked even
+though native human-input gate cleared; current user reply authorizes this turn's
+work, Play/Resume is needed for automatic goal continuation if it remains blocked.
+Watcher paused; Codex fixes and 1Password separate. Fresh real-MCP current-route
+harnesses BOTH pass14checks on transport controller, source
+73b2d32233a29090bbfb2b30965fc39e8be77cb256bb59a2eff8b4d4fbf913bb:
+pressure/harness-native-current-claude-2026-10-17T20-33-51-039Z.json and
+pressure/harness-native-current-codex-2026-10-17T20-33-51-037Z.json.
+Actual MCP/native receipts, exact two submissions/same parent, derived readchild,
+same selected service/no maintenance, no external tools/modelturn/source/config
+change all verified. Parentsjcb359f4647544da7b7a19eaf22a1d36a (Claude) and
+j1e3dc972b11a4b6aa08859ce567120c0 (configured Codexgpt-6-sol; actual model setting
+read before test). Plan harnessNativeAfterArchive retains reports/IDs/checks.
+Final live transport idle/verified5slotsused/no unresolved; target peer stillabsent.
+
+Attached cached MCP driver_status read-only recheck still driver46c7a58/runtime
+64c8563f7be1cda864fdf4b37d527f35de93ae7f5185dbde6f59b3aca037b480,
+restartRequiredtrue (its sourceBuild75ac4e... uses cached build implementation).
+Fresh harness qualification does NOT refresh this attached binding. No writes
+through cached MCP; refresh/Codex changes remain separate. Native human gate is
+resolved; platform goal remains blocked and needs user Play/Resume for automatic
+continuation. Actual cold-start wake/rebind is next, not another approval request.
+
 ## Native hot-reload gate revalidated; goal blocked pending human input — October 17
 
 After controller implementation and target-race fix, same person-only native input

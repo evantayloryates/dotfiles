@@ -96,8 +96,9 @@ must still name the exact retired generation/epoch. Old history cannot authorize
 archive of a same-process successor. Settlement requires both the native receipt
 and independent persisted archive/PID-absence observation, which is retained for
 historical review even after the target reopens. It never deletes, elevates
-permissions, restarts an app or retries uncertain work. Native archive/recovery
-execution remains unqualified until the actual scoped test passes.
+permissions, restarts an app or retries uncertain work. One exact native scratch
+archive and original PID absence are qualified. Reopening restored its record but
+did not produce a new native peer, so cold recovery remains unqualified.
 
 `broker_service_status {session,service_id,offline:true}` is a read-only inventory
 of the exact retained installed generation after affirmative predecessor PID
