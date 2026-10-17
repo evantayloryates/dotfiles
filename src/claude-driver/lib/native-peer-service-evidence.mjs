@@ -1,5 +1,6 @@
 import {screenNativePeerAdmission} from './native-peer-evidence.mjs'
 import {screenNativePeerResult} from './native-peer-result.mjs'
+import {NATIVE_FAMILY_QUERY} from './native-family-preflight.mjs'
 // Readiness only. Does not prove serving, admission, tool success or quiescence.
 export function screenNativeServiceReady({config,ready,now}={}){
  const keys=['schemaVersion','scope','serviceId','brokerSession','brokerCwd','build','registeredAt','deadline','maxRequests','nativeCallsRequested','modelCallsRequested']
@@ -20,8 +21,10 @@ export function screenNativeServiceResult({config,ready,intent,receipt,request,e
  const perRequest={id,brokerSession:config.brokerSession,targetSession:receipt.targetSession,deadline:request.expiresAt}
  // In-memory structural adapters only; original evidence remains unmodified.
  const report={probeId:id,startedAt:intent.startedAt,completedAt:receipt.receivedAt,nativeCallReturned:true,resultWasError:receipt.isError,failureCategory:null}
- const correlated=screenNativePeerAdmission({config:perRequest,epoch,pointer,request,entry,admission,control,report})
- const result=screenNativePeerResult({config:perRequest,requestId:request.id,report,receipt:{schemaVersion:1,scope:'owned-native-peer-result',probeId:id,requestId:request.id,brokerSession:receipt.brokerSession,targetSession:receipt.targetSession,startedAt:receipt.startedAt,receivedAt:receipt.receivedAt,isError:receipt.isError,content:receipt.content},admission:correlated})
+ const family=request.ops?.[0]?.op==='list_sessions'
+ if(family&&(!config.serviceStateBinding||receipt.targetSession!==config.brokerSession))return refused
+ const correlated=screenNativePeerAdmission({config:perRequest,epoch,pointer,request,entry,admission,control,report,...family?{expectedOperation:'list_sessions',expectedArguments:NATIVE_FAMILY_QUERY}:{}})
+ const result=screenNativePeerResult({config:perRequest,requestId:request.id,report,receipt:{schemaVersion:1,scope:'owned-native-peer-result',probeId:id,requestId:request.id,brokerSession:receipt.brokerSession,targetSession:receipt.targetSession,startedAt:receipt.startedAt,receivedAt:receipt.receivedAt,isError:receipt.isError,content:receipt.content},admission:correlated,family})
  if(!result)return refused
  return {receiptVerified:true,requestId:request.id,result,nativeToolUseId:admission.toolUseId,standardLifecycleSettlementAssessed:false,releaseAuthorized:false}
 }

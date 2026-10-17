@@ -24,6 +24,13 @@ test('foreign, ambiguous, late or unadmitted results remain unresolved',()=>{
  for(const change of [x=>x.ready.serviceId='foreign',x=>x.intent.extra=true,x=>x.intent.requestId='foreign',x=>x.receipt.targetSession=owner,x=>x.receipt.startedAt=iso(999),x=>x.receipt.receivedAt=iso(2001),x=>x.request.expiresAt=3001,x=>x.request.ops.push(x.request.ops[0]),x=>x.entry.requestId='foreign',x=>x.admission.generation=7,x=>x.control.dispatched=[],x=>x.receipt.content[0].text='{}',x=>x.now=1099]){const x=fixture();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
  assert.equal(screenNativeServiceResult().receiptVerified,false)
 })
+test('family receipt requires independent binding, fixed scope and exact native admission',()=>{
+ const make=()=>{const x=fixture();x.config.serviceStateBinding={version:1};x.request.ops=[{op:'list_sessions',args:{include_archived:true,limit:100,linked:true}}];x.receipt.targetSession=owner;x.receipt.content=[{type:'text',text:JSON.stringify([{sessionId:target}])}];return x}
+ const good=make();assert.equal(screenNativeServiceResult(good).receiptVerified,true)
+ assert.equal(screenNativeServiceResult(good).releaseAuthorized,false)
+ const empty=make();empty.receipt.content[0].text='No other sessions found.';assert.equal(screenNativeServiceResult(empty).receiptVerified,true)
+ for(const change of [x=>delete x.config.serviceStateBinding,x=>x.request.ops[0].args.linked=false,x=>x.request.ops[0].args.limit=101,x=>x.request.ops[0].args.group='scratch',x=>x.receipt.targetSession=target,x=>x.receipt.content[0].text=JSON.stringify([{sessionId:owner}]),x=>x.receipt.content[0].text=JSON.stringify([{sessionId:target},{sessionId:target}]),x=>x.receipt.content[0].text='{}',x=>x.admission.toolUseId='foreign']){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
+})
 
 test('shared host reconciliation refuses missing enrollment and malformed identity without leaking parse details',async()=>{
  const {reconcileNativeServiceResult}=await import('../lib/native-peer-service-result.mjs')

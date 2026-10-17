@@ -26,7 +26,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
    const request=read('requests/'+id+'.json'),receipt=read('.native-service-'+id+'.result.json')
    const reviewed=screenNativeServiceResult({config,epoch,pointer,request,receipt,ready:read('.native-service-'+config.id+'.ready.json'),intent:read('.native-service-'+id+'.intent.json'),entry:read('broker-check-'+id+'-0-g'+pointer.generation+'.completed.json'),admission:read('native-admission-'+id+'-0.json'),control:read('controls/'+id+'.json'),now})
    if(reviewed.receiptVerified&&nativeRequestBindingMatches(request,pointer)&&request.nativeEffectAdmissionPolicy?.version===1&&request.nativeEffectAdmissionPolicy.handlerSha256===policy.sha256&&request.nativeEffectAdmissionPolicy.settingsHash===policy.settingsHash){
-    const expected={id,source:'native-peer-service-result',results:[{op:'get_session',...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]}
+    const expected={id,source:'native-peer-service-result',results:[{op:request.ops[0].op,...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]}
     settled=JSON.stringify(ordered(read('results/'+id+'.native.json')))===JSON.stringify(ordered(expected))
    }
   }catch{/* Preserve the original evidence; absence is not a terminal outcome. */}

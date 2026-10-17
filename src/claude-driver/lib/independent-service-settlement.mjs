@@ -11,7 +11,7 @@ export async function settleIndependentServiceResult(session,serviceId,requestId
   const {read}=context,request=read('requests/'+requestId+'.json'),receipt=read('.native-service-'+requestId+'.result.json')
   const reviewed=screenNativeServiceResult({config,epoch,pointer,request,receipt,ready:read('.native-service-'+serviceId+'.ready.json'),intent:read('.native-service-'+requestId+'.intent.json'),entry:read('broker-check-'+requestId+'-0-g'+pointer.generation+'.completed.json'),admission:read('native-admission-'+requestId+'-0.json'),control:read('controls/'+requestId+'.json')})
   if(!reviewed.receiptVerified||!nativeRequestBindingMatches(request,pointer)||request.nativeEffectAdmissionPolicy?.version!==1||request.nativeEffectAdmissionPolicy?.handlerSha256!==policy.sha256||request.nativeEffectAdmissionPolicy?.settingsHash!==policy.settingsHash)refuse()
-  const native={id:requestId,source:'native-peer-service-result',results:[{op:'get_session',...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]},file=join(BROKER_DIR,'results',requestId+'.native.json')
+  const native={id:requestId,source:'native-peer-service-result',results:[{op:request.ops[0].op,...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]},file=join(BROKER_DIR,'results',requestId+'.native.json')
   let published=false
   try{if(JSON.stringify(ordered(json(file)))!==JSON.stringify(ordered(native)))refuse()}catch(error){if(error.code!=='ENOENT')throw error;writeJsonAtomic(file,native);published=true}
   if(JSON.stringify(ordered(json(file)))!==JSON.stringify(ordered(native)))refuse()

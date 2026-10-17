@@ -1,3 +1,37 @@
+## Native caller-family metadata qualified; scoped process test next — October 17
+
+Added durable broker_service_family using existing independent request, budget,
+checkpoint/native permission audit and settlement machinery. Exact linked:true,
+include_archived:true,limit100 only; legacy unbound receiver still get_session only.
+Family response parser rejects malformed/duplicate/caller rows and arbitrary text;
+full-limit evidence remains insufficient for complete lifecycle preflight.
+
+Renewalj6ab7657958214ec59f5b73dd52387b8e installed service6ab7657958214ec59f5b73dd52387b8e
+on samePID20499/start15:48:23UTC, native ready/policy observed. Installed build
+203c6207727f2796ca4b1367a772db46e3fb07d19be89cea23e83d77fa16b86c.
+Family jobj91a84c63b1914fae80d277db67220f4b initially outcome_unknown because actual
+native success was exact text "No other sessions found." rather than JSONarray.
+Original job/failure retained. Added exact-sentinel handling to host reviewer,
+then reconciled SAME request rpeer91a84c63b1914fae80d277db67220f4b without resending.
+receiptVerifiedtrue/statecompleted, native toolu_plugin_fd103fb6c0594bc2beca1cd8579d718e.
+Fixed-query preflight now qualified with0linkedmembers, archiveAuthorizedfalse.
+Native result/admission/control evidence retained in existing plan nativeFamilyRead.
+An attempted bounded installed CLI source lookup for empty sentinel found no marker;
+that search does not establish implementation cause. Actual correlated native
+response is the evidence for exact sentinel support. No broad text heuristics.
+
+28focused tests pass including legacy query refusal, fixed args, duplicate replay,
+receipt corruption and exact sentinel negatives. Final-source pressure1/1passes:
+pressure/v2-2026-10-17T20-06-22-701Z.json. Both filtered synthetic-store harnesses
+pass10checks: pressure/harness-v2-claude-2026-10-17T20-06-13-649Z.json and
+pressure/harness-v2-codex-2026-10-17T20-06-13-647Z.json. These harness results do
+not qualify native lifecycle controls. Final live status verified idle sameepoch,
+2slotsreserved, originalfamilyrequest settled, no unresolved, terminalreviewcomplete.
+No archive/stop/delete/unarchive, signal, app restart, consent or permission change.
+Next qualify scoped native archive controller and independently observe process
+absence/reopen/new-epoch coldrebind/read. Current native family metadata is not
+physical-exit or cold recovery proof. Codex fixes and legacy observer remain separate.
+
 ## Family preflight contract prepared, native query still pending — October 17
 
 Added lib/native-family-preflight.mjs with a fixed caller-family query

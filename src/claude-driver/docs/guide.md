@@ -84,6 +84,17 @@ unqualified.
 
 ## V2 control interface
 
+`broker_service_family {session,service_id,experimental:true}` must be submitted
+through `driver_submit`. It makes exactly one independent-receiver native
+`list_sessions {linked:true,include_archived:true,limit:100}` call through the
+ordinary checkpoint/permission path, and returns settlement metadata. It never
+uses the legacy broker or sends a model instruction. Inspect the retained native
+result for bounded metadata; the caller is excluded. A full100-row result is
+potentially truncated and cannot qualify lifecycle scope. The exact native empty
+success text is supported; other non-JSON responses remain unresolved. Family
+evidence, ownership review, archive authority and physical process exit are
+separate checks. No automatic archive/restart follows this operation.
+
 `broker_read_batch {sessions, experimental:true, timeout_sec}` is an opt-in
 deterministic native metadata route. It accepts1–8 exact `local_<uuid>` IDs and
 executes only `ccd_session_mgmt/get_session`; duplicate IDs share one native

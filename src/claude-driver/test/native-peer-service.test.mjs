@@ -45,6 +45,16 @@ test('cancelled, expired, wrong operation or malformed checkpoint never requests
 test('service generation refuses unbounded life, capacity or injected configuration',()=>{
  for(const change of [{maxRequests:129},{deadline:3601001},{brokerCwd:'/tmp/other'},{extra:true},{build:'$(unsafe)'}])assert.throws(()=>buildNativePeerServicePackage({...config,...change}))
 })
+test('only independent receiver can run the fixed bounded caller-family query',async()=>{
+ const args={include_archived:true,limit:100,linked:true},receiverCwd='/owned/family',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},brokerCwd=receiverCwd+'/.claude-driver-services/'+config.id+'/broker',configPatch={serviceStateBinding,brokerCwd}
+ const legacy=setup({checkpoint:{dispatch:true,op:'list_sessions',args}});await legacy.send(r1);assert.equal(legacy.counts().reads,0)
+ const s=setup({configPatch,checkpoint:{dispatch:true,op:'list_sessions',args}});let calls=0
+ s.$.mcp.call=async(server,op,actual)=>{calls++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'list_sessions');assert.equal(JSON.stringify(actual),JSON.stringify(args));return {isError:false,content:[{type:'text',text:'[]'}]}}
+ assert.equal((await s.send(r1)).consumed,'service-read-result-captured');assert.equal(calls,1)
+ assert.equal(s.files.get(brokerCwd+'/.native-service-'+r1+'.result.json').targetSession,config.brokerSession)
+ await s.send(r1);assert.equal(calls,1)
+ for(const altered of [{...args,linked:false},{...args,include_archived:false},{...args,limit:101},{...args,group:'scratch'}]){const t=setup({configPatch,checkpoint:{dispatch:true,op:'list_sessions',args:altered}});await t.send(r1);assert.equal(t.counts().reads,0)}
+})
 
 test('different concurrent requests cannot overwrite an in-flight shared checkpoint',async()=>{
  const s=setup();let release,entered

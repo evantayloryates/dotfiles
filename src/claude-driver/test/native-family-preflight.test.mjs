@@ -1,8 +1,13 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {NATIVE_FAMILY_QUERY,reviewNativeFamilyPreflight} from '../lib/native-family-preflight.mjs'
+import {NATIVE_FAMILY_QUERY,reviewNativeFamilyPreflight,parseNativeFamilyMetadata} from '../lib/native-family-preflight.mjs'
 const caller='local_11111111-1111-4111-a111-111111111111',child='local_22222222-2222-4222-a222-222222222222'
 const base={caller,query:{...NATIVE_FAMILY_QUERY},rows:[{sessionId:child}],reviewedMembers:[child]}
+test('only exact native empty sentinel or bounded valid JSON becomes family metadata',()=>{
+ assert.deepEqual(parseNativeFamilyMetadata('No other sessions found.',caller),[])
+ assert.deepEqual(parseNativeFamilyMetadata(JSON.stringify(base.rows),caller),base.rows)
+ for(const text of ['No other sessions found.\n','No other sessions found. ERROR','{}',JSON.stringify([{sessionId:caller}]),JSON.stringify([...base.rows,...base.rows]),'x'.repeat(65537)])assert.equal(parseNativeFamilyMetadata(text,caller),null)
+})
 test('complete bounded family metadata still grants no lifecycle authority',()=>{
  const result=reviewNativeFamilyPreflight(base)
  assert.equal(result.qualified,true);assert.equal(result.memberCount,1)

@@ -60,15 +60,18 @@ async function receiveServiceRead($,event,next){
    if(Number.isFinite(at)&&at>=now&&at<=CONFIG.deadline&&!await $.fs.exists(file))await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-no-dispatch',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,observedAt:new Date(at).toISOString(),reason:checked.reason,nativeMcpCallsRequested:0,modelCallsRequested:0})+'\n')
    return {consumed:'service-read-checkpoint-refused'}
   }
-  if(checked?.dispatch!==true||checked.op!=='get_session'||Object.keys(checked).sort().join(',')!=='args,dispatch,op'||!checked.args||Object.keys(checked.args).join(',')!=='session_id'||!/^local_[a-f0-9-]{36}$/.test(checked.args.session_id)||checked.args.session_id===CONFIG.brokerSession)return {consumed:'service-read-checkpoint-refused'}
+  if(checked?.dispatch!==true||Object.keys(checked).sort().join(',')!=='args,dispatch,op'||!checked.args)return {consumed:'service-read-checkpoint-refused'}
+  const family=CONFIG.serviceStateBinding!==undefined&&checked.op==='list_sessions'&&Object.keys(checked.args).sort().join(',')==='include_archived,limit,linked'&&checked.args.include_archived===true&&checked.args.limit===100&&checked.args.linked===true
+  const single=checked.op==='get_session'&&Object.keys(checked.args).join(',')==='session_id'&&/^local_[a-f0-9-]{36}$/.test(checked.args.session_id)&&checked.args.session_id!==CONFIG.brokerSession
+  if(!family&&!single)return {consumed:'service-read-checkpoint-refused'}
   const dispatchAt=await $.clock.now()
   if(!Number.isFinite(dispatchAt)||dispatchAt<now||dispatchAt>CONFIG.deadline)return {consumed:'service-read-expired'}
   if(await $.fs.exists(CONFIG.brokerCwd+'/STOP')||await $.fs.exists(CONFIG.brokerCwd+'/stop-rescue-arm.json')||await $.fs.exists(CONFIG.brokerCwd+'/mechanical-probe.json'))return {consumed:'service-read-stopped'}
   // Target comes only from the sealed lifecycle checkpoint, never peer text.
-  const result=await $.mcp.call('ccd_session_mgmt','get_session',{session_id:checked.args.session_id})
+  const result=family?await $.mcp.call('ccd_session_mgmt','list_sessions',{include_archived:true,limit:100,linked:true}):await $.mcp.call('ccd_session_mgmt','get_session',{session_id:checked.args.session_id})
   const receivedAt=await $.clock.now()
   if(typeof result?.isError!=='boolean'||!Array.isArray(result.content)||!Number.isFinite(receivedAt)||receivedAt<dispatchAt||receivedAt>CONFIG.deadline)return {consumed:'service-read-result-unresolved'}
-  const receipt=JSON.stringify({schemaVersion:1,scope:'owned-native-service-result',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,targetSession:checked.args.session_id,startedAt:new Date(now).toISOString(),receivedAt:new Date(receivedAt).toISOString(),isError:result.isError,content:result.content})+'\n'
+  const receipt=JSON.stringify({schemaVersion:1,scope:'owned-native-service-result',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,targetSession:family?CONFIG.brokerSession:checked.args.session_id,startedAt:new Date(now).toISOString(),receivedAt:new Date(receivedAt).toISOString(),isError:result.isError,content:result.content})+'\n'
   if(receipt.length>65536||await $.fs.exists(response))return {consumed:'service-read-result-unresolved'}
   await $.fs.write(response,receipt)
   return {consumed:'service-read-result-captured'}

@@ -3,6 +3,18 @@
 // rows are normalized metadata, not a parser for an unqualified native response.
 export const NATIVE_FAMILY_QUERY=Object.freeze({include_archived:true,limit:100,linked:true})
 const sessionId=x=>typeof x==='string'&&/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(x)
+// Native 2.1.299 returned this exact success sentinel for an empty family.
+// All other non-JSON text remains unresolved, including near matches/errors.
+export function parseNativeFamilyMetadata(text,caller){
+ if(typeof text!=='string'||Buffer.byteLength(text)>65536||!sessionId(caller))return null
+ let rows
+ if(text==='No other sessions found.')rows=[]
+ else try{rows=JSON.parse(text)}catch{return null}
+ if(!Array.isArray(rows)||rows.length>100)return null
+ const seen=new Set()
+ for(const row of rows){if(!row||typeof row!=='object'||Array.isArray(row)||!sessionId(row.sessionId)||row.sessionId===caller||seen.has(row.sessionId))return null;seen.add(row.sessionId)}
+ return rows
+}
 export function reviewNativeFamilyPreflight({caller,query,rows,reviewedMembers}={}){
  const refuse=reason=>({qualified:false,reason,archiveAuthorized:false,physicalExitQualified:false})
  if(!sessionId(caller))return refuse('invalid-caller')
