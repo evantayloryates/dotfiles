@@ -917,6 +917,12 @@ export const OPS = [
     },
   },
   {
+    name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,
+    description:'Experimental preparation only in an idle driver-owned bypass scratch receiver. Creates a fresh private namespace, sealed release and native-validated candidate. Never publishes/replaces a module, changes settings, sends, wakes or raises permissions. Reattach durable jobs with the same key.',
+    schema:{required:['session','experimental'],properties:{session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId})},
+  },
+  {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,
     description:'Experimental enrollment in the exact previously consented owned native session. Validates candidate and epoch, publishes exclusively, and observes readiness. Never dispatches reads, wakes, restarts, replaces modules or changes permissions. Uncertain installation requires inspection; readiness does not qualify serving.',
     schema:{required:['experimental'],properties:{experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128},marker:{type:'boolean'},resource_probe:{type:'boolean'},control_check:{type:'boolean'},observe_retired_service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},

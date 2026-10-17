@@ -1068,3 +1068,14 @@ Fresh native public job exactly mapped jobId to requestId through durable host r
 ## 2026-10-17 — Validate installed package against its sealed generator
 
 Workspace factory updates could previously invalidate a healthy pinned independent receiver. Expected bytes now come from the validated sealed release generator, tied to config build and namespace capability. Async context consumers await validation. A clone regression changes mutable candidate source and proves sealed expected hashes remain unchanged; first fixture syntax failure is retained separately. Existing live pinned status and receipt reconciliation still pass without result changes. Full pressure and both filtered harnesses pass. Enrollment/retirement/recovery remain open.
+
+
+### Independent preparation and refusal evidence (October 17)
+
+Public preparation job j10f4fc1039314bd5bb6e4365e26843c9 staged and native-validated
+a sealed candidate without changing the installed module/settings or creating an
+active pointer. Same-key submission reattached the original job. Preparation is
+separate from activation and serving. Candidate refusal receipts now distinguish
+an exact pre-dispatch helper refusal from a missing result; they do not alone
+establish no-effect, settlement or safe retirement. Native execution of the new
+refusal receipt remains pending; synthetic boundaries pass.

@@ -853,3 +853,17 @@ From the calling harness, use `broker_service_read` with `session` set to the re
 ### Independent receiver status
 
 Call `broker_service_status` from the invoking harness with explicit receiver `session` and `service_id`; omit `session` for the legacy route. This reads bounded ownership/source/epoch and reservation metadata only. `readinessObserved` and `nativePolicyObserved` describe retained evidence, while `servingQualified:false` preserves the distinction from a new successful operation. `unreservedSlots` describes the durable host budget, not proof of available native capacity. Unqualified context never triggers recovery.
+
+
+`broker_service_prepare {session, experimental:true, lifetime_sec?, max_requests?}`
+stages and native-validates an independent service candidate in a fresh private
+namespace for a driver-owned idle bypass scratch receiver. Use driver_submit with
+an idempotency key. Defaults are 300 seconds and eight requests; bounds are
+60–3600 seconds and 1–128 requests. Preparation is durable but does not install,
+activate, change settings, send, wake or prove readiness. Inspect the original
+service namespace after interruption rather than resubmitting a new identity.
+
+Exact helper dispatch:false callbacks may produce immutable no-dispatch receipts.
+These prove only the scoped callback observation after strict evidence screening;
+retirement and lifecycle settlement still require independent helper, admission,
+control, source and native epoch review.

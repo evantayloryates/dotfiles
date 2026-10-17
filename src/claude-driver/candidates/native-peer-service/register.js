@@ -55,6 +55,11 @@ async function receiveServiceRead($,event,next){
   const checkpoint=await $.tool.call({tool:'Bash',command,timeout:5000,run_in_background:false})
   if(checkpoint?.deny!==undefined||checkpoint?.isError===true||typeof checkpoint?.text!=='string')return {consumed:'service-read-checkpoint-refused'}
   let checked;try{checked=JSON.parse(checkpoint.text.trim())}catch{return {consumed:'service-read-checkpoint-refused'}}
+  if(checked?.dispatch===false&&Object.keys(checked).sort().join(',')==='dispatch,reason'&&['invalid_request','request_generation_mismatch','cancelled','expired','already_dispatched_or_unclaimed'].includes(checked.reason)){
+   const at=await $.clock.now(),file=CONFIG.brokerCwd+'/.native-service-'+requestId+'.no-dispatch.json'
+   if(Number.isFinite(at)&&at>=now&&at<=CONFIG.deadline&&!await $.fs.exists(file))await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-no-dispatch',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,observedAt:new Date(at).toISOString(),reason:checked.reason,nativeMcpCallsRequested:0,modelCallsRequested:0})+'\n')
+   return {consumed:'service-read-checkpoint-refused'}
+  }
   if(checked?.dispatch!==true||checked.op!=='get_session'||Object.keys(checked).sort().join(',')!=='args,dispatch,op'||!checked.args||Object.keys(checked.args).join(',')!=='session_id'||!/^local_[a-f0-9-]{36}$/.test(checked.args.session_id)||checked.args.session_id===CONFIG.brokerSession)return {consumed:'service-read-checkpoint-refused'}
   const dispatchAt=await $.clock.now()
   if(!Number.isFinite(dispatchAt)||dispatchAt<now||dispatchAt>CONFIG.deadline)return {consumed:'service-read-expired'}

@@ -130,3 +130,13 @@ test('independent receiver uses only its bound lifecycle state and safely quoted
  const foreign=setup({autoStart:false,configPatch:{serviceStateBinding:binding,brokerCwd}});foreign.$.session.cwd=async()=>brokerCwd;assert.equal((await foreign.send('ready')).consumed,'service-read-not-ready');assert.equal(foreign.files.size,0)
  for(const patch of [{brokerCwd:'/foreign'},{serviceStateBinding:{...binding,id:'d'.repeat(32)}},{serviceStateBinding:{...binding,build:'d'.repeat(64)}},{resourceProbe:true,marker:true,observeRetiredServiceId:null}])assert.throws(()=>buildNativePeerServicePackage({...config,brokerCwd,serviceStateBinding:binding,...patch}))
 })
+
+test('exact helper refusal records bounded no-MCP evidence; malformed and admitted replies do not',async()=>{
+ for(const reason of ['invalid_request','cancelled','expired','request_generation_mismatch','already_dispatched_or_unclaimed']){
+  const s=setup({checkpoint:{dispatch:false,reason}});await s.send(r1)
+  const marker=s.files.get(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json');assert.equal(marker.reason,reason);assert.equal(marker.nativeMcpCallsRequested,0);assert.equal(marker.modelCallsRequested,0);assert.equal(s.counts().reads,0)
+  const snapshot=JSON.stringify(marker);await s.send(r1);assert.equal(JSON.stringify(s.files.get(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json')),snapshot)
+ }
+ for(const checkpoint of [{dispatch:false,reason:'private-error'},{dispatch:false,reason:'cancelled',extra:'untrusted payload'},{dispatch:true,op:'archive',args:{session_id:target}}]){const s=setup({checkpoint});await s.send(r1);assert.equal(s.files.has(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json'),false);assert.equal(s.counts().reads,0)}
+ const admitted=setup();await admitted.send(r1);assert.equal(admitted.files.has(config.brokerCwd+'/.native-service-'+r1+'.no-dispatch.json'),false)
+})

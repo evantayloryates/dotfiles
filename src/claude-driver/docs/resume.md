@@ -1,3 +1,36 @@
+## Public preparation verified; refusal receipts added — October 17
+
+Added broker_service_prepare as a durable preparation-only operation for an
+explicit driver-created, idle bypass scratch receiver. It stages a new private
+sealed release and candidate, validates it with native CLI, and retains phase and
+validation evidence. It does not publish a watched module, change settings,
+activate a pointer, send a message or establish serving readiness.
+
+Actual job j10f4fc1039314bd5bb6e4365e26843c9 completed on receiver8f1d6d55,
+service10f4fc1039314bd5bb6e4365e26843c9, source
+c2e77508ed0706b6b34e0bf02b4b6afe2476df873933fa0527c891bb3a073c7f.
+Native validator passed with author-attribution warning. Independent readback
+confirmed phase prepared, candidate present, runtime pointer absent, installed
+module/settings hashes unchanged. Same key reattached the same job. Evidence:
+probe/scratch-native-read-2026-10-17/public-read-
+d5e108a08b91ff3f3260f2a89b8d8584/plan.json publicPreparation (one directory name).
+The existing d5 generation remains installed with capacity2/2 used; no replay.
+
+Candidate now retains exact helper dispatch:false callbacks in immutable bounded
+.no-dispatch.json receipts. Unknown/malformed replies and native-call failures
+never become refusal receipts. Pure screener verifies ready/intent/identity/time
+and reports callbackRefusalObserved only; noEffectQualified, lifecycle settlement
+and release authorization remain false. Seventeen focused tests pass. This new
+receipt path is synthetic-tested, not yet native-executed.
+
+Current-source pressure1/1pass: pressure/v2-2026-10-17T18-27-55-988Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-27-43-116Z.json.
+Next: owned module/settings activation transition, terminal attempt review and
+controlled retirement before fresh native refusal qualification. Physical process
+retirement, warm/cold recovery and always-on proof remain open. No pending native
+send or waiter. Goal active; Codex bridge fixes and legacy22unknowns untouched.
+
 ## Pinned receiver survives workspace candidate updates — October 17
 
 Enrollment review found durability bug: independent context rebuilt expected module
