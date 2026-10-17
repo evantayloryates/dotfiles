@@ -94,3 +94,11 @@ match the active release build, and bind the exact live session/PID/start. An
 older installed hook cannot inherit a capability merely from a new runtime
 pointer. Failure publishes no request and sends no wake. Policy capability claims
 are checked against the policy's own sealed release manifest.
+
+Actual headless CLI2.1.299 qualification on October17 observed that explicit JSON
+PreToolUse denial blocks a synthetic Bash command, while a hook process exiting1
+allows it. The installer's command-plus-args shape was independently exercised
+and did invoke the guard correctly. This is not desktop qualification or a claim
+about every error/timeout path; it is concrete evidence that policy installation
+alone cannot establish physical old-process fencing. Preserve unknown outcomes
+and require independently verified retirement before treating rollover as safe.

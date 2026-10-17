@@ -1,3 +1,35 @@
+## Actual installed command-hook boundary tested — October 17
+
+Previous turn: matching generation-aware policy candidate passed. Actual installed
+CLI2.1.299 ran three isolated headless turns, each in a fresh task-owned folder,
+with strict empty MCP config, only Bash, explicit temporary settings, no session
+persistence and one synthetic sentinel command. Production broker-stop-rescue
+handler was invoked with an unadmitted synthetic Bash, not a desktop operation.
+
+1. Shell command-string wrapper: one PreToolUse invocation, explicit JSON deny,
+no sentinel; exit0,5.029s.
+2. Hook process exits1 after metadata trace: one invocation, CLI executed Bash
+and created its task-owned sentinel; exit0,5.422s. Confirms failure permits the
+command in this headless configuration, unlike explicit denial.
+3. Exact installer command-plus-args shape: wrapper invoked once and denied;
+no sentinel; exit0,5.109s. Hypothesis that args was ignored was falsified. Original
+report ok:false preserves the failed hypothesis; review.json records corrected
+interpretation. No installer change is justified by this test.
+
+Evidence folders: probe/command-hook-2026-10-17,
+probe/command-hook-error-2026-10-17, probe/command-hook-args-2026-10-17.
+Each retains metadata report, synthetic raw output/stderr and settings; final
+folder also has review.json. Shared service memory recorded. Runtime remains
+de08fdcbe7a85de54afc60c1a23653a33667d89349eee376e2eff40b40ec29b3;
+no runtime source changes or repeat synthetic suite required in this turn.
+
+This is actual headless hook-runner evidence, not desktop-hosted hook or general
+failure/timeout qualification. It supports requiring independent old-process
+retirement before rollover, rather than trusting installed hook settings as a
+physical fence. No desktop chats, broker policy/pointer, unknown outcomes, auth,
+permissions or quarantine changed. Goal active; next recovery proof still needs
+exact old-instance retirement plus new current-epoch enrollment. Codex fixes parked.
+
 ## Generation-aware runtime requires matching native hook — October 17
 
 Previous turn: helper generation fence passed. Activation audit found a separate
