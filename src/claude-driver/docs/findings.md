@@ -1016,3 +1016,7 @@ versions fail explicit symbol profiles. These are source/adapter checks, not pro
 of live sidecar serving, shutdown recovery, or permission approval. Pressure reports
 now hash imported test helpers and record installed identity before/after to detect
 source or installed-version drift during a run.
+
+## 2026-10-17 — Native module serving follows a turn boundary
+
+Human hot-reload consent was independently verified in the owned native journal. A fresh bounded fixed-target module probe passed native validation and hash verification. Its first post-update slot reached the model with no intent/result; after that turn ended, its second distinct slot produced a bound native get_session result in 68 ms, matching independent target metadata. Receiver remained the same native epoch in bypass mode; descriptor-bound journal offset stayed unchanged for the consumed request. Preserve the first failure: consent/validation are not readiness. Require an explicit activation handshake before workload. One metadata read is not always-on, recovery, unload or retirement qualification. Evidence: `.runtime/state/probe/scratch-native-read-2026-10-17/renewed-fe63e48580f5/plan.json`.

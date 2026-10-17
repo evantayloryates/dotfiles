@@ -1,3 +1,38 @@
+## Native module metadata read served after turn boundary — October 17
+
+Native journal queue-operation at17:35:34.241Z confirms the person enabled
+hot reloading and the session modules loaded. Same receiver control8f1d6d55,
+PID42813/start SatOct17 16:03:11UTC/CLI2.1.299, idle/bypass. Original probe
+734f4d34 expired17:37:13.210Z; unused original slot1 was never sent. Preserved
+original plan/source, generated a fresh fixed-target two-slot one-hour config,
+native plugin validation passed, verified all original owned package hashes,
+then atomically replaced only task-created hooks/register.js. Native-generated
+files preserved; no app settings or consent records written.
+
+Evidence: probe/scratch-native-read-2026-10-17/renewed-fe63e48580f5/plan.json.
+Fresh probe226f9b7fd0e21dcaa54c82e4f159660e slot0 peer msg
+69f0b76f-935f-4eb0-b24c-3ad11bbaad88 reached native user
+ ae8ed2af-8bb1-49f5-86eb-82cf2082a830 and model refusal, tools0,
+intent/result absent. Preserve failure. After this turn ended, distinct slot1
+msg dd8301d2-d9c9-41bb-91e5-b1bec224987c produced owned bound intent/result,
+isError:false, native get_session metadata exactly matching independent current
+interrupt scratch74c54e49 identity/title/cwd. Native read68ms. Descriptor-bound
+journal inode/offset570319 unchanged before/after; no native user or assistant
+rows added. Same epoch, idle/bypass and package hashes independently rechecked.
+This establishes one actual module-consumed metadata read without a model turn.
+It does not establish two successful reads, readiness immediately after update,
+always-on residency, general operations, recovery, unloading or retirement.
+
+Consent plus plugin validation is not serving readiness. The first post-update
+request reached model, while the request after its turn ended was consumed.
+Next changed-condition work: explicit readiness/activation handshake and durable
+service integration before workload, then independent unload/retirement/recovery
+qualification. Both new slots used; never replay. Module remains bounded/expiring,
+files retained for review, no ongoing process/job started. Shared service memory
+recorded. Runtime unchanged; current-source passing pressure/harness evidence
+from16:38 remains applicable to source only. Legacy22unknown outcomes untouched;
+Codex bridge fixes and1Password stay separate. Goal active.
+
 ## Supported module entry loaded; native input wait now observed — October 17
 
 Previous blocked state was based on unverified loading/consent. Taylor's screenshot
