@@ -1,5 +1,7 @@
 // Durable broker lifecycle. A helper checkpoint describes helper admission;
 // actual native effects require independent native boundary evidence.
+import {nativeRequestBindingMatches} from './native-request-binding.mjs'
+import {loadEntryEvidence} from './releases.mjs'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { BROKER_DIR, ensureDir, readJson, redactArgs, withLock, writeJsonAtomic } from './state.mjs'
@@ -56,6 +58,7 @@ export async function cancelRequest(id, reason = 'cancelled') {
     return { id, state, dispatched: !!c.dispatched?.length }
   })
 }
+const generationMatches=r=>(!r.nativeObservation&&r.nativeRuntimeBinding===undefined)||nativeRequestBindingMatches(r,loadEntryEvidence(join(BROKER_DIR,'runtime.json')))
 export async function pickupPending({requestId} = {}) {
   if(requestId !== undefined)validId(requestId)
   const dir = ensureDir(join(BROKER_DIR, 'requests'))
@@ -67,6 +70,7 @@ export async function pickupPending({requestId} = {}) {
     const r = readJson(requestFile(id), null)
     if (!r || r.id !== id || !Array.isArray(r.ops) || !r.ops.length) continue
     const picked = await locked(id, () => {
+      if(!generationMatches(r))return null // preserve retired request/control bytes
       const c = control(id)
       if (existsSync(resultFile(id)) || existsSync(nativeResultFile(id))) return null
       if (c.cancelRequested || expired(r)) { rejectPending(r, c, c.cancelRequested ? 'cancelled' : 'expired'); return null }
@@ -86,6 +90,7 @@ export async function authorizeDispatch(id, index) {
     const r = readJson(requestFile(id), null)
     const c = control(id)
     if (!r || !Number.isInteger(index) || index < 0 || index >= r.ops.length) return { dispatch: false, reason: 'invalid_request' }
+    if(!generationMatches(r))return {dispatch:false,reason:'request_generation_mismatch'}
     if (c.cancelRequested || expired(r)) { rejectPending(r, c, c.cancelRequested ? 'cancelled' : 'expired'); return { dispatch: false, reason: c.cancelRequested ? 'cancelled' : 'expired' } }
     if (!['picked_up', 'dispatched'].includes(c.state) || (c.dispatched || []).includes(index)) return { dispatch: false, reason: 'already_dispatched_or_unclaimed' }
     writeJsonAtomic(controlFile(id), { ...c, state: 'dispatched', dispatched: [...(c.dispatched || []), index], at: Date.now() })

@@ -1,3 +1,34 @@
+## Helper generation fence preserves retired work — October 17
+
+Previous turn: progress (native generation-binding candidate). Shared pure
+nativeRequestBindingMatches now supplies helper and native-hook equality rules,
+including valid modern pointer fields. pickupPending skips incompatible native
+requests inside the request lock before expiry/cancellation writes or claiming.
+authorizeDispatch refuses request_generation_mismatch before changing control.
+No request/result/control is rewritten merely because a new generation exists.
+Legacy native requests retain compatibility only with legacy pointers; they cannot
+be adopted by a binding-required pointer. Non-native synthetic requests retain
+their existing lifecycle.
+
+New isolated lifecycle test proves old and legacy requests stay byte-identical,
+an expired old request gets no synthetic result, only the matching current request
+is picked up, and a generation change after pickup or dispatch refuses with control
+bytes preserved. Existing native-hook concurrency and field mismatch tests exercise
+the same shared predicate. Full pressure1/1pass, unchanged source:
+pressure/v2-2026-10-17T16-28-55-316Z.json.
+Filtered Claude/Codex(gpt-6-sol) harnesses passed, source/configs unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-28-48-960Z.json.
+Service candidate memory recorded.
+
+This is helper admission plus an independent native boundary check, not atomic
+retirement. Generation could change after helper admission; native must still
+recheck, and live activation remains behind existing settled-handoff requirements.
+No live activation, wake, stop, policy change or legacy request mutation. The old
+process and22unknown outcomes are not retired/settled by this code. Next actual
+recovery requirement remains independently verified old-instance retirement and
+new current-epoch native enrollment; no alternate unsafe release path introduced.
+Goal active; Codex bridge fixes parked.
+
 ## Native request generation binding candidate — October 17
 
 Previous turn: recovery frontier review. New sealed releases declare

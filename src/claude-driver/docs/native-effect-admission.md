@@ -80,3 +80,10 @@ Legacy releases/pointers retain their prior admission contract; this feature
 neither relabels their unknown outcomes nor qualifies them for rollover. It is
 one request-admission fence, not proof that an old process is retired or that
 a platform hook cannot fail. Existing release handoff requirements still apply.
+
+The helper uses the same binding predicate before pickup and dispatch. A mismatch
+returns without expiring, cancelling, claiming, settling or otherwise rewriting
+the retired request. This preserves unknown outcomes and prevents a sweep from
+silently manufacturing definitive results for old work. The native hook rechecks
+independently: helper admission does not freeze the active pointer or prove an
+effect occurred. Existing settled-handoff and retirement gates remain required.
