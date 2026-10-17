@@ -514,9 +514,10 @@ export const OPS = [
     name: 'rename_session',
     title: 'Rename a session (locks the title)',
     description: 'Set a session\'s title through the app\'s set_session_title, which marks it titleSource "tool" so the auto-titler never overwrites it. Verified on disk.',
-    schema: { properties: { session: S, title: { type: 'string' }, via_broker: VIA_BROKER }, required: ['session', 'title'] },
+    schema: { properties: { session: S, title: { type: 'string' }, metadata_controller: {type:'string',description:'Exact enrolled controller session ID for the independent metadata route; requires durable driver_submit, refuses rather than falling back.'}, via_broker: VIA_BROKER }, required: ['session', 'title'] },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      if(args.metadata_controller!==undefined){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,args,ctx)}
       const b = await tierB(ctx, [{ op: 'set_session_title', args: { session_id: rec.sessionId, title: args.title } }], `title "${args.title}", titleSource "tool"`)
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.title === args.title && r.titleSource === 'tool', { timeoutMs: 8000 })
@@ -528,9 +529,10 @@ export const OPS = [
     name: 'pin_session',
     title: 'Pin or unpin a session',
     description: 'Pin (or pinned:false to unpin) a session in the sidebar. Verified against the app\'s pin list on disk.',
-    schema: { properties: { session: S, pinned: { type: 'boolean' }, via_broker: VIA_BROKER }, required: ['session', 'pinned'] },
+    schema: { properties: { session: S, pinned: { type: 'boolean' }, metadata_controller: {type:'string',description:'Exact enrolled controller session ID for the independent metadata route; requires durable driver_submit, refuses rather than falling back.'}, via_broker: VIA_BROKER }, required: ['session', 'pinned'] },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      if(args.metadata_controller!==undefined){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,args,ctx)}
       if(rec.isArchived)throw new DriverError('unarchive this session before changing its pin state',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const b = await tierB(ctx, [{ op: 'set_pinned', args: { session_id: rec.sessionId, pinned: !!args.pinned } }], `pinned ${!!args.pinned}`)
       if (b.handback) return b.handback
@@ -571,12 +573,14 @@ export const OPS = [
         model: { type: 'string' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh', 'max'] },
         permission_mode: { type: 'string', enum: ['default', 'acceptEdits', 'plan', 'auto', 'bypassPermissions'] },
+        metadata_controller: {type:'string',description:'Exact enrolled controller session ID for the independent metadata route; requires durable driver_submit, refuses rather than falling back.'},
         via_broker: VIA_BROKER,
       },
       required: ['session'],
     },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      if(args.metadata_controller!==undefined){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,args,ctx)}
       // Native pin/effort reject archived sessions. Reject the entire batch
       // before a valid title change can create a known avoidable partial effect.
       if(rec.isArchived&&(args.pinned!==undefined||args.effort))throw new DriverError('unarchive this session before a pin/effort configuration batch',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})

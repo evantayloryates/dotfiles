@@ -1,3 +1,55 @@
+## Public title/pin/effort routing and durable batches passed — October 17
+
+Previous turn progressed/published7682952. Added explicit metadata_controller to
+rename_session, pin_session and set_session_config. Exact controller sessionID
+selects stable current generation; only title/pin/effort supported, no model/mode/
+via_broker mixing or legacy fallback. Requires durable parentjob, enough capacity/
+deadline for wholebatch, actualready/nativepolicy/configured exacttarget. Controller
+selection and idle target epoch rechecked between fields. Existing public recipient
+control lock spans the parent. Native independent controls still use per-effect
+locks: batch is sequential/partially applicable, NOT atomic multi-field transaction.
+
+New metadata-config-route.mjs records wx parentledger, exact per-field durable
+submissions/jobs/observations, before/after boundaries, independently verified
+receipts and final aggregate disk check. Unknown/failure/cancellation stops later
+fields; no replay or automatic rollback. Old public path without controller unchanged.
+Synthetic4checks cover validationbeforeeffect, mixedauthority refusal, epoch/capacity
+refusal, partial unknown child stopping laterfields and ordered aggregateverification.
+
+FINAL HOST source3be2007ccca886c42c851a92420d795d164e7d0b864f4050bb09771dd87a70aa;
+controller STILL ce93557aae974cfcb10b12b6ef70c35c/sealedb33501f6/PID31678/start
+20:14:51UTC, target74c54e49/PID13591/start20:57:38UTC. Nativeguard/callback unchanged,
+no unnecessary renewal. Public config change je8761f7f02ec4d47b937cc662a55a853:
+locked probe title, pinnedtrue, low effort; title/pin/effort separatechildren all
+metadataVerified. Public restore je964aa27bcc741059b16bd950cfcf0bd restores original
+fixture. Mixed title+model je1e8caae254f444383db8192aaf839ad failedbad_args BEFORE
+routeledger/children (no native effects). Public standalone rename
+jeff1869de8874e52bf7c2402f5ddbfe8/titlechildj1e954641cbe34aa9bdce3547020e184b;
+pin jf59ef20d7f3b449fada12549d22e195c/pinchildj0985b0b9c51446e8b5cab6a72a235d41;
+both actual statechanges verified. Final public restore j88abf4e0b0b64c3686bea0e1a4b3f800
+children titlejda9ec5e52f9f4b84a5d8f625e9b78557/pinj1c1338297367417daa1a4bb68d99de9f/
+effortjdbdfdbe2db39402783448da34107c360. Same-key reattach reused parent, parentledger
+AND send/admission/postcondition evidence digest unchanged. Finalstatus15settled/
+0unresolved/16reservedof32. Fixture originaltitle/toolsource/pinnedfalse/explicitHigh/
+Haiku5.5/bypass, exact nativeepoch. Initial pretest absenttitleSource/effort not restored.
+Private authoritative plan metadataControlTrial.publicRouteFinal retains proof.
+
+Final fullpressure v2-2026-10-17T21-25-35-430Z.json1/1/sourceChangedfalse.
+Synthetic10checks each currentHOST: harness-v2-claude-2026-10-17T21-25-09-926Z.json
+and harness-v2-codex-2026-10-17T21-25-10-997Z.json (configuredgpt-6-sol).
+Public native mutation qualification is CLI/sharedop route, NOT actual mutation MCP
+harness proof. Prior finalb335 actualread MCP harnesses retain historical scope.
+
+NEXT changed-condition step: extend EXISTING filtered native-service-contract and
+harness-native-service with explicit exact public metadata batch mode (separate
+one-shot claim identity), qualify fresh Claude AND Codex MCP mutations with
+per-field receipts/derivedchildIDs/unchangedconfig/no-modelturn, bounded state
+readback/restoration. Reuse proxy/filter/idempotency, no unrestricted tools.
+Then remaining default-route usability and original fullcreate/messaging/steer/
+11live gates; do not equate explicit controller pilot with full originalcompletion.
+Goalactive/watcherpaused; legacyobserver owns broker; no apprestart/kill/auth/CUA;
+Codexdriver/1Password separate.
+
 ## Native metadata target admission implemented and verified — October 17
 
 Previous turn made progress (published7c105c8). This turn closes preflight-to-hook

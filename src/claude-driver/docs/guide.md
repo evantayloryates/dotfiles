@@ -1275,3 +1275,28 @@ API accepts a session ID and provides no PID/start conditional mutation. A resta
 after the hook returns can still invalidate post-effect verification. Keep this
 experimental and limited to the explicitly owned scratch fixture. A successful send or native
 acknowledgment alone never settles the requested state change.
+
+### Public metadata operations through an enrolled controller
+
+Use `rename_session`, `pin_session`, or `set_session_config` with an explicit
+`metadata_controller` containing the exact enrolled controller session ID. Submit
+through `driver_submit`; the parent requires its durable job identity. The route
+selects that controller's current stable generation and requires native readiness,
+policy, enough capacity/deadline for the entire batch and its sealed exact target.
+No discovery across work chats, automatic enrollment/renewal or legacy fallback.
+
+For example, `set_session_config` arguments are
+`{session:"local_<target UUID>",metadata_controller:"local_<controller UUID>",title:"Locked title",pinned:false,effort:"high"}`.
+This explicit route supports only title, pin and effort. Any `model`,
+`permission_mode` or `via_broker` argument rejects the entire request before a
+child is submitted. Omitting `metadata_controller` preserves the existing route.
+
+The parent holds the existing public recipient-control lock and applies fields
+in title, pin, effort order, with a separate durable native child and persisted
+postcondition per field. Other low-level independent controls retain their own
+per-effect locks; this is not an atomic multi-field transaction. The parent
+rechecks controller selection/target epoch between fields and verifies the final
+aggregate state. Cancellation, a failed/unknown child or final mismatch stops
+later fields and retains the parent ledger, exact child jobs and completed fields.
+Reattach the same parent job. Never replay the whole batch after a partial effect;
+inspect retained children and reconcile uncertainty first. No automatic rollback.

@@ -1,3 +1,16 @@
+## October 17 public metadata-route addendum
+
+rename_session, pin_session and set_session_config now support an explicit enrolled
+metadata_controller with a durable parent and field-level native children. Native
+CLI/shared-operation tests verified public three-field change/restoration,
+standalone rename/pin, mixed-model refusal before effects and same-parent no replay.
+Final host3be2007c, existing sealed controllerb33501f6; full pressure and both
+synthetic MCP contracts pass. Actual public mutation MCP harness qualification is
+NEXT, alongside default-route usability and full original live gates. This route
+is sequential, partially applicable and explicitly chosen; no automatic legacy
+fallback or permission/model authority. Earlier qualification notes retain their
+recorded sources/scope.
+
 ## October 17 native metadata admission addendum
 
 Configured target epoch is now checked inside the actual PreToolUse hook against
