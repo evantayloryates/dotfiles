@@ -1,3 +1,63 @@
+## Fresh real Codex/Claude MCP native metadata qualification — October 17
+
+Previous turn progressed same-process generation replacement and successor serving.
+Current Codex chat's attached driver_status reports restartRequired:true, cached
+driver46c7a58; exposed broker_service_status schema lacks independent session/history.
+No write attempted through stale binding. Configured Codex MCP command independently
+matches canonical launcher; configured model gpt-6-sol. No global configuration,
+Codex process or attached MCP process changed. Fresh ephemeral clients work; this
+chat's cached binding is NOT claimed refreshed. A supported refresh remains open.
+
+Added separate explicit --live scripts/harness-native-service.mjs for real scratch
+metadata qualification; existing synthetic harness-v2 remains never-native.
+Fresh stdio proxy exposes only guide, exact service status, ONE exact durable read
+submission identity (duplicate reattachment permitted), and waits for its observed
+job only. Target/operation/key/args/unknown-job changes refuse. No general native
+mutations, resources, shell/browser/app tools. Claude restricted/no persistence;
+Codex ephemeral/ignore-user-config/read-only, configured gpt-6-sol with shell/unified
+exec/computer/browser/apps disabled. Raw output/trace private and bounded; only
+owned test harness process group is timed out, never desktop receiver/session.
+
+Native Codex report pressure/harness-native-codex-2026-10-17T19-02-11-907Z.json
+all12checks passed. Exact jobj833eff28cea44d71b5c24498f6728b9a/request
+rpeer833eff28cea44d71b5c24498f6728b9a, native tool
+ toolu_plugin_9c568931e57f44fbbc886ff38a3327b3,296ms module path.
+Claude report pressure/harness-native-claude-2026-10-17T19-02-33-335Z.json remains
+ok:false: native/transport/identity/idempotency/receipt/config/source/no-model-turn
+checks passed, but model added a short preamble before NATIVE_MCP_OK, violating
+strict final output check. Exact jobj16a383eaf31a4f80a5a6e10830c81b6f/request
+rpeer16a383eaf31a4f80a5a6e10830c81b6f, native tool
+ toolu_plugin_dedecbfd4a224e3ca7418e8760d4f7a6,291ms module path.
+Both actual metadata payloads independently match control8f identity/title/cwd/
+archive state. No receiver model turn, no refused/out-of-scope calls, no config
+changes. Outer headless model latency is separate from module timings; no SLA.
+
+Original reports immutable, hashes retained in pressure/harness-native-review-
+2026-10-17.json and existing plan liveMcpHarnessReview. New classifier preserves
+ok:false/failureCategory harness_output_format while separately reporting
+nativeContractVerified:true; missing/failed operational checks never qualify.
+No extra native read to repair cosmetic output. Actual native runs were frozen
+host sourcefb6d... before diagnostic classifier/claim metadata additions; later
+current-source pressure covers those additions, not a repeat native qualification.
+Final unchanged-source pressure1/1pass for current diagnostic/claim additions:
+pressure/v2-2026-10-17T19-05-22-881Z.json. Four focused policy/classification/
+persistent-claim tests pass. A persistent exclusive
+native-harness-attempts claim now blocks a disconnected rerun of same harness/
+receiver/service/target; original two contracts backfilled, no new native calls.
+Inspect original contract/job before any rerun, never generate a new identity to
+retry unknown work. Preserve the Claude output failure; do not relabel all tests pass.
+
+Successor2e21 budget4/4 used: prior read + these two reads + terminal self-test.
+Closeout quiescence jobje506aefcbf294411a749b52f83cb842e completed, ownSTOP,
+quiescent:true, three settled reads/one terminal refusal/no unresolved. Current
+module/settings retained but admission stopped; do not clear STOP or replay IDs.
+Predecessor db2 retained settings/STOP/history and old d5 unknown unchanged.
+No active sender/worker/waiter. Native client reports/trace/jobs preserved.
+Next supported process disposition/warm-cold/record-loss and always-on proof;
+prepare a fresh bounded generation before more native work. Goal active,
+Codex bridge fixes parked. Cached current-chat MCP refresh remains separate from
+successful fresh-client integration.
+
 ## Owned settings retirement and live generation replacement — October 17
 
 Previous turn progressed durable locators and staged indexed successor2e21.

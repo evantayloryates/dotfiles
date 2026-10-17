@@ -961,3 +961,15 @@ Historical status verifies retained settings and ignores current watched-module
 state, so predecessor evidence remains inspectable alongside an active successor.
 Then the existing empty-receiver activation path can install a prepared generation;
 loading, settings boundary and serving must still be independently qualified.
+
+
+Real headless MCP qualification is separate from synthetic harness-v2:
+`node scripts/harness-native-service.mjs --live --harness codex --model <configured-model> --session <receiver> --service-id <generation> --target <approved-scratch>`
+(or --harness claude without --model). It requires current readiness/policy/idle
+and one unreserved native slot, then permits only one exact identified metadata
+job through a strict proxy. Calls with changed identity/target/tools refuse.
+The same harness/receiver/service/target cannot be rerun after its persistent claim;
+inspect original contract and durable job after disconnect or failure. Never spend
+a new identity merely to retry unknown work. Reports distinguish native contract
+verification from strict model output formatting; format failures remain failed.
+Fresh-client success does not refresh a long-lived harness's cached MCP schema.
