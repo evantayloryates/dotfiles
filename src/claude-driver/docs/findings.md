@@ -1,3 +1,14 @@
+## 2026-10-17: archive recovery reached a native workspace-trust gate
+
+Manual archive qualified absence, and import-only unarchive succeeded. The exact
+fixed native wake was verified undelivered because workspace trust was required.
+An existing running bypass process had not proved cold-start trust readiness.
+Human trust plus ready started a new epoch; prior role was restored and fresh
+MCP send18checks passed. This is human-assisted proof, not unattended recovery.
+Original failure receipts and the separate after-activation rebind failure remain
+retained. Retired-generation failure receipts require historical inventory/tool-ID
+validation after turnover. See resume.md and private manualArchiveRecoveryTrial.
+
 ## 2026-10-07 04:57 Eastern — native duplicate definitions and commandless errors
 
 One native edge probe configured two identical fixture reads and an unavailable

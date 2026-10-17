@@ -1584,3 +1584,20 @@ An automated scoped archive requires quiescence and retired source, so it tests
 intentional STOP handling, not an accidental archive of an installed service.
 The latter native test requires a manual archive of the exact dedicated primary;
 never weaken the archive guard or manufacture a crash to label that case passed.
+
+
+Verified native delivery failures now expose bounded `nativeFailure` metadata for
+an exact target-bound `workspace_trust_required` / `undelivered` result, including
+the native message ID and `humanActionRequired:true`. It grants no retry or trust
+authority. Unknown, foreign, malformed or merely quoted failures are not assigned
+that diagnosis. Recovery parents retain the failure category and metadata.
+
+After an original verified undelivered workspace-trust refusal and a human start,
+explicit `broker_service_rebind_standby` may take
+`human_assisted_primary_service_id`. It requires the original failed parent and
+native child/wake IDs, independently verified failure receipt, exact current new
+primary epoch, preserved prior role/settings/anchor and current readiness/policy.
+If the old standby was retired, the receipt is checked against its verified
+terminal historical generation and original native tool ID. Uncertain or unrelated
+failures never qualify. This path reports human-assisted restoration only and
+retains the original failure; automatic cold recovery never selects it.

@@ -1,3 +1,4 @@
+import {readHumanAssistedRebindProof} from './human-assisted-rebind-proof.mjs'
 import {createHash} from 'node:crypto'
 import {join} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -26,19 +27,20 @@ export async function runStandbyRebind(d){
  if(result.enrollment?.verified!==true||result.enrollment.enrolled!==true)throw Error('rebind enrollment unverified')
  return result
 }
-export async function rebindEnrolledStandby(primary,recoveryParentJobId,expectedSha256,{jobId,signal,routeLockHeld=false}={}){
+export async function rebindEnrolledStandby(primary,recoveryParentJobId,expectedSha256,{jobId,signal,routeLockHeld=false,humanAssistedPrimaryServiceId}={}){
  if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(primary||'')||!/^j[a-f0-9]{32}$/.test(jobId||'')||!/^j[a-f0-9]{32}$/.test(recoveryParentJobId||'')||!/^[a-f0-9]{64}$/.test(expectedSha256||''))throw new DriverError('rebind requires durable parent and exact original recovery/digest',{category:'bad_args'})
  const run=async()=>{
   const binding=readStandbyEnrollment(primary)
   if(!binding||standbyEnrollmentDigest(binding)!==expectedSha256)throw new DriverError('rebind enrollment changed',{category:'standby_rebind_unqualified',detail:{dispatched:false,retrySafe:true}})
-  let proof;try{proof=readStandbyRebindProof(binding,recoveryParentJobId)}catch{throw new DriverError('original verified cold recovery unavailable; no standby effects',{category:'standby_rebind_unqualified',detail:{dispatched:false,retrySafe:true}})}
+  const readProof=()=>humanAssistedPrimaryServiceId?readHumanAssistedRebindProof(binding,recoveryParentJobId,humanAssistedPrimaryServiceId,{signal}):readStandbyRebindProof(binding,recoveryParentJobId)
+  let proof;try{proof=await readProof()}catch{throw new DriverError('original verified cold recovery unavailable; no standby effects',{category:'standby_rebind_unqualified',detail:{dispatched:false,retrySafe:true}})}
   const standby=binding.standby.sessionId,oldService=binding.standby.serviceId,newService=jobId.slice(1)
   if(newService===oldService)throw new DriverError('rebind successor identity must be distinct',{category:'bad_args'})
   return withLock('independent-renewal-'+standby,async()=>{
    let ledger;const file=join(ensureDir(join(STATE_DIR,'standby-rebinds')),jobId+'.json'),save=()=>writeJsonAtomic(file,ledger)
    const guard=async phase=>{
     if(signal?.aborted||standbyEnrollmentDigest(readStandbyEnrollment(primary))!==expectedSha256)throw Error('rebind cancelled or binding changed')
-    const current=readStandbyRebindProof(binding,recoveryParentJobId)
+    const current=await readProof()
     if(JSON.stringify(proof)!==JSON.stringify(current))throw Error('original recovery proof changed')
     for(const [sid,epoch,service]of [[primary,proof.primary,proof.primary.serviceId],[standby,proof.standby,['readiness','policyProbe','verify','family','enroll'].includes(phase)?newService:oldService]]){
      const r=getRecord(sid),p=peerRecord(sid),selection=loadReceiverSelection(r?.cwd)
@@ -52,7 +54,7 @@ export async function rebindEnrolledStandby(primary,recoveryParentJobId,expected
     const old=await inspectIndependentService(standby,oldService,{signal}),policy=id=>JSON.parse(readReceiverFile(join(binding.standby.cwd,'.claude-driver-services',id,'broker','stop-rescue-policy.json'),65536)),baseline=policy(oldService)
     if(!/^[a-f0-9]{64}$/.test(baseline.settingsHash||'')||!/^[a-f0-9]{64}$/.test(baseline.receiverHook?.anchorSha256||''))throw Error('standby stable settings evidence missing')
     if(!old.verified||!old.terminalAttemptReviewComplete||old.unresolvedRequestIds?.length||!same(old.archiveTarget,binding.primary)||old.metadataTarget||old.metadataModelControl||old.metadataSendControl||old.metadataStopControl)throw Error('old standby role unqualified')
-    const initial={schemaVersion:1,jobId,primary,recoveryParentJobId,expectedEnrollmentSha256:expectedSha256,standby,oldService,newService,phase:'created',steps:[],at:Date.now(),retrySafe:false};writeFileSync(file,JSON.stringify(initial),{flag:'wx',mode:0o600});ledger=initial
+    const initial={schemaVersion:1,jobId,primary,recoveryParentJobId,expectedEnrollmentSha256:expectedSha256,humanAssisted:proof.humanAssisted===true,standby,oldService,newService,phase:'created',steps:[],at:Date.now(),retrySafe:false};writeFileSync(file,JSON.stringify(initial),{flag:'wx',mode:0o600});ledger=initial
     const results=await runStandbyRebind({guard,record:async(phase,results)=>{ledger.phase=phase;ledger.results=results;ledger.steps.push({phase,at:Date.now()});save()},
      prepare:()=>prepareIndependentService(standby,{jobId,signal,lifetimeSec:3600,maxRequests:32,archiveTargetSession:primary}),
      quiesce:async()=>{const r=await quiesceIndependentService(standby,oldService,{signal});if(!r.quiescent||!r.terminalAttemptReviewComplete)throw Error('standby quiescence unverified');return r},
@@ -62,9 +64,9 @@ export async function rebindEnrolledStandby(primary,recoveryParentJobId,expected
      policyProbe:()=>probeIndependentServicePolicy(standby,newService,{jobId,signal,timeoutMs:20000}),
      verify:async()=>{const s=await inspectIndependentService(standby,newService,{signal}),after=policy(newService);if(after.settingsHash!==baseline.settingsHash||after.receiverHook?.anchorSha256!==baseline.receiverHook?.anchorSha256||!s.verified||!s.readinessObserved||!s.nativePolicyObserved||s.admissionStopped||s.expired||s.unresolvedRequestIds?.length||!same(s.archiveTarget,proof.primary)||s.metadataTarget||s.metadataModelControl||s.metadataSendControl||s.metadataStopControl)throw Error('new standby role unqualified');return s},
      family:()=>readIndependentService(primary,proof.primary.serviceId,primary,{family:true,signal,jobId:'j'+createHash('sha256').update('standby-rebind-family:'+jobId).digest('hex').slice(0,32),timeoutMs:20000}),
-     enroll:familyRequestId=>enrollStandby({session:standby,service_id:newService,session_id:primary,target_service_id:proof.primary.serviceId,family_request_id:familyRequestId},{signal,expectedSha256,recoveryParentJobId})
+     enroll:familyRequestId=>enrollStandby({session:standby,service_id:newService,session_id:primary,target_service_id:proof.primary.serviceId,family_request_id:familyRequestId},{signal,expectedSha256,recoveryParentJobId,humanAssistedPrimaryServiceId})
     })
-    ledger.phase='completed';save();return {primarySession:primary,standbySession:standby,standbyServiceId:newService,recoveryParentJobId,enrollment:results.enrollment,standbyRebindRequired:false,verified:true,rebindFile:file,retrySafe:false}
+    ledger.phase='completed';save();return {primarySession:primary,standbySession:standby,standbyServiceId:newService,recoveryParentJobId,enrollment:results.enrollment,standbyRebindRequired:false,...proof.humanAssisted?{humanAssistedRecoveryQualified:true,unattendedRecoveryQualified:false}:{},verified:true,rebindFile:file,retrySafe:false}
    }catch(error){if(ledger){ledger.failure={at:Date.now(),category:error.category??'standby-rebind-unresolved'};save()}throw new DriverError('standby rebind stopped; reconcile original parent without replay',{category:ledger||error.code==='EEXIST'?'standby_rebind_unresolved':'standby_rebind_unqualified',detail:{jobId,rebindFile:ledger||error.code==='EEXIST'?file:null,retrySafe:!ledger&&error.code!=='EEXIST',...!ledger&&error.code!=='EEXIST'?{dispatched:false}:{}}})}
   },{timeoutMs:5000,signal})
  }

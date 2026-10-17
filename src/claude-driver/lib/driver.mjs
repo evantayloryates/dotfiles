@@ -1027,8 +1027,8 @@ export const OPS = [
   {
     name:'broker_service_rebind_standby',title:'Reseal an enrolled standby after verified cold recovery',
     description:'Experimental durable exact original-recovery rebind. Requires completed verified enrolled recovery parent, unchanged old binding digest and exact current primary/standby epochs. Reuses generation turnover, native policy checks and fresh primary family receipt before archival CAS of the binding. No process restart, wake, permission change or arbitrary target retargeting. Inspect original parent after uncertainty; never replay.',
-    schema:{required:['session','recovery_parent_job_id','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},recovery_parent_job_id:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit standby rebind required');return (await import('./standby-rebind.mjs')).rebindEnrolledStandby(args.session,args.recovery_parent_job_id,args.expected_enrollment_sha256,ctx)},
+    schema:{required:['session','recovery_parent_job_id','expected_enrollment_sha256','experimental'],properties:{human_assisted_primary_service_id:{type:'string',description:'Explicit restored primary generation after a verified original undelivered workspace-trust refusal and human start. Reports human-assisted only; original failure retained.'},session:{type:'string'},recovery_parent_job_id:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit standby rebind required');return (await import('./standby-rebind.mjs')).rebindEnrolledStandby(args.session,args.recovery_parent_job_id,args.expected_enrollment_sha256,{...ctx,humanAssistedPrimaryServiceId:args.human_assisted_primary_service_id})},
   },
   {
     name:'broker_service_standby_status',title:'Inspect an enrolled standby',readOnly:true,

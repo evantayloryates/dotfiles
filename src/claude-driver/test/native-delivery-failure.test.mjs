@@ -1,0 +1,8 @@
+import {test} from 'node:test'
+import assert from 'node:assert/strict'
+import {nativeDeliveryFailure} from '../lib/native-delivery-failure.mjs'
+const target='local_11111111-1111-4111-8111-111111111111',id='71979237-4f56-47b7-8648-d9f548500735',error=`Message not delivered to session ${target} ("owned scratch"): "Workspace requires trust approval before starting a session.". (delivery: undelivered; message_id: ${id})`
+test('verified native trust refusal yields bounded undelivered metadata without retry authority',()=>{assert.deepEqual(nativeDeliveryFailure({ok:false,error},target),{category:'workspace_trust_required',delivery:'undelivered',messageId:id,humanActionRequired:true,retrySafe:false})})
+test('successful, foreign, unknown, malformed or merely quoted failures do not get a trust diagnosis',()=>{for(const r of [{ok:true,error},{ok:false,error:error.replace(target,'local_22222222-2222-4222-8222-222222222222')},{ok:false,error:error.replace('delivery: undelivered','delivery: unknown')},{ok:false,error:error.replace(id,'invalid')},{ok:false,error:'Quoted '+error},{ok:false,error:error.replace('Workspace requires trust approval before starting a session.','Other failure')},{ok:false,error:error+'extra'}])assert.equal(nativeDeliveryFailure(r,target),undefined)})
+
+test('a trust phrase in a session title does not diagnose an unrelated native error',()=>{const titled=error.replace('owned scratch','Workspace requires trust approval before starting a session.').replace('): \"Workspace requires trust approval before starting a session.\".','): \"Other failure\".');assert.equal(nativeDeliveryFailure({ok:false,error:titled},target),undefined)})

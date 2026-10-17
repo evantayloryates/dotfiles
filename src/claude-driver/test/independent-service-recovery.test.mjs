@@ -49,3 +49,4 @@ test('desktop caller cannot archive or retire itself through recovery compositio
  try{await assert.rejects(recoverIndependentTarget(controller,service,target,'c'.repeat(32),{jobId:'j'+'d'.repeat(32),cycle:true}),e=>e.category==='gate_self')}
  finally{if(prior===undefined)delete process.env.CLAUDE_DRIVER_CALLER_SESSION;else process.env.CLAUDE_DRIVER_CALLER_SESSION=prior}
 })
+test('native workspace trust refusal is retained and prevents new-epoch or preparation work',async()=>{const f=fixture({wakeFailed:true});f.values.wake.nativeFailure={category:'workspace_trust_required',delivery:'undelivered',humanActionRequired:true,retrySafe:false};await assert.rejects(runIndependentRecovery(f.d,{cycle:true}),e=>e.category==='native_workspace_trust_required'&&e.detail.nativeFailure.delivery==='undelivered'&&e.detail.retrySafe===false);assert.equal(f.calls.at(-1),'wake');assert.ok(!f.calls.includes('newEpoch'));assert.ok(!f.calls.includes('prepare'))})

@@ -1,3 +1,79 @@
+## October 17 manual archive exposed native trust gate; services restored with human assistance
+
+Previousbatch published89b8a46. Taylor manually archived exact transport scratch.
+Independently verified archived:true, no peer, PID31678 absent and cold planner
+recovereligible with exact a2a383... binding. ORIGINAL planned cold root
+je6c7d0368431439aa93a02ddf1d6e1e5 submitted once. Native recovery child
+jbb5a59b3428c4ba49abbaa00c65f65f4 completed offline quiesce j8fb91afa...,
+retire j9c01c647..., import-only unarchive j04608671f8e34d2b9e324a71b0c1aa06
+(focus restored to Codex), then failed at after-wake. Wake child
+j9c7fc97bd47a4830ae9e1d1b824182b4 completed its receipt but native state failed:
+Message not delivered: Workspace requires trust approval before starting a session.
+Exact native request rpeer9c7fc97bd47a4830ae9e1d1b824182b4/message
+71979237-4f56-47b7-8648-d9f548500735 is explicitly undelivered. No fixed wake message was applied. Original
+failed parents retained, never replayed. This was intentional manual archive,
+not a crash inference or native exit-code claim.
+
+Installed app CFJssAFf source shaabff2bf8... shows assertWorkspaceTrusted calls
+fresh trust check before spawn; bypass mode is separate. It does NOT establish
+why any earlier trust did not persist or cover this start. Asked Taylor to type
+ready in existing transport chat and accept exact native trust prompt. Taylor
+confirmed. New verified primary PID82655/startSat Oct17 23:28:49UTC, idle, same
+owned cwd/bypass. Do not bypass trust with auth edits or a CLI adoption workaround.
+
+Restored only prior verified metadata role/grants from retiredcb68 policy: same
+interrupt target PID90418/start21:37:26UTC, model/send/stop true. Prepare
+j9d62a6cf824e49d3b5c435fdb9866612, activate jf1d5055dc2f047efb1c5081d49ecf1d9
+with stable_hook/cold_rebind, actual readiness observed, policy
+j2f8608f347964ee3acb2856249099f97 passed. Current PRIMARY9d62a6cf824e49d3b5c435fdb9866612
+sealed a033734b; original cold root remains failed, not rewritten as success.
+
+Added explicit human-assisted rebind proof path (never auto-selected). It requires
+original failed root/native child plus exact receiptVerified undelivered trust
+refusal and independently qualified restored primary epoch/role/settings/anchor.
+Public rebind optional human_assisted_primary_service_id identifies that generation.
+First actual human rebind j08b10ae15b624ac998334c9f779dcf27 stopped after activate:
+live settlement reader refused original receipt once old standby5f was retired.
+Failure preserved. Fixed proof to use verified historical-retired actor inventory,
+terminal settled request and original native tool ID after retirement; unknown or
+foreign history refuses. Revalidated actual retained receipt after retirement.
+No prepare/quiesce/retire/activate replay. Completed ONLY remaining policy
+jb5d45c47b3474436935bad3263a5e988, primary family
+jf52192352d6b457595edb3c3fb6af255, and proof-bound CAS enrollment directly through
+core validator. Current STANDBY08b10ae15b624ac998334c9f779dcf27 sealed b6dce46c,
+same PID90418; archiveTarget ONLY new primary82655/start23:28:49UTC.
+
+CURRENT binding1aedf3d47bfbba0d6b53ae7303cf8dc44b163b1f4997b2b49e3539f5e9cdfd17,
+familyrpeerf52192352d6b457595edb3c3fb6af255. Old a2a383 bytes retained. Actual
+plan waitprimary-live/automaticRecoveryEnabled:false. Both native services idle,
+readiness/policy true, 0unknown. Both title/titleSource/model/effort/permission/cwd/
+pinned/archive baselines independently matched. Restored fresh Codex MCP native
+send passes18checks: harness-native-native-send-codex-2026-10-17T23-32-50-846Z.json.
+Same durable job, exact recipient message and causal reply, no maintenance or
+recovery children, settings/source/globalconfig unchanged. Human-assisted manual
+restoration/reconciliation verified; original one-shot rebind still FAILED and
+its post-fix whole native execution not claimed. Unattended cold remains unqualified.
+
+Observability fix: settlement now diagnoses exact verified target-bound trust
+refusal as bounded nativeFailure metadata (undelivered/messageId/humanActionRequired/
+retrySafe:false), propagating through recovery failure details/ledgers. Unknown/
+foreign/quoted/title-injected errors do not get this diagnosis. Actual old failed
+receipt re-reconciles with published:false and exact diagnosis; raw native outcome
+is unchanged. Focused11 recovery/failure tests and3 human-proof tests PASS. Full
+isolated v2-2026-10-17T23-33-24-341Z.json1/1PASS/sourceunchanged; both filtered
+harness-v2-{claude,codex}-2026-10-17T23-32-50-477Z.json10each PASS.
+FINALHOST7645d165b2ad1d40fcb9eda48d7fd9bc83035cebb9958150a45085917c098562.
+
+Private metadataControlTrial.manualArchiveRecoveryTrial contains original requests,
+failed observations, human start, rebind reconciliation and restoredVerification.
+All native jobs terminal. No new chat/app restart/process signal/permission change/
+legacy wake/CUA/input injection. Native workspace trust was answered by Taylor.
+NEXT: qualify cold path after persisted trust and fixed one-shot rebind, without
+replaying any failed request. Automatic enrollment stays disabled pending that
+proof. Broader appquit/bothgone/naturalpressure/creation/fork/archive/window gates
+remain incomplete. Goal active on current user turn; watcher paused; Codex-driver
+and 1Password parked. No further native prompt currently needed for restored roles.
+
 ## October 17 native archive-test boundary and import-only unarchive repair
 
 Previous batch published57fa0aa. Required native cold/rebind proof has remained
