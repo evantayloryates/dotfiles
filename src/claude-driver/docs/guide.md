@@ -1473,3 +1473,17 @@ attempts. Native input, ownership changes or unknown effects prevent progression
 Results expose `maintenanceJobId` when maintenance occurred. Inspect that original
 child on failure; do not retry under a new identity. This maintains an existing
 live controller and does not promise recovery after process or app loss.
+
+### Recovery roles and independent residency observation
+
+Cold recovery now derives the replacement role from verified terminal historical
+policy, preserving its exact target and model/send/stop grants. Changed targets,
+policy disagreement or unresolved effects refuse. Success requires final role
+preservation as well as settings, readiness and a native read. This change has
+unit/current-policy validation; a fresh native cold-recovery trial is still pending.
+
+`node scripts/residency-v2.mjs --live --session <controller> --service-id <generation> --duration-sec 240`
+observes an existing independent controller without native writes or wakes.
+An idle-survival result without observed natural pressure remains pressure-
+unqualified. It does not establish Cron protection, app-restart recovery or
+always-on availability. Source, epoch and budget must remain unchanged.

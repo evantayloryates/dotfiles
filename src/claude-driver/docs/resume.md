@@ -1,3 +1,68 @@
+## October 17 recovery role preservation and honest idle-residency evidence
+
+Previousbatch published21d1d9b. Foundrealcold-recoverycompositiongap: d.prepare
+alwaysinstalledplainreadrole, losingverifiedmetadata/archive target andmodel/send/
+stopgrants. Addedrecovery-role.mjs toderiveprepareargumentsONLYfromverifiedterminal
+historicalgeneration+policy with exactsession/build/oldPID/procStart. Rejectmixed
+roles/policydisagreement/unresolvedhistory; currentownedbypass targetbindingmust
+stillmatchsamePID/procStart/cwd withnoPR/worktree. Preservealltruegrantswithoutadding
+newones. Preflightbeforeeffects capturesrole; revalidatetargets beforeprepare;
+finalstatusmustmatchrole andsettings. RecoveryresultnowrequiresrolePreserved:true,
+notmerelyreadiness/readreceipt. Existingdefaultmetadataenrollmentstorescontroller
+session/cwd plusrecipientepoch (notcontrollerPID), so same-sessioncontrollernewPID
+needsnoindexretarget if recipientepochunchanged. Nativeactivationcold_rebind still
+owns controllernewPID verification. No forgedpermissions or silenttargetrebind.
+
+Tenrecovery/role testsPASS plus2residencytests: read/meta/archive scope, missing or
+changedtarget/grants/history, eachrecoveryphasefailure/replaystops. Read-onlyactual
+current0968475b policy+status validatedrecoverypreparearguments with SAMEinterrupt
+recipient andall3existinggrants. NO actualcoldrecovery/processkillperformed; role
+preservationisunit+currentpolicyvalidatedcandidate, notnewnativecoldqualification.
+
+Adapted EXISTING residency-v2 entrypoint with optional --session/--service-id to
+newindependentreadonlyobserver. It neverwakes/sends/probes/renews/navigates/manufactures
+pressure. Requiresownedverifiedliveidle/readiness/policy, exactsource/PID/procStart/
+selectedservice, sufficientlease, zero unresolved andunchangedreservedbudget. Two
+puretestsrefuseepoch/source/traffic/input/control/leasechanges. Quarantineremains;
+before/afterinputaudit. Idle survival separatefromCronprotection/recovery/pressure.
+
+Actual240second observation: independent-residency-2026-10-17T22-28-43-751Z.json,
+17samples, PID31678/start20:14:51UTC/service0968475b/sealed3dc08c68 remainedidle,
+reservedSlots8 unchanged, source1c14d49aab7cf0df57e2b6533c2e4ecf534ac0bd2a6e19ed9c26c71d76a46cba
+unchanged. idleSurvivalVerified:true,pressureQualified:false,pressureEvents0,
+errornull,okFALSE/exit1 deliberatelyUNQUALIFIEDforpressure; no processfailure.
+No nativewrites/navigation/input/recovery; noCronprotectionclaim. Don'trepeat
+samequiet240s topretendpressure; onlynaturalpressurecanqualifythatgate.
+
+Reviewedinstallednativegovernor afterisolatedcontractFAILEDadapter schema:
+governor-contract-2026-10-17T22-30-33-167Z.json retained. Correctsource
+index.chunk-CFJssAFf.js SHAabff2bf8cd6fa8d3d18964636ebaa6034e93997a9eea16a8802eaec0f759c9b7,
+2111078bytes. Primary2MiBsourcehelperREFUSED; boundunchanged. UsedEXISTINGgovernor
+contract8MiBboundedreader forreviewedfunctionexcerpts, noappAPIexecution. Current
+nativevictimfilter excludesbusy, stopping, activeagents, liveCronjobs/loopwakeups,
+remotecontrol/lanyard/protectedstates. Constantsfp60s/dp2/pp100/mp300s andupidle
+threshold extracted underexacthash. Added2.42304adapterpinnedtofullsourcehash with
+reviewedp5/logging/Pi/boolean syntheticdependencies; noOSpressure/nativewrites.
+Newisolatedgovernor-contract-2026-10-17T22-33-02-096Z.jsonPASS4scenarios (cronprotect,
+unprotectedvictim,busyexclude,allprotected/debounce). Syntheticdependenciesremain;
+notlivepressure/nativeprotectionconfiguration proof. Earlierfailureimmutable.
+
+FINALHOST354f32adaa32eb7f1d4e4167601646a7045f1294958aa3f7228ba82e8dc6b8fd
+addsgovernoradapterafterobserver. Currentcontrollerstillsealed3dc08c68, ready/policy,
+PID31678idle,7settled/0unknown/56slots; target90418 unchanged. Fullpressure
+v2-2026-10-17T22-33-23-767Z.json1/1/sourceunchanged; bothsynthetic10checks
+harness-v2-{claude,codex}-2026-10-17T22-33-57-927Z.jsonPASS. No freshnativecoldcontrol
+claimedonthissource; existinghealthyMCPcontrolproofprevioussourcepreserved.
+
+NEXT changedcondition: evaluateexplicitindependentstandbycontroller onEXISTING
+ownedother scratch andretainedprimaryempty-familyreceipt, withoutarchiving/killing
+currentprimary orrepeatingbudgetcycles. Thenon-demandcoldrecoverycanreuseexact
+priorrole; mustpreserveunknown/nativeconsentfailures. If no processloss occurs,
+prepare/testnon-effectrouting/guardsratherthanmanufacturecrash/OSpressure. Legacy
+observerownslegacy35b...broker; don'tduplicateitswake. Broadercreation/no-folder/
+fork/archive/window andnativepersonpermissiongatesstillremain. Goalactive,
+watcherpaused; noCUA/input/auth/restart/newchats/manualkills. Codex-driver/1Passwordparked.
+
 ## October 17 ordinary controls now maintain bounded controller admission
 
 Previousbatch publishedc911dc6. Reusedexistingdurablebroker_service_renew andpolicy

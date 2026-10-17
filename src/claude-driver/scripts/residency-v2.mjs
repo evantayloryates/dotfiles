@@ -17,6 +17,7 @@ if(!process.argv.includes('--live'))throw Error('explicit --live required for na
 const flag=(name,fallback)=>{const i=process.argv.indexOf('--'+name);return i<0?fallback:Number(process.argv[i+1])}
 const duration=flag('duration-sec',480),wait=flag('wait-sec',0)
 if(!Number.isInteger(duration)||duration<180||duration>1800||!Number.isInteger(wait)||wait<0||wait>1800)throw Error('duration must be 180–1800 seconds; wait 0–1800')
+if(process.argv.includes('--session')){const session=process.argv[process.argv.indexOf('--session')+1],serviceId=process.argv.includes('--service-id')?process.argv[process.argv.indexOf('--service-id')+1]:null;await (await import('./independent-residency-v2.mjs')).observeIndependentResidency(session,serviceId,duration);process.exit(process.exitCode??0)}
 const stamp=new Date().toISOString().replace(/[:.]/g,'-'),rows=[],samples=[],sourceBefore=runtimeFingerprint(),events=new Set()
 let aborted=false
 for(const signal of ['SIGTERM','SIGINT'])process.once(signal,()=>{aborted=true})

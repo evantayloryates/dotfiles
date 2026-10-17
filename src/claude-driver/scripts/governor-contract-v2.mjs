@@ -32,11 +32,12 @@ const pressure=cut('onPressure(e){','onSignal(e){')
 const eviction=cut('evictionOn(){','currentLevel(){').replace('}passesIdleGuard','},passesIdleGuard')
 const liveCron=cut('hasLiveCronJobs(e,t){','isCronJobGone(e,n){')
 stage='adapter'
+const current42304=createHash('sha256').update(source.text).digest('hex')==='abff2bf8cd6fa8d3d18964636ebaa6034e93997a9eea16a8802eaec0f759c9b7'&&pressure.includes('t.p5.info(')&&liveCron.includes('this.sessionViewRecord.evictExpiredCronJobs(')
 const current=pressure.includes('t.q0.info(')&&liveCron.includes('this.sessionViewRecord.evictExpiredCronJobs(')
 const legacy=pressure.includes('t.KQ.info(')&&!liveCron.includes('this.sessionViewRecord.')
-assert.ok(current||legacy,'unsupported installed governor schema')
+assert.ok(current42304||current||legacy,'unsupported installed governor schema')
 const constants={}
-for(const name of current?['of','af','sf','cf','rf']:['Tf','wf','Cf']){const m=source.text.match(new RegExp('\\b'+name+'=([0-9]+(?:e[0-9]+)?)[,;]'));assert.ok(m,'native numeric constant missing: '+name);constants[name]=Number(m[1])}
+for(const name of current42304?['fp','dp','pp','mp','up']:current?['of','af','sf','cf','rf']:['Tf','wf','Cf']){const m=source.text.match(new RegExp('\\b'+name+'=([0-9]+(?:e[0-9]+)?)[,;]'));assert.ok(m,'native numeric constant missing: '+name);constants[name]=Number(m[1])}
 stage='scenarios'
 const rows=[]
 const scenario=(name,cron,busy=false,allProtected=false)=>{
@@ -47,7 +48,7 @@ const scenario=(name,cron,busy=false,allProtected=false)=>{
  const governor={cfg:{cap:()=>6,countActive:()=>6-removed.length,peekLruIdleVictim:pick,evictVictim:id=>removed.push(id)},inFlight:0,lastSweepAt:{warning:0,critical:0},lastEmitted:null,${eviction},${pressure}};
  governor.onPressure('warning');const first=removed.slice();governor.onPressure('warning');return {removed:first,afterRepeatedSignal:removed.slice()};
 })()`
- const output=runInNewContext(body,{now:1791340000000,cron,busy,allProtected,...constants,Date:{now:()=>1791340000000},t:{KQ:{info:()=>{},warn:()=>{}},EG:64,WS:()=>false,q0:{info:()=>{},warn:()=>{}},pY:64,mC:()=>false,$l:()=>0,Ql:()=>0},n:{ir:r=>r.idleSince,Or:r=>r.idleSince},uy:()=>false,uk:()=>false,py:()=>false,sA:()=>false,YI:()=>false},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
+ const output=runInNewContext(body,{now:1791340000000,cron,busy,allProtected,...constants,Date:{now:()=>1791340000000},t:{p5:{info:()=>{},warn:()=>{}},Ad:()=>0,kd:()=>0,sQ:64,yT:()=>false,KQ:{info:()=>{},warn:()=>{}},EG:64,WS:()=>false,q0:{info:()=>{},warn:()=>{}},pY:64,mC:()=>false,$l:()=>0,Ql:()=>0},n:{ir:r=>r.idleSince,Or:r=>r.idleSince,Pi:r=>r.idleSince},Yv:()=>false,bP:()=>false,wC:()=>false,uy:()=>false,uk:()=>false,py:()=>false,sA:()=>false,YI:()=>false},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
  assert.equal(output.removed.includes('synthetic-broker'),!cron&&!busy&&!allProtected)
  assert.equal(output.removed.length,allProtected?0:2)
  assert.equal(JSON.stringify(output.removed),JSON.stringify(output.afterRepeatedSignal),'pressure debounce must prevent another sweep')
