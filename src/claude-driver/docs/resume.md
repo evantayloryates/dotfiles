@@ -1,3 +1,32 @@
+## Historical unknown receipt inventory — October 17
+
+Previous turn: progress (foreground/CLI receipt binding fix). Bounded diagnostic
+scan processed logical broker journal20,802,277bytes/15,419rows and canonical
+migrated journal21,852,809bytes/15,949rows, at most32MiB per owned no-follow
+regular file.22unknown request collectors used exact CLI identity, foreground
+filter, original offsets/time lower bounds and exact checkpoint/argument rules.
+No candidate native receipts found in either journal. Only rmuxpt37w-d5e587 had
+a matching checkpoint call; no admitted slot/native call/result was correlated.
+Diagnostic only: original dev/inode identities were NOT rebound, no receipt or
+control file published, no replay/handoff authority granted. Original saved
+device16777233 differs from current16777229; logical inode45916594 retained.
+Do not call this corruption or infer a reboot/migration cause from dev numbers.
+Canonical file's first20,802,277bytes exactly hash-match the logical file.
+Both contain one identical272,714-byte record above normal256KiB receipt bound.
+Separate at-most2MiB structural review found a user record with no tool calls,
+no tool-result blocks and no unresolved request ID mentions; no raw body entered
+chat/artifacts. This closes that structural gap without widening production
+receipt limits or granting settlement. Evidence:
+diagnostics/historical-receipt-scan-2026-10-17.json and
+diagnostics/historical-large-record-review-2026-10-17.json.
+All22 remain unknown/unsafe to replay; empty dispatch ledgers or desired current
+state cannot settle historical mutations. No old result overwritten, native
+request, process action, setting change or model prompt. Current source unchanged;
+passing pressure/harness reports from prior turn retained. Goal remains active.
+Next changed-condition work must establish independent native control/recovery
+admission or a supported explicit disposition of historical uncertainty; do not
+repeat this unchanged journal scan or bypass the settled-handoff gate.
+
 ## Foreground native receipt session binding — October 17
 
 Previous turn: progress (human-started epoch and connected MCP verification).
