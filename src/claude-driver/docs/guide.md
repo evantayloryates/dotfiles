@@ -1429,3 +1429,13 @@ Busy tool-free model interruption and replacement passed CLI; both actual MCP
 clients mechanically verified the route, with preserved harness final-format
 failures caused by an obsolete prompt. Earlier Bash sleep fixtures were policy
 refusals, not subprocess interruption proof. No queued-work discard is promised.
+
+### Read-only review of completed native contracts
+
+`node scripts/review-native-service.mjs --harness claude|codex --contract <exact original contract.json>`
+(Codex also requires `--model <configured model>`.) This diagnostic grants only
+guide plus one exact completed job wait. It cannot submit or repeat native work.
+Owner validates the original completed operation fingerprint and verifies original
+job/route/contract/trace bytes stay unchanged. Claude returns a provider-schema
+status; Codex uses an exact final marker. Failed original runs remain failed.
+Acceptance of historical evidence is separate from current native readiness.

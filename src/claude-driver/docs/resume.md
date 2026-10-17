@@ -1,3 +1,64 @@
+Finalc51ff7e3 validation: v2-2026-10-17T22-14-10-496Z.json1/1/sourceChangedfalse; bothsynthetic10checks harness-v2-{claude,codex}-2026-10-17T22-13-47-266Z.json PASS.
+
+## October 17 read-only MCP steering acceptance and scope audit
+
+Previousbatch publishedefc26b9. Added scripts/review-native-service.mjs with a
+review-only nativeproxy mode: advertises/admit ONLYdriver_guide and exact
+existingcompletedparent driver_wait (20s/include_result:true). NO driver_submit,
+status/write/foreignjob admission; missingparent cannotcreatework. Owner prechecks
+completedsteeroperation/args/fingerprint/exacttarget/service/routefile andoriginal
+trace path; boundedownedregularfile/no-follow/nonblockingreads. Originaljob,
+routeledger,contract andtrace SHA256 unchanged aftereachrun. Threefocusedtests
+coverforged/missing/runningparent, submit/foreign/expandedwait refusal andstrict
+providerstructuredverdict. These are historicalacceptance reviews, notfreshnative
+control/inference/livenessproof and notnewidempotentsubmissions.
+
+Codexgpt-6-sol read-onlyreviewPASS native-steer-review-codex-2026-10-17T22-12-27-820Z.json,
+existingparentj828eb62c887848178c553d7827ed52fe. Claude firstreview
+native-steer-review-claude-2026-10-17T22-12-26-679Z.json retainsokfalse/finalMarkerfalse:
+allmechanicalchecks true, clientexplainedchecks thenendedNATIVE_MCP_OK. Exacttext
+criterionremainedstrict, no retroactivepass. LocalbundledCLI--helpconfirms--json-schema.
+Claude reviewer now usesprovider JSONSchema{status:enumOK/FAILED,noadditionalkeys};
+parserrequires structured_output exactsingle statuskey, never prosemarker.
+SecondClaude read-onlyreviewPASS native-steer-review-claude-2026-10-17T22-13-11-881Z.json,
+sameexistingparentj211477153e84459c83153d9f3870f63f. Bothfinalacceptancereviews
+oktrue,nativeEffectsAttemptedfalse,noSubmissions/historicalBytesUnchangedtrue.
+Originalnativeharnessfailures frompreviouscheckpointremain unchanged. Provider
+structuredformat improvement appliesreadonlyreviewer; no blanketnativeharness
+formatrelaxation. Finalhostc51ff7e340ea3e1a2bebb1faa95b5885b0369a833a44c23fdd2377205a8dd55d
+includestracepath/nonblockinghardening afterreviews; finalpressure/syntheticfollow.
+Controllerdd6abdf2 remainssealed506797c3, samePID31678/start20:14:51UTC,idle,
+ready/policytrue,14settled/0unknown/17slots. Target90418 unchanged. No nativeeffects,
+newchats,permission/input/auth/restart/globalconfiguration changes inthisreview.
+
+### Completion audit against original brief and eleven-check runner
+
+Current code/evidence proves narrower components, not full always-on completion.
+Historical qualifications remain source-scoped; don't silently carrythemforward.
+
+| Requirement | Evidence and remaining work |
+| --- | --- |
+| Durable submit/reuse, uncertainty, cancellation | Fullsynthetic/currentpressure plus exactcompletednativeparentreuse; currentnative pre-dispatchcancel stillneeds combinedrunner qualification. |
+| Native send and recipient reply | BothfreshMCPs source3669 plus lateststeer replacementreceipts/causalreply. Hostinjection sender/body/cursor correlation explicitly notreturnedUUIDlinkage. |
+| Stop/interrupt steering | ToolfreemodelbusyCLIproof andbothnativeMCPphase/order/replychecks plusreadonlyacceptancePASS. Queuepreservation is appcontract, notdiscard. |
+| Busy queue-is-not-interrupt | Parser/admission synthetic onlyatcurrentfrontier; actualbusyqueue outcome andpreservedqueuedturn ordering remain toverify. |
+| Title/pin/model/effort | Source3cb091a3nativeCLI/bothMCPmodelconfigproof; controlled concurrent/batchedwhole-suite behavior currentroute stillneeds freshcombinedqualification. |
+| Elevencheck live-v2 entrypoint | Code still assumeslegacy receiptSource/nativebrokerbatch fields andpeer msg_id, creates acceptEdits fixture, archivescleanup. Needs enrolledexistingfixture adaptation, retainingall11requirements. Currentcomponentproofs donotmake its commandpass. |
+| Create chosenfolder/no-folder, fork | ExistingTierAimplementation/historicalbrief only; current-source nativecreation/fork/focusproofmissing. Don'tcreateanotherchat incidentally or downgradebypassfixture toforcecoverage. |
+| Focus/windowmanagement | Currentlive-runnersnapshot checks exist, nativefocus/window coverage remains separate; no CUA/quarantine changes authorized bytestneed. |
+| Archive/unarchive/delete/projectarchive | Existinggates andpriorcontrolledarchive/wake/rebind proof; notcurrentpublicwholeinterfacequalification. Human-onlydelete/permissioncards stayrequired; no realdeletionneededforsmoketest. |
+| Permissionmode | Bypassfixtures currentlyverified; raisesremain nativepersonconsent. Cannotclaimunattendedautomaticpermissionrecovery. |
+| Unattendedresidency/recovery | Currentboundedrole deadline/capacity andmanualverifiedrenew/rebind doNOTprovealways-on aftercrash/quit/delete/archive. Existinglegacyobserverownsbroker; preservegovernor/auth/epoch distinctions. |
+| Cross-harness availability | ActualClaude+CodexMCP verified; attachedoldCodexbinding remainsstale. Cursor/OpenCode registration/currentruntime exercise andportablehelp/schemacoverage notfreshlyaudited. |
+
+NEXT changedcondition: adaptEXISTINGlive-v2 qualification toexplicit enrolledowned
+fixture, currentreceipt/causalcontracts andrestore-onlycleanupwhenactive service
+mustremain. Preservecreate/focus andarchivegates asindependentrequiredchecks, not
+silentlyreplace11checkswithcomponentloop. Then actualbusyqueue/preservedturnorder,
+concurrentcontrol/cancel/current-source combinedsuite; broadercreation/focus and
+unattendedlifecycle remain. Goalactive; no same-nativeeffects repeatedforformat.
+Legacyobserver ownslegacybroker; watcherpaused; Codex-driver/1Passwordparked.
+
 Final04352d46 checks: fullpressure v2-2026-10-17T22-11-07-943Z.json1/1/sourceChangedfalse; synthetic10checks each harness-v2-claude-2026-10-17T22-10-54-026Z.json and harness-v2-codex-2026-10-17T22-10-54-026Z.json.
 
 ## October 17 durable interrupt steering and evidence correction

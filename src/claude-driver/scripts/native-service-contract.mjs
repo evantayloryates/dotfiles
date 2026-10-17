@@ -4,6 +4,7 @@ const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.f
 const same=(a,b)=>JSON.stringify(ordered(a))===JSON.stringify(ordered(b))
 export function permittedNativeContractCall(contract,jobs,name,args={}){
  if(!args||typeof args!=='object'||Array.isArray(args))return false
+ if(contract.reviewOnly===true)return name==='driver_guide'?same(args,{}):name==='driver_wait'&&same(args,{job_id:contract.reviewJobId,timeout_sec:20,include_result:true})
  if(name==='driver_guide')return same(args,{})
  if(name==='broker_service_status')return same(args,{session:contract.session,service_id:contract.serviceId})
  if(name==='driver_submit')return same(args,contract.submission)
