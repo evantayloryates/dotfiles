@@ -1,6 +1,8 @@
 // Pure receiver selector admission. Selection is never native readiness or
 // dispatch authority; the selected sealed handler must still enforce its gates.
 import {join,resolve} from 'node:path'
+import {constants,openSync,closeSync,fstatSync,lstatSync,readSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 const hex=/^[a-f0-9]{64}$/
 const keys='anchorSha256,bootstrapHash,build,generation,pid,procStart,receiverCwd,schemaVersion,serviceId,sessionId,settingsSha256'
 export function selectReceiverRuntime({selector,receiverCwd,pointer,policy,anchorSha256,settingsSha256}={}){
@@ -19,4 +21,41 @@ export function selectReceiverRuntime({selector,receiverCwd,pointer,policy,ancho
  const handler=join(stateDir,'releases',s.build,'scripts','broker-stop-rescue.mjs')
  if(policy.script!==handler||!hex.test(policy.sha256||''))fail()
  return {stateDir,brokerDir,handler,bootstrap:join(stateDir,'entry',s.bootstrapHash+'.mjs')}
+}
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex')
+function ownedDirectory(path){
+ const s=lstatSync(path)
+ if(s.isSymbolicLink()||!s.isDirectory()||s.uid!==process.getuid()||(s.mode&0o022))throw Error('receiver directory refused')
+}
+export function readReceiverFile(path,maxBytes,{sealed=false}={}){
+ const fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)
+ try{
+  const before=fstatSync(fd)
+  if(!before.isFile()||before.uid!==process.getuid()||before.size>maxBytes||(before.mode&0o022)||sealed&&(before.mode&0o222))throw Error('receiver file refused')
+  const bytes=Buffer.alloc(before.size)
+  for(let offset=0;offset<bytes.length;){const n=readSync(fd,bytes,offset,bytes.length-offset,offset);if(!n)throw Error('receiver file changed');offset+=n}
+  const after=fstatSync(fd),named=lstatSync(path)
+  for(const field of ['dev','ino','size','mtimeMs','ctimeMs','mode','uid'])if(before[field]!==after[field]||after[field]!==named[field])throw Error('receiver file changed')
+  if(named.isSymbolicLink())throw Error('receiver file changed')
+  return bytes
+ }finally{closeSync(fd)}
+}
+// Read-only evidence loader, deliberately separate from execution admission.
+// Full release inventory and actual native ancestry remain the entry's duty.
+export function loadReceiverSelection(receiverCwd){
+ if(typeof receiverCwd!=='string'||receiverCwd==='/'||resolve(receiverCwd)!==receiverCwd)throw Error('receiver cwd refused')
+ ownedDirectory(receiverCwd)
+ const root=join(receiverCwd,'.claude-driver-services');ownedDirectory(root)
+ const selectorPath=join(root,'receiver-runtime.json'),selectorBytes=readReceiverFile(selectorPath,4096),selector=JSON.parse(selectorBytes)
+ // Validate identifiers BEFORE deriving any selected filesystem path.
+ if(!/^[a-f0-9]{32}$/.test(selector?.serviceId||'')||!hex.test(selector?.build||'')||!hex.test(selector?.bootstrapHash||''))throw Error('receiver selector paths refused')
+ const state=join(root,selector.serviceId),broker=join(state,'broker')
+ for(const dir of [state,broker,join(receiverCwd,'.claude'),join(state,'entry'),join(state,'releases'),join(state,'releases',selector.build),join(state,'releases',selector.build,'scripts')])ownedDirectory(dir)
+ const pointer=JSON.parse(readReceiverFile(join(broker,'runtime.json'),16384)),policy=JSON.parse(readReceiverFile(join(broker,'stop-rescue-policy.json'),16384))
+ const anchor=readReceiverFile(join(root,'receiver-stop-entry.mjs'),65536,{sealed:true}),settings=readReceiverFile(join(receiverCwd,'.claude','settings.json'),65536)
+ const selected=selectReceiverRuntime({selector,receiverCwd,pointer,policy,anchorSha256:sha(anchor),settingsSha256:sha(settings)})
+ const handler=readReceiverFile(selected.handler,4*1024*1024,{sealed:true}),bootstrap=readReceiverFile(selected.bootstrap,65536,{sealed:true})
+ if(sha(handler)!==policy.sha256||sha(bootstrap)!==selector.bootstrapHash)throw Error('receiver sealed entry refused')
+ if(!readReceiverFile(selectorPath,4096).equals(selectorBytes))throw Error('receiver selector changed')
+ return {...selected,selector,pointer,policy,executionQualified:false}
 }

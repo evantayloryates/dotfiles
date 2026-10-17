@@ -1,3 +1,24 @@
+## Bounded receiver selector file loader prepared — October 17
+
+Added read-only loadReceiverSelection around the exact selector contract. It checks
+owned nonsymlink receiver/private generation directories, refuses group/world
+writable directories/files, reads bounded O_NOFOLLOW/nonblocking file descriptors,
+and checks descriptor/path inode, times, mode, owner and size after reading. It
+hash-checks the sealed anchor, selected handler and bootstrap against their bound
+metadata and rechecks the selector bytes before returning. No executable path is
+accepted from the selector. Six combined selector/native-policy/generation tests
+pass, including actual-file symlink, oversize and modified-handler rejection.
+
+This remains unused preparation code, returning executionQualified:false. It does
+not establish full sealed release inventory, native ancestry, atomic turnover or
+hook execution. Next integrate those checks into a built-ins-only executable and
+candidate lifecycle; preserve existing actual handler request/STOP/native admission
+gates. Do not deploy this loader alone or infer readiness from it. No native sends,
+settings edits, app restart, STOP change or installed generation mutation occurred.
+Frozen-source pressure1/1 passes: pressure/v2-2026-10-17T19-14-38-446Z.json,
+sourceChanged:false. Previous turn was implementation progress; goal remains active,
+Codex fixes parked.
+
 ## Stable receiver selector contract prepared — October 17
 
 Added pure lib/receiver-runtime-selection.mjs as the first stable-hook component.
