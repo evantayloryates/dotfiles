@@ -1,3 +1,6 @@
+import {createHash} from 'node:crypto'
+import {readStandbyEnrollment,standbyEnrollmentDigest,enrollStandby} from './standby-enrollment.mjs'
+import {readIndependentService} from './independent-service-result.mjs'
 import {join} from 'node:path'
 import {writeFileSync} from 'node:fs'
 import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
@@ -40,6 +43,8 @@ export async function renewIndependentService(session,serviceId,{jobId,lifetimeS
  if(!/^j[a-f0-9]{32}$/.test(jobId||'')||! /^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(session||'')||! /^[a-f0-9]{32}$/.test(serviceId||'')||jobId.slice(1)===serviceId)throw new DriverError('renewal requires one durable job and distinct predecessor',{category:'bad_args'})
  if(!Number.isInteger(maxRequests)||maxRequests<2||maxRequests>128)throw new DriverError('renewal requires capacity for policy probe and a later read',{category:'bad_args'})
  return withLock('independent-renewal-'+session,async()=>{
+  const standbyBinding=readStandbyEnrollment(session)
+  if(standbyBinding&&maxRequests<3)throw new DriverError('enrolled standby renewal requires policy, family and later-operation capacity',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
   const file=join(ensureDir(join(STATE_DIR,'independent-service-renewals')),jobId+'.json'),successorServiceId=jobId.slice(1),record=getRecord(session),peer=peerRecord(session)
   const ledger={schemaVersion:1,kind:'independent-service-renewal',jobId,sessionId:session,serviceId,successorServiceId,lifetimeSec,maxRequests,phase:'created',at:Date.now(),servingQualified:false,retrySafe:false}
   writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600})
@@ -60,8 +65,22 @@ export async function renewIndependentService(session,serviceId,{jobId,lifetimeS
     policyProbe:()=>probeIndependentServicePolicy(session,successorServiceId,{jobId,signal,timeoutMs:20000}),
     verify:async()=>{const r=await inspectIndependentService(session,successorServiceId,{signal});if(!r.verified||r.sourceDisposition!=='installed'||r.admissionStopped||r.expired===true||r.nativeEpoch.pid!==peer.pid||r.nativeEpoch.procStart!==peer.procStart||!r.readinessObserved||!r.nativePolicyObserved||!r.terminalAttemptReviewComplete||r.unresolvedRequestIds.length||r.unreservedSlots<1)throw Error('successor verification');return r}
    })
+   let standbyRefreshQualified,standbyFamilyRequestId
+   if(standbyBinding){
+    if(standbyBinding.primary.cwd!==record.cwd||standbyBinding.primary.pid!==peer.pid||standbyBinding.primary.procStart!==peer.procStart){standbyRefreshQualified=false;ledger.standbyRefresh={qualified:false,reason:'prior-primary-epoch-changed'}}
+    else{
+     const contextId='j'+createHash('sha256').update('standby-renewal-family:'+jobId).digest('hex').slice(0,32)
+     ledger.phase='before-standby-family';ledger.standbyRefresh={phase:'before-family',contextId,expectedEnrollmentSha256:standbyEnrollmentDigest(standbyBinding)};writeJsonAtomic(file,ledger)
+     const family=await readIndependentService(session,successorServiceId,session,{family:true,jobId:contextId,signal,timeoutMs:20000})
+     if(family.receiptVerified!==true||family.state!=='completed')throw Error('standby family request unresolved')
+     standbyFamilyRequestId=family.requestId;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'family-settled',family};writeJsonAtomic(file,ledger)
+     try{const refreshed=await enrollStandby({session:standbyBinding.standby.sessionId,service_id:standbyBinding.standby.serviceId,session_id:session,target_service_id:successorServiceId,family_request_id:family.requestId},{signal,expectedSha256:standbyEnrollmentDigest(standbyBinding)});standbyRefreshQualified=true;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'enrolled',qualified:true,result:refreshed}}
+     catch(error){standbyRefreshQualified=false;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'not-enrolled',qualified:false,category:error.category??'standby-refresh-unqualified'}}
+    }
+    await guard('verify');const refreshedStatus=await inspectIndependentService(session,successorServiceId,{signal});if(refreshedStatus.unresolvedRequestIds.length||refreshedStatus.unreservedSlots<1)throw Error('standby family consumed operation admission')
+   }
    ledger.phase='policy-qualified';ledger.readAdmissionQualified=true;ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)
-   return {sessionId:session,predecessorServiceId:serviceId,serviceId:successorServiceId,installed:true,readinessObserved:results.verify.readinessObserved,nativePolicyObserved:results.verify.nativePolicyObserved,policyProbeRequestId:results.policyProbe.requestId,readAdmissionQualified:true,servingQualified:false,renewalFile:file,retrySafe:false}
+   return {sessionId:session,predecessorServiceId:serviceId,serviceId:successorServiceId,installed:true,readinessObserved:results.verify.readinessObserved,nativePolicyObserved:results.verify.nativePolicyObserved,policyProbeRequestId:results.policyProbe.requestId,...standbyBinding?{standbyRefreshQualified,standbyFamilyRequestId:standbyFamilyRequestId??null}:{},readAdmissionQualified:true,servingQualified:false,renewalFile:file,retrySafe:false}
   }catch(error){ledger.failureCategory=error.category??'renewal_step_failed';ledger.failedAt=Date.now();writeJsonAtomic(file,ledger);throw new DriverError('renewal refused or interrupted; inspect original job and phase without replay',{category:'independent_service_renew_unresolved',detail:{jobId,serviceId,successorServiceId,phase:ledger.phase,retrySafe:false}})}
  },{timeoutMs:5000,signal})
 }

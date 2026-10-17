@@ -1013,6 +1013,17 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('metadata control requires experimental durable submission',{category:'bad_args'});return (await import('./independent-service-result.mjs')).readIndependentService(args.session,args.service_id,args.session_id,{metadataControl:{operation:args.operation,value:args.value},timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal,jobId:ctx.jobId,progress:ctx.progress})},
   },
   {
+    name:'broker_service_enroll_standby',title:'Bind one exact independent standby',
+    description:'Explicit exact live-primary/standby generation and terminal empty-family enrollment. Filesystem only, no wake or automatic failover. Existing bindings require expected digest for same-epoch refresh; prior bytes retained. Changed sessions/epochs refuse.',
+    schema:{required:['session','service_id','session_id','target_service_id','family_request_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string'},session_id:{type:'string'},target_service_id:{type:'string'},family_request_id:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw Error('explicit standby enrollment required');return (await import('./standby-enrollment.mjs')).enrollStandby(args,{signal:ctx.signal,expectedSha256:args.expected_enrollment_sha256})},
+  },
+  {
+    name:'broker_service_standby_status',title:'Inspect an enrolled standby',readOnly:true,
+    description:'Read-only exact retained standby enrollment and current cold-recovery admission; never submits, wakes, renews or repairs.',
+    schema:{required:['session'],properties:{session:{type:'string'}}},run:async(args,ctx)=>(await import('./standby-enrollment.mjs')).inspectEnrolledStandby(args.session,{signal:ctx.signal}),
+  },
+  {
     name:'broker_service_standby_plan',title:'Inspect exact standby recovery admission',readOnly:true,
     description:'Read-only eligibility for one explicit standby, primary generation and retained empty family receipt. Live primary, changed epoch, stopped/unknown history or unqualified standby never grants recovery. No wake, retirement, repair, native effect or crash inference.',
     schema:{required:['session','service_id','session_id','target_service_id','family_request_id'],properties:{session:{type:'string'},service_id:{type:'string'},session_id:{type:'string'},target_service_id:{type:'string'},family_request_id:{type:'string'}}},

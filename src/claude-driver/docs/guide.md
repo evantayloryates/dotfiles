@@ -1497,3 +1497,17 @@ cold recovery; changed generations, unknown effects, STOP, stale family proof or
 unqualified standby fail closed. Missing peer state never establishes a crash.
 The staged standby is not yet wired into automatic control routing. Generation
 renewal must refresh retained family proof before future cold recovery.
+
+### Durable standby enrollment
+
+`broker_service_enroll_standby` binds exact live standby/primary generations and a
+verified terminal empty-family receipt. Existing bindings are immutable without an
+exact `expected_enrollment_sha256`; refresh preserves both native epochs and keeps
+the prior bytes in history. `broker_service_standby_status` inspects the retained
+binding without effects. Enrollment does not enable automatic cold recovery.
+
+Primary renewal captures a fresh family receipt and refreshes an enrolled binding.
+It needs capacity for policy, family and a later operation. A failed standby
+revalidation leaves the old binding stale and returns `standbyRefreshQualified:false`;
+unknown family effects stop progression. Old generation receipts never become new
+recovery authority. A changed native epoch requires a separate proven rebind.

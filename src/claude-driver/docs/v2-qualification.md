@@ -1,3 +1,62 @@
+## October 17 durable standby enrollment refreshes across primary renewal
+
+Previousbatch published80602ef. Addedstandby-enrollment.mjs andpublic
+broker_service_enroll_standby/broker_service_standby_status. ExactverifiedLIVE
+primary+standby andterminalemptyfamily required atregistration. Rootprivate
+standby-enrollments/<primary>.json binds BOTHsession/cwd/PID/procStart/serviceIDs,
+familyrequest andtimestamp; no tokens. Immutabledefault/reusedexactbinding; same-
+epochgeneration/familyrefresh requirespriorSHA256CAS. Oldcanonicalbytesretained
+instandby-enrollment-history/<primary>/<sha>.json beforeatomicreplacement. Changed
+session/cwd/PID/procStart refused, notsilentlyretargeted. Readstatus resolvesonly
+retainedexactgenerations; changedgeneration/recordsreportinspect, noautowake.
+TestscoverCASstaleness, epochretarget, duplicates, exacthistoricalretention.
+
+Integratedfreshfamilycapture inEXISTINGprimaryrenewal WHENabindingexists. Policy
+qualifiedsuccessor getsONEdurablederivedfamilyrequestcontext, notanotherscheduled
+job. Before-family context/after-settlement/enrollmentoutcome savedinrenewalledger.
+Successfulqualifiedsame-epochCAS refreshesbinding; unqualifiedstandby/CASfailure
+leavesoldbindingstale andreturnsstandbyRefreshQualified:false, nevercarryoldreceipt
+asnewauthority. Unknown/failedfamily publicationstopsrenewalparent. Require3slots
+beforeeffectswhenstandbybound (policy+family+lateroperation); no silentbudgetbump.
+Withoutbinding, originalrenewalbehaviorunchanged. Thiskeepsordinarylivecontrols
+possiblewithexplicitbackupdegradation, whilecoldroutingstaysfailclosed.
+
+LIVEenrolljb59a57d9ed0e4b20b4dc206010ac2023 capturedprimary096.../standby3e8045...
+familyrpeer35a620b5a70c440bbbb6126c5075abdf. Initialbindingdigest
+ccc058bad0c81e9d528e330912fac2ddf263a47c86d23d8ded033da9a87dbc8c.
+Necessarynewfeaturetest: boundprimaryrenew jcb68b77b5365435499f1655d77b77036
+succeededwithstandbyRefreshQualified:true. NEWCURRENTprimarycb68b77b5365435499f1655d77b77036,
+freshfamilyrpeere51b8082758855b63da28067cb38146d. SameprimaryPID31678/start20:14:51UTC,
+samestandby90418/start21:37:26UTC; no nativeprocesskill/restart/newchat. Bindingnow
+primarycb68.../standby3e8045... withdigest
+905865a4622eef6f6f5a9dd59db218be64ce471f3754d8bc80349217b9a02869.
+Originalbinding retainedbyoldsha; nofamilycarryfromretired096. Freshfamilycontext
+je51... isNOTdriverjob; inspectrequest/renewalledger, notdriver_wait(context).
+Sameparentrenewalsubmissionreusedtrue/samejob, renewalbytesunchanged.
+Actualbroker_service_standby_statusafterrefresh resolvescurrentcb68 andreturns
+waitprimary-live/coldRecoveryEligiblefalse/effectsPerformedfalse/recoveryAttemptedfalse.
+Privateplan.metadataControlTrial.standbyEnrollmentReview retainssnapshot/digests.
+
+FINALHOSTANDNEWPRIMARYSEALED
+e90154fabdae220bd246b0bf2b175867fdd1118e980768debffada8af80309b4.
+Focused8renewal/enrollmenttestsPASS. Fullpressure
+v2-2026-10-17T22-45-20-274Z.json1/1/sourceunchanged; bothsynthetic10checks
+harness-v2-{claude,codex}-2026-10-17T22-46-16-491Z.jsonPASS. No newnativecoldrecovery
+orordinarymodel-message loopneededforfilesystembindingtest. Standbyrole3e8045...
+stillsealed354f32ad, exactarchiveTargetprimaryPID31678. Primaryrolepreservedall
+metadata/model/send/stopgrants andrecipientepoch. Old096...terminal/retiredhistory
+preserved, no outstandingeffects. Bothbaselinechatsettingsunchanged.
+
+NEXT: gateon-demandcoldrequest routingthroughthisEXPLICITbinding ONLYafteractual
+OSabsence/nopeer/0unknown/qualifiedstandby andretainedfamily. Needstablechildidentity
+andbefore/afterledger; neverreplayoriginalnegativecoldparent. Enrollmentcurrently
+recordsreadiness ONLY anddoesNOTenableautomaticcoldrecovery. Coldrecoverychanges
+primaryepoch, so requirescontrolledprovenrebind/resealofstandby afterward; current
+CASintentionallyrefusesepochchanges. Appquit/bothcontrollerslost, naturalpressure,
+creation/fork/fullarchive/window/personpermissiongatesstillincomplete. Goalactive,
+legacyobserverownslegacy35b...broker; watcherpaused; noCUA/input/auth/restart/newchats/
+manualkills. Codex-driver/1Passwordparked.
+
 ## October 17 independent standby staged without primary interruption
 
 Previousbatch published6d36c73. Bothexistingowned scratcheslive/idle/0unknown.
