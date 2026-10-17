@@ -1,3 +1,18 @@
+## October 17 native metadata admission addendum
+
+Configured target epoch is now checked inside the actual PreToolUse hook against
+request binding, bounded live peer and independent process inspection. New sealed
+manifest/pointer/policy capability is required; older controllers refuse writes
+before publication. Exact target observation is retained in admission and required
+for settlement. Actual-hook regressions cover missing capability/binding,
+foreign/configuration mismatch, busy peer and mutually stale policy/request/peer
+that disagree with the real process. Native pin-on/off passed on final source
+b33501f6f606cd2fe931dcef825f226d8e127d8bddc6f35a76dd6a54fcb3b390,
+controllerce93557aae974cfcb10b12b6ef70c35c; unchanged target/controller native epochs.
+This is admission-time validation, not an atomic app API epoch condition. General
+routing/batch and full original live suite remain incomplete. Earlier addenda below
+retain historical sources and limitations superseded only within this exact scope.
+
 ## October 17 metadata-control addendum
 
 Experimental explicit target-bound title/pin/effort controls now have scoped native

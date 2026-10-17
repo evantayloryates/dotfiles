@@ -1,3 +1,4 @@
+import {nativeMetadataTargetEvidenceMatches} from './native-metadata-admission.mjs'
 import {isMetadataOperation,metadataControlArguments,metadataObservationMatches} from './native-metadata-control.mjs'
 import {screenNativePeerAdmission} from './native-peer-evidence.mjs'
 import {screenNativePeerResult} from './native-peer-result.mjs'
@@ -26,6 +27,7 @@ export function screenNativeServiceResult({config,ready,intent,receipt,request,e
  const family=request.ops?.[0]?.op==='list_sessions'
  const archive=request.ops?.[0]?.op==='archive_session'
  const metadata=isMetadataOperation(request.ops?.[0]?.op)
+ if(metadata&&(pointer?.nativeMetadataTargetVersion===1||Object.hasOwn(request,'nativeMetadataTargetBinding'))&&(!nativeMetadataTargetEvidenceMatches(request,admission)||['sessionId','cwd','pid','procStart'].some(k=>request.nativeMetadataTargetBinding[k]!==config.metadataTarget?.[k])))return refused
  if(metadata&&(!config.serviceStateBinding||!config.metadataTarget||receipt.targetSession!==config.metadataTarget.sessionId||receipt.isError||!metadataObservationMatches(metadataObservation,{config,request,receipt,now})))return refused
  const wake=request.ops?.[0]?.op==='send_message'
  if(wake&&(!config.serviceStateBinding||!config.archiveTarget||receipt.targetSession!==config.archiveTarget.sessionId))return refused

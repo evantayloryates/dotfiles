@@ -53,6 +53,7 @@ export function validateRelease(build) {
      JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files).sort())||
      runtimeFingerprint(root)!==build)fail()
   for(const file of ['scripts/broker-wait.mjs','scripts/broker-check.mjs','broker-template/CLAUDE.md'])if(!files[file])fail()
+  if(Object.hasOwn(manifest,'nativeMetadataTargetVersion')&&manifest.nativeMetadataTargetVersion!==1)fail()
   if(Object.hasOwn(manifest,'nativeServiceStateBindingVersion')&&manifest.nativeServiceStateBindingVersion!==1)fail()
   const template=readFileSync(join(root,'broker-template/CLAUDE.md'),'utf8')
   const protocol=Number(template.match(/^Protocol version: (\d+)/m)?.[1])
@@ -68,12 +69,14 @@ export function activeRelease() {
   if(pointer.schemaVersion!==1||!hex.test(pointer.build)||!Number.isInteger(pointer.generation)||pointer.generation<1)fail()
   if(Object.hasOwn(pointer,'serviceStateBinding')&&(!Object.hasOwn(pointer,'procStart')||!serviceStateBindingMatches({binding:pointer.serviceStateBinding,dir:BROKER_DIR,sessionId:pointer.sessionId,build:pointer.build,receiverCwd:pointer.serviceStateBinding?.receiverCwd})))fail()
   if(Object.hasOwn(pointer,'procStart')&&(typeof pointer.procStart!=='string'||!pointer.procStart||!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string'))fail()
+  if(Object.hasOwn(pointer,'nativeMetadataTargetVersion')&&pointer.nativeMetadataTargetVersion!==1)fail()
   if(Object.hasOwn(pointer,'nativeRequestBindingVersion')&&pointer.nativeRequestBindingVersion!==1)fail()
   if(!hex.test(pointer.bootstrapHash))fail()
   const entry=join(STATE_DIR,'entry',pointer.bootstrapHash+'.mjs')
   owned(join(STATE_DIR,'entry'),{directory:true});owned(entry,{sealed:true})
   if(createHash('sha256').update(readFileSync(entry)).digest('hex')!==pointer.bootstrapHash)fail()
   const release=validateRelease(pointer.build)
+  if(pointer.nativeMetadataTargetVersion===1&&release.manifest.nativeMetadataTargetVersion!==1)fail()
   if(pointer.nativeRequestBindingVersion===1&&release.manifest.nativeRequestBindingVersion!==1)fail()
   if(Object.hasOwn(pointer,'serviceStateBinding')&&release.manifest.nativeServiceStateBindingVersion!==1)fail()
   return {...release,pointer}
@@ -131,7 +134,7 @@ export async function stageRelease({evidence=[]}={}) {
    for(const name of roots)copy(join(SOURCE,name),join(temp,name))
    const files=inventory(temp)
    if(runtimeFingerprint()!==build||runtimeFingerprint(temp)!==build)throw new DriverError('source changed during release staging',{category:'runtime_stale'})
-   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,nativeServiceStateBindingVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
+   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,nativeServiceStateBindingVersion:1,nativeMetadataTargetVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
    function seal(path){const stat=lstatSync(path);if(stat.isDirectory()){for(const name of readdirSync(path))seal(join(path,name));chmodSync(path,0o555)}else chmodSync(path,0o444)}
    seal(temp);renameSync(temp,target);validateRelease(build)
    return {build,root:target,reused:false,active:false}
@@ -150,7 +153,7 @@ export function commitRelease(build,{sessionId,pid,procStart,nonce,serviceStateB
  const before=existsSync(RUNTIME_POINTER)?readFileSync(RUNTIME_POINTER):null
  const instructions=join(BROKER_DIR,'CLAUDE.md'),oldText=existsSync(instructions)?readFileSync(instructions):null
  try {
-  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),...(serviceStateBinding!==undefined?{serviceStateBinding}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
+  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...(release.manifest.nativeMetadataTargetVersion===1?{nativeMetadataTargetVersion:1}:{}),...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),...(serviceStateBinding!==undefined?{serviceStateBinding}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
   writeFileSync(instructions,render(),{mode:0o600})
  }catch(e){
   if(before)writeFileSync(RUNTIME_POINTER,before,{mode:0o600});else rmSync(RUNTIME_POINTER,{force:true})

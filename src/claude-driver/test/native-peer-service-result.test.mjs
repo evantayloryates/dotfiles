@@ -58,5 +58,13 @@ test('fixed wake receipt proves native call only, and rejects arbitrary text or 
 test('metadata receipt requires independently persisted exact postcondition; native success alone stays unknown',()=>{
  const make=()=>{const x=fixture();x.config.serviceStateBinding={version:1};x.config.metadataTarget={sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch'};x.request.ops=[{op:'set_session_title',args:{session_id:target,title:'new title'}}];x.receipt.content=[{type:'text',text:'native title acknowledgement'}];x.metadataObservation={schemaVersion:1,serviceId:x.config.id,requestId:rid,sessionId:target,cwd:'/owned/target',pid:50,procStart:'target epoch',operation:'set_session_title',postcondition:{title:'new title',titleSource:'tool'},observedAt:1200,nativeTextSha256:createHash('sha256').update(x.receipt.content[0].text).digest('hex')};return x}
  const good=make(),before=structuredClone(good);assert.equal(screenNativeServiceResult(good).receiptVerified,true);assert.deepEqual(good,before)
+ const current=make();current.pointer.nativeMetadataTargetVersion=1
+ assert.equal(screenNativeServiceResult(current).receiptVerified,false)
+ current.request.nativeMetadataTargetBinding={version:1,...current.config.metadataTarget}
+ assert.equal(screenNativeServiceResult(current).receiptVerified,false)
+ current.admission.metadataTarget={...current.request.nativeMetadataTargetBinding,observedAt:1059}
+ assert.equal(screenNativeServiceResult(current).receiptVerified,true)
+ for(const change of [x=>delete x.request.nativeMetadataTargetBinding,x=>delete x.admission.metadataTarget,x=>x.admission.metadataTarget.pid=51,x=>x.request.nativeMetadataTargetBinding.pid=51,x=>x.admission.metadataTarget.observedAt=1061,x=>x.admission.metadataTarget.observedAt=899]){const x=structuredClone(current);change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
+
  for(const change of [x=>delete x.metadataObservation,x=>delete x.config.metadataTarget,x=>x.metadataObservation.postcondition.titleSource='auto',x=>x.metadataObservation.pid=51,x=>x.request.ops[0].args._consent=true,x=>x.request.ops[0].args.title='other',x=>x.receipt.isError=true,x=>x.admission.toolUseId='foreign']){const x=make();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
 })

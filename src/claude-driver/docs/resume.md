@@ -1,3 +1,57 @@
+## Native metadata target admission implemented and verified — October 17
+
+Previous turn made progress (published7c105c8). This turn closes preflight-to-hook
+identity gap: new nativeMetadataTargetVersion1 manifest/pointer/policy capability;
+policy configuration target equals request nativeMetadataTargetBinding, bounded
+owned live peer identity and actual ps PID/start at PreToolUse. Exact original
+target must still be idle in2.1.299; no spare/parked/self/foreign invocation.
+Admission retains metadataTarget observedAt; historical settlement for new pointer
+requires exact binding and observation, as well as immutable disk postcondition.
+Old metadata history remains reviewable; new writes on old controller refuse
+before publication. No change to generic TierB routing or native permissions.
+This is admission-time observation, NOT atomic native API epoch preconditioning:
+app tool accepts only sessionID; restart after hook return can invalidate
+post-effect verification. Do not overclaim atomic fencing.
+
+Preserved old-release negative je17d73a2565c4c16a3e7e3ce54d9c752: failed retrySafe,
+no request/control/intent/send/admission, reservedslots11unchanged. First boundary
+renewalj459a230bbc9e446781e01181327ee35a on sourcebeda7b10 passed pin/restore and
+nativeClaude metadata harness. Review then tightened policy-configured target
+comparison; final renewaljce93557aae974cfcb10b12b6ef70c35c preserved same target
+and native controller epoch, retired predecessor safely, actualready/nativepolicy.
+CURRENT metadata controller ce93557aae974cfcb10b12b6ef70c35c, PID31678/start
+SatOct17 20:14:51UTC, target74c54e49/PID13591/start20:57:38UTC. Target read service
+9475c62da7bc44538b7a666d2dcedad5 remains unchanged. No archive capability granted.
+
+FINAL host AND sealed source
+b33501f6f606cd2fe931dcef825f226d8e127d8bddc6f35a76dd6a54fcb3b390.
+Native pinon jbe75ac6a9147442aa7264f366c3cf52c/toolu_plugin_16bff6901d994123943410963f713701;
+restore j16948b21846748acafa56e4c0244060b/toolu_plugin_aa84ec4bcee6492291810163b3e83775.
+Both metadataVerified and independent admission exacttarget checked. Restored
+pinnedfalse/originaltitle/toolsource/explicitHigh/bypass/Haiku5.5, same targetepoch.
+Same-key restore reattach reused samejob, send/admission/postcondition evidence
+hash unchanged. Final status4settled/0unresolved/5reservedof32, ready/nativepolicy.
+Private plan metadataControlTrial.targetBoundaryFinal retains selected exact
+request/policy/admission and finalstatus; no tokens copied to docs or memory.
+
+Focused15tests pass, including actual command-hook synthetic regression for
+mutually stale policy/request/peer versus real ps; no live target restart injected.
+Final full pressure v2-2026-10-17T21-23-20-310Z.json1/1/sourceChangedfalse includes
+final regressiontest hashes. Earlier21:22:41pressure passed before strengthened
+stale-fixture assertion. Synthetic10checks each finalsource: Claude21:22:16.127 /
+Codexgpt-6-sol21:22:17.553. Both actual real-MCP current-route metadata harnesses
+14checks each pass on finalcontroller/source: harness-native-current-claude-
+2026-10-17T21-22-59-365Z.json and harness-native-current-codex-
+2026-10-17T21-23-21-448Z.json. These are metadata READ MCP contracts; pin controls
+were durable CLI/native tests, not direct MCP mutation harness qualification.
+
+NEXT: general public metadata routing (title/pin/effort) through explicitly enrolled
+qualified controller, then durable batch/concurrency and current native/MCP
+verification. Preserve no-match/ambiguous/stale/unknown refusal; no silent legacy
+recovery. Full creation/messaging/steer/original11live gates remain incomplete.
+Goal active; watcher paused; no broker/globalapprestart/auth/CUA/sessionkills;
+legacy observer owns its broker, Codex-driver fixes/1Password remain separate.
+
 ## Scoped metadata controls qualified experimentally — October 17
 
 Added explicit sealed `metadataTarget`, separate from and mutually exclusive with

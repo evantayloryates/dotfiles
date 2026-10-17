@@ -1264,8 +1264,14 @@ same durable job after uncertainty; never replay with a new identity. Prior
 unresolved attempts refuse further metadata dispatch. Restoration is another
 explicit effect, and immutable historical snapshots retain earlier proof.
 
-This does not change generic rename/config routes. Current target epoch checks
-happen before dispatch and after effect, not atomically at native tool execution;
-a target restart in that interval is an open hardening gate. Keep this experimental
-and limited to the explicitly owned scratch fixture. A successful send or native
+This does not change generic rename/config routes. New sealed releases require `nativeMetadataTargetVersion:1` in manifest,
+runtime pointer and native policy. The configured policy target, request binding,
+live peer and independently inspected PID/start must match at native PreToolUse
+before admission is consumed. Admission retains the exact target observation;
+settlement requires it as well as the persisted postcondition. Older controllers
+refuse metadata writes before publication and require explicit renewal. The hook
+is an admission-time observation, not an atomic native API precondition: the app
+API accepts a session ID and provides no PID/start conditional mutation. A restart
+after the hook returns can still invalidate post-effect verification. Keep this
+experimental and limited to the explicitly owned scratch fixture. A successful send or native
 acknowledgment alone never settles the requested state change.
