@@ -904,8 +904,8 @@ export const OPS = [
   {
     name:'broker_service_status',title:'Inspect owned native receiver metadata',readOnly:true,
     description:'Experimental bounded enrollment, filesystem and existing settlement metadata inspection. Does not send, reconcile, install or infer native unload from missing files.',
-    schema:{required:['service_id'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},
-    run:async args=>(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id),
+    schema:{required:['service_id'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session:{type:'string',description:'Explicit independent receiver UUID; omitted for the legacy route.'}}},
+    run:async(args,ctx)=>args.session!==undefined?(await import('./independent-service-result.mjs')).inspectIndependentService(args.session,args.service_id,{signal:ctx.signal}):(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id),
   },
   {
     name:'broker_service_retire',title:'Retire an expired owned native receiver',readOnly:false,

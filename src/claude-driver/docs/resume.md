@@ -1,3 +1,47 @@
+## Corrected native recovery ID live-verified; independent status added — October 17
+
+Previous turn: public read succeeded but dispatcher dropped jobId; code fix tested.
+Fresh controlled generationd5e108a08b91ff3f3260f2a89b8d8584 on same receiver8f1d6d55,
+PID42813/start16:03:11UTC/CLI2.1.299; sealed build
+ b7ede2c8ed8a4f18fdde2643cbc4adde6f85a000a50d7f9aeaca9b366f4e4e39.
+Native-valid package/owned module and policy transition, ready receipt and exact
+PUBLIC_READ_BOUNDARY_OK boundary. Host budgetslot0 reserved for missing-request
+hook qualification; exact policy audit and completed helper matched before workload.
+
+Actual public durable jobjb584c0225ce94277bb54827f866c05ea returned native request
+rpeerb584c0225ce94277bb54827f866c05ea exactly. Verified same identity in global durable
+attempt (jobId linked), private request, progress, native MCP admission and fresh
+published result. Exact native toolu_plugin_b9448952438048adb77da5f3f10c7038;
+target scratch74 identity/title/cwd independently matched. Completed/receiptVerified,
+published:true,cleanupPending:false.266ms module path, not SLA. Same live native
+epoch/idle/bypass and descriptor-bound journal unchanged. Same key reused same job;
+result/admission/control hashes unchanged. This closes corrected ID mapping proof
+for this native source; earlier ff3098... mismatch remains preserved as failure.
+
+Added optional explicit session to read-only broker_service_status, legacy route
+unchanged. Independent status uses namespace-isolated child/context verification,
+returns exact epoch/source/generation/deadline and historical readiness/policy audit,
+plus validated host budget reservations. It never dispatches/reconciles/installs or
+claims serving from metadata: servingQualified:false,recoveryAttempted:false.
+Reports unreserved slots, not native capacity proof. Malformed/duplicate/foreign
+reservation rows refuse; unknown context returns verified:false with generic reason.
+
+Actual status verified current d5 namespace, reservedSlots2/unreservedSlots0
+(self-probe+read). Wrong receiver74 returned unqualified without recovery; native
+result hash unchanged. Focused budget/identity tests pass. Evidence:
+probe/scratch-native-read-2026-10-17/public-read-
+d5e108a08b91ff3f3260f2a89b8d8584/plan.json (single directory name), public-current.json.
+Source/settings backups preserved; both module slots used, no replay or live job.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T18-16-42-770Z.json; both filtered harnesses ten checks pass,
+source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-16-29-364Z.json.
+Shared service memory saved. Next: public enrollment/qualification orchestration,
+controlled generation retirement and status/cleanup integration, then physical
+retirement, warm/cold recovery and always-on pressure proof. Legacy22unknowns and
+old broker untouched; goal active, Codex bridge fixes parked.
+
 ## Public native read published; recovery ID forwarding fixed — October 17
 
 Previous turn: public independent reconciliation passed. Existing broker_service_read

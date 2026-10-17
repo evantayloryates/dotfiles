@@ -41,3 +41,8 @@ export async function reconcileIndependentServiceResult(session,serviceId,reques
   return JSON.parse(stdout)
  }catch{throw new DriverError('independent native result reconciliation refused; inspect the original request, never replay',{category:'independent_service_result_refused'})}
 }
+export async function inspectIndependentService(session,serviceId,{signal}={}){
+ const state=independentServiceState(session,serviceId,getRecord(session))
+ try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
+ catch{throw new DriverError('independent service status unavailable; no recovery attempted',{category:'independent_service_status_unavailable'})}
+}

@@ -1060,3 +1060,7 @@ Existing result-reconciliation API now accepts an explicit receiver session for 
 ## 2026-10-17 — Public native read and job-context regression
 
 Public independent read now reuses standard durable transaction/budget/lifecycle and shared strict settlement. Actual API job freshly published verified native result in335ms module path, no model journal growth; same-key reattachment reused job and preserved evidence. Smoke exposed dispatcher dropping trusted jobId, so operation used a safe durable random ID. Mismatch retained; dispatcher now forwards/validates ID with a direct operation-context regression. Corrected mapping still needs native trial. Final post-fix pressure and both filtered harnesses pass; public enrollment, retirement and recovery remain pending.
+
+## 2026-10-17 — Corrected request identity and read-only independent status
+
+Fresh native public job exactly mapped jobId to requestId through durable host record, lifecycle, MCP admission and fresh native result;266ms module path, journal growth0. Same key reused job without evidence changes. This closes the prior ID-forwarding failure for the tested source. Independent read-only status now reports bound epoch/source, retained readiness/policy audit and validated reservations without claiming serving or attempting recovery. Actual exhausted budget reported2/2; wrong receiver returned unqualified and preserved native result. Full pressure and both filtered harnesses pass; enrollment/retirement/recovery remain open.
