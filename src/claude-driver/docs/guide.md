@@ -1055,3 +1055,18 @@ established native hook-refresh API. Isolated execution proves its provider and
 clone behavior only; real settings adoption still needs native evidence. The API
 returns env/helper fields without redaction, so any future native observation must
 select only bounded owned hook metadata and never log the full settings object.
+
+### Fresh MCP contract for current-route reads
+
+`scripts/harness-native-service.mjs --live --current-route --harness claude|codex
+--session <owned receiver> --service-id <expected selected generation> --target
+<owned metadata target>` qualifies the current-route API through a fresh canonical
+stdio MCP launcher. Codex also requires `--model <configured model>`. It preflights
+an exact healthy read-only plan, exposes only guide/status/exact submission/waits,
+and permanently claims the harness/receiver/service/target/mode tuple before launch.
+The model submits the same parent identity twice; the retained read child supplies
+the native request ID. Qualification requires matching selected service and ONLY a
+read child, no maintenance, no external tools/config/source changes or native model
+turn. Inspect original contract/jobs after failure; never regenerate identity to
+replay. Direct-read contracts and their historical failures/claims stay distinct.
+This fresh-client proof does not refresh an already cached MCP in an existing chat.

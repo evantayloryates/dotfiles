@@ -11,7 +11,12 @@ export function permittedNativeContractCall(contract,jobs,name,args={}){
  return false
 }
 const requiredOperationalChecks=['processSucceeded','noExternalToolCalls','freshSchema','exactTwoSubmissions','sameJob','verifiedNativeReceipt','derivedRequestId','noRefusedCalls','noModelTurn','sourceUnchanged','globalConfigUnchanged']
-export function classifyNativeContractChecks(checks){
- const nativeContractVerified=!!checks&&requiredOperationalChecks.every(k=>checks[k]===true),ok=nativeContractVerified&&checks.finalMarker===true
+export function classifyNativeContractChecks(checks,{routeCurrent=false}={}){
+ const required=routeCurrent?[...requiredOperationalChecks,'selectedServiceMatches','noMaintenanceChildren']:requiredOperationalChecks
+ const nativeContractVerified=!!checks&&required.every(k=>checks[k]===true),ok=nativeContractVerified&&checks.finalMarker===true
  return {ok,nativeContractVerified,failureCategory:ok?null:nativeContractVerified?'harness_output_format':'native_contract_failed'}
+}
+export function nativeContractReplyEvidence(out,{routeCurrent=false}={}){
+ const result=routeCurrent?out?.result?.result:out?.result,children=routeCurrent?out?.result?.childJobs:null
+ return {requestId:result?.requestId,receiptVerified:result?.receiptVerified,serviceId:result?.serviceId,readJobId:routeCurrent?children?.read:out?.jobId,noMaintenanceChildren:!routeCurrent||!!children&&Object.keys(children).sort().join(',')==='read'}
 }

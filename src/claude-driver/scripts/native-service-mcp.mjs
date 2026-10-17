@@ -3,7 +3,7 @@ import {spawn} from 'node:child_process'
 import {createInterface} from 'node:readline'
 import {fileURLToPath} from 'node:url'
 import {readFileSync,appendFileSync} from 'node:fs'
-import {NATIVE_CONTRACT_TOOLS,permittedNativeContractCall} from './native-service-contract.mjs'
+import {NATIVE_CONTRACT_TOOLS,permittedNativeContractCall,nativeContractReplyEvidence} from './native-service-contract.mjs'
 const file=process.env.CLAUDE_DRIVER_NATIVE_CONTRACT;if(!file)throw Error('native contract required')
 const c=JSON.parse(readFileSync(file,'utf8')),jobs=new Set(),calls=new Map(),lists=new Set(),send=x=>process.stdout.write(JSON.stringify(x)+'\n'),trace=x=>appendFileSync(c.trace,JSON.stringify({at:Date.now(),...x})+'\n',{mode:0o600})
 const child=spawn(fileURLToPath(new URL('../bin/claude-driver-mcp',import.meta.url)),[],{env:process.env,stdio:['pipe','pipe','inherit']}),server=createInterface({input:child.stdout}),client=createInterface({input:process.stdin})
@@ -14,7 +14,7 @@ client.on('line',line=>{let x;try{x=JSON.parse(line)}catch{return}
  child.stdin.write(JSON.stringify(x)+'\n')
 })
 server.on('line',line=>{const x=JSON.parse(line)
- if(lists.delete(x.id)&&x.result?.tools){const status=x.result.tools.find(t=>t.name==='broker_service_status');trace({event:'schema',independentSession:!!status?.inputSchema?.properties?.session,historical:!!status?.inputSchema?.properties?.historical});x.result.tools=x.result.tools.filter(t=>NATIVE_CONTRACT_TOOLS.includes(t.name))}
- if(calls.has(x.id)){const name=calls.get(x.id),out=x.result?.structuredContent;if(name==='driver_submit'&&!x.result?.isError&&/^j[a-f0-9]{32}$/.test(out?.jobId))jobs.add(out.jobId);trace({event:'reply',name,isError:!!(x.error||x.result?.isError),jobId:out?.jobId,state:out?.state,reused:out?.reused,requestId:out?.result?.requestId,receiptVerified:out?.result?.receiptVerified});calls.delete(x.id)}send(x)
+ if(lists.delete(x.id)&&x.result?.tools){const status=x.result.tools.find(t=>t.name==='broker_service_status'),route=x.result.tools.find(t=>t.name==='broker_service_read_current');trace({event:'schema',independentSession:!!status?.inputSchema?.properties?.session,historical:!!status?.inputSchema?.properties?.historical,currentRoute:!!route?.inputSchema?.properties?.session_id});x.result.tools=x.result.tools.filter(t=>NATIVE_CONTRACT_TOOLS.includes(t.name))}
+ if(calls.has(x.id)){const name=calls.get(x.id),out=x.result?.structuredContent;if(name==='driver_submit'&&!x.result?.isError&&/^j[a-f0-9]{32}$/.test(out?.jobId))jobs.add(out.jobId);trace({event:'reply',name,isError:!!(x.error||x.result?.isError),jobId:out?.jobId,state:out?.state,reused:out?.reused,...nativeContractReplyEvidence(out,{routeCurrent:c.routeCurrent===true})});calls.delete(x.id)}send(x)
 })
 client.on('close',()=>child.stdin.end());child.on('exit',code=>process.exit(code||0));for(const signal of ['SIGTERM','SIGINT'])process.once(signal,()=>child.kill(signal))

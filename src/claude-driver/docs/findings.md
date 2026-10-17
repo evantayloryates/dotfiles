@@ -1181,3 +1181,12 @@ same parent. Persisted target metadata matched; native receipt intervals were
 nonoverlapping446/410/596ms, parent queue-inclusive1217/2280/3638ms. Zerojournal
 bytes/model turns, no unresolved attempts. This is a small healthy-queue sample,
 not a latency SLA or queued-renewal/unbounded-load qualification.
+
+### Fresh cross-harness MCP current-route qualification (October 17)
+
+Fresh Claude/Codex clients each passed14native current-route checks through the
+canonical MCP launcher: exact double submission/reattachment, distinct readchild
+request mapping, selected generation, no maintenance/external tools/config/source
+changes or native model turn. Persisted targetmetadata independently matches;2slots
+consumed, no unknowns. This qualifies healthy current-route clients; attached stale
+chat binding still reports restartRequired:true and was used only read-only.

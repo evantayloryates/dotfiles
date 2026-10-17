@@ -1,3 +1,43 @@
+## Fresh Claude/Codex MCP current-route native contracts qualified — October 17
+
+Extended existing explicit native harness with --current-route; default direct
+contract unchanged. Exact healthy selected-service plan preflight, same4tools only
+(guide/status/exact submit/waits), new current-mode persistent claim distinct from
+old direct claim. Proxy records metadata-only nested child receipt mapping. Parent
+submission twice must reattach samejob; derived native request uses real readchild,
+not parentID. Route qualification additionally requires selected service match and
+ONLY readchild, no maintenance. Full final marker still strict; prior Claude direct
+format failure remains immutable. Six focused contract/classifier/claim tests pass;
+frozen-source pressure1/1passes: pressure/v2-2026-10-17T19-40-37-331Z.json.
+
+Actual fresh canonical MCP clients both pass all14checks:
+pressure/harness-native-current-{claude,codex}-2026-10-17T19-40-43-088Z.json.
+Hostsource4aa2f8fbe10a3c0016e02cf35f1b7ab6c42eaeee5640da23f34b2537bc0cb9a2,
+receiver remains pinned0ba5... . Configured Codexmodel gpt-6-sol/canonical launcher
+independently verified; Claude restricted/no session persistence; neither has shell,
+files/browser/apps/other tool access. No refused/out-of-scope calls, source/config
+unchanged, exact final markers, zero native journalgrowth/model turns.
+Claude parentj1c76c19e9e6c463988db85d0adb5f645→readchildjdcf26394a31c476e8f11f95d59103766,
+native toolu_plugin_635bbf4084dd4005aae30a8fe59e846c.
+Codex parentj9c1b8b102da24118ba5f006af6dc61b0→readchildjf8e503ae390949e3bec1a23319869c94,
+native toolu_plugin_9946bc55c84e4e6f925c6230a1dc3624.
+Both persisted targetmetadata independently match currentcontrol8f session/title/cwd/
+archive. Original report hashes and IDs retained in existing plan
+freshCurrentRouteMcpReview. Currentbb97now7/32slots,25spare, no unresolved; same
+PID20499/start15:48:23UTC, deadline1792269345930. No active client/parent/child waiter.
+
+Current chat attached MCP driver_status independently rechecked read-only: olddriver
+46c7a58/runtime64c856... still restartRequired:true. No write through cached binding,
+no global config/source/app/MCP process change. CurrentAttachedMcpReview retains
+sanitized metadata. Fresh-client integration does NOT refresh that binding. Supported
+current-chat refresh remains separate from successfully connected fresh clients;
+Codex-driver fixes still parked.
+
+Next queued-renewal admission pressure (currentroute mutex5sec vs observed native
+readiness18-24sec), expiry routing and scoped cold/crash/deleted-session recovery.
+Healthy fresh-route proof does not cover harness-triggered maintenance or unbounded
+queues. Original readiness timeout/direct format failures remain. Goal active.
+
 ## Queued routed reads and duplicate submission native pressure — October 17
 
 Previous turn implemented bounded current read routing/capacity renewal. This turn
