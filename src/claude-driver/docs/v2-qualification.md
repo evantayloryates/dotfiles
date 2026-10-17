@@ -1,3 +1,45 @@
+Final2651fd5e validation: fullpressure v2-2026-10-17T22-21-34-825Z.json1/1/sourceunchanged; bothsynthetic10checks harness-v2-{claude,codex}-2026-10-17T22-21-18-850Z.json PASS.
+
+## October 17 verified focus restoration on existing owned chats
+
+Previousbatch published90def77. InspectedremainingTierAfocus code: restoreFrom
+previouslyclaimedfrontapprestored afteropen evenwhenactivationfailed; withFocus
+show claimedshown withoutlandedreadback. Factored restoreFocusPolicy with injected
+nativeI/O fornon-UI regressioncoverage. Restorationnowreadsbackmainselection AND
+frontbundle; activationfailure/unknownsnapshot append(notconfirmed), verifiedfalse.
+Interveningmain-sessionchoice skipsBOTHmainandfrontrestoration; interveningother
+foregroundapp ispreserved. No repeatedbring-to-front afterhumanchoice.
+withFocus showrequiresobservedtarget; open_session emitsnavigationVerified,
+focusVerified andfocusDisposition, retainingexistingfocusactionstringcompatibility.
+Existingknown-targetopen errorsattemptscopedrestoration; unknown-targetcreation/
+forkfailure restorationstillnotqualified. No computeruse/keyboard/helperloaded.
+
+Fivetestfocus suitePASS: positivebothreadbacks, failedmain/front activation,
+userintervention, unknownobservation/errors andmissingoriginalsnapshot. Liveowned
+open_session transporttargetc0a18601 focusrestorePASS: before maininterrupt74c54.../
+frontcom.openai.codex, observedtransporttargetlanded, aftermaininterrupt/restored
+Codexfront. Independentpost snapshotmatchesbothbefore values. Before/afterinput
+resourceaudits0filters. Reportfocus-2026-10-17T22-20-11-575Z.json,
+sourceb180ca0d11a3120f14542efeb436d76b5e29bd48731f2c1b4aa32d7929688c3d.
+Nochatcreated, no modelmessage, no permissionchange, no apprestart. Thisqualifies
+existing-sessionnavigation/restoration, NOT create/import/forkfocus orfullwindow
+management. Finalhost2651fd5edec90b8c6033be2ad83c2a304a9221767671305bb2d7a01c7b9d602a
+addsconservativeunknown-originalsnapshotrefusal; livepositivebranchunchanged.
+Finalpressure/bothsyntheticreportscheckpointed below. Controllerbeec0b... still
+ready/samePID31678/start20:14:51UTC,16settled/0unknown/47slots. Target90418 unchanged.
+
+NEXT resiliencegap identifiedincurrent source: independent-service-route readpath
+alreadydoesdurableon-demandrenew/probe; native metadata/send/stop/steercontrolpaths
+merelyrefuse when deadline/capacityinsufficient. Reuseexistingrenewal withcommon
+whole-operationadmission, preserveexplicitgrants/targetepoch/unknownblocks and
+stablechildidentity. Qualifychangedcondition via boundedlowcapacitygeneration,
+thenordinarypubliccontrol triggeringrenewal; don'tconsume47dummyrequests or
+repeatarchive/wakecycles. Thiswouldimprovealwaysready behavior withoutclaiming
+unplannedcrash/quit/delete recovery, which remainsseparate/unqualified.
+Remainingcreation/no-folder/fork,fullarchivecleanup/nativepersonpermissiongates
+andunattendedresidency alsoincomplete. Goalactive; legacyobserverownsborker;
+watcherpaused; noCUA/input/auth/newchats/restarts. Codex-driver/1Passwordparked.
+
 ## October 17 enrolled live profile passed with real busy queue/steer
 
 Previousbatch published1cd6011. Adapted EXISTING scripts/live-v2.mjs with explicit

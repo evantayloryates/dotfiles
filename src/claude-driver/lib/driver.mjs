@@ -486,9 +486,9 @@ export const OPS = [
         const opened=await openSession(rec)
         if(args.wait_native_sec>0)opened.nativeProcess=await waitNativePeer(rec,{timeoutMs:Math.ceil(args.wait_native_sec*1000),signal:ctx.signal})
         return opened
-      })
+      },{target:rec.sessionId})
       delete result.navigatedTo
-      return { ...result, focus: focus.action, nowShowing: currentMain() }
+      return { ...result, focus: focus.action, focusVerified:focus.verified, navigationVerified:focus.navigationObserved??null, focusDisposition:focus.disposition??null, nowShowing: currentMain() }
     },
   },
   {

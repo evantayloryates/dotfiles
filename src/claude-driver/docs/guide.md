@@ -1452,3 +1452,12 @@ audits. Creation/focus and archive cleanup remain excluded, so a pass does not
 qualify the default full live scope. A terminal reply is followed by a separate
 same-epoch idle wait before idle-only metadata controls. Sender/body/ancestry proof
 for host injection is separate from returned message-ID correlation.
+
+### Focus readback
+
+`open_session` reports `navigationVerified` separately from `focusVerified` and
+`focusDisposition`. Restore mode confirms both the previous main session and
+foreground bundle. Missing snapshots or failed activation remain unconfirmed.
+If the user selects a different main session while navigation settles, restoration
+leaves both that selection and the foreground app alone. Existing focus action
+strings remain available; `(not confirmed)` indicates missing proof.

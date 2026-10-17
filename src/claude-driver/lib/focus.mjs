@@ -97,41 +97,55 @@ async function waitMain(target, timeoutMs) {
   return cur
 }
 
-// Restore after a navigation to `target`, given the pre-op snapshot.
-export async function restoreFrom(before, target, { settleMs = 3000 } = {}) {
-  const now = await waitMain(target, settleMs)
-  const actions = []
-  if (now === target && before.mainSession && before.mainSession !== target) {
-    await openUrl(sessionUrl(before.mainSession))
-    // Wait for the app to land it, so the next op's snapshot is not stale.
-    const landed = (await waitMain(before.mainSession, settleMs)) === before.mainSession
-    actions.push(`main window → ${before.mainSession}${landed ? '' : ' (not confirmed)'}`)
-  } else if (now !== target && now !== before.mainSession) {
-    actions.push(`left alone: main window shows ${now}, not the op's target (Taylor moved)`)
-  } else if (now !== target) {
-    actions.push('main window never moved to the target')
+// Separate policy orchestration from native I/O so failure and user-intervention
+// paths can be exercised without activating real applications.
+export async function restoreFocusPolicy(before,target,d){
+  const now=await d.waitMain(target),actions=[]
+  let verified=typeof before.mainSession==='string'&&before.mainSession.length>0&&typeof before.frontApp==='string'&&before.frontApp.length>0
+  if(!verified)actions.push('original focus snapshot unavailable (not confirmed)')
+  const moved=now!==target&&now!==before.mainSession
+  if(now===target&&before.mainSession&&before.mainSession!==target){
+    let landed=false
+    try{await d.navigate(before.mainSession);landed=await d.waitMain(before.mainSession)===before.mainSession}catch{}
+    verified=verified&&landed
+    actions.push(`main window → ${before.mainSession}${landed?'':' (not confirmed)'}`)
+  }else if(moved){actions.push(`left alone: main window shows ${now}, not the op's target (Taylor moved)`);verified=verified&&typeof now==='string'&&now.length>0}
+  else if(now!==target)actions.push('main window never moved to the target')
+  if(!moved&&before.frontApp&&before.frontApp!==CLAUDE_BUNDLE_ID){
+    const front=await d.frontApp()
+    if(front===CLAUDE_BUNDLE_ID){
+      let landed=false
+      try{await d.activate(before.frontApp);landed=await d.waitFront(before.frontApp)===before.frontApp}catch{}
+      verified=verified&&landed;actions.push(`front app → ${before.frontApp}${landed?'':' (not confirmed)'}`)
+    }else if(front!==before.frontApp){actions.push(`front app left alone: ${front}`);verified=verified&&typeof front==='string'&&front.length>0}
   }
-  if (before.frontApp && before.frontApp !== CLAUDE_BUNDLE_ID) {
-    const nowFront = await frontApp()
-    if (nowFront === CLAUDE_BUNDLE_ID) {
-      await sh('/usr/bin/open', ['-b', before.frontApp]).catch(() => {})
-      actions.push(`front app → ${before.frontApp}`)
-    } else if (nowFront !== before.frontApp) actions.push(`front app left alone: ${nowFront}`)
-  }
-  return actions.join('; ') || 'nothing to restore'
+  return {action:actions.join('; ')||'nothing to restore',verified,navigationObserved:now===target,disposition:moved?'user-moved':'restore-observed'}
+}
+async function waitFront(target,timeoutMs){
+ const deadline=Date.now()+timeoutMs;let current=null
+ do{current=await frontApp();if(current===target)return current;await sleep(100)}while(Date.now()<deadline)
+ return current
+}
+export async function restoreFrom(before,target,{settleMs=3000,...opts}={}){
+ const result=await restoreFocusPolicy(before,target,{waitMain:t=>waitMain(t,settleMs),navigate:t=>openUrl(sessionUrl(t)),frontApp,activate:app=>sh('/usr/bin/open',['-b',app]),waitFront:t=>waitFront(t,settleMs)})
+ return opts.evidence?result:result.action
 }
 
 // Run fn (which returns { navigatedTo, ... }) under a focus mode.
-export async function withFocus(mode = 'restore', fn, opts = {}) {
-  if (!FOCUS_MODES.includes(mode)) mode = 'restore'
-  const before = mode === 'leave' ? null : await snapshot()
-  const result = await fn()
-  const target = result?.navigatedTo || null
-  if (mode === 'leave' || !target) return { result, focus: { mode, before, action: 'none' } }
-  if (mode === 'show') {
-    await waitMain(target, opts.settleMs ?? 3000)
-    return { result, focus: { mode, before, action: 'shown', target } }
-  }
-  const action = await restoreFrom(before, target, opts)
-  return { result, focus: { mode, before, action, target } }
+export async function withFocus(mode='restore',fn,opts={}){
+ if(!FOCUS_MODES.includes(mode))mode='restore'
+ const before=mode==='leave'?null:await snapshot()
+ let result
+ try{result=await fn()}catch(error){
+  if(mode==='restore'&&opts.target){const restoration=await restoreFrom(before,opts.target,{...opts,evidence:true});error.focusRestoration=restoration}
+  throw error
+ }
+ const target=result?.navigatedTo||null
+ if(mode==='leave'||!target)return {result,focus:{mode,before,action:'none',verified:null}}
+ if(mode==='show'){
+  const landed=await waitMain(target,opts.settleMs??3000)===target
+  return {result,focus:{mode,before,action:landed?'shown':'shown (not confirmed)',target,verified:landed,navigationObserved:landed}}
+ }
+ const restoration=await restoreFrom(before,target,{...opts,evidence:true})
+ return {result,focus:{mode,before,...restoration,target}}
 }

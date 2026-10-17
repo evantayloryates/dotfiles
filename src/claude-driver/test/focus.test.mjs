@@ -1,0 +1,11 @@
+import {test} from 'node:test'
+import assert from 'node:assert/strict'
+import {restoreFocusPolicy} from '../lib/focus.mjs'
+const claude='com.anthropic.claudefordesktop',before={mainSession:'original',frontApp:'com.openai.codex'}
+function fixture({main='target',front=claude,failMain=false,failFront=false}={}){const calls=[];return {calls,d:{waitMain:async target=>target==='target'?main:failMain?'wrong':target,navigate:async target=>calls.push(['navigate',target]),frontApp:async()=>front,activate:async app=>calls.push(['activate',app]),waitFront:async app=>failFront?claude:app}}}
+test('focus restoration requires independent main and front application readback',async()=>{const f=fixture(),r=await restoreFocusPolicy(before,'target',f.d);assert.equal(r.verified,true);assert.deepEqual(f.calls,[['navigate','original'],['activate',before.frontApp]])})
+test('failed main or front restoration cannot be reported confirmed',async()=>{for(const patch of [{failMain:true},{failFront:true}]){const f=fixture(patch),r=await restoreFocusPolicy(before,'target',f.d);assert.equal(r.verified,false);assert.match(r.action,/not confirmed/)}})
+test('intervening main-window or foreground-app choices are preserved',async()=>{const f=fixture({main:'human-choice'}),r=await restoreFocusPolicy(before,'target',f.d);assert.equal(r.disposition,'user-moved');assert.deepEqual(f.calls,[]);const other=fixture({front:'human-app'});await restoreFocusPolicy(before,'target',other.d);assert.deepEqual(other.calls,[['navigate','original']])})
+test('unknown focus and activation errors remain unconfirmed',async()=>{const f=fixture({main:null}),r=await restoreFocusPolicy(before,'target',f.d);assert.equal(r.verified,false);assert.deepEqual(f.calls,[]);const broken=fixture();broken.d.activate=async()=>{throw Error('activation refused')};assert.equal((await restoreFocusPolicy(before,'target',broken.d)).verified,false)})
+
+test('missing original snapshot cannot claim full restoration even when activation succeeds',async()=>{for(const patch of [{mainSession:null},{frontApp:null}]){const f=fixture(),r=await restoreFocusPolicy({...before,...patch},'target',f.d);assert.equal(r.verified,false);assert.match(r.action,/snapshot unavailable.*not confirmed/)}})
