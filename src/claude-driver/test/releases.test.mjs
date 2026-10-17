@@ -34,6 +34,8 @@ test('an active pin renders only sealed paths and retains its protocol',()=>{
  assert.ok(text.includes(join(staged.root,'scripts/broker-wait.mjs')))
  assert.equal(text.includes('/dotfiles/src/claude-driver/scripts/'),false)
  assert.equal(releases.releaseStatus().build,staged.build)
+ assert.equal(releases.validateRelease(staged.build).manifest.nativeRequestBindingVersion,1)
+ assert.equal(releases.releaseStatus().nativeRequestBindingVersion,1)
 })
 test('malformed, traversal and dangling pointers fail closed instead of falling back',()=>{
  for(const value of ['broken',JSON.stringify({schemaVersion:1,build:'../source',generation:1})]){

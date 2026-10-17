@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto'
 import {execFileSync,spawn} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 const sid='00000000-0000-4000-8000-000000000090',tool='mcp__ccd_session_mgmt__get_session'
-function fixture(){const now=Date.now(),pointer={build:'b'.repeat(64),bootstrapHash:'c'.repeat(64),generation:6,pid:10,procStart:'epoch',sessionId:'local_'+sid,activatedAt:new Date(now-1000).toISOString()},entry={phase:'completed',requestId:'rnative',index:0,build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:6,at:now-10,nativeBinding:{ancestorVerified:true,brokerPid:10,brokerProcStart:'epoch',brokerSessionId:pointer.sessionId}},request={id:'rnative',expiresAt:now+30000,ops:[{op:'get_session',args:{session_id:'owned-fixture'}}]},control={id:'rnative',state:'dispatched',dispatched:[0]},input={hook_event_name:'PreToolUse',tool_name:tool,tool_use_id:'toolu_native_test',tool_input:{session_id:'owned-fixture'},session_id:sid};return {now,pointer,entry,request,control,input,tools:{get_session:tool}}}
+function fixture(){const now=Date.now(),pointer={nativeRequestBindingVersion:1,build:'b'.repeat(64),bootstrapHash:'c'.repeat(64),generation:6,pid:10,procStart:'epoch',sessionId:'local_'+sid,activatedAt:new Date(now-1000).toISOString()},entry={phase:'completed',requestId:'rnative',index:0,build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:6,at:now-10,nativeBinding:{ancestorVerified:true,brokerPid:10,brokerProcStart:'epoch',brokerSessionId:pointer.sessionId}},request={id:'rnative',nativeRuntimeBinding:{version:1,...Object.fromEntries(['build','bootstrapHash','generation','sessionId','pid','procStart'].map(k=>[k,pointer[k]]))},expiresAt:now+30000,ops:[{op:'get_session',args:{session_id:'owned-fixture'}}]},control={id:'rnative',state:'dispatched',dispatched:[0]},input={hook_event_name:'PreToolUse',tool_name:tool,tool_use_id:'toolu_native_test',tool_input:{session_id:'owned-fixture'},session_id:sid};return {now,pointer,entry,request,control,input,tools:{get_session:tool}}}
 test('native boundary admits one exact checkpoint and refuses cancelled, expired, foreign or ambiguous work',()=>{
  assert.equal(nativeAdmissionIndex(fixture()),0)
  for(const change of [x=>x.request.expiresAt=x.now,x=>x.control.cancelRequested=true,x=>x.control.state='cancelled',x=>x.control.dispatched=[],x=>x.entry.phase='selected',x=>x.entry.requestId='other',x=>x.entry.nativeBinding.brokerPid=11,x=>x.entry.generation=5,x=>x.input.tool_name='mcp__ccd_unknown',x=>x.input.tool_input.session_id='foreign',x=>x.entry.index=-1,x=>x.input.tool_use_id='../unsafe']){const x=fixture();change(x);assert.equal(nativeAdmissionIndex(x),-1)}
@@ -27,7 +27,7 @@ test('actual hook denies dispatch:false and consumes native admission once even 
  const save=(p,v)=>writeFileSync(p,JSON.stringify(v),{mode:0o600}),run=()=>new Promise((done,fail)=>{const c=spawn(process.execPath,[fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),dir],{env:{HOME:home,PATH:'/usr/bin:/bin'},stdio:['pipe','pipe','pipe']});let out='',err='';c.stdout.on('data',b=>out+=b);c.stderr.on('data',b=>err+=b);c.on('error',fail);c.on('close',code=>{try{assert.equal(code,0);assert.equal(err,'');done(JSON.parse(out).hookSpecificOutput)}catch(e){fail(e)}});c.stdin.end(JSON.stringify(x.input))})
  try{
   for(const p of [dir,join(dir,'requests'),join(dir,'controls'),join(root,'broker-template'),join(home,'.claude','sessions')])mkdirSync(p,{recursive:true})
-  x.pointer.pid=process.pid;x.pointer.procStart=epoch;x.entry.nativeBinding={ancestorVerified:true,brokerPid:process.pid,brokerProcStart:epoch,brokerSessionId:x.pointer.sessionId};x.input.cwd=dir
+  x.pointer.pid=process.pid;x.pointer.procStart=epoch;x.request.nativeRuntimeBinding.pid=process.pid;x.request.nativeRuntimeBinding.procStart=epoch;x.entry.nativeBinding={ancestorVerified:true,brokerPid:process.pid,brokerProcStart:epoch,brokerSessionId:x.pointer.sessionId};x.input.cwd=dir
   const body=`| get_session | ${tool} |\n`;writeFileSync(join(root,'broker-template','CLAUDE.md'),body,{mode:0o444});save(join(root,'release.json'),{files:{'broker-template/CLAUDE.md':createHash('sha256').update(body).digest('hex')}})
   save(join(dir,'runtime.json'),x.pointer);save(join(dir,'broker-check-entry.json'),x.entry);save(join(dir,'requests','rnative.json'),x.request);const controlFile=join(dir,'controls','rnative.json');save(controlFile,{...x.control,dispatched:[]})
   mkdirSync(join(dir,'.claude'));const settings='{}';writeFileSync(join(dir,'.claude','settings.json'),settings)
@@ -37,7 +37,7 @@ test('actual hook denies dispatch:false and consumes native admission once even 
   save(controlFile,{...x.control,cancelRequested:true});assert.equal((await run()).permissionDecision,'deny')
   save(controlFile,x.control)
   const settingsFile=join(dir,'.claude','settings.json'),policyFile=join(dir,'stop-rescue-policy.json'),requestFile=join(dir,'requests','rnative.json'),peerFile=join(home,'.claude','sessions',process.pid+'.json'),peer=JSON.parse(readFileSync(peerFile))
-  for(const change of [()=>save(policyFile,{...policy,nativeEffectAdmissionVersion:0}),()=>save(policyFile,{...policy,sha256:'a'.repeat(64)}),()=>save(requestFile,{...x.request,nativeEffectAdmissionPolicy:undefined}),()=>writeFileSync(settingsFile,'{ }'),()=>save(peerFile,{...peer,version:'unknown'}),()=>{x.input.cwd=state},()=>save(join(dir,'STOP'),{owner:'owned-test'})]){
+  for(const change of [()=>save(policyFile,{...policy,nativeEffectAdmissionVersion:0}),()=>save(policyFile,{...policy,sha256:'a'.repeat(64)}),()=>save(requestFile,{...x.request,nativeRuntimeBinding:undefined}),()=>save(requestFile,{...x.request,nativeRuntimeBinding:{...x.request.nativeRuntimeBinding,generation:5}}),()=>save(requestFile,{...x.request,nativeEffectAdmissionPolicy:undefined}),()=>writeFileSync(settingsFile,'{ }'),()=>save(peerFile,{...peer,version:'unknown'}),()=>{x.input.cwd=state},()=>save(join(dir,'STOP'),{owner:'owned-test'})]){
    change();assert.equal((await run()).permissionDecision,'deny');assert.equal(existsSync(join(dir,'native-admission-rnative-0.json')),false)
    save(policyFile,policy);save(requestFile,x.request);writeFileSync(settingsFile,settings);save(peerFile,peer);x.input.cwd=dir;rmSync(join(dir,'STOP'),{force:true})
   }
@@ -52,4 +52,18 @@ test('actual hook denies dispatch:false and consumes native admission once even 
   assert.deepEqual(readFileSync(admissionFile),originalAdmission)
   assert.equal(JSON.parse(readFileSync(controlFile)).state,'outcome_unknown')
  }finally{rmSync(home,{recursive:true,force:true})}
+})
+
+test('activated request generation fence rejects old, missing and foreign binding despite a fresh checkpoint',()=>{
+ const x=fixture();x.pointer.nativeRequestBindingVersion=1;delete x.request.nativeRuntimeBinding
+ assert.equal(nativeAdmissionIndex(x),-1)
+ x.request.nativeRuntimeBinding={version:1,...Object.fromEntries(['build','bootstrapHash','generation','sessionId','pid','procStart'].map(k=>[k,x.pointer[k]]))}
+ assert.equal(nativeAdmissionIndex(x),0)
+ for(const key of ['build','bootstrapHash','generation','sessionId','pid','procStart']){
+  const y=structuredClone(x);y.request.nativeRuntimeBinding[key]=typeof y.pointer[key]==='number'?y.pointer[key]+1:'foreign'
+  assert.equal(nativeAdmissionIndex(y),-1,key)
+ }
+ for(const version of [0,2,'1',null]){const y=structuredClone(x);y.pointer.nativeRequestBindingVersion=version;assert.equal(nativeAdmissionIndex(y),-1)}
+ const old=structuredClone(x);delete old.request.nativeRuntimeBinding;old.entry.generation=old.pointer.generation;assert.equal(nativeAdmissionIndex(old),-1)
+ const foreign=structuredClone(x);foreign.pointer.generation++;foreign.entry.generation++;assert.equal(nativeAdmissionIndex(foreign),-1)
 })

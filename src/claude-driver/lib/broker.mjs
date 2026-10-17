@@ -194,6 +194,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     const observe = info.live.entrypoint==='claude-desktop' ? observeNativeReceipts(info.sessionId,request) : null
     if(info.live.entrypoint==='claude-desktop'&&!observe)throw new DriverError('native broker receipt journal unavailable; no request dispatched',{category:'broker_receipt_unavailable',detail:{retrySafe:true,dispatched:false}})
     if(observe) request.nativeObservation=observe.start
+    if(observe&&info.runtime?.nativeRequestBindingVersion===1)request.nativeRuntimeBinding={version:1,build:info.runtime.build,bootstrapHash:info.runtime.bootstrapHash,generation:info.runtime.generation,sessionId:info.sessionId,pid:info.live.pid,procStart:info.live.procStart}
     if(observe&&rescuePolicy?.nativeEffectAdmissionVersion===1)request.nativeEffectAdmissionPolicy={version:1,handlerSha256:rescuePolicy.sha256,settingsHash:rescuePolicy.settingsHash}
     enqueue(request)
     publishedRequest=request

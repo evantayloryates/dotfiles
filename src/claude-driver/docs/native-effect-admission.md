@@ -66,3 +66,17 @@ A real command-hook subprocess regression now verifies cancellation after a slot
 was already consumed: a later tool-use attempt is denied, the original admission
 record remains byte-identical, and `outcome_unknown` bookkeeping is preserved.
 This does not prove interruption or reversal of the previously admitted effect.
+
+## Generation-bound native requests
+
+A new sealed release declares `nativeRequestBindingVersion:1` in its manifest.
+Only such a release can activate a pointer declaring that capability. Native
+requests for that pointer include `nativeRuntimeBinding` with version, build,
+bootstrapHash, generation, sessionId, pid and procStart. PreToolUse refuses a
+missing binding or any mismatch before consuming the native operation slot.
+A new checkpoint cannot make an old request belong to the new generation.
+
+Legacy releases/pointers retain their prior admission contract; this feature
+neither relabels their unknown outcomes nor qualifies them for rollover. It is
+one request-admission fence, not proof that an old process is retired or that
+a platform hook cannot fail. Existing release handoff requirements still apply.

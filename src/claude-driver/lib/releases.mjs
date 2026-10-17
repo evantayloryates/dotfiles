@@ -48,7 +48,7 @@ export function validateRelease(build) {
   if(realpathSync(root)!==join(realpathSync(STATE_DIR),'releases',build))fail()
   owned(join(root,'release.json'),{sealed:true})
   const manifest=json(join(root,'release.json')),files=inventory(root,{sealed:true})
-  if(manifest.schemaVersion!==1||manifest.build!==build||!manifest.files||
+  if(manifest.schemaVersion!==1||manifest.build!==build||Object.hasOwn(manifest,'nativeRequestBindingVersion')&&manifest.nativeRequestBindingVersion!==1||!manifest.files||
      JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files).sort())||
      runtimeFingerprint(root)!==build)fail()
   for(const file of ['scripts/broker-wait.mjs','scripts/broker-check.mjs','broker-template/CLAUDE.md'])if(!files[file])fail()
@@ -65,15 +65,18 @@ export function activeRelease() {
   const pointer=json(RUNTIME_POINTER)
   if(pointer.schemaVersion!==1||!hex.test(pointer.build)||!Number.isInteger(pointer.generation)||pointer.generation<1)fail()
   if(Object.hasOwn(pointer,'procStart')&&(typeof pointer.procStart!=='string'||!pointer.procStart||!Number.isInteger(pointer.pid)||pointer.pid<=0||typeof pointer.sessionId!=='string'))fail()
+  if(Object.hasOwn(pointer,'nativeRequestBindingVersion')&&pointer.nativeRequestBindingVersion!==1)fail()
   if(!hex.test(pointer.bootstrapHash))fail()
   const entry=join(STATE_DIR,'entry',pointer.bootstrapHash+'.mjs')
   owned(join(STATE_DIR,'entry'),{directory:true});owned(entry,{sealed:true})
   if(createHash('sha256').update(readFileSync(entry)).digest('hex')!==pointer.bootstrapHash)fail()
-  return {...validateRelease(pointer.build),pointer}
+  const release=validateRelease(pointer.build)
+  if(pointer.nativeRequestBindingVersion===1&&release.manifest.nativeRequestBindingVersion!==1)fail()
+  return {...release,pointer}
  }catch{fail()}
 }
 export function releaseStatus() {
- try {const active=activeRelease();return active?{pinned:true,integrity:true,build:active.build,bootstrapHash:active.pointer.bootstrapHash,protocol:active.protocol,generation:active.pointer.generation,previousBuild:active.pointer.previousBuild??null,nativePathsVerified:false}:{pinned:false,integrity:true,build:null,nativePathsVerified:false}}
+ try {const active=activeRelease();return active?{pinned:true,integrity:true,build:active.build,bootstrapHash:active.pointer.bootstrapHash,protocol:active.protocol,generation:active.pointer.generation,nativeRequestBindingVersion:active.pointer.nativeRequestBindingVersion??null,previousBuild:active.pointer.previousBuild??null,nativePathsVerified:false}:{pinned:false,integrity:true,build:null,nativePathsVerified:false}}
  catch{return {pinned:present(RUNTIME_POINTER),integrity:false,build:null,nativePathsVerified:false}}
 }
 // Executed-entry observations are useful only for the native process which
@@ -124,7 +127,7 @@ export async function stageRelease({evidence=[]}={}) {
    for(const name of roots)copy(join(SOURCE,name),join(temp,name))
    const files=inventory(temp)
    if(runtimeFingerprint()!==build||runtimeFingerprint(temp)!==build)throw new DriverError('source changed during release staging',{category:'runtime_stale'})
-   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
+   writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
    function seal(path){const stat=lstatSync(path);if(stat.isDirectory()){for(const name of readdirSync(path))seal(join(path,name));chmodSync(path,0o555)}else chmodSync(path,0o444)}
    seal(temp);renameSync(temp,target);validateRelease(build)
    return {build,root:target,reused:false,active:false}
@@ -141,7 +144,7 @@ export function commitRelease(build,{sessionId,pid,procStart,nonce},render) {
  const before=existsSync(RUNTIME_POINTER)?readFileSync(RUNTIME_POINTER):null
  const instructions=join(BROKER_DIR,'CLAUDE.md'),oldText=existsSync(instructions)?readFileSync(instructions):null
  try {
-  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
+  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
   writeFileSync(instructions,render(),{mode:0o600})
  }catch(e){
   if(before)writeFileSync(RUNTIME_POINTER,before,{mode:0o600});else rmSync(RUNTIME_POINTER,{force:true})

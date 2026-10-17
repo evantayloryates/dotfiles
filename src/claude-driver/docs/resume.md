@@ -1,3 +1,33 @@
+## Native request generation binding candidate — October 17
+
+Previous turn: recovery frontier review. New sealed releases declare
+nativeRequestBindingVersion1 in their manifest; activation copies that capability
+only from a declaring release. Active pointer cannot claim it for an older
+manifest. New native requests carry build/bootstrap/generation/session/PID/start
+binding when the active release requires it. Native PreToolUse compares all six
+fields before consuming an operation slot. Missing binding and prior-generation
+requests refuse even if a fresh helper checkpoint names identical operations.
+Legacy pointers keep their old contract and gain no fencing qualification.
+Filtered Claude and Codex(gpt-6-sol) harnesses also passed with source/configs
+unchanged: pressure/harness-v2-{claude,codex}-2026-10-17T16-27-33-805Z.json.
+Shared service candidate memory recorded.
+
+Actual isolated command-hook tests now use a version1 pointer and matching request;
+missing and old-generation bindings deny without consuming admission. Concurrent
+same-generation invocation still admits exactly once. Pure negatives cover each
+foreign field, malformed capability versions, and generation rollover with fresh
+entry. Full pressure1/1pass, source unchanged:
+pressure/v2-2026-10-17T16-27-42-123Z.json. Earlier same-turn pressure also passed
+before adding manifest capability qualification; final report supersedes it.
+
+No live activation, policy change, broker stop/wake or old request mutation.
+This prevents a newly admitted generation from adopting old work; it does NOT
+prove old native process retirement or platform hook reliability. It must not
+bypass the existing settled-handoff gate. Legacy22unknowns stay unknown. Next
+recovery requirement remains independent old-process fencing and current-epoch
+native enrollment proof before any replacement service becomes ready. Native
+stop/replacement scratch proof remains historical prior-build evidence. Goal active.
+
 ## Native stop and replacement qualified once — October 17
 
 Previous turn: blocked (required bypass mode). Fresh current-source reads now verify

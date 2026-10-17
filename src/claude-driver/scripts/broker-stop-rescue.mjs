@@ -32,6 +32,14 @@ export function nativeAdmissionIndex({input,pointer,entry,request,control,tools,
  if(!input||input.hook_event_name!=='PreToolUse'||typeof input.tool_use_id!=='string'||!/^[-A-Za-z0-9_]{1,200}$/.test(input.tool_use_id))return -1
  if(!pointer||entry?.phase!=='completed'||entry.build!==pointer.build||entry.generation!==pointer.generation||entry.bootstrapHash!==pointer.bootstrapHash||entry.nativeBinding?.ancestorVerified!==true||entry.nativeBinding.brokerPid!==pointer.pid||entry.nativeBinding.brokerProcStart!==pointer.procStart||entry.nativeBinding.brokerSessionId!==pointer.sessionId||!Number.isFinite(entry.at)||entry.at<Date.parse(pointer.activatedAt)||entry.at>now)return -1
  if(!request||request.id!==entry.requestId||!/^r[A-Za-z0-9_-]{1,99}$/.test(request.id)||control?.id!==request.id||!Number.isFinite(request.expiresAt)||request.expiresAt<=now||control.cancelRequested||control.state!=='dispatched'||!Array.isArray(control.dispatched)||!Array.isArray(request.ops))return -1
+ // A newly activated release cannot adopt a prior generation's request even
+ // if a fresh helper checkpoint names identical operations. Legacy pointers
+ // retain their existing contract; they do not gain generation-fencing proof.
+ if(pointer.nativeRequestBindingVersion!==undefined&&pointer.nativeRequestBindingVersion!==1)return -1
+ const binding=request.nativeRuntimeBinding
+ if(pointer.nativeRequestBindingVersion===1||binding!==undefined){
+  if(binding?.version!==1||['build','bootstrapHash','generation','sessionId','pid','procStart'].some(k=>binding[k]!==pointer[k]))return -1
+ }
  const matches=request.ops.flatMap((o,i)=>control.dispatched.includes(i)&&tools[o.op]===input.tool_name&&canonical(o.args)===canonical(input.tool_input)?[i]:[])
  if(Object.hasOwn(entry,'index'))return Number.isInteger(entry.index)&&matches.includes(entry.index)?entry.index:-1
  return matches.length===1?matches[0]:-1 // old entries cannot authorize ambiguous identical slots
