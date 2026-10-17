@@ -20,7 +20,13 @@ async function receiveScratchRead($,event,next){
    ready=true
    return {consumed:'scratch-read-ready'}
   }
-  if(!ready||!await $.fs.exists(readyFile))return {consumed:'scratch-read-not-ready'}
+  if(!ready||!await $.fs.exists(readyFile)){
+   if(!ready&&await $.fs.exists(readyFile)){
+    const rejected=CONFIG.cwd+'/.native-scratch-read-'+CONFIG.id+'.stale-ready.json'
+    if(!await $.fs.exists(rejected))await $.fs.write(rejected,JSON.stringify({schemaVersion:1,scope:'owned-scratch-read-stale-ready',probeId:CONFIG.id,receiver:CONFIG.receiver,target:CONFIG.target,slot,observedAt:now,nativeCallsRequested:0})+'\n')
+   }
+   return {consumed:'scratch-read-not-ready'}
+  }
   const stem=CONFIG.cwd+'/.native-scratch-read-'+CONFIG.id+'-'+slot,intent=stem+'.intent.json',resultFile=stem+'.result.json'
   if(await $.fs.exists(intent)||await $.fs.exists(resultFile))return {consumed:'scratch-read-prior-attempt'}
   await $.fs.write(intent,JSON.stringify({schemaVersion:1,scope:'owned-scratch-read-intent',probeId:CONFIG.id,slot,receiver:CONFIG.receiver,target:CONFIG.target,startedAt:now})+'\n')

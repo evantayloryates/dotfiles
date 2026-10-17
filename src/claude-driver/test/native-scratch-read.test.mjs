@@ -13,7 +13,7 @@ test('generator refuses unbounded or foreign configuration',()=>{for(const chang
 
 test('readiness challenge is bound, consumes no native slot and must precede workload',async()=>{
  const x=fixture();assert.equal((await x.send()).consumed,'scratch-read-not-ready');assert.equal(x.files.size,0);assert.equal(x.calls.length,0)
- const stale=fixture();stale.files.set(stale.config.cwd+'/.native-scratch-read-'+stale.config.id+'.ready.json','{}');assert.equal((await stale.send()).consumed,'scratch-read-not-ready');assert.equal((await stale.send(stale.config.token+'ready')).consumed,'scratch-read-ready-prior-attempt');assert.equal(stale.calls.length,0)
+ const stale=fixture();stale.files.set(stale.config.cwd+'/.native-scratch-read-'+stale.config.id+'.ready.json','{}');assert.equal((await stale.send()).consumed,'scratch-read-not-ready');assert.equal((await stale.send(stale.config.token+'ready')).consumed,'scratch-read-ready-prior-attempt');assert.equal(stale.calls.length,0);const rejection=JSON.parse(stale.files.get(stale.config.cwd+'/.native-scratch-read-'+stale.config.id+'.stale-ready.json'));assert.equal(rejection.scope,'owned-scratch-read-stale-ready');assert.equal(rejection.nativeCallsRequested,0);assert.equal(rejection.slot,0)
  assert.equal((await x.send(x.config.token+'ready')).consumed,'scratch-read-ready');assert.equal(x.calls.length,0)
  const ready=JSON.parse([...x.files.values()][0]);assert.equal(ready.scope,'owned-scratch-read-ready');assert.equal(ready.probeId,x.config.id);assert.equal(ready.receiver,x.config.receiver);assert.equal(ready.deadline,x.config.deadline)
  assert.equal((await x.send(x.config.token+'ready')).consumed,'scratch-read-ready-prior-attempt');assert.equal(x.files.size,1)

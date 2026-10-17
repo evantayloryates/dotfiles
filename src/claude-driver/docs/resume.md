@@ -1,3 +1,38 @@
+## Actual reload invalidates prior readiness — October 17
+
+Previous turn: candidate readiness and source provenance fixed. Current durable
+read path is intentionally tied to canonical broker state/sealed native policy;
+substituting scratch session/cwd would bypass ownership. That integration remains
+open; no legacy guard weakened or unknown request adopted.
+
+Added bounded scratch stale-readiness refusal evidence: when a module instance
+has not initialized readiness but its prior ready file exists, it writes one
+fixed-generation refusal receipt (no native call), then consumes the read. Five
+focused tests pass. Updated only the task-owned register source after exact old
+hashes, idle bypass/same epoch checks and native plugin validation. Preserved
+source/config; reused generation deliberately only to prove refusal after reload.
+
+Actual native boundary turn via durable job j19cc8f64b0994ab1a49dabe8b4c81aaa:
+exact peer user9b0f2aca-c628-4aaa-aa22-2bb539e74292, exact reply
+RELOAD_BOUNDARY_OK, tools0, terminal idle. Then previously unused metadata slot1
+was sent once with persisted attempt. Updated module emitted owned exact
+stale-ready receipt for slot1, nativeCallsRequested0; intent/result absent.
+Descriptor-bound journal unchanged across request, same PID42813/start16:03:11,
+bypass/idle, package hashes match. This verifies actual module activation fence
+while old ready file remains; not native process retirement or full generation
+turnover. Current module is unarmed. Fresh config/generation required next;
+never replay slot0/slot1. No background process/job remains running.
+
+Evidence: probe/scratch-native-read-2026-10-17/readiness-c815b8b299ae/plan.json,
+reloadTrial plus preserved reload-refusal package/source/validation. Shared service
+memory recorded. Pressure1/1pass, source unchanged:
+pressure/v2-2026-10-17T17-46-55-446Z.json. Both filtered harnesses pass:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-46-43-511Z.json.
+Next: design explicit independently owned service state/native policy binding for
+current-version durable enrollment, then integrate standard checkpoint admission;
+retain old unsettled requests in their generation. Physical retirement/recovery
+and always-on qualification remain open. Goal active; Codex bridge fixes parked.
+
 ## Candidate activation gate and runtime dependency provenance — October 17
 
 Previous turn: actual bounded scratch readiness/read succeeded. Existing durable
