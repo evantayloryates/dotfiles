@@ -1056,3 +1056,7 @@ On current CLI2.1.299, a fresh independent receiver used the existing standard e
 ## 2026-10-17 — Public durable independent receipt reattachment
 
 Existing result-reconciliation API now accepts an explicit receiver session for independently bound state; legacy defaults are unchanged. A namespace-isolated child verifies exact current ownership/source/policy and retained native admission/result, then publishes or compares the standard native result without sending. Actual durable job reconciled the prior real receipt after a later helper entry, published:false; same key returned same job. Wrong receiver refused and result/control/admission hashes stayed unchanged. Public fresh publication/enrollment/read and recovery remain pending. Focused tests, full pressure and both filtered harnesses pass.
+
+## 2026-10-17 — Public native read and job-context regression
+
+Public independent read now reuses standard durable transaction/budget/lifecycle and shared strict settlement. Actual API job freshly published verified native result in335ms module path, no model journal growth; same-key reattachment reused job and preserved evidence. Smoke exposed dispatcher dropping trusted jobId, so operation used a safe durable random ID. Mismatch retained; dispatcher now forwards/validates ID with a direct operation-context regression. Corrected mapping still needs native trial. Final post-fix pressure and both filtered harnesses pass; public enrollment, retirement and recovery remain pending.

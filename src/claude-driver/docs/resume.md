@@ -1,3 +1,52 @@
+## Public native read published; recovery ID forwarding fixed — October 17
+
+Previous turn: public independent reconciliation passed. Existing broker_service_read
+now takes optional receiver session (session_id remains target); omission preserves
+legacy route. Independent worker starts in explicit derived private state, reuses
+runNativeServiceReadTransaction, durable budget/enqueue/claim/checkpoint, one send,
+shared settlement and cancellation cleanup. Context/settlement extracted for reuse;
+all source/ownership/policy checks retained. Prepare/revalidate require idle exact
+native epoch, current readiness, controls absent, and matching actual native Bash
+policy audit. No policy audit means no workload enqueue. Parent retains a durable
+attempt, reports original request identity, never relaunches an uncertain request.
+Child SIGTERM requests normal transaction cancellation; lost child is outcome_unknown.
+
+Fresh controlled namespaceff3098d69be3c58ae94feb727d9e8c23, sealed initial build
+ a6082237f43ae6b7c8debcdfb7d259ccfb3c85e061ee9c946589786a7b82338f,
+same approved receiver8f1d6d55/PID42813/start16:03:11UTC/CLI2.1.299. Native-valid
+package, owned module/settings transition and exact tool-free PUBLIC_READ_BOUNDARY_OK
+reply. Reserved host slot0 for missing-request policy self-test, matched actual
+hook audit and retained helper. Then actual public durable job
+ja2045f2f6d0c47279c0f4fd0a33a5b62 executed read through API, freshly published:true,
+receiptVerified:true,state completed, cleanupPending:false. Exact native admission
+ toolu_plugin_34126484afa94d7597c68e7fe783f08d, target metadata independently
+matches approved scratch74.335ms module path; same native epoch/idle/bypass,
+descriptor-bound journal growth0. Same key reused same job; original result,
+admission and control byte hashes unchanged. This is fresh public publication.
+
+Actual smoke also found recovery identity bug: worker passed jobId but runOpInner
+dropped it. Request used random rpeer1953181612b34fe99394bd754f55275c instead of
+rpeera2045f2f6d0c47279c0f4fd0a33a5b62. Native read/settlement remains valid; do not
+rewrite it or claim job-derived recovery passed. Fixed dispatcher option forwarding
+and validation; new regression exercises runOp into actual operation context. ID
+factory tests and existing transaction cancellation/partial enqueue/cleanup tests
+pass. Corrected mapping still needs fresh native trial; this module capacity2/2
+used and must not replay. Evidence plan publicRead.identityBug preserves mismatch.
+
+Evidence: probe/scratch-native-read-2026-10-17/public-read-
+ff3098d69be3c58ae94feb727d9e8c23/plan.json (one directory name), public-current.json.
+Prior source/settings preserved. Current policy/module left bounded, no running
+worker/waiter. Public enrollment/status/controlled retirement still require
+integration, followed by physical retirement and recovery/always-on qualification.
+Goal active; legacy22unknowns untouched and Codex bridge fixes parked.
+
+Final post-fix unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T18-13-32-927Z.json; both filtered harnesses ten checks pass,
+source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-13-19-990Z.json.
+Earlier18:11runs/native read predate ID fix and do not qualify corrected mapping.
+Shared service memory recorded.
+
 ## Public durable independent result reconciliation — October 17
 
 Previous turn: actual native read settled and pre-dispatch cancellation passed.

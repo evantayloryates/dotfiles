@@ -12,3 +12,11 @@ test('durable reconciliation retains explicit opt-in and legacy arguments',()=>{
  const legacy={service_id:service,request_id:'rpeer'+'b'.repeat(32),experimental:true};assert.doesNotThrow(()=>validateOp(op.name,legacy));assert.doesNotThrow(()=>validateOp(op.name,{...legacy,session}))
  assert.throws(()=>validateOp(op.name,{...legacy,experimental:false}))
 })
+
+test('native request identity is recoverable from durable job without launching another worker',async()=>{
+ const {independentServiceRequestId,readIndependentService}=await import('../lib/independent-service-result.mjs'),job='j'+'c'.repeat(32)
+ assert.equal(independentServiceRequestId(job),'rpeer'+'c'.repeat(32));assert.equal(independentServiceRequestId(job),independentServiceRequestId(job));assert.match(independentServiceRequestId(),/^rpeer[a-f0-9]{32}$/)
+ for(const id of ['title','../other','jBAD',null])assert.throws(()=>independentServiceRequestId(id),e=>e.category==='bad_args')
+ const controller=new AbortController();controller.abort();await assert.rejects(readIndependentService(session,service,session,{signal:controller.signal}),e=>e.category==='cancelled'&&e.detail.dispatched===false)
+ const op=OPS.find(x=>x.name==='broker_service_read');assert.equal(op.schema.properties.session.type,'string');assert.doesNotThrow(()=>validateOp(op.name,{service_id:service,session_id:session,session,experimental:true}))
+})

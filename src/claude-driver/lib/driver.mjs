@@ -928,9 +928,10 @@ export const OPS = [
   {
     name:'broker_service_read',title:'Read metadata through an enrolled native receiver',readOnly:false,
     description:'Experimental serialized get_session read through an already loaded owned receiver. Checks exact epoch/bytes/readiness and controls, enqueues one request, records one peer delivery and reconciles native result. Never installs, wakes, restarts or retries. Returns settlement metadata only; cancelled or uncertain work requires request inspection.',
-    schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},
+    schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},session:{type:'string',description:'Explicit independent receiver UUID; session_id remains the metadata target.'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},
     run:async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native service read requires explicit experimental opt-in',{category:'bad_args'})
+      if(args.session!==undefined)return (await import('./independent-service-result.mjs')).readIndependentService(args.session,args.service_id,args.session_id,{timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal,jobId:ctx.jobId,progress:ctx.progress})
       return (await import('./native-service-read.mjs')).nativeServiceRead(args.service_id,args.session_id,{timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal})
     },
   },
@@ -1127,10 +1128,11 @@ export function validateOp(name, args) {
 export async function runOp(name,args={},options={}){
  return withLifecycleContext({operationId:randomUUID(),operation:name,build:RUNTIME_BUILD},()=>runOpInner(name,args,options))
 }
-async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal } = {}) {
+async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId } = {}) {
+  if(jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid operation job context',{category:'bad_args'})
   const op = validateOp(name, args)
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
-  const ctx = { args, harness, progress, signal, notes: [], tier: null }
+  const ctx = { args, harness, progress, signal,jobId, notes: [], tier: null }
   const t0 = Date.now(),operationId=lifecycleContext().operationId
   if(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})
