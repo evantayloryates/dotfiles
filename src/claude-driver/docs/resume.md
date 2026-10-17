@@ -1,3 +1,16 @@
+## October 17 blocked audit — manual accidental archive still pending
+
+Same exact primary-live blocker verified across three consecutive goal turns,
+including post-trust test preparation and two continuations. No recovery job or
+live native experiment exists to wait on; prepared request remains unsubmitted.
+All independent current repairs and both actual MCP send contracts checkpointed.
+Do not manufacture absence via STOP archive, process kill or global restart.
+Goal blocked pending Taylor manually archiving existing transport scratch in Claude
+Desktop (leave interrupt open), then replying here and using Play/Resume if needed.
+On resume read postTrustArchiveRecoveryTrial and independently revalidate exact
+binding/epochs/absence/standby before the single planned submission. Watcher remains
+paused; original failures preserved; automatic recovery disabled. No cleanup pending.
+
 ## October 17 post-trust accidental-archive test prepared; human setup pending
 
 Previousbatch0baaa7b. Primary9d62 remains live; no absent-primary test submitted.
