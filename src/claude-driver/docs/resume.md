@@ -1,3 +1,54 @@
+## Filesystem retirement and receive-callback absence verified — October 17
+
+Previous turn progressed scoped quiescence. Extended existing broker_service_retire
+with optional explicit receiver session; omitted session retains legacy route.
+Under private broker lock require same idle native epoch, verified own STOP and
+quiescence ledger hash, current terminal attempt review. Snapshot strict module
+shape: three exact sealed runtime files plus only six fixed non-executable loader/
+editor auxiliary paths, each <=1MiB,total<=4MiB. Reject links/unknown paths/changed
+runtime bytes. Current auxiliary bytes are hashed and preserved, not qualified by
+legacy289 declaration hashes. Durable before-move ledger, exclusive atomic move
+of whole module into private retired-module, full inventory readback and final
+files-retired checkpoint. No deletion, settings/STOP/source/receipt change.
+
+Historical independent context now has explicit allowRetired only for status and
+receipt settlement. Requires watched directory absent, exact retirement generation/
+epoch ledger, own STOP and preserved inventory/package. Default read context still
+refuses retired registration. Before-move/moved uncertainty can be observed as
+files-retired-uncheckpointed but is not silently finalized. Successor ownership
+is not inferred. Same-live-epoch requirement remains; offline historical proof is
+not yet implemented. Four module-tree/routing tests plus sealed-generator test pass.
+
+Initial pre-submit attempt found duplicate broker_service_retire name: legacy
+schema rejected session before job creation/effects. Preserved failure, corrected
+by extending existing optional route, added general unique-OPS invariant test.
+Same original key then submitted jobj9714cc00885240de839be606544b3c4b and completed.
+Exact nine-file inventory preserved outside watched path; directory absent; settings
+and STOP hashes unchanged. Same key reattached same job. Fresh status verifies
+sourceDisposition files-retired; historical read reconciliation receiptVerified:true,
+published:false, original native tool ID unchanged. Native unload/process disposition
+not claimed by filesystem result.
+
+One scoped receive-callback absence probe after retirement: malformed owned token
+which sealed old handler consumes before capacity/intent/tools if registered. No
+request ID, native operation or budget slot. Persisted direct msg
+d518a826-caa8-4e56-8b2b-4724ce671235 reached exact native user
+1eb092ef-6e08-4319-be5a-4ed611ab4dc5, causal terminal RETIRED_CALLBACK_ABSENT,
+tools0. SamePID20499/start15:48:23UTC idle; settings/STOP unchanged. This verifies
+effective receive interception absent for this probe, not physical process retirement
+or full resource disposal. No retry or broader model work. Evidence:
+probe/scratch-native-read-2026-10-17/empty-receiver-activation.json retire and
+callbackAbsenceProbe; private retirement.json retains inventory.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-48-33-569Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-48-21-082Z.json.
+Next supported native process disposition/ownership and generation replacement,
+then warm/cold recovery, natural-pressure and always-on proof. Do not reuse an
+old one-shot native stop grant or kill unrelated sessions. Current retired settings
+and STOP retained; host process still live; no active sender/worker/waiter.
+Old d5 unresolved self-test remains untouched. Goal active, Codex fixes parked.
+
 ## Generation admission stopped and quiescence verified — October 17
 
 Previous turn progressed independently bound terminal refusal review. Added public

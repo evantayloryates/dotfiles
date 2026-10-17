@@ -917,3 +917,14 @@ be inspected; STOP is never automatically cleared. `quiescent:true` requires all
 inventoried attempts terminal, but never proves native unload or process retirement.
 Status reports STOP presence separately from a matching generation marker. New
 public reads refuse before private request publication while STOP remains.
+
+
+`broker_service_retire` takes optional `session` for an independent generation.
+That path requires verified quiescence and own STOP, rechecks terminal attempts
+under the read lifecycle lock, and exclusively moves the exact runtime module plus
+bounded non-executable tooling to private retired storage. It retains settings,
+STOP and all evidence. Unknown paths, links and changed runtime bytes refuse.
+Filesystem retirement does not prove native unload or process retirement.
+Status and receipt reconciliation can explicitly verify retired source/inventory
+while the same native epoch remains available; ordinary reads cannot use it.
+Omitting `session` keeps the existing legacy expiry-based retirement behavior.

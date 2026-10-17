@@ -10,6 +10,8 @@ import {peerRecord} from './peer-direct.mjs'
 import {versions} from './paths.mjs'
 import {activeRelease,validateRelease} from './releases.mjs'
 import {nativePolicySettingsPath} from './runtime-entry.mjs'
+import {snapshotIndependentModule,independentRetirementLedgerMatches} from './independent-module-tree.mjs'
+import {independentStopMatches} from './independent-service-quiesce.mjs'
 import {pathToFileURL} from 'node:url'
 const refuse=()=>{throw Error('independent receipt refused')}
 const bytes=(file,limit=65536)=>{const fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);try{const st=fstatSync(fd);if(!st.isFile()||st.uid!==process.getuid()||st.size>limit)refuse();const b=readFileSync(fd);if(b.length>limit)refuse();return b}finally{closeSync(fd)}}
@@ -22,20 +24,29 @@ export async function buildSealedIndependentPackage(build,config){
  if(typeof buildNativePeerServicePackage!=='function')refuse()
  return buildNativePeerServicePackage(config)
 }
-export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false}={}){
+export async function loadIndependentServiceContext(session,serviceId,{requireIdle=false,allowRetired=false}={}){
  const record=getRecord(session),version=versions()
  if(independentServiceState(session,serviceId,record)!==STATE_DIR||version.cli!=='2.1.299'||version.app!=='2.42304.0'||record.permissionMode!=='bypassPermissions')refuse()
  for(const path of [record.cwd,join(record.cwd,'.claude-driver-services'),STATE_DIR,BROKER_DIR]){const st=lstatSync(path);if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==process.getuid())refuse()}
  const release=activeRelease(),pointer=release?.pointer,peer=peerRecord(session,pointer?.pid)
  if(!release||!peer||peer.procStart!==pointer.procStart||peer.entrypoint!=='claude-desktop'||peer.version!=='2.1.299'||peer.cwd!==record.cwd||pointer.sessionId!==session||pointer.serviceStateBinding?.id!==serviceId)refuse()
- const module=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods',session.slice(6),'desktop-bridge-native-peer-service'),source=bytes(join(module,'hooks/register.js')).toString('utf8'),prefix='const CONFIG=Object.freeze(',end=source.indexOf(');\n')
+ const watchedModule=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods',session.slice(6),'desktop-bridge-native-peer-service')
+ let module=watchedModule,retirement=null,sourceDisposition='installed'
+ try{lstatSync(watchedModule)}catch(error){
+  if(error.code!=='ENOENT'||!allowRetired)refuse()
+  retirement=json(join(STATE_DIR,'retirement.json'))
+  if(!independentRetirementLedgerMatches(retirement,{serviceId,pointer})||!independentStopMatches(json(join(BROKER_DIR,'STOP')),{serviceId,pointer}))refuse()
+  module=join(STATE_DIR,'retired-module');sourceDisposition=retirement.phase==='files-retired'?'files-retired':'files-retired-uncheckpointed'
+ }
+ const source=bytes(join(module,'hooks/register.js')).toString('utf8'),prefix='const CONFIG=Object.freeze(',end=source.indexOf(');\n')
  if(!source.startsWith(prefix)||end<0)refuse()
  const config=JSON.parse(source.slice(prefix.length,end)),pkg=await buildSealedIndependentPackage(pointer.build,config),epoch={pid:pointer.pid,procStart:pointer.procStart,build:pointer.build}
  if(config.id!==serviceId||config.brokerSession!==session||config.brokerCwd!==BROKER_DIR||config.build!==pointer.build||JSON.stringify(ordered(config.serviceStateBinding))!==JSON.stringify(ordered(pointer.serviceStateBinding)))refuse()
  for(const[name,expected]of Object.entries(pkg.hashes))if(hash(bytes(join(module,name)))!==expected)refuse()
+ if(retirement&&JSON.stringify(ordered(snapshotIndependentModule(module,pkg.hashes)))!==JSON.stringify(ordered(retirement.inventory)))refuse()
  const policy=json(join(BROKER_DIR,'stop-rescue-policy.json')),settings=nativePolicySettingsPath({pointer,policy,dir:BROKER_DIR})
  if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settings))!==policy.settingsHash)refuse()
  if(requireIdle&&peer.status!=='idle')refuse()
- return {record,release,pointer,peer,config,epoch,policy,module,pkg,read:name=>json(join(BROKER_DIR,name))}
+ return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,pkg,read:name=>json(join(BROKER_DIR,name))}
 }
 export {bytes as independentBytes,json as independentJson,ordered as independentOrdered}

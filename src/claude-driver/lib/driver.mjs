@@ -908,11 +908,12 @@ export const OPS = [
     run:async(args,ctx)=>args.session!==undefined?(await import('./independent-service-result.mjs')).inspectIndependentService(args.session,args.service_id,{signal:ctx.signal}):(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id),
   },
   {
-    name:'broker_service_retire',title:'Retire an expired owned native receiver',readOnly:false,
-    description:'Experimental exact-owner atomic filesystem retirement after service expiry and settlement of all recorded attempts. Preserves bytes and evidence outside watched folder. Refuses epoch, baseline, controls, added files or unresolved requests. Filesystem retirement never proves native unload; no send, restart or permission change.',
-    schema:{required:['service_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    name:'broker_service_retire',title:'Retire an owned native receiver',readOnly:false,
+    description:'Experimental exact-owner atomic filesystem retirement after legacy expiry/settlement, or independent scoped STOP and terminal review when session is explicit. Preserves bytes and evidence outside watched folder. Refuses epoch, baseline, controls, added files or unresolved requests. Filesystem retirement never proves native unload; no send, restart or permission change.',
+    schema:{required:['service_id','experimental'],properties:{session:{type:'string',description:'Explicit independent receiver; requires verified scoped STOP and terminal attempt review instead of legacy expiry.'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
     run:async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native service retirement requires explicit experimental opt-in',{category:'bad_args'})
+      if(args.session!==undefined)return (await import('./independent-service-retire.mjs')).retireIndependentService(args.session,args.service_id,{signal:ctx.signal})
       return (await import('./native-service-ownership.mjs')).retireNativeService(args.service_id,{signal:ctx.signal})
     },
   },

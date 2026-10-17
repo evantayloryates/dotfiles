@@ -13,7 +13,7 @@ let activation={activationPhaseObserved:null,activationEffectsAssessed:false}
 try{
  let ledger=null;try{ledger=independentJson(join(STATE_DIR,'activation.json'))}catch(error){if(error.code!=='ENOENT')throw error}
  activation=summarizeIndependentActivationLedger(ledger,{serviceId,session})
- const c=await loadIndependentServiceContext(session,serviceId),now=Date.now(),{config,pointer,policy}=c
+ const c=await loadIndependentServiceContext(session,serviceId,{allowRetired:true}),now=Date.now(),{config,pointer,policy}=c
  const slots=Array.from({length:config.maxRequests},(_,slot)=>{try{return c.read('../native-service-budget-'+serviceId+'-'+slot+'.json')}catch(e){if(e.code!=='ENOENT')throw e;return null}}),budget=summarizeIndependentBudget(config,slots)
  const allNames=readdirSync(BROKER_DIR),attempts=reviewIndependentAttempts({context:c,reservedRequestIds:budget.reservedRequestIds,names:allNames,now})
  const names=allNames.filter(n=>/^native-policy-invocation-[A-Za-z0-9_-]+\.json$/.test(n));if(names.length>128)throw Error('audit bound')
@@ -22,5 +22,5 @@ try{
  try{readinessObserved=screenNativeServiceReady({config,ready:c.read('.native-service-'+serviceId+'.ready.json'),now:Math.min(now,config.deadline)})}catch(error){if(error.code!=='ENOENT')throw error}
  let admissionStopped=false,stopMarkerMatchesGeneration=false;try{const body=independentBytes(join(BROKER_DIR,'STOP'));admissionStopped=true;try{stopMarkerMatchesGeneration=independentStopMatches(JSON.parse(body),{serviceId,pointer})}catch{}}catch(error){if(error.code!=='ENOENT')throw error}
  let loading;try{loading=observeNativeModLoading(c.peer,{now})}catch{loading={loaderNotificationObserved:false,loaderOutcome:'unavailable',consentAuthorized:false,generationReadinessAssessed:false}}
- console.log(JSON.stringify({serviceId,sessionId:session,...activation,...loading,admissionStopped,stopMarkerMatchesGeneration,nativeInputRequired:c.peer.status==='waiting',verified:true,build:pointer.build,generation:pointer.generation,nativeEpoch:{pid:pointer.pid,procStart:pointer.procStart,status:c.peer.status},deadline:config.deadline,expired:now>config.deadline,readinessObserved,nativePolicyObserved,...budget,...attempts,servingQualified:false,recoveryAttempted:false}))
+ console.log(JSON.stringify({serviceId,sessionId:session,...activation,...loading,admissionStopped,stopMarkerMatchesGeneration,nativeInputRequired:c.peer.status==='waiting',verified:true,sourceDisposition:c.sourceDisposition,build:pointer.build,generation:pointer.generation,nativeEpoch:{pid:pointer.pid,procStart:pointer.procStart,status:c.peer.status},deadline:config.deadline,expired:now>config.deadline,readinessObserved,nativePolicyObserved,...budget,...attempts,servingQualified:false,recoveryAttempted:false}))
 }catch{console.log(JSON.stringify({serviceId,sessionId:session,...activation,verified:false,servingQualified:false,recoveryAttempted:false,reason:'independent-service-context-unqualified'}))}
