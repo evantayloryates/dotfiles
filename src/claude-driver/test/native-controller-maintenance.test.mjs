@@ -1,0 +1,17 @@
+import {test} from 'node:test'
+import assert from 'node:assert/strict'
+import {planNativeControlMaintenance,runNativeControlMaintenance} from '../lib/native-controller-maintenance.mjs'
+const options={now:1000,count:3,capabilities:['metadataSendControl']},status=()=>({serviceId:'old',verified:true,verificationMode:'live-native',sourceDisposition:'installed',nativeEpochAssessed:true,nativeEpoch:{pid:42,procStart:'epoch',status:'idle'},nativeInputRequired:false,admissionStopped:false,terminalAttemptReviewComplete:true,unresolvedRequestIds:[],deadline:200000,unreservedSlots:8,readinessObserved:true,nativePolicyObserved:true,metadataSendControl:true,metadataStopControl:true,metadataTarget:{sessionId:'target',pid:7,procStart:'target epoch',cwd:'/owned'}})
+test('whole-operation margin renews before expiration/capacity and probes only with sufficient spare budget',()=>{
+ const s=status();assert.equal(planNativeControlMaintenance(s,options).action,'ready')
+ for(const patch of [{deadline:90000},{deadline:0},{unreservedSlots:2}])assert.equal(planNativeControlMaintenance({...s,...patch},options).action,'renew')
+ assert.equal(planNativeControlMaintenance({...s,nativePolicyObserved:false},options).action,'probe')
+ assert.equal(planNativeControlMaintenance({...s,nativePolicyObserved:false,unreservedSlots:3},options).action,'renew')
+ for(const patch of [{unresolvedRequestIds:['unknown']},{admissionStopped:true},{metadataSendControl:false},{nativeInputRequired:true},{nativeEpoch:{...s.nativeEpoch,status:'busy'}},{readinessObserved:false}])assert.equal(planNativeControlMaintenance({...s,...patch},options).action,'inspect')
+})
+function fixture(change=x=>x){let reads=0;const calls=[],before={status:{...status(),unreservedSlots:0}},after={status:change({...status(),serviceId:'new'})};return {calls,d:{inspect:async()=>++reads===1?before:after,guard:async()=>calls.push('guard'),record:async phase=>calls.push(phase),maintain:async action=>{calls.push(action);return {serviceId:'new',jobId:'child'}}}}}
+test('one recorded renewal must precede successor identity and whole-operation admission',async()=>{const f=fixture(),r=await runNativeControlMaintenance(f.d,options);assert.equal(r.status.serviceId,'new');assert.equal(r.maintenanceJobId,'child');assert.deepEqual(f.calls,['guard','before-renew','renew','after-renew','guard','ready'])})
+test('changed target, controller epoch, dropped extra grant, unresolved or unready successor prevents operation',async()=>{
+ for(const change of [s=>({...s,metadataTarget:{...s.metadataTarget,pid:8}}),s=>({...s,nativeEpoch:{...s.nativeEpoch,pid:43}}),s=>({...s,metadataStopControl:false}),s=>({...s,unresolvedRequestIds:['late']}),s=>({...s,readinessObserved:false}),s=>({...s,serviceId:'foreign'})]){const f=fixture(change);await assert.rejects(runNativeControlMaintenance(f.d,options));assert.equal(f.calls.includes('ready'),false)}
+})
+test('unknown predecessors and failed/cancelled maintenance never advance or retry the child',async()=>{const f=fixture();f.d.inspect=async()=>({status:{...status(),unresolvedRequestIds:['unknown']}});await assert.rejects(runNativeControlMaintenance(f.d,options));assert.equal(f.calls.includes('renew'),false);const g=fixture();let attempts=0;g.d.maintain=async()=>{attempts++;throw Error('child outcome unknown')};await assert.rejects(runNativeControlMaintenance(g.d,options));assert.equal(attempts,1);assert.equal(g.calls.includes('after-renew'),false)})

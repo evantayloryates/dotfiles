@@ -1461,3 +1461,15 @@ foreground bundle. Missing snapshots or failed activation remain unconfirmed.
 If the user selects a different main session while navigation settles, restoration
 leaves both that selection and the foreground app alone. Existing focus action
 strings remain available; `(not confirmed)` indicates missing proof.
+
+### On-demand controller maintenance for enrolled controls
+
+Durable enrolled metadata/send/stop/interrupt requests now check the budget and
+lifetime margin for the whole operation. A healthy exact controller proceeds
+directly. Low margin triggers one recorded renewal child; a missing policy audit
+may trigger one bounded negative probe. The successor must preserve controller
+and target epochs plus every existing model/send/stop grant, with no unresolved
+attempts. Native input, ownership changes or unknown effects prevent progression.
+Results expose `maintenanceJobId` when maintenance occurred. Inspect that original
+child on failure; do not retry under a new identity. This maintains an existing
+live controller and does not promise recovery after process or app loss.

@@ -1,3 +1,66 @@
+## October 17 ordinary controls now maintain bounded controller admission
+
+Previousbatch publishedc911dc6. Reusedexistingdurablebroker_service_renew andpolicy
+probe for native metadata/send/stop/steer via native-controller-maintenance.mjs.
+Under SAMEindependent-route controllerlock usedbycurrentreadrouting, inspect exact
+selectedinstalledliveepoch/terminalattempts/stop/input/state/capabilities/target
+scope beforemaintenance. Wholeoperationcount1..4 budget/lifetimemargin checked;
+metadatarequiresidle recipient, send/stopallowknownbusy. Insufficientmargin renews
+ONEdurablechild; missingpolicy probesonlywithroomforprobe+operation, otherwiserenew.
+Afterchild, reselectandreinspect samecontrollerPID/procStart, identicalrecipient
+session/cwd/PID/procStart, ALLthreeoldcapabilitybooleanspreserved, andwholeoperation
+ready/policyadmitted. Unknown/change/stop/nativeinput preventsadvancement, never
+wakes/restarts/handoffs. Healthyrequests haveNOmaintenancechild/files. Expiry
+planning iscoveredpurely; reallive qualificationbelow iscapacity, notidleexpiry.
+
+Maintenanceledgerbefore-renew/after-renew/ready, stableidempotencykey perparent,
+childjob andobservations preservedbeforetargeteffects. Existingledgerisnot
+replacedifwrite-exclusivefails. ReturnedmaintenanceJobId isEXPLICIT; nativeMCP
+noMaintenanceChildren checknowalsoexcludesthisfield, avoidingfalsehealthyclaim.
+Steerpreflightadmitstwoeffects beforestop; metadatawholebatchcountbeforefirstfield.
+Cancelled/failedmaintenance cancontinueasdurablechild, butparenttargeteffectdoesnot
+advance; inspectoriginalchild, no newidentity/replay. Fournewmaintenance+existing
+focused23checks PASS: capacity/expiredplanning/probebudget, owner/input/grants,
+extra-grantdropping, target/controllerepochchange, unready/unknownsuccessors and
+singleattemptfailure. No newautomaticgrant/permissionauthority.
+
+ChangedconditionLIVEtest (not47dummyrequests): manualboundedrenew
+ja46f2249f31d455083e8b84d489c6935 frombeec0b... createdlowbudgeta46f... with2max,
+negativepolicyprobeconsumed1, leaving1slot. Ordinarypublicthreefieldset_session_config
+j783bc0245a9544da89f0c7a872651e61 AUTOMATICALLY renewedviachild
+j0968475bc538473f9f8316216d40d8f4, thenverifiedtitle/unpinned/high onnewcontroller
+0968475bc538473f9f8316216d40d8f4. Targetsame90418, controller same31678.
+Allmodel/send/stopgrantspreserved. Immutableoldhistoricalstatusverified/files-retired,
+terminalreviewtrue, ONLYpolicynegative reserved and0unknown; requestsdirABSENT,
+no protocolfieldrequests existedthere. Firstdiagnosticreaddir assumedthatdir and
+failedENOENT; correctedreadonlyreviewusesverifiedretiredstatus+explicitabsence,
+notmissingroleinference. MaintenanceReadyAt1792275827724 precedesfirstfieldintent
+1792275827734; allthreefieldresults bindsuccessor. Sameparentreattach reusedtrue,
+maintenancehash84d747c4.../routehash1acd1ae4... unchanged. Privateplan
+metadataControlTrial.automaticControlReview/automaticControlOrder retainproof.
+
+FINALHOSTANDSEALED3dc08c686d9d062e6a53d4248ecf1263b2804e82b2322d233736934190024357.
+FreshactualMCP healthy ordinary steering BOTH19checksPASS, includingNOmaintenance
+children, distinctstop/sendcontexts, phaseorder, causalreply, sameparentreuse,
+source/globalconfig/settingsunchanged:
+harness-native-native-steer-codex-2026-10-17T22-24-13-699Z.json and
+harness-native-native-steer-claude-2026-10-17T22-24-34-172Z.json.
+No formattingfailurethistime. Fullpressurev2-2026-10-17T22-23-59-635Z.json1/1/
+sourceunchanged. Bothsynthetic10checks harness-v2-{claude,codex}-2026-10-17T22-24-29-851Z.json PASS.
+Current0968475bready/policytrue,idlePID31678/start20:14:51UTC,7settled/0unknown+
+1policynegative/56remainof64,deadline1792279424716. Targetidle90418/start21:37:26UTC,
+exacttitle/tool/Haiku5.5/high/bypass/unpinnedbaselineunchanged. No outstandingjobs.
+
+NEXT: thisqualifieson-demandmaintenance forKNOWNLIVEcontroller, notprocessloss,
+appquit/crash/archive/deletion ornativeauthrecovery. Reuseexistingcoldrecovery
+foundationonlywithindependentexactscope/retainedreceipts; legacyobserverstillowns
+legacybroker recovery. Read-only residency/naturalgovernor pressure and possible
+explicitstandbycontroller failover needseparateevidence; do notrepeatbudgetrenewal
+orcontrolledarchivecycles asunattendedproof. Creation/no-folder/fork andfullarchive/
+windowcoverage stillremain; nativepersonpermission/deletegates stayintact.
+Goalactive, watcherpaused, noCUA/input/auth/restart/newchats/manualsessionkills;
+Codex-driver/1Passwordparked.
+
 Final2651fd5e validation: fullpressure v2-2026-10-17T22-21-34-825Z.json1/1/sourceunchanged; bothsynthetic10checks harness-v2-{claude,codex}-2026-10-17T22-21-18-850Z.json PASS.
 
 ## October 17 verified focus restoration on existing owned chats
