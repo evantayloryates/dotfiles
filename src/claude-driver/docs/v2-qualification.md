@@ -1,3 +1,18 @@
+## Current frontier — October 17, recovery/rebind composition
+
+See [resume.md](resume.md) for the latest exact services, enrollment digest,
+source fingerprints, durable jobs, reports and cleanup. The dated sections below
+retain historical evidence; their NEXT statements are not current instructions.
+
+Healthy native send/stop/steer and scoped control checks have prior native proof.
+Exact standby enrollment, renewal refresh, cold routing, proof-bound rebind and
+automatic recovery/rebind composition now exist. Current enrollment still has
+automatic recovery disabled. Actual successful native cold recovery/rebind,
+app quit or both controllers lost, natural-pressure survival and the wider
+creation/fork/archive/window/person-only gates remain incomplete. Synthetic suite
+and filtered MCP checks establish only their named scope. The full goal remains
+active; these candidates do not establish always-on operation.
+
 ## October 17 durable standby enrollment refreshes across primary renewal
 
 Previousbatch published80602ef. Addedstandby-enrollment.mjs andpublic

@@ -1530,6 +1530,19 @@ rebind implementation has synthetic and native-refusal evidence; the successful
 native path remains unqualified until an actual cold recovery supplies its proof. These paths do not establish
 unattended recovery from app quit or loss of both controllers.
 
+For explicitly enabled automatic routing, the original control request composes
+cold recovery and rebind before renewed control admission. The scheduled cold
+child remains `coldRecoveryJobId`; the rebind uses a deterministic durable
+`standbyRebindContextId` (a native context, not another scheduled driver job).
+Its before/after checkpoints remain in the original recovery ledger. The caller
+holds the primary route lock; this internal rebind retains that lock instead of
+recursively taking it, while still taking the standby generation-turnover lock.
+Any unknown recovery/rebind/checkpoint stops control dispatch. Successful results
+report `standbyRebindRequired:false` only after exact rebind verification; manual
+cold recovery still reports true until its separate rebind completes. This
+composition is implemented but automatic routing remains disabled in the current
+scratch enrollment pending successful native cold/rebind qualification.
+
 Primary renewal captures a fresh family receipt and refreshes an enrolled binding.
 It needs capacity for policy, family and a later operation. A failed standby
 revalidation leaves the old binding stale and returns `standbyRefreshQualified:false`;

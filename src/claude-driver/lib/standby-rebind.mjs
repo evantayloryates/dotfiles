@@ -26,9 +26,9 @@ export async function runStandbyRebind(d){
  if(result.enrollment?.verified!==true||result.enrollment.enrolled!==true)throw Error('rebind enrollment unverified')
  return result
 }
-export async function rebindEnrolledStandby(primary,recoveryParentJobId,expectedSha256,{jobId,signal}={}){
+export async function rebindEnrolledStandby(primary,recoveryParentJobId,expectedSha256,{jobId,signal,routeLockHeld=false}={}){
  if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(primary||'')||!/^j[a-f0-9]{32}$/.test(jobId||'')||!/^j[a-f0-9]{32}$/.test(recoveryParentJobId||'')||!/^[a-f0-9]{64}$/.test(expectedSha256||''))throw new DriverError('rebind requires durable parent and exact original recovery/digest',{category:'bad_args'})
- return withLock('independent-route-'+primary,async()=>{
+ const run=async()=>{
   const binding=readStandbyEnrollment(primary)
   if(!binding||standbyEnrollmentDigest(binding)!==expectedSha256)throw new DriverError('rebind enrollment changed',{category:'standby_rebind_unqualified',detail:{dispatched:false,retrySafe:true}})
   let proof;try{proof=readStandbyRebindProof(binding,recoveryParentJobId)}catch{throw new DriverError('original verified cold recovery unavailable; no standby effects',{category:'standby_rebind_unqualified',detail:{dispatched:false,retrySafe:true}})}
@@ -67,5 +67,6 @@ export async function rebindEnrolledStandby(primary,recoveryParentJobId,expected
     ledger.phase='completed';save();return {primarySession:primary,standbySession:standby,standbyServiceId:newService,recoveryParentJobId,enrollment:results.enrollment,standbyRebindRequired:false,verified:true,rebindFile:file,retrySafe:false}
    }catch(error){if(ledger){ledger.failure={at:Date.now(),category:error.category??'standby-rebind-unresolved'};save()}throw new DriverError('standby rebind stopped; reconcile original parent without replay',{category:ledger||error.code==='EEXIST'?'standby_rebind_unresolved':'standby_rebind_unqualified',detail:{jobId,rebindFile:ledger||error.code==='EEXIST'?file:null,retrySafe:!ledger&&error.code!=='EEXIST',...!ledger&&error.code!=='EEXIST'?{dispatched:false}:{}}})}
   },{timeoutMs:5000,signal})
- },{timeoutMs:60000,signal})
+ }
+ return routeLockHeld?run():withLock('independent-route-'+primary,run,{timeoutMs:60000,signal})
 }

@@ -1,3 +1,44 @@
+## October 17 automatic cold/rebind composition candidate
+
+Previous batch published40286b8. Automatic enrolled control recovery now composes
+ONE original durable cold child followed by a deterministic durable native rebind
+context before renewed control admission. Original recovery ledger remains phase
+verified for receipt proof; separate rebindPhase/context/result and before/after
+steps retained. Rebind reads original verified cold/native receipts, turns over
+same standby process and refreshes exact binding/family proof. Result only clears
+standbyRebindRequired after exact primary/service, verified new digest, preserved
+automatic opt-in and valid context ID match. Unknown recovery/rebind/checkpoints
+stop original control without replay. Error detail retains rebind context ID.
+
+Internal call explicitly retains already-held primary independent-route lock,
+while taking existing standby generation lock; standalone public rebind still
+takes primary route lock. No public bypass-lock argument added. Virtual rebind
+context is NOT a separately scheduled driver job; inspect original ledger and
+standby-rebinds/<context>.json. Manual recover_enrolled remains cold-only and
+requires separate explicit rebind. Healthy routes still avoid recovery work.
+Send/stop/metadata/steer results propagate actual rebind state/context.
+
+Focused14tests PASS including combined cold/rebind result gates and each unknown/
+checkpoint failure, plus isolated actual lock-held preflight test: no recursive
+primary lock acquisition and no effects. Full isolated
+v2-2026-10-17T22-57-36-088Z.json1/1PASS/sourceunchanged; both filtered
+harness-v2-{claude,codex}-2026-10-17T22-57-10-303Z.json10checks each PASS.
+FINALHOSTb4fc1ec3b7b4000f7acd310d6a262b462af751ddd878fcf48db6d6f9cd408093.
+
+Actual standby status remains waitprimary-live/effectsfalse/recoveryAttemptedfalse,
+primarycb68/standby3e8045 and exact binding905865a4622eef6f6f5a9dd59db218be64ce471f3754d8bc80349217b9a02869
+unchanged; automaticRecoveryEnabled:false. No new native send/stop/model turn,
+wake, process retirement, archivecycle, app restart or new chat. Qualification doc
+now explicitly points to current resume frontier; dated historical NEXT text is
+not fresh authority. No successful native cold/rebind claim.
+
+NEXT: successful actual absent-primary native recovery + rebound standby and
+subsequent ordinary control must be qualified before enabling current enrollment.
+Avoid manufacturing current-primary failure solely for green. Both-gone/appquit,
+naturalpressure and broader creation/fork/archive/window/person gates remain.
+Goal active; legacy observer owns legacy recovery; inbox watcher paused. Keep
+Codex-driver and 1Password parked.
+
 ## October 17 proof-bound standby reseal/rebind candidate
 
 Previous batch published6ca1a9f. Implemented broker_service_rebind_standby using
