@@ -1,3 +1,59 @@
+## Default cold recovery natively passed; live target refused before children — October 17
+
+No code changes/sourceb1a2fdd466d7e85f6aaedce78df836a5a853e722ffe00a6dad650ec598536f0e.
+Fresh explicit controller preparationj94e5d3705e334fc4aa277698cc3b252f sealed
+interrupt targetPID5972/start20:54:10UTC. Previousad2...controller quiesce/retire
+retained; new94e5d3705e334fc4aa277698cc3b252f activatedj59aa0e4a250d4708ac244e9e537be3e1,
+ready/policyj94efea2eeb9f410db967cbfb29145edc samecontrollerPID31678/start20:14:51UTC.
+CURRENT transport service94e5d3705e334fc4aa277698cc3b252f.
+Target native familyj19b3a7e207684c589fd65f739893b2a0 verified empty; noPR/worktree/pin.
+
+DEFAULT cold mode LIVE NEGATIVE parentj62a817cf463040a59789352f3724f8d3 failed
+before-preflight with ZERO childjobs. Independently checked target exactPID5972/
+startidle/readiness/admission unchanged/no unresolved, no effects. Negative
+remains failed, not a recovery success. Private plan coldRecoverySetup.liveNegativeProof.
+
+Scoped absent state setup, not a simulated unexplained crash: targetc3f1...quiesce
+ja72bad91177f4f2ead8de83b9ec262d0, retirej399be247f5b447d4861083524f40d289,
+archivejbff3ccb3b1304e6baf7f867fcd77895f. Independent persistedarchivedtrue,
+originalPID5972absent/nopeer; archive receipttoolu_plugin_aebaca85def249fd85a15cf39f9a61eb.
+Then ONE default cold parentj5ddbe0de55cd40d7be83d1e20a4588e9 completed14.222seconds,
+24 before/after steps, EXACTLY SIX children: unarchiveje063573a73704474944d42f7b9d98365,
+wakej076490d7efbe47e88ca1f9825731f17c, preparej89e9be8ae5f24d71bb8e2f7b900b668d,
+activatej93f5ae9fe59d454ead7110198ac88ab9, policyj0cee73ffbd5d4db88f8bc6a744bf2fa4,
+readjd13b3ceb7c57400d911d75ff0fe48b52. NO family/quiesce/retire/archive repeated;
+retired STOP/history preserved. No human input. NewPID13591/startSatOct17 20:57:38UTC,
+fixedreply/zero tools lineage, actualready/policy/native read, identical stable
+anchor/settings/no unresolved verified. CURRENT interrupt service
+89e9be8ae5f24d71bb8e2f7b900b668d. Same saved request resubmission reused sameparent
+and recovery ledger bytes unchanged/no effect replay.
+
+Both actual real-MCP current-route harnesses on recovered89e9...passed14checks:
+harness-native-current-claude-2026-10-17T20-58-00-053Z.json and
+harness-native-current-codex-2026-10-17T20-58-01-251Z.json (configuredgpt-6-sol).
+Exacttwo submissions/sameparent/derivedrequest/native receipt/no modelturn/no
+maintenance/source/globalconfig unchanged all pass. Existing coldRecoverySetup
+plan retains requests/results/negativechecks/fullrecoveryledger/finalstatus/harnesses.
+No synthetic reruns: source/tests unchanged from prior passing full pressure.
+
+Qualification: default cold entry from already-retired absent target is now
+NATIVELY proven once; cycle mode separately proven. Offline-INSTALLED native
+failure recovery still only synthetic, not proved by intentionally retired archive.
+Unplanned crash/globalapprestart/deleted-session/unattendedsupervision not claimed.
+Controller remains sealed to OLD5972, not current13591; current live capability
+cannot silently retarget. Human workspace trust persisted across this trial.
+
+NEXT before adding more mechanisms: refresh requirement-by-requirement V2 audit
+against docs/brief.md, README.md, live-v2.mjs and the old matrix in
+v2-qualification.md (Latest audit Oct15/source702a is HISTORICAL and outdated).
+Map each original requirement to actual current source/native/filter evidence;
+preserve remaining eleven live-v2 gate scope and later steering/control evidence.
+Do not substitute repeated recovery cycles for full interface qualification, or
+invent unattended supervision as sole completion scope. Use that audit to choose
+remaining concrete implementation/native check. No broadapprestart while legacy
+observer owns broker; no CUA/keyboard/auth/permissions/sessionkill. Watcherpaused,
+goalactive, Codex bridge fixes/1Password separate.
+
 ## Public durable recovery cycle passed; final self guard tested — October 17
 
 Added broker_service_recover in independent-service-recovery.mjs. One durable

@@ -1218,8 +1218,9 @@ family, quiesce/retire, native archive/verified exit, unarchive, one fixed wake,
 independent new process and tool-free reply, cold rebind, readiness, policy probe,
 native read and final stable-settings checks. One actual public cycle passed in
 20.864seconds with ten retained child jobs; repeated identical submissions reused
-the original parent without changing its ledger. Default cold entry remains a
-separate native acceptance gate. This operation is not an unattended supervisor.
+the original parent without changing its ledger. Default cold entry from an already-retired absent target also passed once
+in14.222seconds with six children; live cold-mode refused before creating children.
+Offline-installed crash recovery remains separately unproven. This operation is not an unattended supervisor.
 
 Parent checkpoints and original child IDs survive failure/cancellation. Reattach
 with the same idempotency key or inspect the parent and children; this observes
@@ -1228,3 +1229,12 @@ stays a human gate. A failed native delivery is retained as failed; uncertain
 outcomes stay uncertain. Recovery refuses to archive/retire its own Claude caller.
 No global app restart, process kill, delete, trust/permission change or legacy
 broker wake is part of this operation.
+
+
+Default cold mode native evidence on the current source: a live target was refused
+before child creation and stayed idle/ready; after a separately verified intentional
+archive and process exit, one cold parent preserved retired history, unarchived,
+woke, observed the new native process and fixed reply, cold-rebound, probed policy
+and read natively. Both recovered-receiver MCP harnesses passed. A repeated same-key
+submission reused the original parent without changing its ledger. This does not
+establish unexplained-crash or global app-restart recovery.
