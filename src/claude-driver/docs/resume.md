@@ -1,3 +1,67 @@
+## October 17 enrolled live profile passed with real busy queue/steer
+
+Previousbatch published1cd6011. Adapted EXISTING scripts/live-v2.mjs with explicit
+--enrolled --input-free --session <ownedtarget> --controller <exactcontroller>.
+No newchat/import/navigation/archive/permissionchanges; explicitownedoperation
+allowlist/ownedjobwaits, exactenrollment/ready/policy/targetepoch/budgetpreflight.
+Allnative mutations runas durablejobs. Cleanuprestoresbaseline instead ofarchiving
+activefixture. Existingdefaultfull11runner remains, profile scope/exclusions are
+explicit; doNOTcountadoption ascreation/focus orrestore asarchivecleanup.
+
+qualification.recipientReplyEvidence now supports explicit nativePeer sender/body
+SHA256 with cursor/ancestry while retaining exact peer-msg-id mode. Mixedmethods,
+foreign/duplicate roots, interveninghuman/toolancestors rejected. No returnednative
+message-ID linkage invented; multiple distinctpeerturns supported. Ninequalification
+andfourbatchfocusedtestsPASS. metadata-config-route records boundedpreflight
+status/PIDs/budget/ready/policy onfuturefailure, no prompts/toolresults.
+
+FIRSTprofile live-v2-2026-10-17T22-15-57-717Z.json FAILED preserved. Initialreply and
+pre-dispatchcancelpassed; threeconcurrent metadata parents failedphasecreated with
+EMPTYchildren (jf6cc2c6...,j57ad2951...,j3a78f281...). No nativeeffectsfromthoseparents.
+Cleanupstop/configrestoredfixture, before/afterinputfilters0. End_turnreply was
+followedimmediatelybyidle-onlymetadatacontrols. Exactoriginalstatusnotcaptured,
+so nativeidle-lag is a supportedhypothesis, NOT provenretrospectivecause. Changed
+condition: explicit samePIDidle waitbeforeconcurrent/batchedcontrols andcleanup;
+metadata guards remainstrict. Cancellationchecksnowinclude Independentnative
+requestprogress andabsenceofderivedindependentpublicationfile.
+
+Firstprofileleft13slots, below16slotwholeprofilepreflight. Necessaryboundedbudget
+renewal jbeec0bded45642239eb6e435fc9c6293 supersededdd6... retainingoldterminalhistory,
+model/send/stopgrants andtargetepoch. NEWcurrentcontroller beec0bded45642239eb6e435fc9c6293,
+sealedANDhost300971f1ffea036605add006599a17c658a92dcf04211416c4a4659bc667f315,
+64maxRequests/1hdeadline, ready/nativepolicytrue, samePID31678/start20:14:51UTC.
+Target90418/start21:37:26UTC,enrollmentunchanged. Thisisbudgetrenewal, notcrashrecovery.
+
+REVISEDprofile live-v2-2026-10-17T22-17-16-448Z.json PASS all11PROFILEchecks:
+inputauditbefore/adoptexactenrolled/initialdurablesubmit+reuse+causalreply/
+prepublicationcancel/concurrentcontrols/batchedcontrols/actualbusyqueuedelivery/
+stop+replacementcausalreply/uniquereplies/restorebaseline/inputauditafter.
+Concurrents10.2s,batch6.7s,queue2.6s,interrupt9.5s,cleanup7.1s.
+Batchedlogrequests:1 meansONEPARENTBATCH, withTHREEnativechildrequests (notone
+atomicnative APIcall); don'toverstate batchingefficiency. Queueacceptedwhilebusy;
+stopreceipt/stoppedtrue→sameepochidle→replacementaccepted→causalexactreply;
+oldcompletionmarkerabsent. No tools/permissionwait required bycountfixture.
+Independentbounded262144bytejournal review foundexactlyONEinitialreply,
+ONEqueuedfollowupreply andONEreplacementreply; ZEROcountfinishedreply. Thusqueued
+followup waspreserved/replied, notdiscarded. Originalgoalrequires preservingqueue.
+Ownerreviewprivateplan.metadataControlTrial.enrolledProfileReview retainsUUIDs,
+report andrestoration. Baselineexacttitle/toolsource/Haiku5.5/high/bypass/unpinned/
+unarchived verified; targetidlePID90418. Controller16settled/0unknown+1terminal
+policynegative;47slotsremain. No outstandingnative/modelwork fromprofile.
+
+Finalsourcepressure v2-2026-10-17T22-17-40-807Z.json1/1/sourceunchanged. Bothsynthetic
+10checks harness-v2-{claude,codex}-2026-10-17T22-17-28-737Z.json PASS. Profileliveproof
+andcontrollersealedruntime matchfinalhost300971f1. Legacyobserver ownslegacybroker;
+watcherpaused; noCUA/quarantine/auth/permission/restart/sessionkill/newchats.
+
+NEXT fullobjectivegaps: creation/no-folder/fork andindependentfocus/windowproof;
+archivecleanup/publiclifecycle broaderscope, nativepersonpermission/deletegates;
+unattendedserviceafterquit/crash/archive/delete andnaturalgovernorpressure. Full
+originalcreate-and-restore-focus pluscleanup-archive notprovedbythisprofile.
+Do NOT runanotherequivalentcount/profileforgreen. Existingnamedinput-freeprofile
+nowservesregressionbaseline whileadvancingremaininginterface/resiliencegaps.
+Goalactive; Codex-driver and1Passwordremainparked.
+
 Finalc51ff7e3 validation: v2-2026-10-17T22-14-10-496Z.json1/1/sourceChangedfalse; bothsynthetic10checks harness-v2-{claude,codex}-2026-10-17T22-13-47-266Z.json PASS.
 
 ## October 17 read-only MCP steering acceptance and scope audit

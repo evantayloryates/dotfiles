@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto'
 // Native-only qualification never creates/imports a session or touches input.
 // Require an existing disposable fixture with independent registry provenance.
 import { resolve, sep } from 'node:path'
@@ -33,22 +34,23 @@ export function qualificationMarkers(nonce){
 }
 // This is bounded reply correlation for a tool-free synthetic fixture, not an
 // identity/security boundary or a claim about arbitrary task completion.
-export function recipientReplyEvidence(events,{messageId,marker}){
-  if(!Array.isArray(events)||typeof messageId!=='string'||!messageId||messageId.length>200||typeof marker!=='string'||!marker||marker.length>4000||events.length>10000)
+export function recipientReplyEvidence(events,{messageId,marker,nativePeer}){
+  const nativeHash=nativePeer&&typeof nativePeer.message==='string'&&nativePeer.message.length>0&&nativePeer.message.length<=16000&&/^local_[a-f0-9-]{36}$/.test(nativePeer.sender||'')?createHash('sha256').update(nativePeer.message).digest('hex'):null
+  if(nativePeer&&(!nativeHash||messageId!==undefined)||!Array.isArray(events)||!nativePeer&&(typeof messageId!=='string'||!messageId||messageId.length>200)||typeof marker!=='string'||!marker||marker.length>4000||events.length>10000)
     return {verified:false,reason:'missing or oversized causal evidence'}
   const chain=new Set(),roots=new Set(),replies=new Set()
   for(const e of events){
     if(!e||e.sidechain||typeof e.id!=='string'||!Object.hasOwn(e,'parentId'))continue
-    if(e.type==='user'&&e.peerMessageId===messageId){roots.add(e.id);chain.add(e.id);continue}
+    if(e.type==='user'&&(nativePeer?e.nativeHostPeer?.sender===nativePeer.sender&&e.nativeHostPeer?.bodySha256===nativeHash:e.peerMessageId===messageId)){roots.add(e.id);chain.add(e.id);continue}
     if(!chain.has(e.parentId))continue
     if(e.type==='metadata'&&e.sourceType==='attachment'){chain.add(e.id);continue}
     // A distinct user/peer instruction cuts this branch. Tool-free fixture
     // replies never need to follow a user tool-result row or compaction reset.
-    if(e.type!=='assistant')continue
+    if(e.type!=='assistant'||e.tools?.length)continue
     chain.add(e.id)
     if(e.text===marker&&!e.textTruncated&&!e.tools?.length&&e.stopReason==='end_turn')replies.add(e.id)
   }
-  return {verified:roots.size===1&&replies.size===1,peerEventId:roots.size===1?[...roots][0]:null,replyEventIds:[...replies],reason:roots.size!==1?'exact peer turn not unique':replies.size!==1?'exact causal terminal reply not unique':'verified'}
+  return {verified:roots.size===1&&replies.size===1,correlation:nativePeer?'native-sender/body/cursor/ancestry':'peer-message-id/ancestry',...nativePeer?{returnedMessageIdLinked:false}:{},peerEventId:roots.size===1?[...roots][0]:null,replyEventIds:[...replies],reason:roots.size!==1?'exact peer turn not unique':replies.size!==1?'exact causal terminal reply not unique':'verified'}
 }
 // This scope deliberately retains quarantine. One bounded headless bootstrap
 // and native import are allowed; UI fallback, user sessions and permission
@@ -69,4 +71,12 @@ export function validateInputFreeOperation({name,args,session,folder,title,state
   }else if(name==='driver_submit'){
     if(args.operation!=='send_message'||args.arguments?.session!==session)refuse()
   }else if(args.session!==session)refuse()
+}
+
+export function validateEnrolledOperation({name,args,session,ownedJobs}){
+ const refuse=()=>{throw new DriverError('enrolled qualification operation escaped owned fixture',{category:'qualification_gate'})}
+ if(!session||!nativeOps.has(name)||name==='archive_session'||args.permission_mode!==undefined)refuse()
+ if(['driver_wait','driver_cancel'].includes(name)){if(!ownedJobs?.has(args.job_id))refuse()}
+ else if(name==='driver_submit'){if(args.operation!=='send_message'||args.arguments?.session!==session||args.arguments.permission_mode!==undefined)refuse()}
+ else if(args.session!==session)refuse()
 }

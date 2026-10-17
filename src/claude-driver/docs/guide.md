@@ -1439,3 +1439,16 @@ Owner validates the original completed operation fingerprint and verifies origin
 job/route/contract/trace bytes stay unchanged. Claude returns a provider-schema
 status; Codex uses an exact final marker. Failed original runs remain failed.
 Acceptance of historical evidence is separate from current native readiness.
+
+### Existing enrolled fixture live profile
+
+`node scripts/live-v2.mjs --live --input-free --enrolled --session <owned target> --controller <enrolled controller>`
+
+This explicit profile requires 16 available slots, an idle owned bypass target,
+ready exact controller with send/stop grants and a sufficient deadline. It creates
+no chat and restores baseline settings. Its 11 checks cover current durable native
+controls, cancellation, busy queue and interrupt/replacement behavior plus input
+audits. Creation/focus and archive cleanup remain excluded, so a pass does not
+qualify the default full live scope. A terminal reply is followed by a separate
+same-epoch idle wait before idle-only metadata controls. Sender/body/ancestry proof
+for host injection is separate from returned message-ID correlation.

@@ -65,3 +65,17 @@ test('input-free controls bind the fixture and owned jobs and prohibit navigatio
  for(const [name,args] of [['get_session',{session:x.session}],['set_session_config',{session:x.session,title:'fixture',pinned:false,effort:'low'}],['driver_submit',{operation:'send_message',arguments:{session:x.session,message:'synthetic'}}],['driver_wait',{job_id:'owned'}]])assert.doesNotThrow(()=>validateInputFreeOperation({...x,name,args}))
  for(const [name,args] of [['open_session',{session:x.session}],['broker_status',{revive:true}],['get_session',{session:'local_user'}],['set_session_config',{session:x.session,permission_mode:'plan'}],['driver_submit',{operation:'create_session',arguments:{session:x.session}}],['driver_submit',{operation:'send_message',arguments:{session:'local_user'}}],['driver_wait',{job_id:'user-job'}],['driver_cancel',{job_id:'user-job'}]])assert.throws(()=>validateInputFreeOperation({...x,name,args}),e=>e.category==='qualification_gate')
 })
+
+
+test('host-injected native reply correlation supports multiple distinct peer turns without invented message-ID linkage',async()=>{
+ const {createHash}=await import('node:crypto'),sender='local_11111111-1111-4111-8111-111111111111',message='exact synthetic message',nativeHostPeer={sender,bodySha256:createHash('sha256').update(message).digest('hex'),messageIdAvailable:false},root={id:'native',type:'user',parentId:'old',nativeHostPeer},reply={id:'reply',parentId:'native',type:'assistant',text:'EXACT',stopReason:'end_turn',tools:[]},events=[{id:'other',parentId:'old',type:'user',nativeHostPeer:{...nativeHostPeer,bodySha256:'foreign'}},root,reply],options={nativePeer:{sender,message},marker:'EXACT'}
+ const r=recipientReplyEvidence(events,options);assert.equal(r.verified,true);assert.equal(r.returnedMessageIdLinked,false)
+ for(const e of [[...events,{...root,id:'duplicate'}],[root,{id:'tool',type:'assistant',parentId:'native',tools:['Bash']},{...reply,parentId:'tool'}],[root,{id:'human',type:'user',parentId:'native'},{...reply,parentId:'human'}]])assert.equal(recipientReplyEvidence(e,options).verified,false)
+ assert.equal(recipientReplyEvidence(events,{...options,messageId:'cannot-mix'}).verified,false)
+ assert.equal(recipientReplyEvidence(events,{...options,nativePeer:{sender,message:'foreign'}}).verified,false)
+})
+test('enrolled qualification never creates, archives, changes permissions or waits on foreign jobs',async()=>{
+ const {validateEnrolledOperation}=await import('../lib/qualification.mjs'),base={session:'owned',ownedJobs:new Set(['job'])}
+ for(const [name,args] of [['send_message',{session:'owned'}],['driver_wait',{job_id:'job'}],['driver_submit',{operation:'send_message',arguments:{session:'owned'}}]])assert.doesNotThrow(()=>validateEnrolledOperation({...base,name,args}))
+ for(const [name,args] of [['create_session',{}],['archive_session',{session:'owned'}],['send_message',{session:'foreign'}],['driver_wait',{job_id:'foreign'}],['set_session_config',{session:'owned',permission_mode:'bypassPermissions'}],['driver_submit',{operation:'stop_session',arguments:{session:'owned'}}]])assert.throws(()=>validateEnrolledOperation({...base,name,args}))
+})
