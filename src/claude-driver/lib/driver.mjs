@@ -926,9 +926,9 @@ export const OPS = [
   },
   {
     name:'broker_service_activate',title:'Activate a prepared independent receiver',readOnly:false,
-    description:'Experimental activation of a prepared generation on an empty idle driver-owned bypass scratch receiver. Refuses existing settings/module/runtime. Preserves phase records before effects; no send, wake, restart, permission change or automatic retry. Installation never proves readiness or serving.',
-    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent activation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-activate.mjs')).activateIndependentService(args.session,args.service_id,{signal:ctx.signal})},
+    description:'Experimental activation of a prepared generation on an empty idle driver-owned bypass scratch receiver. Optional stable_hook installs the sealed receiver entry and selector. Refuses existing settings/module/runtime or stable entry. Preserves phase records before effects; no send, wake, restart, permission change or automatic retry. Installation never proves readiness or serving.',
+    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},stable_hook:{type:'boolean'}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent activation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-activate.mjs')).activateIndependentService(args.session,args.service_id,{signal:ctx.signal,stableHook:args.stable_hook??false})},
   },
   {
     name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,

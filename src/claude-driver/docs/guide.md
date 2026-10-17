@@ -886,6 +886,16 @@ activation requires inspection, never a blind retry or automatic rollback.
 Installation does not prove native loading, readiness, policy loading or serving.
 Human hot-reload consent remains independent and cannot be answered by this API.
 
+Optional `stable_hook:true` installs the sealed generation's standalone receiver
+entry and exact selector before publishing hook settings. It is currently first
+installation only: existing stable entry/selector/settings still refuse. The
+settings command is independent of generation; selector and policy bind the exact
+private state, source, bootstrap, native epoch and anchor/settings hashes. The
+entry verifies bounded owned files, full sealed inventory and actual ancestry,
+then forwards only to the fixed handler, preserving its request/STOP/admission
+checks. Install/readiness never substitutes for an actual native policy audit.
+Successor selector turnover remains unqualified; do not manually replace it.
+
 Independent status reports `activationPhaseObserved` from a strictly matched
 checkpoint and `activationEffectsAssessed:false`; a phase never proves the next
 or previous effect. `nativeInputRequired` describes a verified live waiting peer,

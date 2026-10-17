@@ -1,3 +1,48 @@
+## First stable hook native activation and public read — October 17
+
+Integrated stable_hook:true opt-in through durable broker_service_activate. Existing
+empty-receiver guards retained; existing stable entry/selector also refuse. The
+policy factory comes from prepared sealed source, not mutable host generation.
+Stable hook is written sealed, selector binds newly committed private pointer,
+settings exclusive write follows; before-settings ledger covers partial effects.
+Context validates anchor/settings against sealed artifact factory and, while
+installed, matches the active selector/private pointer. Historical contexts do not
+borrow a successor selector. Default per-generation hook route unchanged.
+Both filtered synthetic-store harnesses pass all10checks with unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-19-46-382Z.json. These are separate
+from the actual native read evidence below.
+Ten focused tests pass, including identical stable settings/entry across synthetic
+generation/build/native epoch changes. Frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-18-21-078Z.json, sourceChanged:false.
+
+Actual prior2e21 quiescent/exhausted receiver revalidated on samePID20499/start
+15:48:23UTC; all4attempts terminal. Retirement jobj48174eff195c461bb19d7d192c675f91
+preserved entire module and original settings/STOP. Preparation
+jd80efff6c0594355ba3835a18a0f6bfd created service d80efff6c0594355ba3835a18a0f6bfd,
+sealed buildcc732b332a9e58eeb2b7357724a5e373c3eb60fcaf2a5f95c1db6944a2f6d879,
+capacity6,deadline1792268313734. Activationj6da00321e11145b7b3b8b35a5260f2e7
+installed stable entry and selector/settings/module. Actual fresh readiness retained;
+no additional consent prompt. Tool-free boundaryjcf1be548e9ba469dbaf184ea6198d038
+returned exact STABLE_HOOK_BOUNDARY_OK/end_turn/tools0. Missing-request self-test
+rpeer20d38621e44ae7b2aabc577f8bd1c382 reserved slot0, sent once under private lifecycle
+lock, actual native policy audit/helper/refusal terminally verified; no unresolved.
+
+Public readjd5bbcc3d19bc4142a2bc6fe846df536c/requestmatching rpeer suffix completed,
+receiptVerified:true,published:true,cleanupPending:false. Native tool
+ toolu_plugin_53786cbc2d7444a1a6eef9d56fbbaa8d. Returned control8f session/title/cwd/
+archive fields independently match current record. Native journal growth0; same-key
+reattachment returns original job and unchanged result/admission/control hashes.
+Original plan empty-receiver-activation.json holds stableHook* identities, delivery
+and observations. Budget2/6 used, no unresolved. Bounded native service intentionally
+left installed; no active sender/worker/waiter and no app restart/permissions change.
+
+Next implement preserved selector turnover after quiescent retired predecessor,
+with unchanged stable settings and exact anchor. Current activation deliberately
+refuses occupied stable paths; do not manually overwrite/rearm them. Need second
+native read after actual turnover without boundary, then broader recovery/process
+and always-on proof. Current-chat stale MCP refresh remains separate. Goal active,
+Codex fixes parked.
+
 ## Standalone stable receiver entry built, not installed — October 17
 
 Added pure receiver-hook-artifact builder: embeds built-ins-only selector/file loader

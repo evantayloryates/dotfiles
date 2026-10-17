@@ -17,3 +17,12 @@ test('independent policy prepares only receiver-cwd PreToolUse settings, with no
 test('policy preparation refuses foreign namespace, source and epoch',()=>{
  for(const patch of [{brokerDir:'/legacy'},{binding:{...binding,version:2}},{epoch:{pid:0,procStart:'epoch'}},{epoch:{pid:42,procStart:''}},{scriptSha256:'unknown'},{now:NaN}])assert.throws(()=>buildNativeServicePolicy({binding,epoch,brokerDir,scriptSha256:'c'.repeat(64),now:1000,...patch}))
 })
+test('stable hook settings remain byte-identical across generation and source changes',()=>{
+ const a=buildNativeServicePolicy({binding,epoch,brokerDir,scriptSha256:'c'.repeat(64),stableHook:true,now:1000})
+ const next={...binding,id:'d'.repeat(32),build:'e'.repeat(64)},b=buildNativeServicePolicy({binding:next,epoch:{pid:43,procStart:'next epoch'},brokerDir:binding.receiverCwd+'/.claude-driver-services/'+next.id+'/broker',scriptSha256:'f'.repeat(64),stableHook:true,now:2000})
+ assert.equal(a.settingsBytes,b.settingsBytes);assert.equal(a.receiverHook.source,b.receiverHook.source)
+ assert.equal(a.policy.receiverHook.anchorSha256,b.policy.receiverHook.anchorSha256)
+ assert.notEqual(a.policy.script,b.policy.script)
+ assert.deepEqual(JSON.parse(a.settingsBytes).hooks.PreToolUse[0].hooks[0].args,[a.receiverHook.anchorPath])
+ assert.throws(()=>buildNativeServicePolicy({binding,epoch,brokerDir,scriptSha256:'c'.repeat(64),stableHook:'yes'}))
+})

@@ -50,6 +50,12 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  let settingsEvidencePath=settings,settingsEvidence='current-settings'
  if(retirement){try{const retained=join(STATE_DIR,'retired-settings.json');bytes(retained);if(!['before-move','retained'].includes(retirement.settingsPhase)||retirement.settingsSha256!==policy.settingsHash)refuse();settingsEvidencePath=retained;settingsEvidence=retirement.settingsPhase==='retained'?'retained-settings':'retained-settings-uncheckpointed'}catch(error){if(error.code!=='ENOENT')throw error}}
  if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settingsEvidencePath))!==policy.settingsHash)refuse()
+ if(Object.hasOwn(policy,'receiverHook')){
+  const {buildNativeServicePolicy}=await import(pathToFileURL(join(release.root,'lib/native-service-policy.mjs')).href)
+  const expected=buildNativeServicePolicy({binding:pointer.serviceStateBinding,epoch,brokerDir:BROKER_DIR,scriptSha256:policy.sha256,stableHook:true,now:policy.installedAt})
+  if(!expected.receiverHook||JSON.stringify(ordered(policy.receiverHook))!==JSON.stringify(ordered(expected.policy.receiverHook))||policy.settingsHash!==expected.policy.settingsHash||hash(bytes(policy.receiverHook.anchorPath))!==expected.receiverHook.anchorSha256)refuse()
+  if(!retirement){const {loadReceiverSelection}=await import(pathToFileURL(join(release.root,'lib/receiver-runtime-selection.mjs')).href),selected=loadReceiverSelection(record.cwd);if(JSON.stringify(ordered(selected.pointer))!==JSON.stringify(ordered(pointer))||selected.brokerDir!==BROKER_DIR)refuse()}
+ }
  if(requireIdle&&peer.status!=='idle')refuse()
  return {record,release,pointer,peer,config,epoch,policy,module,watchedModule,sourceDisposition,settingsEvidence,settingsEvidencePath,watchedPathAssessed:!historicalOnly,verificationMode:historicalOnly?'historical-retired':'live-native',pkg,read:name=>json(join(BROKER_DIR,name))}
 }

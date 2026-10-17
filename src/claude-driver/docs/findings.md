@@ -1104,3 +1104,15 @@ through prepared/activated servicedb2a06e219134fd78fcfa2bbb33c70a2 completed in3
 fresh published receipt, exact job-derived request identity, independent metadata
 match and no native journal growth. Same-key job reuse preserved all receipt hashes.
 This is native scoped serving proof; no always-on/recovery/retirement claim.
+
+### Stable receiver hook first native qualification (October 17)
+
+Explicit stable_hook activation preserves default empty-receiver guards and sealed
+factory provenance. Stable settings reference a fixed receiver entry; exact selector
+binds generation/private namespace/epoch/bootstrap and hashes. On same native
+PID20499, first install plus one tool-free settings boundary produced actual policy
+self-test audit and terminal refusal. Public metadata readjd5bbcc3d19bc4142a2bc6fe846df536c
+verified persisted receipt and independently matched target metadata with native
+journal growth0. Same-key reattachment preserved evidence hashes. This proves one
+installed generation only; successor selector turnover and zero-boundary renewal
+remain open. No app restart, permission change or unknown replay.
