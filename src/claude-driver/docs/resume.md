@@ -1,3 +1,26 @@
+## Stable receiver selector contract prepared — October 17
+
+Added pure lib/receiver-runtime-selection.mjs as the first stable-hook component.
+It accepts an exact selector schema, derives the private generation/handler/bootstrap
+paths rather than accepting an executable, and requires matching pointer generation,
+build, bootstrap, native PID/start/session, private namespace, policy binding and
+settings/anchor hashes. Existing policy request-binding version and zero-rescue
+requirements remain mandatory. Selection grants no readiness or dispatch authority.
+Two focused tests include twelve identity/path/hash/policy substitution refusals;
+five combined selector and existing generation/policy tests pass. Frozen-source
+pressure1/1 passes: pressure/v2-2026-10-17T19-13-45-525Z.json, sourceChanged:false.
+
+This is an unused pure contract only: no stable executable, selector publication,
+filesystem ownership admission or lifecycle integration is implemented yet. Nothing
+was deployed, no settings changed, no native call/message/restart occurred. Next:
+build the bounded owned-file entry around this contract; validate sealed inventory
+and native ancestry without importing mutable workspace code, then integrate an
+explicit candidate activation path. The first native install still requires actual
+hook audit, followed by two-generation turnover with identical settings bytes and
+no model boundary. Existing quiescent generation and STOP remain untouched.
+Previous confirmation turn only restated recorded approval; this turn adds source
+and passing regression evidence. Goal active; Codex-driver fixes remain parked.
+
 ## Installed settings-read adapter qualified; no refresh API established — October 17
 
 Previous turn progressed fresh native MCP harness integration and safe closeout.
