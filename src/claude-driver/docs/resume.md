@@ -1,3 +1,30 @@
+## Current receiver reuse audit — October 17
+
+Previous turn: actual CLI hook failure evidence. Approved control scratch remains
+bypass/live/idlePID42813; its native receiver module destination is absent.
+Existing buildNativePeerServicePackage rejects all but the legacy broker folder,
+and candidate register.js hardcodes the legacy sealed checkpoint root. Existing
+enrollment/ownership also binds oldPID/version/baselines. Do not merely substitute
+scratch identity or remove these checks to load the old service there.
+
+Ran existing hook-contract-v2 against actual2.1.299: failed extract with installed
+source marker missing; report pressure/hook-contract-2026-10-17T16-32-53-320Z.json
+preserved. Bounded semantic marker review found two occurrences: bytecode string
+table at85545852 and embedded source at204168739. Binary is thin arm64, not a fat
+architecture duplicate. Existing ambiguity refusal is correct; no extractor rule
+weakened. Unique current function _p/GS binding guard independently extracted at
+204168649(windowSHA3da0413948c184f7ebd9b8c2af2544fa21eeded1443123cb792d8328f15c4d2a),
+executed with synthetic dependencies: unbound session refuses, exact bound
+identity preserved. Evidence diagnostics/current-mod-binding-review-2026-10-17.json.
+
+Only current binding guard is qualified in isolation. Native tool-admission,
+module loader/lifecycle, bounded serving and retirement remain unqualified for a
+scratch receiver. Next changed-condition work: update exact current-version tool
+and lifecycle extraction/fixtures before designing a separately owned scratch
+receiver configuration. No native modules, service files, broker pointer/policy,
+permissions or unknown requests changed. Service candidate memory saved. Runtime
+unchanged; existing passing pressure/harness evidence retained. Goal active.
+
 ## Actual installed command-hook boundary tested — October 17
 
 Previous turn: matching generation-aware policy candidate passed. Actual installed
