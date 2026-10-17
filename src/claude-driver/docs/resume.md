@@ -1,3 +1,29 @@
+## Current dev-mod consent lifecycle qualified in isolation — October 17
+
+Previous turn: current native tool adapters passed. Added version-specific
+scripts/mod-lifecycle-contract-299.mjs. Unique16,276byte installed module containing
+No/Ge filesystem boundary extracted; SHA
+cbdd747e741b85044f6847f231d5dfb936d2bb3abbd8e6e90d92419adba1abbf.
+Actual Do watcher executes with synthetic turns/clock/filesystem/consent/loader.
+Four checks pass: new child asks then explicit enable invokes loader; no recipient
+or decline never enables; policy refusal closes before asking; already loaded
+child does not duplicate enable. Native calls0, modules loaded0.
+Evidence pressure/mod-lifecycle-contract-299-2026-10-17T16-35-46-158Z.json.
+Runtime4db6000f34d5957bdec060179090ec23b400496ee156263d17fcf43077a16649.
+Full pressure1/1pass: pressure/v2-2026-10-17T16-36-11-248Z.json.
+Filtered Claude/Codex(gpt-6-sol) harnesses pass, source/configs unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-35-59-134Z.json.
+Shared service test/candidate memory recorded.
+
+This is a separate native module hot-reload consent boundary, not ordinary
+bypassPermissions. Current scratch consent is not established by these fixtures.
+Do not manufacture it or click a native approval card. Next concrete work is a
+validated fixed-target metadata-only scratch probe, bounded capacity/lifetime,
+without the legacy receiver's mutable checkpoint assumptions; only then inspect
+native publication/consent/readiness and independently verify a read result.
+No module published, no actual consent interaction or native tool call, no old
+broker/request/policy/permission changes. Goal active; Codex fixes parked.
+
 ## Current installed module tool adapters qualified in isolation — October 17
 
 Previous turn: binding guard review. Added scripts/mod-tool-contract-299.mjs,
