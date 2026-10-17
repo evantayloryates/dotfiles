@@ -1,3 +1,46 @@
+## Native input resolved; prepared/activated receiver serving verified — October 17
+
+Taylor enabled/submitted native hot-reload input. Goal is active again. Fresh
+status independently found exact loaded notification18:39:52.035Z, same interrupt
+scratch74/PID20499/start15:48:23UTC idle and unexpired installed sourcef436... .
+Module session.start already wrote valid generation readiness, so no redundant
+ready challenge was sent. One durable tool-free boundary job
+j95479bfa9aca4ee297eff00920321b32 had exact POLICY_BOUNDARY_OK reply/tools0.
+
+Actual policy refusal self-test request rpeer161bd008f94b49fcbac3838d16805c78,
+reserved slot0, no request file. Initial caller mistakenly passed CLI peer record
+instead of host target; deliver refused broker_dead before onPrepared/socket.
+Failure preserved. Correct host target used SAME reserved request identity, one
+persisted actual send. Native helper completed and new immutable refusal receipt
+records invalid_request/nativeMcpCallsRequested0. Actual native policy audit seen,
+no MCP admission/result. Pure refusal screener passes. This closes native execution
+of the previously synthetic-only refusal receipt path, not full no-effect or
+standard lifecycle settlement. Status still correctly calls it unresolved pending
+independent terminal refusal review; do not fabricate a standard native result.
+
+Public read jobj0a6679b396e24dcbaef705d965dd78f2 completed, exact derived request
+rpeer0a6679b396e24dcbaef705d965dd78f2, receiptVerified:true,published:true,
+cleanupPending:false. Exact native toolu_plugin_0fe9999c307c466fb43070b213823440.
+Target control8f metadata session/title/cwd/archive state independently matches.
+300ms module path, not SLA; no journal growth/model turn. Same key reattached same
+job; result/admission/control hashes unchanged. Same native epoch/idle remains.
+Installed servicedb2a06e219134fd78fcfa2bbb33c70a2 now budget2/4 used: one refusal,
+one settled read. Keep both unused slots; never replay existing requests.
+
+Evidence: probe/scratch-native-read-2026-10-17/empty-receiver-activation.json
+humanInputResolved, policyBoundary, refusalProbe, publicRead. Private native helper,
+policy audit, readiness/intent/refusal/admission/result/control retained. No runtime
+source change this turn; prior final frozen-source pressure and both filtered
+harnesses remain applicable (18:37:49 pressure,18:37:33 harnesses). Native module
+pinned f436..., host runtime8bcd... explicitly differ. No need repeat unchanged tests.
+
+Next implement independently bound terminal review for exact pre-dispatch refusal
+(helper/source/policy/native epoch/absence checks), without equating marker alone
+with no-effect or clearing legacy unknowns. Then controlled generation retirement,
+physical retirement, warm/cold recovery and always-on qualification. No pending
+sender/worker/waiter. Module/settings retained bounded to deadline; old d5 unresolved
+self-test untouched. Goal active, Codex bridge fixes parked.
+
 ## Native loader notification observations — October 17
 
 Previous turn progressed supported loader entry/status and requested human input.

@@ -1091,3 +1091,16 @@ ENOENT handling; absent effect paths independently verified before corrected job
 Original failure and read-only diagnostic retained. Activation never replaces an
 existing generation or erases unresolved attempts. Native consent/loading remains
 separate from successful filesystem installation.
+
+
+### Public prepared/activated receiver native qualification (October 17)
+
+After Taylor enabled native hot reload, interrupt scratch74/PID20499 emitted a
+loaded notification and bound ready receipt. Tool-free settings boundary followed
+by missing-request policy self-test produced the new exact invalid_request refusal
+receipt with native helper completion and no native MCP admission/result. Marker
+alone remains insufficient for terminal settlement. One public metadata read
+through prepared/activated servicedb2a06e219134fd78fcfa2bbb33c70a2 completed in300ms,
+fresh published receipt, exact job-derived request identity, independent metadata
+match and no native journal growth. Same-key job reuse preserved all receipt hashes.
+This is native scoped serving proof; no always-on/recovery/retirement claim.
