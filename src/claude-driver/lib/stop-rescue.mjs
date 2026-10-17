@@ -1,7 +1,7 @@
 // Opt-in service-scoped command hook. Installed separately from the broker pin;
 // each client arms only its own durable request and exact prepared peer UUID.
 import {createHash} from 'node:crypto'
-import {existsSync,readFileSync,writeFileSync,unlinkSync,lstatSync} from 'node:fs'
+import {existsSync,readFileSync,writeFileSync,unlinkSync,lstatSync,realpathSync} from 'node:fs'
 import {join} from 'node:path'
 import {BROKER_DIR,ensureDir,writeJsonAtomic} from './state.mjs'
 import {loadEntryEvidence,stageRelease,validateRelease,HANDOFF_OWNER} from './releases.mjs'
@@ -9,10 +9,16 @@ import {DriverError} from './paths.mjs'
 const policyFile=join(BROKER_DIR,'stop-rescue-policy.json'),armFile=join(BROKER_DIR,'stop-rescue-arm.json'),settings=join(BROKER_DIR,'.claude','settings.json')
 const hash=b=>createHash('sha256').update(b).digest('hex')
 const refused=()=>{throw new DriverError('Stop rescue policy changed or failed admission; no wake sent',{category:'broker_stop_rescue_refused',detail:{dispatched:false,retrySafe:true}})}
+// The expected path must come from validateRelease. State migration can leave
+// a parent-directory alias in the installed policy; accept only the identical
+// sealed file, never an equivalent copy or a symlink replacing the script.
+export function sealedScriptPathMatches(actual,expected){
+ try{const st=lstatSync(actual);return st.isFile()&&!st.isSymbolicLink()&&st.uid===process.getuid()&&realpathSync(actual)===realpathSync(expected)}catch{return false}
+}
 export function stopRescuePolicy({allowTemporaryProbe=false}={}){
  if(existsSync(join(BROKER_DIR,'mechanical-probe.json'))&&!allowTemporaryProbe)refused()
  if(!existsSync(policyFile))return null
- try{const p=loadEntryEvidence(policyFile),release=validateRelease(p?.build),script=join(release.root,'scripts','broker-stop-rescue.mjs');if(![1,2].includes(p?.feedbackVersion??1)||p.feedbackVersion===2&&p.quietWait||p.quietWait&&(!Number.isInteger(p.quietWait.maxMs)||p.quietWait.version!==1||p.quietWait.maxMs<1000||p.quietWait.maxMs>60000)||p.schemaVersion!==1||p.script!==script||hash(readFileSync(script))!==p.sha256||hash(readFileSync(settings))!==p.settingsHash)refused();return p}catch{refused()}
+ try{const p=loadEntryEvidence(policyFile),release=validateRelease(p?.build),script=join(release.root,'scripts','broker-stop-rescue.mjs');if(![1,2].includes(p?.feedbackVersion??1)||p.feedbackVersion===2&&p.quietWait||p.quietWait&&(!Number.isInteger(p.quietWait.maxMs)||p.quietWait.version!==1||p.quietWait.maxMs<1000||p.quietWait.maxMs>60000)||p.schemaVersion!==1||!sealedScriptPathMatches(p.script,script)||hash(readFileSync(script))!==p.sha256||hash(readFileSync(settings))!==p.settingsHash)refused();return p}catch{refused()}
 }
 export async function installStopRescue({sessionId,pid,procStart,upgrade=false,quietWaitMs,feedbackVersion}={}){
  if(typeof sessionId!=='string'||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(sessionId)||!Number.isInteger(pid)||pid<=0||typeof procStart!=='string'||!procStart)refused()

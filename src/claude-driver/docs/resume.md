@@ -1,3 +1,30 @@
+## Migrated Stop-rescue script path fixed — October 17
+
+Previous turn: progress (independent cause isolation). Current source now accepts
+a parent-directory alias only when its owned regular script resolves to the exact
+script in validateRelease's sealed release. Leaf symlinks, same-byte copies,
+missing paths and directories refuse. Release integrity, script/settings hashes,
+policy schema, temporary-probe refusal and exact process/session binding remain.
+No live policy rewrite, epoch rebind, arm or wake performed.
+
+Runtime ee81baeef6fbe5eb3ca85f37cf017f1b36a0f0c238edb3fa52900c6b09755c19.
+16focused tests pass, including legacy alias and negative replacements plus
+existing stop-rescue request/epoch/human-message tests. Current-source read-only
+installed-policy validation now succeeds; synthetic foreign wake PID still refuses
+before arm. Full pressure1/1pass, source unchanged:
+pressure/v2-2026-10-17T16-22-09-976Z.json. Filtered real Claude and Codex(gpt-6-sol)
+harnesses pass, configs/source unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-22-13-064Z.json.
+Service candidate memory and diagnostics/stop-rescue-path-fix-2026-10-17.json saved.
+
+This fixes the migration false negative, not live recovery. Installed policy still
+binds oldPID71262; exact current-epoch enrollment and legacy22unknown reconciliation
+remain unresolved. Required bypass scratch modes must verify before control trial.
+No test workload/stop/replacement sent. Goal active. Next changed-condition step:
+verify scratch modes and live identities; if still lower, preserve native permission
+gate. Do not retry broker wake on unchanged stale epoch, repin or replay unknowns.
+Connected MCP requires reload for this source; use fresh CLI for current-source work.
+
 ## Stop-rescue refusal independently narrowed — October 17
 
 Previous turn: progress (published required-bypass service provisioning contract).
