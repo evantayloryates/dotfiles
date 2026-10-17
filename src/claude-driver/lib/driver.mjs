@@ -917,6 +917,12 @@ export const OPS = [
     },
   },
   {
+    name:'broker_service_quiesce',title:'Stop independent receiver admission',readOnly:false,
+    description:'Experimental scoped admission stop under the native-read lifecycle lock. Waits for existing read transaction, verifies exact installed epoch, preserves owned STOP and reviews terminal attempts. Never clears STOP, dispatches, cancels effects, moves modules, changes permissions or claims native unload/process retirement. Interrupted work requires inspection.',
+    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent quiescence requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-quiesce.mjs')).quiesceIndependentService(args.session,args.service_id,{signal:ctx.signal})},
+  },
+  {
     name:'broker_service_activate',title:'Activate a prepared independent receiver',readOnly:false,
     description:'Experimental activation of a prepared generation on an empty idle driver-owned bypass scratch receiver. Refuses existing settings/module/runtime. Preserves phase records before effects; no send, wake, restart, permission change or automatic retry. Installation never proves readiness or serving.',
     schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},

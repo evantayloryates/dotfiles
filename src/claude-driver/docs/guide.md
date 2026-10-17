@@ -906,3 +906,14 @@ confirmed absence of protocol/effect records. It is separate from published
 `settledRequestIds`. Other refusal reasons stay unresolved. Status remains read-only;
 terminal review neither writes synthetic native results nor authorizes retirement.
 Quiescence and concurrent admission must be addressed before a later transition.
+
+
+`broker_service_quiesce {session, service_id, experimental:true}` stops one
+independent generation under the same lifecycle lock as full native reads. It
+waits for the existing transaction, verifies owned idle context, writes a durable
+intent and exclusive generation-bound STOP, then revalidates and reviews attempts.
+Use driver_submit with a stable key. Foreign STOP or interrupted partial work must
+be inspected; STOP is never automatically cleared. `quiescent:true` requires all
+inventoried attempts terminal, but never proves native unload or process retirement.
+Status reports STOP presence separately from a matching generation marker. New
+public reads refuse before private request publication while STOP remains.

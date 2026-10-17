@@ -1,3 +1,43 @@
+## Generation admission stopped and quiescence verified — October 17
+
+Previous turn progressed independently bound terminal refusal review. Added public
+broker_service_quiesce(session,service_id,experimental:true). Namespace-isolated
+child uses SAME private broker lifecycle lock held for complete native read
+transactions. It waits for prior read completion, validates same owned idle native
+context, preserves a before-stop ledger, exclusively writes generation/epoch-bound
+private STOP, revalidates context and reviews all attempts while still locked.
+No cancel/replay, module move, permission change, native send/unload/process kill.
+Existing foreign/ambiguous STOP or partial ledger refuses; no automatic STOP clear.
+A failed post-stop review preserves STOP; unresolved attempts remain unresolved.
+Status now exposes admissionStopped and stopMarkerMatchesGeneration separately.
+Three focused tests cover exact STOP ownership, lock ordering and failure semantics.
+
+Actual service db2 on interrupt74/PID20499 quiescence job
+jff543fcd62274e70880df8652a425162 completed: admissionStopped:true,
+stopOwnerVerified:true,quiescent:true, one settled read and one terminal refusal,
+no unresolved attempts. nativeUnloadQualified/processRetired:false.
+Same key reattached same original job. STOP/quiescence ledger remain installed.
+
+One explicit negative public read after STOP, jobj2d69635b156f44f49fee1f33e8b3de9c,
+failed independent_service_read_refused/retrySafe:true before private request
+publication. Independent review: request/native intent/native send record absent,
+reservedSlots still2, STOP hash unchanged, journal growth0. Global durable read
+attempt retains that definitive preflight refusal; do not replay it. No native
+message or effect requested by this negative check. Original settled/refusal bytes
+and old d5 generation untouched. Evidence empty-receiver-activation.json quiesce
+and postStopRead under probe/scratch-native-read-2026-10-17.
+
+Final frozen-source pressure1/1pass: pressure/v2-2026-10-17T18-44-53-210Z.json.
+Both filtered harnesses ten checks pass, source/config unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T18-44-37-554Z.json.
+Next: exact module-tree/settings ownership-preserving retirement with STOP kept,
+then independently qualify native callback unload and physical process disposition.
+Filesystem move alone cannot prove native unload. Source/policy/receipt history
+must remain available for read-only review after module movement; current context
+assumes installed module and needs explicit retired-owner handling. Avoid using
+legacy289 tooling hashes as current299 ownership proof. Recovery and always-on
+still open; goal active, Codex fixes parked. No pending sender/worker/waiter.
+
 ## Missing-request refusal terminal review — October 17
 
 Previous turn progressed native prepare/activate/refusal/read qualification.
