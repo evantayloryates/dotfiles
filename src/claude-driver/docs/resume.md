@@ -19,8 +19,10 @@ pressure/v2-2026-10-16T00-18-48-528Z.json; no redundant synthetic/model retest.
 Historical cold-start failure remains failed: this recovery required a direct
 human message, so autonomous cold recovery is NOT qualified. Prior blocked audit
 is superseded by changed native state; goal active, new blocked-audit count0.
-Fresh legacy broker audit: native worker absent,22unresolved and handoff
-unsettled. No broker restart/wake, old effect replay, native mutation refusal
+Fresh legacy broker audit: a unique owned live/idle worker is present, PID79060
+start Fri Oct16 14:54:25UTC. Its sealed dependency evidence reports native-process-
+epoch-mismatch; templateCurrent:false, waiter/batch admission unverified and
+residency list not fresh.22unknowns remain and handoff is unsettled. No broker restart/wake, old effect replay, native mutation refusal
 retry, permission or quarantine change. Watcher remains paused; Codex bridge
 fixes parked. Next work: current native control admission and autonomous startup
 architecture, preserving the recorded controller refusal and unknown effects.
