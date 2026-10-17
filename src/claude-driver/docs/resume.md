@@ -1,3 +1,56 @@
+## Actual admitted read settled; pre-dispatch cancellation verified — October 17
+
+Previous turn: actual current hook loading passed. Fresh bound generation
+18e7d5f05162d0a528bef47cc51c6c47 on same control scratch8f1d6d55/PID42813/start
+16:03:11UTC/CLI2.1.299. Same sealed sourcea856cf95d1b6f4bdea8f5a4b2338bb0ec041ac6bdbedaac92d1449a8ce578182.
+Preserved prior module/settings, native validation and owned register transition,
+bound readiness verified. Replaced only task-owned receiver settings after exact
+prior hash check, private policy first. Durable boundary job
+j4add3080565b41969742e7bebe84207f had exact ADMITTED_READ_BOUNDARY_OK reply,
+tools0, terminal idle. No legacy pointer/policy/request changed.
+
+Actual request rpeer747057b883f24a86cc86818bb98a1497 used existing sealed
+publishNativeServiceReadRequest/reserve budget/enqueue/pickupPending in isolated
+state. Exact native observation and full runtime generation binding included;
+policy references current handler/settings hashes. One persisted direct send.
+Sealed completed checkpoint, actual native MCP admission
+ toolu_plugin_65d72aa3eb704830910b8f4079e6568f, and module get_session result
+correlate exactly. Target approved interrupt scratch74c54e49 identity/title/cwd
+matches independent read. Pure screenNativeServiceResult passed. Existing
+writeJsonAtomic published standard results/<id>.native.json; inspectRequest
+independently returned completed/ok. Module path289ms, not an SLA. Same native
+PID/start/bypass/idle, installed module/settings hashes and descriptor-bound
+journal unchanged; zero model inference during operation.
+
+Settlement-only failures preserved: first inline helper had JS quoting SyntaxError
+before executing; corrected saved helper v1 then found results directory absent
+at publication. Neither resent native work. Saved syntax-checked helper reused
+existing writeJsonAtomic (creates directory) and settled the same receipt.
+Artifacts settlement-output.txt,settle-reviewed-v1.mjs,
+settlement-publication-failure.json,settle-reviewed.mjs retained.
+
+Second request rpeereaeea3347942f7d826e42d3126f76f69 published/claimed then
+cancelled through existing cancelRequest before one callback send. Exact retained
+completed sealed helper observed; control remains cancelled/cancelRequested with
+zero dispatched slots. Native admission/module result/native result all absent;
+intent proves callback reached. Same native epoch/idle/bypass, journal unchanged.
+No model turn. This qualifies actual pre-dispatch cancellation, not cancellation
+after a native call begins. Generation capacity2/2 used; never replay either ID.
+
+Evidence: probe/scratch-native-read-2026-10-17/admitted-read-
+18e7d5f05162d0a528bef47cc51c6c47/plan.json (single directory name), pointed to by
+admitted-current.json. State/module/policy retained, no live worker/waiter job.
+Service memory recorded. Runtime source unchanged; passing pressure17:57:53.349Z
+and both filtered harnesses17:57:41.045Z remain applicable to source. Native
+qualification now includes actual read admission/receipt and pre-dispatch cancel.
+
+Next: integrate independent enrollment/read/reconciliation into durable public
+v2 jobs with exact namespace/version/ownership guards; current public legacy
+routes remain guarded and were not bypassed to claim general readiness. Then
+controlled generation retirement, process retirement, warm/cold recovery and
+always-on pressure qualification. Old22unknowns untouched. Goal active; Codex
+bridge fixes parked.
+
 ## Actual current hook loaded after settings turn boundary — October 17
 
 Previous turn: current bound identity candidate passed in isolation. Added pure
