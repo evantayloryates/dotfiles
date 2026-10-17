@@ -3,7 +3,7 @@
 async function recordServiceReady($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
-  if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return next(event)
+  if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==RECEIVER_CWD||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return next(event)
   const readyFile=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
   if(await $.fs.exists(readyFile))return next(event)
   const marker='claude-driver-service-marker-'+CONFIG.id

@@ -5,12 +5,13 @@ import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.
 import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
 const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
 const target='local_22222222-2222-4222-8222-222222222222',r1='rpeer'+'1'.repeat(32),r2='rpeer'+'2'.repeat(32),r3='rpeer'+'3'.repeat(32)
-function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000,controlCheck=false,autoStart=true}={}){
- const pkg=buildNativePeerServicePackage({...config,...controlCheck?{controlCheck:true}:{}}),hooks=new Map();let checks=0,reads=0,queued=0
+function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000,controlCheck=false,autoStart=true,configPatch={}}={}){
+ const localConfig={...config,...configPatch},pkg=buildNativePeerServicePackage({...localConfig,...controlCheck?{controlCheck:true}:{}}),hooks=new Map(),commands=[];let checks=0,reads=0,queued=0
+ const boundConfig=localConfig
  const register=runInNewContext(pkg.files['hooks/register.js'].replace('export function register','function register')+';register',{Set,Object,JSON,Date,Number,Array})
  register((event,fn)=>hooks.set(event,fn))
- const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),read:async p=>JSON.stringify(files.get(p)),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
- return {files,$,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:async(id,kind='peer')=>{if(autoStart)await hooks.get('session.start')($,{},()=>{});return hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'})},counts:()=>({checks,reads,queued})}
+ const $={session:{id:async()=>boundConfig.brokerSession,cwd:async()=>boundConfig.serviceStateBinding?.receiverCwd??boundConfig.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),read:async p=>JSON.stringify(files.get(p)),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;commands.push(input.command);assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
+ return {files,$,commands,config:boundConfig,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:async(id,kind='peer')=>{if(autoStart)await hooks.get('session.start')($,{},()=>{});return hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'})},counts:()=>({checks,reads,queued})}
 }
 test('owned readiness records zero calls once, and expired or foreign start refuses',async()=>{
  const s=setup();assert.equal(await s.start(),'next');await s.start()
@@ -114,4 +115,17 @@ test('receiver requires its own successful activation before checkpoint; stale r
 test('failed ready persistence and expired activation cannot admit checkpoint',async()=>{
  const s=setup({autoStart:false});s.$.fs.write=async()=>{throw Error('synthetic disk failure')};assert.equal((await s.send('ready')).consumed,'service-read-not-ready');assert.equal((await s.send(r1)).consumed,'service-read-not-ready');assert.deepEqual(s.counts(),{checks:0,reads:0,queued:0})
  const expired=setup({autoStart:false});await expired.send('ready');expired.$.clock.now=async()=>2001;assert.equal((await expired.send('ready')).consumed,'service-read-not-ready');assert.equal((await expired.send(r1)).consumed,'service-read-refused');assert.deepEqual(expired.counts(),{checks:0,reads:0,queued:0})
+})
+
+test('independent receiver uses only its bound lifecycle state and safely quoted sealed checkpoint',async()=>{
+ const {dirname,join}=await import('node:path'),{execFileSync}=await import('node:child_process')
+ const receiverCwd="/owned/scratch ' $(printf EXPANDED) `printf EXPANDED`",binding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},brokerCwd=join(receiverCwd,'.claude-driver-services',config.id,'broker')
+ const s=setup({autoStart:false,configPatch:{serviceStateBinding:binding,brokerCwd}})
+ assert.equal((await s.send('ready')).consumed,'service-read-ready');assert.equal(s.files.has(brokerCwd+'/.native-service-'+config.id+'.ready.json'),true)
+ assert.equal((await s.send(r1)).consumed,'service-read-result-captured');assert.equal(s.counts().reads,1)
+ assert.equal([...s.files.keys()].every(p=>p.startsWith(brokerCwd+'/')),true)
+ const argv=execFileSync('/bin/sh',['-c',s.commands[0].replace('/opt/homebrew/bin/node',"/usr/bin/printf '%s\\n'")],{encoding:'utf8'}).trim().split('\n')
+ assert.deepEqual(argv,[join(dirname(brokerCwd),'releases',config.build,'scripts/broker-check.mjs'),r1,'0','--dir',brokerCwd])
+ const foreign=setup({autoStart:false,configPatch:{serviceStateBinding:binding,brokerCwd}});foreign.$.session.cwd=async()=>brokerCwd;assert.equal((await foreign.send('ready')).consumed,'service-read-not-ready');assert.equal(foreign.files.size,0)
+ for(const patch of [{brokerCwd:'/foreign'},{serviceStateBinding:{...binding,id:'d'.repeat(32)}},{serviceStateBinding:{...binding,build:'d'.repeat(64)}},{resourceProbe:true,marker:true,observeRetiredServiceId:null}])assert.throws(()=>buildNativePeerServicePackage({...config,brokerCwd,serviceStateBinding:binding,...patch}))
 })

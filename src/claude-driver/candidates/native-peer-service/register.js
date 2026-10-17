@@ -6,7 +6,7 @@ export function register(on){on('session.receive',receiveServiceRead);on('sessio
 async function recordServiceReady($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
-  if((session===CONFIG.brokerSession||session===CONFIG.brokerSession.slice(6))&&cwd===CONFIG.brokerCwd&&Number.isFinite(now)&&now>=CONFIG.notBefore&&now<=CONFIG.deadline){
+  if((session===CONFIG.brokerSession||session===CONFIG.brokerSession.slice(6))&&cwd===RECEIVER_CWD&&Number.isFinite(now)&&now>=CONFIG.notBefore&&now<=CONFIG.deadline){
    const file=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
    if(!await $.fs.exists(file)){
     await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
@@ -27,7 +27,7 @@ async function receiveServiceRead($,event,next){
   active=true
   try{
    const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
-   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-not-ready'}
+   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==RECEIVER_CWD||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-not-ready'}
    if(!ready)await recordServiceReady($,{},()=>{})
    return {consumed:ready&&await $.fs.exists(CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json')?'service-read-ready':'service-read-not-ready'}
   }catch{return {consumed:'service-read-not-ready'}}finally{active=false}
@@ -45,13 +45,13 @@ async function receiveServiceRead($,event,next){
  active=true
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
-  if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-refused'}
+  if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==RECEIVER_CWD||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-refused'}
   if(!await $.fs.exists(CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'))return {consumed:'service-read-not-ready'}
   if(await $.fs.exists(CONFIG.brokerCwd+'/STOP')||await $.fs.exists(CONFIG.brokerCwd+'/stop-rescue-arm.json')||await $.fs.exists(CONFIG.brokerCwd+'/mechanical-probe.json'))return {consumed:'service-read-stopped'}
   const intent=CONFIG.brokerCwd+'/.native-service-'+requestId+'.intent.json',response=CONFIG.brokerCwd+'/.native-service-'+requestId+'.result.json'
   if(await $.fs.exists(intent)||await $.fs.exists(response))return {consumed:'service-read-prior-evidence'}
   await $.fs.write(intent,JSON.stringify({schemaVersion:1,scope:'owned-native-service-intent',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,startedAt:new Date(now).toISOString()})+'\n')
-  const command='/opt/homebrew/bin/node "/Users/taylor/.local/state/claude-driver/releases/'+CONFIG.build+'/scripts/broker-check.mjs" '+requestId+' 0 --dir "'+CONFIG.brokerCwd+'"'
+  const command=CHECKPOINT_PREFIX+requestId+' 0 --dir '+CHECKPOINT_DIR
   const checkpoint=await $.tool.call({tool:'Bash',command,timeout:5000,run_in_background:false})
   if(checkpoint?.deny!==undefined||checkpoint?.isError===true||typeof checkpoint?.text!=='string')return {consumed:'service-read-checkpoint-refused'}
   let checked;try{checked=JSON.parse(checkpoint.text.trim())}catch{return {consumed:'service-read-checkpoint-refused'}}

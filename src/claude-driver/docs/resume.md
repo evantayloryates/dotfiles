@@ -1,3 +1,46 @@
+## Actual independent sealed checkpoint executed — October 17
+
+Previous turn: isolated namespace binding passed. Receiver package now accepts
+explicit serviceStateBinding only when id/session/build/path match. Receiver cwd
+is distinct from private broker state; canonical package contract is preserved.
+Checkpoint selects sealed release beneath private state root. All shell paths
+are single-quoted safely, including apostrophes/$()/backticks; actual sh argument
+round-trip regression verifies exact argv. Bound resource-probe mode refuses
+rather than using canonical resource paths.14 focused service tests pass.
+
+Actual owned control scratch8f1d6d55,PID42813/start16:03:11UTC/CLI2.1.299,
+idle/bypass: prepared new independent namespace id
+ee9e54bb05ca3b6652c3ce5eebdfe98d beneath its cwd, staged sealed current release
+ e8eee705c72f90271e83e142b458655782b291c139da88690c4486b7a8ba58c7,
+committed only that new private pointer with exact state binding. No legacy
+broker pointer/policy/settings/request changed. Native plugin validate passes;
+exclusive new desktop-bridge-native-peer-service publication. Exact ready
+challenge produced valid bound ready receipt with no native journal growth.
+
+Sent fixed missing request rpeer35b58cdcf9f8726d5abe7c1ae86d453a once, persisted
+attempt before socket. Real module called sealed broker-check. Retained completed
+entry binds bootstrap5ce01e1d8ddee18ca6d07d6cdd615dcd994673c61f054b90758b50fcfecd9c28,
+generation1, exact native session/PID/start and verified actual ancestor. Entry
+completed17:52:22.659Z. Independently verified every sealed inventory hash, intent,
+request/control/native-result absence, same native epoch/idle/bypass and descriptor-
+bound journal unchanged. This qualifies actual independent-state helper execution
+and missing-request refusal, not an admitted native metadata read or effect policy.
+
+Evidence: probe/scratch-native-read-2026-10-17/independent-
+ee9e54bb05ca3b6652c3ce5eebdfe98d/plan.json (single directory name, no newline).
+independent-current.json points to it. State/module retained and bounded one hour,
+maxRequests2, one missing-request attempt used. No waiter/background child remains.
+Do not replay it. Next: install and qualify independent generation-bound native
+admission policy, then standard lifecycle fixed scratch metadata read. Keep old
+MOD_PROBE/version guards and22unknowns intact. Actual physical retirement and
+warm/cold recovery remain separate requirements. Goal active; Codex fixes parked.
+
+Final unchanged-source pressure1/1pass:
+pressure/v2-2026-10-17T17-51-59-834Z.json. Both filtered harnesses pass ten checks,
+source/configs unchanged:
+pressure/harness-v2-{claude,codex}-2026-10-17T17-51-47-406Z.json.
+Shared service memory recorded. Native evidence is specific to the sealed build.
+
 ## Independent state binding for sealed helper; early timer failure fixed — October 17
 
 Previous turn: actual module reload fence qualified. Durable helper nativeBinding
