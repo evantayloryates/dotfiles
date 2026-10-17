@@ -1,3 +1,28 @@
+## Native hot-reload gate revalidated; goal blocked pending human input — October 17
+
+After controller implementation and target-race fix, same person-only native input
+gate persisted across three consecutive goal turns. Rechecked exact transport
+PID31678/start20:14:51UTC: waiting/nativeInputRequiredtrue/readinessfalse,0slots.
+Consumed remaining metadata event after prior cursor; bounded inspection identified
+it as unrelated automatic ios-agent Stop-hook cleanup, not loader readiness/consent.
+Then performed20second session_wait on updated exact cursor: no events, status still
+waiting,0bytes. No resend, native request/probe/archive, target STOP/retirement,
+permissions change or process action. Existing work is published and synthetic
+checks passed; next actual recovery step cannot run until native loading qualifies.
+
+Required human action remains in Claude Desktop's EXISTING
+claude-driver-transport-scratch-2026-10-15: if Enable hot reloading for this session?
+is shown, choose Enable for this session and Submit; otherwise report exact wording
+in this Codex chat. Then use this goal's Play/Resume if still blocked. No tool can
+answer the person-only consent or resume the platform goal automatically. Do not
+resume watcher, repeat prompt messages or try keyboard/CUA/auth/permission workarounds.
+Existing async question stays pending. Plan archiveControllerBlockedAudit preserves
+the exact state/cursor/wait and next changed-condition step. Goal must remain
+incomplete; blocked status stops unchanged automatic continuation, not user replies.
+On resume recheck live epoch/deadline/source, loading/readiness, refresh policy
+boundary only if necessary, negative probe/positive read, then scoped target
+STOP/retire/archive, independent exit/reopen/coldrebind/read. Preserve all old unknowns.
+
 ## Archive target generation race closed before native dispatch — October 17
 
 Audit found historical retired target status could remain valid after same-process
