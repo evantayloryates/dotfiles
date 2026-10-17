@@ -1,3 +1,42 @@
+## Fixed-target scratch read probe published; serving failed — October 17
+
+Previous turn: current consent lifecycle passed. Added fixture-only package builder
+and native register source under lib (included in runtime fingerprints/sealed
+snapshots), plus four tests. Fixed receiver control scratch8f1d6d55..., fixed target
+interrupt scratch74c54e49..., exact scoped cwd, two baked request strings, one-hour
+expiry, only native get_session, no native mutations/model API/Bash. Unknown peer
+arguments cannot choose targets/tools. Intent/result prevent reattempt after reload;
+active guard prevents concurrent local calls. This is a probe, not a public relay.
+
+Current CLI plugin validate passes; warning is missing optional author only.
+Verified bypass/live/idle receiverPID42813/start SatOct17 16:03:11UTC/CLI2.1.299,
+then exclusive publication into its previously absent native module destination.
+Published byte hashes independently rechecked. No old broker files changed.
+Private plan: probe/scratch-native-read-2026-10-17/plan.json, with exact config,
+hashes, lifetime, validation output, epoch, original observation cursor and one
+persisted send attempt prepared before socket bytes. Slot0 native peer user
+c559d050-43a8-463e-8cf2-6f46de29dfb7/msg b18419f5-6df6-4f29-bd65-ec29904550b9
+reached model, which refused token as an unapproved peer command. Tools0;
+probe intent/result both absent. This is failed native serving, not success from
+send return or package validation. Unexpected model response1; no model API requested.
+Slot1 remains unused; never replay slot0. State published-not-serving-native-consent-unverified.
+
+Current native loader source Z uses personOnly:true for mod_hot_reload selection;
+choices include Enable for this session/Not now. Main Claude window independently
+matches control scratch, front app Codex. Actual card presence unverified through
+available read APIs. Skill forbids clicking any approval card. Human must inspect
+that exact scratch chat and enable native Mods loading if prompted. Do not change
+permission/settings files or forge native consent. Before slot1, verify unchanged
+package, bypass mode, exact native epoch and unexpired config. If expired, preserve
+attempt and stage a new bounded reviewed probe rather than reusing IDs. Native
+unload/retirement remains unqualified; module files left in place, cleanup pending.
+Shared service failure/candidate memory saved. Full pressure1/1pass, source unchanged:
+pressure/v2-2026-10-17T16-38-50-660Z.json. Filtered Claude/Codex(gpt-6-sol)
+harnesses pass with unchanged configs/source:
+pressure/harness-v2-{claude,codex}-2026-10-17T16-38-38-576Z.json.
+Synthetic checks do not supersede failed actual native serving.
+Goal active; Codex fixes parked.
+
 ## Current dev-mod consent lifecycle qualified in isolation — October 17
 
 Previous turn: current native tool adapters passed. Added version-specific
