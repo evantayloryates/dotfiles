@@ -1,7 +1,7 @@
 import {readStandbyRebindProof,standbyRecoveryTransitionAllowed} from './standby-rebind-proof.mjs'
 import {join} from 'node:path'
 import {createHash} from 'node:crypto'
-import {mkdirSync,lstatSync,writeFileSync} from 'node:fs'
+import {mkdirSync,lstatSync,writeFileSync,readdirSync} from 'node:fs'
 import {STATE_DIR,withLock,writeJsonAtomic} from './state.mjs'
 import {readReceiverFile,loadReceiverSelection} from './receiver-runtime-selection.mjs'
 import {getRecord} from './sessions.mjs'
@@ -19,6 +19,13 @@ export const standbyEnrollmentDigest=row=>createHash('sha256').update(JSON.strin
 export function readStandbyEnrollment(primary,{dir=root}={}){
  if(!sid.test(primary||''))throw Error('exact primary required')
  try{owned(dir);return validateStandbyEnrollment(JSON.parse(readReceiverFile(join(dir,primary+'.json'),8192)),primary)}catch(e){if(e.code==='ENOENT')return null;throw e}
+}
+export function standbyBindingsForSession(standby,{dir=root}={}){
+ if(!sid.test(standby||''))throw Error('exact standby required')
+ try{owned(dir)}catch(error){if(error.code==='ENOENT')return [];throw error}
+ const names=readdirSync(dir)
+ if(names.length>128||names.some(name=>!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}\.json$/.test(name)))throw Error('standby binding inventory unqualified')
+ return names.map(name=>readStandbyEnrollment(name.slice(0,-5),{dir})).filter(row=>row?.standby.sessionId===standby)
 }
 export function standbyRefreshAllowed(before,after,expected){
  return hex.test(expected||'')&&standbyEnrollmentDigest(before)===expected&&sameEpoch(before.primary,after.primary)&&sameEpoch(before.standby,after.standby)

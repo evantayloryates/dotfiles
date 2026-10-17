@@ -1548,3 +1548,12 @@ It needs capacity for policy, family and a later operation. A failed standby
 revalidation leaves the old binding stale and returns `standbyRefreshQualified:false`;
 unknown family effects stop progression. Old generation receipts never become new
 recovery authority. A changed native epoch requires a separate proven rebind.
+
+
+Standby generation renewal also refreshes the exact bindings that name that
+standby. It inventories at most 128 owned binding files, retains each prior digest
+before turnover, and reports per-primary `standbyEnrollmentRefreshes`. The normal
+same-epoch CAS and native scope qualification still apply; it does not retarget a
+PID or carry a retired generation as authority. A failed refresh leaves the prior
+binding stale and reports `qualified:false`. This refresh requires a qualified
+live primary; it does not establish renewal/recovery when that primary is absent.

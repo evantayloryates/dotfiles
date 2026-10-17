@@ -1,3 +1,51 @@
+## October 17 standby renewal retains reciprocal enrollment — native qualified
+
+Previousbatch published10ec858. Public enrolled-controller lookup does not require
+a live controller peer, so missing-controller requests can reach maintenance.
+Found separate live gap: standby generation renewal left primary->standby binding
+on retired predecessor. Added bounded owned reverse-binding inventory(max128),
+pre-turnover exact snapshots and after-qualified-renewal per-binding CAS refresh.
+Both native epochs/primary service/family retained; old bytes archived. Failure
+returns standbyEnrollmentRefreshes qualified:false and leaves old binding stale;
+no implicit retarget or source carry. Final guard catches cancellation/epoch change.
+Current normal reciprocal refresh still needs qualified LIVE primary; absent-
+primary/expired-standby maintenance remains a frontier, not silently supported.
+
+LIVE standbyReciprocalRenew j5f126077aa5c412c9b23713d07071de6 completed; new/current
+standby5f126077aa5c412c9b23713d07071de6 on SAME PID90418/start21:37:26UTC, sealed
+FINALHOSTe607ee05ec66f29f1ac0a72f12c53e335c7f2b4c09e251bd20e7c2cd514f5015; sole archiveTarget still primaryC0/PID31678/start20:14:51UTC.
+Primarycb68...unchanged (sealed e90154fa). Binding now
+a2a38331a437289d5cf630ef72801fef54d82d973a957c8043bf87df67eb0f6e, old905865...retained
+and independently canonical-hash verified. Same familyrpeere51b8082758855b63da28067cb38146d,
+primary service and both native epochs unchanged. Renewal result reciprocal refresh
+qualified:true. Exact original driver_submit reused:true/samejob; renewal and
+enrollment byte hashes unchanged. Private standbyReciprocalReview retains evidence.
+Old3e8045 service terminally retired; don't send/read/renew it as current.
+
+Post-turnover actual fresh CLAUDE MCP native send passed18checks:
+harness-native-native-send-claude-2026-10-17T23-00-10-479Z.json. Exact recipient
+receipt/causal reply, native acceptance, same durablejob, no maintenance/recovery
+children, source/globalconfig unchanged, targetsettings unchanged. Initial Codex
+attempt refused claimed identity before native effects; independently verified
+original Codex report22-51-56-916Z was terminal successful. Did not clear/replay its
+claim. New Claude test exercised changed standby-generation coexistence.
+During model reply planner briefly refused standby-unqualified (busy); bounded
+samePIDidle read then returned waitprimary-live/effectsfalse/recoveryAttemptedfalse.
+Not a crash or failure of the refreshed binding. AutomaticRecoveryEnabled:false.
+
+Focused11 enrollment/renewal tests PASS. Full isolated
+v2-2026-10-17T23-00-04-999Z.json1/1PASS/sourceunchanged. Both filtered
+harness-v2-{claude,codex}-2026-10-17T22-59-38-385Z.json10checks each PASS.
+No wake/restart/kill/archivecycle/newchat/permissions/input change. Native standby
+renewal and healthy coexistence are qualified; actual cold/rebind remains unproved.
+
+NEXT: request-triggered exact standby lease maintenance when primary absent,
+then actual absent-primary cold/rebind qualification before enabling current
+enrollment. No manufactured current-primary failure solely for green. Broader
+appquit/bothgone/naturalpressure/creation/fork/archive/window/person gates remain.
+Goal active; watcher paused; legacyobserver owns legacy recovery. Codex-driver
+and 1Password parked.
+
 ## October 17 automatic cold/rebind composition candidate
 
 Previous batch published40286b8. Automatic enrolled control recovery now composes
