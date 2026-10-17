@@ -1,3 +1,39 @@
+## Durable one-shot stable receiver renewal — October 17
+
+Added broker_service_renew, requires experimental opt-in and durable driver_submit
+job. Job suffix is successor service identity. Per-receiver renewal mutex; existing
+prepare/quiesce/retire/activate APIs retain their own lifecycle locks. Durable global
+independent-service-renewals/<jobId>.json records before/after prepare, quiesce,
+retire, activate and verify. Prepare occurs before predecessor STOP to minimize
+downtime. Before each effect exact idle native epoch/receiver/current selector is
+revalidated. Live predecessor must verify installed and terminal before preparation.
+No retry/rollback/resume branch. Uncertain phases keep original identity and error
+category. No prompt/token/native result payload in renewal ledger. Installation is
+explicitly servingQualified:false; readiness is only verification-time observation.
+Six focused transition/turnover tests pass, injecting each effect/checkpoint/epoch
+failure and confirming no later effect or replay. Frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-24-26-618Z.json. Both filtered synthetic-store harnesses
+all10checks pass with unchanged source/config: harness-v2-claude-2026-10-17T19-24-50-149Z.json
+and harness-v2-codex-2026-10-17T19-24-50-146Z.json under pressure/.
+
+Actual durable renewalj44e1287366824bfe82e42a32458e9635 completed predecessor8f32→
+successor44e1287366824bfe82e42a32458e9635 on samePID20499/start15:48:23UTC,
+source4316b7ee634ce41c5306c142b0dc5df06ac438017ba2dc9e233692710ef1d627.
+All5steps checkpointed. Result readinessObserved:false at install-time; later live
+status independently observes fresh readiness. It correctly retains policyObserved
+false and servingQualifiedfalse. No policy probe or public native read performed
+on this new generation yet. Budget0/6,deadline1792268674323. Original job/key
+reattaches samejob and unchanged renewal ledger; old8f history/STOP/terminal attempts
+verify. Shared anchor/settings hashes/inode/size/mtime unchanged. Entire renewal
+native journalgrowth0/events0. Original plan durableRenewal contains job, before/
+after evidence. No sender/worker/waiter remains active; bounded new module installed.
+
+Next formalize durable negative policy probe (currently qualification uses explicit
+missing-request native self-test), then integrate bounded automatic renewal decisions
+and read admission. Current operation is one-shot orchestration, not a daemon or
+unattended always-on proof. Crash/cold/deleted-session and physical process recovery,
+current-chat cached MCP refresh remain open. Goal active; Codex fixes parked.
+
 ## Stable settings preserved across native generation turnover — October 17
 
 Integrated guarded successor activation for stable_hook. Existing watched module

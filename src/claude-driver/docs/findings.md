@@ -1126,3 +1126,12 @@ terminal self-test and verified public metadata read, with zero native journal b
 across the entire transition. Shared anchor/settings inode/mtime/hash unchanged;
 old STOP/history verified afterward. This qualifies one explicit same-process
 renewal, not autonomous always-on or crash/cold/record-loss recovery.
+
+### Durable bounded renewal orchestration (October 17)
+
+One job now checkpoints prepare-before-STOP, quiesce, retire, stable activation and
+verification under exact epoch/selector guards. Native jobj44e1287366824bfe82e42a32458e9635
+completed on same native epoch with unchanged shared files/history and zero journal
+growth. Fresh readiness followed install; no policy audit on the new generation yet.
+This is explicit one-shot orchestration, not scheduled automatic recovery or serving
+qualification. Original job reattachment preserves ledger and successor identity.

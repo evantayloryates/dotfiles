@@ -931,6 +931,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent activation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-activate.mjs')).activateIndependentService(args.session,args.service_id,{signal:ctx.signal,stableHook:args.stable_hook??false})},
   },
   {
+    name:'broker_service_renew',title:'Renew one owned stable receiver generation',readOnly:false,
+    description:'Experimental durable one-shot renewal: prepare successor, quiesce and terminally review predecessor, preserve retired module/selector, activate on unchanged stable settings and verify installation. Requires installed stable predecessor, same idle native epoch and a durable driver_submit job. No model message, restart, permission change, uncertain replay or readiness/serving claim from installation. Failed phases require original-job inspection.',
+    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent renewal requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-renew.mjs')).renewIndependentService(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8})},
+  },
+  {
     name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,
     description:'Experimental preparation only in an idle driver-owned bypass scratch receiver. Creates a fresh private namespace, sealed release and native-validated candidate. Never publishes/replaces a module, changes settings, sends, wakes or raises permissions. Reattach durable jobs with the same key.',
     schema:{required:['session','experimental'],properties:{session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
