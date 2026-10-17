@@ -1,3 +1,50 @@
+## Stable settings preserved across native generation turnover — October 17
+
+Integrated guarded successor activation for stable_hook. Existing watched module
+or new private runtime still refuses. Existing stable anchor/settings/selector must
+all validate. Read-only historical inspection independently verifies selected old
+source is files-retired, own STOP matches, every attempt terminal, no unresolved.
+Exact same native epoch and anchor/settings hashes required. Old selector is moved
+exclusively to predecessor retired-receiver-selector.json, verified by hash, then
+new selector written exclusive; ledger records before-retention/publication phases.
+No anchor/settings rewrite. Interruption is inspect-only, no rollback/replay.
+Nine focused tests pass; first frozen-source pressure1/1passes:
+pressure/v2-2026-10-17T19-21-44-120Z.json. Native source8aef7f301ece2a596461c3fad4114075d14597ac21383873dc3a28dabbde83b6.
+
+Actual oldd80 quiescencejf090feddead54fd8a988fede7167ab9c reviewed both attempts
+(one settled read, one terminal refusal), ownSTOP. Retirementjbbd685694e8b486898fdee2efff06286
+preserved module, left shared settings/anchor unchanged. Preparation
+j8f324f5961b34691b8b78740c29ae3d2 created successor8f324f5961b34691b8b78740c29ae3d2,
+capacity6/deadline1792268502415. Activationj27b9e2c1bc734878bb7018f91e4b5c86
+retained oldselector and installed successor on samePID20499/start15:48:23UTC.
+Fresh readiness observed. No model boundary message or extra human consent.
+Native missing-request selftestrpeerf22914391a4f2804d7a4a9af0efb3579 produced
+matching current-generation policy audit/helper/refusal and terminal review.
+
+Public readj5f5e34bb0b0148c7bd7bc6f187af8333/requestmatchingrpeer suffix completed,
+receiptVerified/publishedtrue,cleanupPendingfalse, native tool
+ toolu_plugin_230413aa0b9a49138f171c8c91e203de. Persisted target session/title/cwd/
+archive fields independently match control8f. Reattachment samejob; result/admission/
+control hashes unchanged. Across ENTIRE quiesce/retire/prepare/selector activation/
+selftest/public read interval, native journal growth0/events0. Shared anchor/settings
+hash/inode/size/mtime unchanged before/after. Retained selector matches prior hash;
+old history verifies with terminal attempts and STOP alongside successor.
+Original plan empty-receiver-activation.json stableHookTurnover*/stableHookSuccessor*
+holds durable identities and evidence. Successor2/6slots used, no unresolved,
+intentionally left installed/bounded. No sender/worker/waiter remains active.
+
+After native run tightened independent historical PID/start comparison and selector
+reread equality; these additional assertions are synthetic/current-source checked,
+not a repeat native turnover. The stricter predicate also passed a read-only review
+of actual retained predecessor selector/policy and freshly verified historical status.
+Final pressure1/1passes: pressure/v2-2026-10-17T19-22-55-841Z.json. Both filtered
+synthetic-store harnesses10/10checks pass with unchanged source/config:
+pressure/harness-v2-{claude,codex}-2026-10-17T19-22-41-746Z.json.
+All actual native source identity retained above.
+Next automatic bounded renewal/controller and pressure/recovery evidence. Cold,
+crash/app-update/record-loss and physical process retirement remain open; current
+chat cached MCP refresh separate. Goal active, Codex fixes parked.
+
 ## First stable hook native activation and public read — October 17
 
 Integrated stable_hook:true opt-in through durable broker_service_activate. Existing

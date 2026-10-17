@@ -1116,3 +1116,13 @@ verified persisted receipt and independently matched target metadata with native
 journal growth0. Same-key reattachment preserved evidence hashes. This proves one
 installed generation only; successor selector turnover and zero-boundary renewal
 remain open. No app restart, permission change or unknown replay.
+
+### Same-process stable hook turnover without model boundary (October 17)
+
+Guarded replacement requires historical retired source, exact owned STOP, terminal
+attempt review, same native epoch and identical anchor/settings. Prior selector is
+retained exclusively. Native d80→8f32 turnover onPID20499 produced fresh policy audit,
+terminal self-test and verified public metadata read, with zero native journal bytes
+across the entire transition. Shared anchor/settings inode/mtime/hash unchanged;
+old STOP/history verified afterward. This qualifies one explicit same-process
+renewal, not autonomous always-on or crash/cold/record-loss recovery.

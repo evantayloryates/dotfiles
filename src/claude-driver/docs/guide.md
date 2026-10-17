@@ -887,14 +887,20 @@ Installation does not prove native loading, readiness, policy loading or serving
 Human hot-reload consent remains independent and cannot be answered by this API.
 
 Optional `stable_hook:true` installs the sealed generation's standalone receiver
-entry and exact selector before publishing hook settings. It is currently first
-installation only: existing stable entry/selector/settings still refuse. The
+entry and exact selector before publishing hook settings. For turnover, an existing
+stable selector must resolve to an independently verified files-retired predecessor
+with its own STOP and no unresolved attempts, on the same native epoch. Anchor and
+settings hashes must match exactly. The old selector is exclusively retained in
+its generation before the new one is published; anchor/settings are not rewritten.
+Unrelated or partial state refuses and requires inspection. The
 settings command is independent of generation; selector and policy bind the exact
 private state, source, bootstrap, native epoch and anchor/settings hashes. The
 entry verifies bounded owned files, full sealed inventory and actual ancestry,
 then forwards only to the fixed handler, preserving its request/STOP/admission
 checks. Install/readiness never substitutes for an actual native policy audit.
-Successor selector turnover remains unqualified; do not manually replace it.
+One actual same-epoch turnover has qualified native reads without another model
+boundary. This does not establish automatic renewal, cold recovery or app restart
+recovery. Do not manually replace selectors or clear predecessor STOP.
 
 Independent status reports `activationPhaseObserved` from a strictly matched
 checkpoint and `activationEffectsAssessed:false`; a phase never proves the next
