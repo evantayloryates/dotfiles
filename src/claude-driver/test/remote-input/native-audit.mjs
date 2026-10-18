@@ -12,6 +12,13 @@ export function audit(workspace){
     const statePath=join(workspace,'fixture/state.json')
     const fixtureState=existsSync(statePath)?JSON.parse(readFileSync(statePath,'utf8')):null
     const fixtureProcessCurrent=processes.some(p=>p.pid===fixtureState?.pid&&p.path===join(workspace,'fixture/ClaudeDriverInputFixture.app/Contents/MacOS/InputFixture'))
+    const helperKeyboardFilters=taps.filter(t=>helperPids.has(t.ownerPid)&&t.enabled&&t.options===0&&(BigInt(t.mask)&7168n)!==0n)
+    // Target PID does not imply foreground or another app role. Keep scoped
+    // executable evidence beside every owned target, including missing/global.
+    const helperKeyboardFilterTargets=[...new Set(helperKeyboardFilters.map(t=>t.targetPid))].map(pid=>{
+        const p=processes.find(p=>p.pid===pid)
+        return {pid,ppid:p?.ppid??null,path:p?.path??null,processObserved:!!p}
+    })
     return {at:new Date().toISOString(),taps,helperProcesses,fixtureState,fixtureProcessCurrent,
-        helperKeyboardFilters:taps.filter(t=>helperPids.has(t.ownerPid)&&t.enabled&&t.options===0&&(BigInt(t.mask)&7168n)!==0n)}
+        helperKeyboardFilters,helperKeyboardFilterTargets}
 }

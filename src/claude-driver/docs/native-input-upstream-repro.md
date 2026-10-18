@@ -113,3 +113,30 @@ contexts, failed reports, sources, binary hashes, compressed event data and
 bounded analysis. No native runtime patch, shared-helper kill, permission change,
 real-model inference or external transmission occurred. Local quarantine remains
 blocked. A primary paste-path comparison is planned, not established as a fix.
+
+## Valid primary paste-route reproduction with buffered metadata
+
+Run1792358685306 removes the earlier fixture ambiguities: AppKit Edit/Paste menu,
+active key window, paste responder and observed editor index are verified. First
+client performs click -> paste(text format) -> fresh AX readback and100ms exact-
+value observation. Its64 characters are correct. A second independently owned
+helper types4096 characters; first helper6754 retires normally while it is active.
+Second output becomes4098 (combined4162), stable after1/5 seconds, with failed
+bounded exact-value settling. Both turns, archives and helper/watchdog exits are
+normal. No replay, text correction, runtime patch or shared-helper kill occurs.
+
+Buffered receiver metadata has zero dropped rows. Two keyDown pairs from source
+6839 share CG timestamps8472477877041/8472480434458, keycode16, character hash and
+repeat=false. Their receiver arrivals are9.7-13.5ms after the first helper's
+recorded exit. This establishes matching native deliveries correlated with
+retirement, not the exact compiled callback or a physical-key causal chain.
+Receiver sourcec42ccefc/binary33568a3c; harnessdaeb3919. Exact contexts and private
+buffered-route-evidence/manifest.json are recorded in ui-lease-owner.md.
+
+Earlier buffered8193408 is a premature assessment (eventual exact4160); fresh-
+readback/stability control8295512 passes. Paste setup/predicate failures8366848,
+8473011 and8602957 are retained as such. They are not native delivery counterexamples
+or public-provider outages. PID431 is the observed system ViewBridgeAuxiliary,
+not established as foreground. New diagnostic target PID/path metadata avoids
+that inference. Local quarantine remains blocked; no further input probe on this
+unchanged runtime is justified. This packet remains prepared only, not sent.

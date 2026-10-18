@@ -510,7 +510,10 @@ live broker remain available.
 `driver_status.uiAutomation` reports the current policy. The file is read on
 each UI entry; malformed or incomplete quarantine records fail closed.
 Release requires an explicit `{ "blocked": false }` record after physical
-recovery and native-helper teardown are qualified. Physical recovery alone
+recovery, native-helper teardown and independent active-input coexistence are
+qualified. A valid remote click/paste/readback case currently fails that last
+boundary despite normal helper/watchdog exit; see native-input-upstream-repro.md.
+Do not rerun unchanged-runtime input or infer safety from cleanup alone. Physical recovery alone
 did not prevent recurrence. Refresh old MCP connections before relying on this
 guard. This limits this driver, not other chats using Computer Use.
 Tier C runs in a private stdio worker, serialized across callers, without

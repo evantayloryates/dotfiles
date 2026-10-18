@@ -35,7 +35,7 @@ must exit normally without a signal. Each new run preserves its harness source;
 earlier pre-snapshot source hashes are recovered from owned orchestration assets.
 Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
 
-`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input|concurrent-input|external-input|type-long` exercises the new lease owner, actual
+`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input|concurrent-input|external-input|external-paste|type-long` exercises the new lease owner, actual
 worker/backend/MCP/helper, inherited lock receipt and owner-side native audit.
 The provider/fixture outlive the caller-loss test. It validates exact fresh AX
 state before killing only the caller, then observes owner/group/helper exit.
@@ -66,9 +66,21 @@ lock state. After the first64-character effect, the second starts4096 characters
 with both native helpers live. Only verified partial input/four owned filters
 releases the first provider response; first cleanup must preserve the second's
 active helper/filters. Both exact effects and settling are still required.
-This mode currently has retained native delivery failures; normal tool/helper
+`external-paste` runs the primary click/paste/text-format route using the exact
+editor index from fresh AX state. It refuses input unless the fixture is active,
+its key window and Paste menu are present, and the responder is the editor. Both
+routes read back AX and wait at most5s for100ms of exact hash/count stability;
+this only observes the one attempt. A failed first effect prevents submission of
+the second input. Reports distinguish planned and submitted input calls.
+Both native routes have retained independent-client delivery failures; normal tool/helper
 exit does not turn those into passes. `type-long` is a one-client4096-character
 control. Neither mode enables local UI or changes saved app permissions.
+
+The AppKit fixture registers a real Edit/Paste command and activates its key
+window; an empty bare NSApplication without that menu was not a valid paste
+comparison. Readiness fields are observations, not inferred from a click return.
+Secondary ViewBridge targets are retained; `native-audit.mjs` records each owned
+filter target's scoped PID/executable metadata rather than inferring foreground.
 
 The fixture can receive a run-owned `CLAUDE_DRIVER_FIXTURE_EVENT_LOG` path. It
 records only delivered editor events: source/timestamp/keycode, hashes, counts

@@ -446,8 +446,11 @@ retains the mutex and retires its own verified group after caller/owner loss;
 the interrupted request remains failed. Native read-only double-loss recovery
 and successor acquisition pass. Native input and outstanding-input cancellation
 also pass with exact effect/prefix and normal cleanup. Two concurrent driver
-requests now verify native serialization and exact ordered delivery. Independent
-simultaneous native input, physical keys and full focus/send gates remain.
+requests now verify native serialization and exact ordered delivery. A valid
+click/paste/readback case still corrupts an independent active client's
+input during helper retirement (4162 vs4160). The [prepared runtime reproduction](docs/native-input-upstream-repro.md)
+records matching native event deliveries; it has not been sent. Local UI remains
+quarantined. Physical keys, full focus/send and final loaded adoption remain open.
 
 ## Focus policy
 

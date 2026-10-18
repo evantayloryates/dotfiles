@@ -222,6 +222,46 @@ remote has no owned resources and preserves original services/taps. Quarantine
 stays blocked. The next route comparison is the primary paste/text path; a pass
 there cannot erase these typeText failures or prove physical input safe.
 
+## Buffered observation and real paste-route boundary
+
+The buffered receiver records complete metadata with zero dropped rows. An early
+assessment-only failure8193408 reaches eventual4160 with no duplicate metadata;
+it remains failed, distinct from8295512, which passes after actual fresh AX
+readback and bounded exact-value observation. That gate waits<=5s for100ms of
+matching count/bytes/hash, never retypes, and still requires1/5-second stability.
+
+Paste probes8366848/8473011 stay failed because fixture prerequisites were
+incomplete (missing click, then missing standard Edit/Paste menu/key window).
+8602957 reaches exact4160 but the retirement gate is invalid because an overly
+strict predicate rejected ViewBridge. PID431 was independently observed as the
+system ViewBridgeAuxiliary executable; it is not proven foreground. The corrected
+predicate keeps every secondary target and requires exact owner/primary identity.
+
+Valid run1792358685306 has all readiness fields true, performs an observed-index
+click and native paste(text format), verifies first64 characters for104ms, then
+retires that helper during the independent client's pending4096-character input.
+The second ends4162, stable at1/5 seconds, and fails its5005ms exact-value gate.
+All lifecycle receipts still finish normally. Two metadata-matching keyDown
+pairs come from helper6839 at9.7-13.5ms after helper6754's recorded exit, same
+CG timestamps/keycode/hash with repeat=false. This does not identify a particular
+native callback or establish a physical-key cause. The real input route is unsafe
+at this tested independent-client boundary; no unchanged-runtime repeat is needed.
+
+First thread01a150e7-1fec-7e93-98d3-c311a96c49ab/turn
+01a150e7-2387-71b3-a4b9-997df9aa9ae6, second thread
+01a150e7-2d5e-7550-9fa4-eecf382b7ad0/turn01a150e7-2ec6-7cd2-9fd9-ffe4683b798d.
+Exact harnessdaeb3919, ready receiverc42ccefc/binary33568a3c. Private
+buffered-route-evidence171 files/3991060 bytes preserves six runs, exact sources,
+contexts, logs/raw hashes and derived analyses. Final remote owns no resources
+and preserves baseline services/taps. Native runtime and local quarantine stay
+unchanged; no upstream message has been sent.
+
+Fresh headless Claude and Codex contracts each pass10/10 on182ed05d with8 allowed
+bridge calls,2 submissions/1 completed worker, isolated synthetic data, no native
+or shell calls, unchanged global configs and no owned processes. This validates
+MCP protocol use through real harnesses, not current calling-chat adoption or
+native UI safety. Models/versions are in current-harness-contract-readback.json.
+
 ## Remaining work
 
 Full computerUse focus/send behavior, actual

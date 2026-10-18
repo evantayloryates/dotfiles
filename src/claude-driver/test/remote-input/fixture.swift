@@ -27,7 +27,7 @@ import CoreGraphics
     }
 }
 
-@MainActor final class Fixture: NSObject, NSApplicationDelegate, NSTextViewDelegate {
+@MainActor final class Fixture: NSObject, NSApplicationDelegate, NSTextViewDelegate, NSWindowDelegate {
     var window: NSWindow!
     var editor: NSTextView!
     var timer: Timer?
@@ -45,6 +45,16 @@ import CoreGraphics
            FileManager.default.createFile(atPath: path, contents: nil, attributes: [.posixPermissions: 0o600]) {
             events = try? FileHandle(forWritingTo: URL(fileURLWithPath: path))
         }
+        let mainMenu = NSMenu()
+        let appItem = NSMenuItem()
+        let appMenu = NSMenu(title: "Fixture")
+        appMenu.addItem(withTitle: "Quit Fixture", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu; mainMenu.addItem(appItem)
+        let editItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editItem.submenu = editMenu; mainMenu.addItem(editItem)
+        NSApp.mainMenu = mainMenu
         window = NSWindow(contentRect: NSRect(x: 100, y: 100, width: 620, height: 320),
                           styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
         window.title = "Claude Driver Input Teardown Fixture"
@@ -59,7 +69,9 @@ import CoreGraphics
         editor.setAccessibilityIdentifier("claude-driver-test-editor")
         window.contentView!.addSubview(editor)
         window.makeFirstResponder(editor)
-        window.orderFront(nil)
+        window.delegate = self
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
         save()
         timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
@@ -71,6 +83,10 @@ import CoreGraphics
         }
     }
 
+    func windowDidBecomeKey(_ notification: Notification) { if editor != nil { save() } }
+    func windowDidResignKey(_ notification: Notification) { if editor != nil { save() } }
+    func applicationDidBecomeActive(_ notification: Notification) { if editor != nil { save() } }
+    func applicationDidResignActive(_ notification: Notification) { if editor != nil { save() } }
     static func digest(_ text: String) -> String {
         SHA256.hash(data: Data(text.utf8)).map { String(format: "%02x", $0) }.joined()
     }
@@ -127,6 +143,9 @@ import CoreGraphics
         let state: [String: Any] = ["pid": ProcessInfo.processInfo.processIdentifier,
             "bundleId": Bundle.main.bundleIdentifier ?? "", "characters": text.count,
             "utf8Bytes": text.utf8.count, "sha256": digest,
+            "isActive": NSApp.isActive, "keyWindowMatches": NSApp.keyWindow === window,
+            "pasteMenuPresent": NSApp.mainMenu?.item(at: 1)?.submenu?.items.contains(where: { $0.action == #selector(NSText.paste(_:)) }) ?? false,
+            "pasteResponderIsEditor": (NSApp.target(forAction: #selector(NSText.paste(_:))) as? NSTextView) === editor,
             "observedAt": ISO8601DateFormatter().string(from: Date())]
         if let bytes = try? JSONSerialization.data(withJSONObject: state, options: [.sortedKeys]) {
             try? bytes.write(to: directory.appendingPathComponent("state.json"), options: .atomic)

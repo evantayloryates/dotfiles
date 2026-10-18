@@ -23,7 +23,10 @@ independent native input. That independent boundary now FAILS: runs1792357645908
 and1792357844051 deliver4161/4162 instead of4160 despite normal lifecycle receipts.
 Fixture-only diagnostics capture duplicate native-timestamp/source/key deliveries;
 a one-client4096 control passes. Synchronous logging also causes target backlog;
-buffered diagnostics compile but remain unqualified. No production fix, physical
+buffered logs are now complete with zero drops. A properly active, menu-ready
+click/paste/readback case1792358685306 also FAILS4162 vs4160, with two matching
+native-timestamp deliveries9.7-13.5ms after first-helper exit. This is neither
+physical-key clearance nor a specific callback diagnosis. No production fix, physical
 clearance or quarantine release follows. All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
 loaded-adoption gates remain. Earlier e3c3937e cleanup/native/ancillary proof
 retains its separately recorded source and limits.
@@ -65,7 +68,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | --- | --- | --- |
 | Ready whenever the Mac is logged in and active | Incomplete | Saved app-quit readback explicitly says automaticAppRestartQualified=false and humanStartupRequired=true. No changed supported ingress exists for all-Code-processes-absent startup. Do not repeat unchanged outage tests. |
 | MCP registered in Claude Code, Codex, Cursor and OpenCode | Verified configuration | All four enabled commands resolve to the same current launcher. Two spellings use the dotfiles symlink; these are not different installations. Registration does not prove executable/auth access. |
-| Actual cross-harness operation | Partial | Fresh actual Claude and Codex MCP contracts each passed 10/10 on fcf484e3, before the narrow input-cleanup correction. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
+| Actual cross-harness operation | Partial | Fresh actual Claude2.1.299/Haiku4.5 and Codex0.159.3/configured gpt-6-sol each pass10/10 on current182ed05d, private synthetic MCP stores only; no native controls or shell calls. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
 | Global skill and shared guidance | Verified installation | Claude skill is a real directory with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory. |
 | Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 195-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
 | Queue, stop and interrupt | Native evidence | Ordinary12 on df52d791 passed busy queue, native stop/replacement, preserved queued turn and unique causal replies. Current full suite passes frozen recipient and uncertainty cases. Recipient receipt is not instruction application; reply evidence is assessed separately. |
@@ -131,7 +134,7 @@ experiment was performed for this audit. No fixture cleanup remains. Working and
 recovered service pairs and the observer-owned legacy broker are intentionally
 retained. Codex-driver and 1Password work remain separate.
 
-## Next changed condition
+## Historical qualification sequence
 
 Taylor supplied Theo Air from chat “theo”, authorized the remote input test rig,
 and resumed the actual goal. The goal is ACTIVE. The previous blocked audit does
@@ -155,7 +158,7 @@ not sent. A later [private-helper prototype](native-helper-isolation.md) passed
 real host typing and cleanup while the default client stayed live, on the same
 runtime. Abrupt-owner cleanup then passed with the default client retained; the
 actual worker's backend group was corrected and isolated-tested. Supervisor-loss ownership and checked watchdog recovery now have the current
-read-only qualification above; next qualify active input on that composition. The later factory/native and actual worker/MCP handoff
+read-only qualification above; active input, cancellation and serialization now have separately recorded proof above, while independent active-client coexistence fails. The later factory/native and actual worker/MCP handoff
 gates were followed by combined read-only completion, worker-group loss and
 normal pending-provider timeout. See the current private-service checkpoint above.
 These are implementation-specific preparation,
@@ -163,8 +166,9 @@ not a global release or physical-input clearance. No fabricated
 metadata/private disposal route/shared-helper kill is authorized. All owned
 remote processes are stopped, Switchboard is preserved,
 and no fixture cleanup, local quarantine release or restart request is pending.
-The latest source is isolated-tested; actual loaded-client/native/harness
-adoption of that cleanup source remains a separate future gate.
+Current-source headless Claude/Codex MCP contracts now pass. Calling-chat loaded
+adoption, full real-Claude UI and native active-client safety remain separate
+open gates; protocol proof does not replace them.
 
 The remaining always-on startup, natural-pressure and person-gate requirements
 need a changed supported platform ingress or an independently resolved quarantine;
@@ -175,3 +179,21 @@ recorded source for this limitation: opening/importing is not qualified native
 startup, and machine tools require an existing desktop Code context. No new app
 restart, kill, permission change, native message or cold-start experiment is
 justified by the Codex MCP adoption alone.
+
+## Next available work after the valid paste failure
+
+Finish the read-only registration and requirement audit against current files,
+with no further unchanged-runtime input probe. Preserve current-source protocol
+proof separately from ordinary native actor readiness, calling-chat MCP adoption
+and UI safety. The physical-key availability question is deferred; no manual-key
+setup should start while the independent-client defect remains unresolved.
+
+A changed safe native runtime, supported owner-scoped disposal contract or proved
+cross-client input coordination is needed before repeating that boundary and
+considering local UI release. Broader Codex fixes and signed-runtime modifications
+remain outside this goal's authorized implementation scope. The exact upstream
+packet is prepared for review and has not been sent. Do not wake the observer's
+legacy broker, change auth/person gates, or call the objective complete because
+fresh synthetic-store MCP contracts passed. Always-on cold startup, natural
+pressure, native person gates and the remaining original requirements still
+need their own authoritative proof.

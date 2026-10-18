@@ -1,3 +1,67 @@
+## October 18 valid paste route still corrupts an independent active client
+
+VERIFIED FAILURE on unchanged production182ed05d/nativef21c31c0. Buffered logs
+are complete (zero dropped rows), and the AppKit fixture now has a standard
+Edit/Paste menu, an active key window, an exact observed editor index and a
+verified paste responder. Run1792358685306 executes click -> paste(text format)
+-> fresh AX readback -> bounded exact-value settling. First64 characters verify
+for104ms. The second independent client starts4096-character typeText with both
+helpers/primary filters live; first helper6754 exits normally during second
+input. Final4162 instead of4160 remains stable at1/5 seconds; second exact-value
+settling fails after5005ms. Both turns/archive/helper/watchdog receipts are normal.
+This is a native effect failure, not a missing menu/focus or lifecycle exception.
+
+Receiver metadata records4098 second-client keyDown/insert deliveries. Two pairs
+share CG timestamps8472477877041/8472480434458, keycode16, source6839, character
+hash and repeat=false. Receiver arrivals are9.7-13.5ms after the first helper's
+recorded exit. This is strong retirement-correlated delivery evidence, not proof
+of a specific compiled callback or the historical physical-key cause. First
+thread01a150e7-1fec-7e93-98d3-c311a96c49ab/turn
+01a150e7-2387-71b3-a4b9-997df9aa9ae6; second
+01a150e7-2d5e-7550-9fa4-eecf382b7ad0/turn01a150e7-2ec6-7cd2-9fd9-ffe4683b798d.
+Exact harnessdaeb3919; ready buffered fixturec42ccefc/binary33568a3c.
+
+Earlier cases remain separate:8193408 has exact eventual4160 but the immediate
+assessment was premature (3751->4044->4160);8295512 passes exact4160 after fresh
+readback and <=5s bounded100ms-stability observation, without retyping. Paste
+8366848 omitted the focus click;8473011 added it but the bare test app still
+lacked a menu/key-window precondition. Both insert0 and stay failed.8602957
+reaches4160 with a ready app but does not qualify retirement because the test
+predicate incorrectly rejected a secondary ViewBridge filter. No public-provider
+outage is inferred from those localhost fixture HTTP failures. Exact snapshots
+are retained rather than relabeling them as final-source proof.
+
+PID431 is system ViewBridgeAuxiliary, not proven foreground. Corrected test
+predicate requires exact owned helpers and each primary fixture filter while
+retaining secondary targets. Diagnostic native-audit now includes scoped target
+PID/executable observations so later reviews need not infer roles. Read-only
+final audit exercises its empty-target case; no new active input was run for it.
+Current fixture buffers<=50000 metadata rows and flushes at termination; no raw
+characters/global monitor. Fixture activation/menu/readiness are recorded.
+
+Private buffered-route-evidence171 files/3991060 bytes contains six immutable
+reports, exact sources/builds/contexts, compressed logs with verified raw hashes,
+and bounded event analyses. Final remote owns no process/helper/filter/stop
+marker; original four taps, uv508/caffeinate510 and old clean repo0203e604 remain.
+Local quarantine still blocked/hash9808e860; no native/shared-helper patch,
+permission/auth change, real inference in these native fixtures or local CUA.
+
+Fresh actual headless Claude2.1.299/Haiku4.5 and Codex0.159.3/configured gpt-6-sol
+MCP contracts each pass10/10 on source182ed05d. Each uses private synthetic stores,
+8 permitted bridge calls,2 idempotent submissions/1 completed worker and shared
+candidate readback; actual traces show no shell/native controls. Global configs
+unchanged and no owned process remains. Reports harness-v2-{claude,codex}-
+2026-10-18T21-26-57-588Z.json. This is fresh protocol proof, not calling-chat MCP
+adoption or native ordinary-chat proof. Full195 isolated result remains separate.
+
+NEXT: no further unchanged-runtime native input probes. Finish read-only full-
+requirement/registration audit and prepare the concrete remaining handoff. Native
+UI release needs a changed safe runtime/disposal/coordination condition; the
+prepared upstream packet is NOT sent. Physical-key setup is deferred despite the
+earlier availability question. Calling MCP still needs eventual refresh; cold
+startup/person gates and ordinary native actor readiness remain open. Codex bridge
+fixes and 1Password stay parked. Goal ACTIVE; do not mark complete from MCP checks.
+
 ## October 18 independent active input exposes duplicated native delivery
 
 FAILURE preserved on unchanged production182ed05d, signed helperf21c31c0 and
@@ -97,7 +161,7 @@ PROGRESS on unchanged production source182ed05d. Extended existing remote owner
 fixture; no production/helper/shared Codex change and no full-suite repetition.
 Normal owner-native-1792357253765 delivers64 characters exactly once, verifies
 two options0/mask7168 filters owned by helper4626 (fixture4614 and secondary
-frontmost target431), then actual turn/archive, helper exit0 and watchdog4623
+ViewBridge target431), then actual turn/archive, helper exit0 and watchdog4623
 disarm/exit0. Exact text hash stays unchanged through1/5 seconds after close.
 Thread01a150d1-4783-7c90-a7bf-3428ce163ea7,
 turn01a150d1-4b0e-7a42-9573-6ab960f7e43a.
