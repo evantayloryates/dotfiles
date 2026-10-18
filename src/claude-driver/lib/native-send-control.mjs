@@ -41,3 +41,23 @@ export function nativeSendReplyObserved(events,marker,expected){
  if(!user)return false
  return events.some(e=>{if(e.type!=='assistant'||e.sidechain||e.text?.trim()!==marker||e.stopReason!=='end_turn')return false;const seen=new Set();let n=e;for(let i=0;i<64;i++){if(n.parentId===user.id)return true;if(!n.parentId||seen.has(n.parentId))return false;seen.add(n.parentId);n=nodes.get(n.parentId);if(!n||n.type==='user')return false}return false})
 }
+// A resumed desktop SDK prompt can contain the native envelope without origin
+// metadata. This is CONTENT CORRELATION ONLY: sender and message ID are not
+// attested, and this projection cannot authorize any action or replace a receipt.
+export function nativeSdkPeerContent(row){
+ if(row?.type!=='user'||row.origin!==undefined||row.isSidechain===true||row.turnOrigin!=='sdk'||row.promptSource!=='sdk'||row.entrypoint!=='claude-desktop'||row.version!=='2.1.299'||row.userType!=='external'||typeof row.message?.content!=='string')return null
+ const text=row.message.content;if(text.length>65536||text.split('<cross-session-message').length!==2||text.split('</cross-session-message>').length!==2)return null
+ const match=text.match(/(?:^|\n)<cross-session-message from="(local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})" name="[^"\r\n]{0,300}">\n([\s\S]*?)\n<\/cross-session-message>$/)
+ if(!match||!match[2]||match[2].length>16000||match[2].includes('\0'))return null
+ return {scope:'sdk-envelope-content-correlation',sender:match[1],bodySha256:createHash('sha256').update(match[2]).digest('hex'),senderAttested:false,messageIdAvailable:false}
+}
+export function nativeSdkUserContent(events,expected){
+ if(!Array.isArray(events)||!expected||typeof expected.message!=='string'||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(expected.sender||''))return null
+ const hash=createHash('sha256').update(expected.message).digest('hex'),matches=events.filter(e=>e.type==='user'&&!e.sidechain&&e.sdkPeerContent?.scope==='sdk-envelope-content-correlation'&&e.sdkPeerContent.senderAttested===false&&e.sdkPeerContent.messageIdAvailable===false&&e.sdkPeerContent.sender===expected.sender&&e.sdkPeerContent.bodySha256===hash)
+ return matches.length===1?matches[0]:null
+}
+export function nativeSdkReplyContentObserved(events,marker,expected){
+ if(!Array.isArray(events)||typeof marker!=='string'||events.some(e=>e.type==='assistant'&&e.tools?.length))return false
+ const user=nativeSdkUserContent(events,expected),nodes=new Map(events.filter(e=>e.id&&!e.sidechain).map(e=>[e.id,e]));if(!user)return false
+ return events.some(e=>{if(e.type!=='assistant'||e.sidechain||e.text?.trim()!==marker||e.textTruncated||e.stopReason!=='end_turn')return false;const seen=new Set();let n=e;for(let i=0;i<64;i++){if(n.parentId===user.id)return true;if(!n.parentId||seen.has(n.parentId))return false;seen.add(n.parentId);n=nodes.get(n.parentId);if(!n||n.type==='user')return false}return false})
+}

@@ -1,3 +1,43 @@
+## October 17 ordinary native sends and SDK journal visibility
+
+Implemented separate sessionSendControl (public session_send_control:true), requiring
+sessionManagementControl and matching sealed package/policy/pointer grants. Old
+management/metadata generations gain no send permission. Default durable send_message
+routes through the enrolled controller for exact same-account ordinary recipients,
+without scratch enrollment, bypass mode or a live recipient PID prerequisite.
+Archived recipients refuse. One native attempt, no fallback/replay; delivered/queued
+receipt proves native acceptance, not application or a causal reply. Route ledgers
+retain message hash/length rather than message text. Native failures stay failures.
+Renewal and pair recovery preserve the explicit grant; standby cannot acquire it.
+
+Focused70 passed; integrated synthetic1/1 passed on source
+0d5e209d3e929bce43c749f84eafe7aa008bade66016b00c823cd62e1ba34f38,
+pressure/v2-2026-10-18T02-51-00-224Z.json. One public send on the existing owned
+control target passed exact native delivered acceptance: job
+j3d5ae77f89ce4804b98096b1559bc96b. Baseline and focus endpoints preserved; no
+ProDevs message. Evidence .runtime/state/ordinary-native-send-20261017.json.
+Primary renewal j8b026a975ebd4448b261287072e829e4 installed service
+8b026a975ebd4448b261287072e829e4 on the same PID96436/start00:42:30; standby
+binding refreshed with fresh family rpeer87eeaf418a5d9119c801acddaa45a0f4.
+Read-only inspection confirms primary idle and both requests settled.
+
+Original strict journal qualification FAILED and remains unchanged: this resumed
+Claude Desktop SDK turn has no peer-origin receipt metadata. Its exact requested
+assistant reply did appear. Added a bounded metadata-only SDK envelope projection
+and unique content/hash plus parent-lineage correlation, explicitly senderAttested:
+false and messageIdAvailable:false. It cannot replace strict peer-origin receipts,
+authorize an effect or establish transport-ID linkage. Re-reading the SAME cursor
+without resending confirms content/reply correlation; strict receipt stays false.
+Post-projection focused20 pass. The full/native source above predates this host-only
+projection; final-source integration remains pending. No new message for parser QA.
+
+NEXT: qualify broader ordinary operations and the experimental both-absent recovery
+path with a supported scoped outage; keep loaded-client/final-source full synthetic,
+filtered harness and native batch for the final gate. ProDevs unarchive/pin already
+verified; do not repeat just to show activity. Loaded MCP adoption remains unverified
+until final refresh. Legacy reports unchanged/pending; observer owns legacy wakes.
+Goal ACTIVE; Codex-driver/1Password work remain separate.
+
 ## October 17 audit/ordinary metadata: gap closed before outage test
 
 Previous turn = progress (failed-import continuation). Final code audit verified

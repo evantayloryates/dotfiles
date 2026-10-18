@@ -39,8 +39,9 @@ export async function runIndependentRenewal(d){
  }
  return results
 }
-export async function renewIndependentService(session,serviceId,{jobId,lifetimeSec=300,maxRequests=8,signal,absentPrimaryBinding,sessionManagementControl,sessionMetadataControl}={}){
+export async function renewIndependentService(session,serviceId,{jobId,lifetimeSec=300,maxRequests=8,signal,absentPrimaryBinding,sessionManagementControl,sessionMetadataControl,sessionSendControl}={}){
  if(!/^j[a-f0-9]{32}$/.test(jobId||'')||! /^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(session||'')||! /^[a-f0-9]{32}$/.test(serviceId||'')||jobId.slice(1)===serviceId)throw new DriverError('renewal requires one durable job and distinct predecessor',{category:'bad_args'})
+ if(sessionSendControl!==undefined&&sessionSendControl!==true)throw new DriverError('ordinary send capability must be explicit true',{category:'bad_args'})
  if(sessionMetadataControl!==undefined&&sessionMetadataControl!==true)throw new DriverError('ordinary metadata capability must be explicit true',{category:'bad_args'})
  if(sessionManagementControl!==undefined&&sessionManagementControl!==true)throw new DriverError('ordinary session capability must be explicit true',{category:'bad_args'})
  if(!Number.isInteger(maxRequests)||maxRequests<2||maxRequests>128)throw new DriverError('renewal requires capacity for policy probe and a later read',{category:'bad_args'})
@@ -61,13 +62,13 @@ export async function renewIndependentService(session,serviceId,{jobId,lifetimeS
    const before=await inspectIndependentService(session,serviceId)
    if(!before.verified||before.sourceDisposition!=='installed'||!before.terminalAttemptReviewComplete||before.unresolvedRequestIds?.length)throw Error('renewal predecessor unqualified')
    const results=await runIndependentRenewal({guard,record:async(phase,results)=>{ledger.phase=phase;ledger.results=results;ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)},
-    prepare:async()=>{const r=await prepareIndependentService(session,{jobId,lifetimeSec,maxRequests,signal,inheritArchiveFrom:serviceId,sessionManagementControl,sessionMetadataControl});if(r.serviceId!==successorServiceId||r.prepared!==true)throw Error('preparation identity');return r},
+    prepare:async()=>{const r=await prepareIndependentService(session,{jobId,lifetimeSec,maxRequests,signal,inheritArchiveFrom:serviceId,sessionManagementControl,sessionMetadataControl,sessionSendControl});if(r.serviceId!==successorServiceId||r.prepared!==true)throw Error('preparation identity');return r},
     quiesce:async()=>{const r=await quiesceIndependentService(session,serviceId,{signal});if(r.quiescent!==true||r.terminalAttemptReviewComplete!==true)throw Error('quiescence');return r},
     retire:async()=>{const r=await retireIndependentService(session,serviceId,{signal});if(r.filesRetired!==true)throw Error('retirement');return r},
     activate:()=>activateIndependentService(session,successorServiceId,{signal,stableHook:true}),
     readiness:()=>waitIndependentReadiness({signal},{guard:()=>guard('readiness'),inspect:()=>inspectIndependentService(session,successorServiceId,{signal}),now:Date.now,wait:()=>sleep(100)}),
     policyProbe:()=>probeIndependentServicePolicy(session,successorServiceId,{jobId,signal,timeoutMs:20000}),
-    verify:async()=>{const r=await inspectIndependentService(session,successorServiceId,{signal});if((r.sessionMetadataControl===true)!==(sessionMetadataControl===true||before.sessionMetadataControl===true)||(r.sessionManagementControl===true)!==(sessionManagementControl===true||before.sessionManagementControl===true)||!r.verified||r.sourceDisposition!=='installed'||r.admissionStopped||r.expired===true||r.nativeEpoch.pid!==peer.pid||r.nativeEpoch.procStart!==peer.procStart||!r.readinessObserved||!r.nativePolicyObserved||!r.terminalAttemptReviewComplete||r.unresolvedRequestIds.length||r.unreservedSlots<1)throw Error('successor verification');return r}
+    verify:async()=>{const r=await inspectIndependentService(session,successorServiceId,{signal});if((r.sessionSendControl===true)!==(sessionSendControl===true||before.sessionSendControl===true)||(r.sessionMetadataControl===true)!==(sessionMetadataControl===true||before.sessionMetadataControl===true)||(r.sessionManagementControl===true)!==(sessionManagementControl===true||before.sessionManagementControl===true)||!r.verified||r.sourceDisposition!=='installed'||r.admissionStopped||r.expired===true||r.nativeEpoch.pid!==peer.pid||r.nativeEpoch.procStart!==peer.procStart||!r.readinessObserved||!r.nativePolicyObserved||!r.terminalAttemptReviewComplete||r.unresolvedRequestIds.length||r.unreservedSlots<1)throw Error('successor verification');return r}
    })
    let standbyRefreshQualified,standbyFamilyRequestId
    if(standbyBinding){

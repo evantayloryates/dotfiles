@@ -1725,3 +1725,15 @@ Native admission binds target/account identity and separate config/policy/runtim
 metadata grants. Saved titleSource tool, model/effort/pin values and exact receipt
 hashes are independently checked. Targets need not be live, bypass or driver-created.
 `driver_status.sessionManagement.operations` reports this separate capability.
+
+### Ordinary native message grant
+
+Prepare/renew the enrolled management controller with session_send_control:true
+(the sealed sessionSendControl flag). This separate grant enables default durable
+send_message for exact same-account ordinary unarchived chats. It does not require
+a scratch binding, recipient bypass mode or an already live recipient process.
+Native trust/permission refusals remain visible; uncertain sends are not replayed.
+Delivered/queued receipts prove acceptance only. include_causality can expose a
+bounded sdkPeerContent hash correlation for supported desktop SDK envelopes, with
+senderAttested:false and messageIdAvailable:false. This weaker observation never
+substitutes for authenticated peer-origin receipt evidence.

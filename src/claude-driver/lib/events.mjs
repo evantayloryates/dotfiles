@@ -1,4 +1,4 @@
-import {nativeHostPeerEvidence} from './native-send-control.mjs'
+import {nativeHostPeerEvidence,nativeSdkPeerContent} from './native-send-control.mjs'
 // Bounded incremental transcript reads. A cursor belongs to one session and
 // one CLI transcript; a /clear or rotation is reported, never silently mixed.
 import { closeSync, constants, fstatSync, openSync, readSync } from 'node:fs'
@@ -75,6 +75,7 @@ export function sessionEvents({ session, cursor, include_text = false, include_c
         parentId:boundedId(x.parentUuid)??null,sidechain:x.isSidechain===true,
         ...(x.origin?.kind==='peer'&&boundedId(x.origin.msg_id)?{peerMessageId:x.origin.msg_id}:{}),
         ...(nativeHostPeerEvidence(x)?{nativeHostPeer:nativeHostPeerEvidence(x)}:{}),
+        ...(nativeSdkPeerContent(x)?{sdkPeerContent:nativeSdkPeerContent(x)}:{}),
         ...(callBlocks.length?{toolCalls}:{}),
         ...(resultBlocks.length?{toolResults}:{}),
         ...(callBlocks.length>64||resultBlocks.length>64?{toolMetadataTruncated:true}:{}),
