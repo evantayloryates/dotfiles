@@ -1,3 +1,26 @@
+## October 18 machine-ingress boundary audit
+
+Installed-source static contract4 PASS, zero native effects:
+pressure/native-machine-ingress-contract-2026-10-18T04-28-41-874Z.json.
+Exact B5tintml chunk SHA f5d162e3e6047c12ca0cee15d72574e316513df6a65d52e89e2d456a4a3022ff:
+native session tools enabled only sessionTypeccd; sendPeerMessage retains peer
+origin and distinguishes queued/undelivered; start_session exposure uses account
+feature gate2371478310 (actual flag value not assessed). Not proof every possible
+external ingress absent. Direct driver transport independently requires live
+receiver peer socket/auth identity. No context spoofing, auth extraction, API
+injection, flag changes, new actors or live tests. Initial default historical
+source-member lookup failed closed; current member read explicitly and hashed,
+versions unchanged2.42304.0/2.1.299. No update/crash inference.
+
+Current supported pair/import/direct/native-tool routes do not establish external
+bootstrap after ALL Code processes absent. Human-assisted appquit recovery proven;
+unattended requirement remains unsatisfied. Do not repeat same appquit test until
+new supported ingress is established. Next options require actual supported app
+capability discovery or user-approved scope/architecture change; no silent waiver.
+Remaining deleted-service rebind, sustained availability and loaded Codex MCP
+adoption still open. Existing Codex restart question pending. Goal active;
+last verified pair healthy, no live jobs/cleanup. Codex bridge remains parked.
+
 ## October 18 installed native warm-start guards qualified in isolation
 
 Reused existing scripts/native-resume-contract-v2.mjs and exact installed source
