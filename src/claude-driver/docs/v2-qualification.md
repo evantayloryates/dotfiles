@@ -1,3 +1,47 @@
+## October 17 actual governor pressure outage during fresh lifecycle gate
+
+Previous turn progressed pool service-role protection. Current native lifecycle
+trial on792ad0a68c98e73632e02a49f2b103b80e453e8796f74355c2cc2aa7daf728ac:
+create no_project jobj6c7d598797ae4cad81ad6211b5eaba71 created owned source
+local_8bab88f5-5efd-4bb0-b437-413cc27ebe57 in scratch-workspaces scratch-2026-10-17-8b4bbc.
+Requested bypass; actual saved Accept edits. Correctly UNVERIFIED with permissionGap,
+no automatic raise/followup. Native focus and navigation verified restore-observed.
+Fork jobj2cc63cf9742a472d948c96f5b935febe produced
+local_cbc18613-baad-430c-b502-d84c5cea0808, same exact folder/CLI UUID, title/model,
+Accept edits inherited from source, verifiedtrue; independent saved read agrees.
+Bounded private transcript hashes: source2 messages are exact prefix of fork4.
+Only trivial owned bootstrap/fork exchanges; no user task/ProDevs messages. Initial
+verifier path used app local ID instead of CLI UUID: ENOENT before read, corrected
+without replay. Not a native fork failure. Both focus restores confirmed.
+
+IMPORTANT cleanup archiveje425f285f1fd409d8a74943744827568 failed BEFORE target
+service selection/dispatch. Required-source renewalj9d5761452b974d1284b24dba7d0c2034
+installed successor9d5761452b974d1284b24dba7d0c2034 and readiness/policy verified,
+but lost primary during fresh familyrpeerba99d43b96115cfc36fc9a00c7ca0c1a.
+Renewal remains failed/outcome_unknown at before-standby-family; enrollment retains
+predecessor842d.../standby1da.../digestd5ed... . Do NOT replay family or archive.
+
+Authoritative narrow main.log lines BOTH at local2026-10-17 23:41:40:
+CliGovernor pressure evicting primaryc0a...(idle5728s) and standby74c...(idle10710s),
+followed by Pausing...(governor_evict). ps exact96436 and90418 returned absent;
+peer records absent. Versions remain app2.42304/CLI2.1.299. This is confirmed
+GOVERNOR eviction, not an inferred crash, planned exit143 or app auto-update.
+Offline current successor review verifiedtrue with exactly the family request
+unresolved, no settled IDs. Live result reconciliation refused (no replay).
+Read-only pair bootstrap plan refuses offline-history-or-stop-unqualified; no
+bootstrap/wake/import was attempted. Preserve guards and original lineage.
+
+Evidence .runtime/state/fresh-import-fork-native-20261017.json contains jobs,
+saved states, hashed history, source-specific focus evidence and outage/plan.
+Cleanup PENDING: both owned new source/fork records remain unarchived (do not
+pretend cleanup or full fresh-bypass qualification passed). No files deleted,
+process killed, auth/permission/card/UI change. Remaining action is agent-owned:
+investigate offline reconciliation/abandonment of this metadata-only family and
+renewal-successor lineage, then eligible original-pair recovery, then archive BOTH
+owned fixtures. Do not relax unknown MUTATION admission or retry unknown effects.
+This actual both-absent pressure event changes the next gate; stop repeating pool
+or scratch tests. Goal remains active; platform blocked threshold not met.
+
 ## October 17 pool operations exclude retained independent service actors
 
 Audit found pool_release and stale/clean pool claims protected caller/legacy broker
