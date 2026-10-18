@@ -2341,3 +2341,33 @@ NEXT: audit remaining ordinary grouping and lifecycle dependencies, then run one
 integrated final-source batch including actual MCP entrypoints; native creation/
 pool/fork and app/both-absent recovery/pressure/window/person gates remain open.
 Do not rerun archive/stop/send merely for activity. Goal ACTIVE; no live test job.
+
+## October 17 imported permission mismatch defers real task
+
+Previous turn = progress (independent approved pool configuration). Review across
+both creation paths found imports could report permissionGap/verifiedfalse but
+still send first_message and other followups. That violates requested readiness:
+most importantly bypass fallback imports start Accept edits, not requested bypass.
+
+Added explicit createdPermissionGap gate in actual create_session immediately after
+saved imported mode assessment and before BOTH independent and legacy followups.
+Any actual/requested mismatch (including missing mode) returns created session ID,
+existing permissionGap and bounded followUpsDeferred metadata: requested/actual
+mode, firstMessage/titleLock/groupAssignment deferred flags, no permission raise,
+no replay authority. No task text is returned in this metadata. Already-created
+record is retained, not recreated/cleaned up to hide the mismatch. Group existence
+may already have been ensured before import; session assignment is deferred.
+Matching modes continue existing paths. Approved pool route already verifies
+bypass and is unchanged. No auto-raise, card acceptance, trust or auth bypass.
+Updated tool description to explain actual followup route and deferral.
+
+Focused55 PASS (creation/pool orchestration + v2 regression), ~5sec:
+creation-permission-gap-focused-20261017.log. Syntax/diff checks pass. No full
+suite, new native chat, message, settings/permissions or desktop effects this turn.
+Native import fallback/card behavior remains separate from this source-level gate.
+
+NEXT: audit remaining grouped/create/fork/window dependencies and build a concrete
+integrated qualification plan without repeating qualified native send/archive/stop.
+Both-absent bootstrap, natural pressure, broader native lifecycle/person tests and
+final loaded-MCP/source adoption remain open. Goal ACTIVE; no live job pending.
+Codex-driver and 1Password remain separate.

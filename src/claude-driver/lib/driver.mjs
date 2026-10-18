@@ -401,7 +401,7 @@ export const OPS = [
     title: 'Create a desktop session',
     description:
       'Create a Claude desktop Code session with an exact title and model, in an absolute folder or with no folder (no_project). Headless bootstrap turn + deep-link import, verified on disk (~4 s). ' +
-      'Optional follow-ups through Tier B: lock_title (so the auto-titler never renames it), first_message (runs visibly in the desktop), group. ' +
+      'Optional follow-ups through an enrolled independent controller or Tier B: lock_title (so the auto-titler never renames it), first_message (runs visibly in the desktop), group. ' +
       'permission_mode defaults to the folder\'s / Taylor\'s configured default. For bypassPermissions the driver claims a session parked in that folder from the bypass pool (pool_release fills it; no import, no approval card, title locked, model and effort set); ' +
       'when the pool has none for that folder it falls back to an import, which the app always starts in acceptEdits, and says so (verified:false, permissionGap). Other modes are imported in that mode. An import shows the trivial bootstrap turn as the first exchange.',
     schema: {
@@ -413,7 +413,7 @@ export const OPS = [
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh', 'max'] },
         permission_mode: { type: 'string', enum: ['default', 'acceptEdits', 'plan', 'auto', 'bypassPermissions'], description: 'Default: permissions.defaultMode from the folder\'s .claude settings, else ~/.claude/settings.json.' },
         bootstrap_prompt: { type: 'string', description: 'The headless first turn. Keep it trivial; default asks for "ready".' },
-        first_message: { type: 'string', description: 'Sent via Tier B send_message after import, so the real task runs visibly in the desktop.' },
+        first_message: { type: 'string', description: 'Sent after import through the selected route only when the actual permission mode matches the requested mode; otherwise deferred with the created session ID.' },
         lock_title: { type: 'boolean', description: 'Tier B set_session_title so titleSource becomes "tool". Default false.' },
         require_pool: { type: 'boolean', description: 'Require a previously approved pool member; fail before import/navigation if unavailable. Requires folder and bypassPermissions.' },
         group: { type: 'string', description: 'Sidebar group name or id to file it under (created if missing).' },
@@ -443,6 +443,8 @@ export const OPS = [
         out.permissionGap = `started in ${out.permissionMode}, not ${want}: ${want === BYPASS ? 'the bypass pool had no session parked in this folder and an import can never be bypass. Fill the pool with pool_release on finished bypass sessions (pool_status {suggest:true} lists candidates), or raise this one with set_session_config (Taylor approves a card).' : 'the app did not keep the requested mode on import.'}`
       }
       delete out.navigatedTo
+      const permissionGate=(await import('./created-session-followups.mjs')).createdPermissionGap(out.permissionMode,want,args)
+      if(permissionGate){out.followUpsDeferred=permissionGate;return out}
       if(ctx.jobId&&args.group===undefined&&args.via_broker===undefined&&(args.lock_title||args.first_message)&&sessionManagementController(result.sessionId)){
         try{const follow=await withSessionControl(result.sessionId,()=>import('./created-session-followups.mjs').then(m=>m.routeCreatedSessionFollowups(result.sessionId,args,ctx)),{signal:ctx.signal});ctx.tier='A+independent';out.followUps=follow.results.map(r=>({op:r.operation==='rename_session'?'set_session_title':r.operation,ok:true,result:r.result,contextId:r.contextId}));out.followUpRouteFile=follow.routeFile;if(args.lock_title)out.titleLocked=follow.results.find(r=>r.operation==='rename_session')?.result?.titleSource==='tool';return out}
         catch(error){throw new DriverError('session created; inspect followup outcome before another creation or send',{category:error.category??'created_followup_unresolved',detail:{...error.detail,sessionId:result.sessionId,created:true,retrySafe:false}})}

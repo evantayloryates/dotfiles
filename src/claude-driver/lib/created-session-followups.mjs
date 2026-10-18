@@ -4,6 +4,13 @@ import {writeFileSync} from 'node:fs'
 import {STATE_DIR,ensureDir,writeJsonAtomic} from './state.mjs'
 import {ordinarySessionArguments} from './ordinary-session-control.mjs'
 import {DriverError} from './paths.mjs'
+// An imported record is not ready for its task when the desktop did not retain
+// the requested mode. Never spend the caller's first-message authorization on a
+// differently configured session, or infer permission to raise that mode.
+export function createdPermissionGap(actual,requested,args={}){
+ if(actual===requested)return null
+ return {reason:'permission_mode_mismatch',actualPermissionMode:actual??null,requestedPermissionMode:requested,firstMessageDeferred:!!args.first_message,titleLockDeferred:!!args.lock_title,groupAssignmentDeferred:!!args.group,permissionRaiseAttempted:false,replayAuthorized:false}
+}
 export function createdSessionFollowupPlan(session,args,jobId){
  if(!/^j[a-f0-9]{32}$/.test(jobId||'')||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(session||'')||args.group!==undefined||args.via_broker!==undefined)throw new DriverError('native creation followups require durable ownership and no group or alternate route',{category:'bad_args'})
  const steps=[]

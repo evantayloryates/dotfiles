@@ -1789,3 +1789,12 @@ and exact child contexts after failure; an unresolved claim stays reserved via
 claimUnresolved and is excluded from stale automatic reuse. No automatic repair,
 permission raise or replay is authorized. Native pooled-creation qualification
 remains separate; grouped/synchronous/explicit alternate routes are unchanged.
+
+### Permission gap on import
+
+If the desktop imports in a different mode than requested, create_session returns
+the created identity with verified:false, permissionGap and followUpsDeferred. It
+does not dispatch first_message, lock the title, assign the group or automatically
+raise permissions. Inspect that existing session and resolve the native permission
+step deliberately; do not recreate or replay the original request. An empty bypass
+pool therefore cannot silently start the real task in Accept edits.
