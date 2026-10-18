@@ -1,3 +1,25 @@
+## October 18 restored native preparation inspection
+
+Added restored-native-plan.mjs and read-only CLI:
+node src/claude-driver/scripts/restored-native-plan-v2.mjs <restoration job ID> <root SHA256>
+Requires exact successful root proof, independently re-read durable parent and
+quiesce/retire jobs, unchanged root/claim/enrollment/selection and account, old PID
+independently absent, same restored UUID/cwd, actual bypass mode, new idle desktop
+peer started after original import intent, supported app/CLI and verified retired
+history with STOP/no unresolved attempts. Rechecks native/record state after async
+inspection. No imports, service mutations or permission writes. Outputs native
+preparation eligibility only; reciprocalServiceAssessed false, activation/import/
+replay/serving authority false. Lowered mode is an explicit person gate.
+
+Focused restoration/root/native/filesystem14 PASS. Native readiness test covers
+PID reuse, old/future start time, waiting/non-desktop/unknown-version peer, account,
+selection/history/STOP drift and absent root. No live positive restoration exists,
+so this is isolated evidence, not native recovery qualification. No whole suite or
+native profile repeated. Next: counterpart identity/current epoch and exact role
+preservation, then two-sided activation/enrollment transition. Current actors not
+silently migrated; final actual MCP adoption still deferred. Goal active; no live
+job or cleanup pending. Codex-driver fixes remain parked.
+
 ## October 18 restored-record evidence admission
 
 Added restored-record-proof.mjs: read-only bounded root/claim reader and exact
