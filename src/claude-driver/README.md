@@ -231,6 +231,7 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
 | `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
+| `broker_service_restoration_status` | A | bounded exact record-restoration or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
 
 `set_session_config` accepts `title`, `pinned`, `model`, `effort` and
 `permission_mode` together. It sends one native request and verifies each

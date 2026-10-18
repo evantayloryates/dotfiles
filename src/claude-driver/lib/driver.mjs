@@ -1073,6 +1073,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable record restoration required',{category:'bad_args'});return(await import('./missing-service-restoration.mjs')).restoreMissingServiceRecord(args.session,args.role,args.expected_enrollment_sha256,args.expected_plan_sha256,ctx)},
   },
   {
+    name:'broker_service_restoration_status',title:'Inspect one record-restoration or pair-reactivation attempt',readOnly:true,
+    description:'Bounded private journal and independently observed exact parent/child handles, root hash, phase and sanitized failure category. Reports uncertain submissions without retrying. No native readiness assessment, imports, effects, replay or retry authority.',
+    schema:{required:['root_job_id','kind'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},kind:{type:'string',enum:['record','pair']}}},
+    run:async args=>(await import('./restoration-status.mjs')).inspectRestorationStatus(args.root_job_id,args.kind),
+  },
+  {
     name:'broker_service_restored_pair_plan',title:'Inspect reactivation of one restored service record',readOnly:true,
     description:'Read-only exact completed restoration-root, durable retirement, actual bypass/new idle native epoch and reciprocal surviving service/role inspection. Returns root/plan hashes only when preparation qualifies. No import, permission change, activation, replay or serving authority.',
     schema:{required:['restoration_job_id'],properties:{restoration_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},

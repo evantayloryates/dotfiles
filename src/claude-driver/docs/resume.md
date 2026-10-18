@@ -1,3 +1,23 @@
+## October 18 bounded recovery status operation
+
+Added broker_service_restoration_status {root_job_id,kind:record|pair}: exact
+private owned bounded journal/hash/phase/source and independent scheduler parent/
+child states with sanitized categories. No snapshots/transcript/error prose, no
+scan, import, native inspection or retry authority. Before-submit handle absent
+is submission-unconfirmed, never inferred queued or safe. Changed journal, wrong
+parent/child operation and malformed handles refuse. Original failed parent and
+later child state remain separate observations. Guide/README document reattachment.
+
+Focused status/driver4 PASS. Actual current CLI read of preserved negative
+j5a46920be3d144dc859a018ff2404b56 verifies parent failed, phasecreated, children{},
+importAttemptedfalse, recordRestoredfalse, retrySafefalse; original journal hash
+73f4783d8e3a235375a9e105c95fd077abbfd6fb28492c448e89ff1259c6d3d0 retained.
+No native effects or old-request replay. Last full178/current harness/native gate
+predates reader/status changes, so remains source-scoped. Next consolidate source
+and close remaining actual-native/loaded-client/platform gates; no destructive
+loss test or unchanged outage repeat. Goal active; no live job/cleanup pending.
+Codex bridge work remains parked.
+
 ## October 18 recovery proof audit and current evidence boundaries
 
 Audit found async restored-pair transition proof re-read both roots but omitted

@@ -14,6 +14,16 @@ registrations exist, but current loaded-client adoption and Cursor/OpenCode
 execution remain separate gates. See [v2-qualification.md](v2-qualification.md).
 No quarantine, native consent or legacy admission bypass is authorized.
 
+For a submitted missing-record recovery, inspect
+`broker_service_restoration_status {root_job_id, kind:"record"}`; for its submitted
+pair reactivation use `kind:"pair"`. It returns the original phase/root hash and
+independently observed child handles without exposing snapshots or transcript
+text. `submission-unconfirmed` requires original-handle reconciliation; it is not
+permission to submit again. A completed child does not erase a failed parent or
+prove service readiness. Missing-record plan/import/reactivation remain explicit
+experimental operations, not automatic ordinary-route recovery; actual native
+deleted-record recovery is still unqualified.
+
 The installed PreToolUse adapter redirects exact cached wait/check commands,
 and a separate gate checks the actual native operation. See [resume.md](resume.md) for
 exact source/package distinctions, preserved failures and readiness gates.
