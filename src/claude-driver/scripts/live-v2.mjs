@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+import {validateOrdinaryLiveFixture,ordinaryBatchQualification} from '../lib/ordinary-live-qualification.mjs'
+import {ordinarySessionsSameStore} from '../lib/ordinary-session-control.mjs'
+import {readSessionManagementEnrollment} from '../lib/session-management-controller.mjs'
+import {readStandbyEnrollment} from '../lib/standby-enrollment.mjs'
 // Live qualification uses a driver-owned synthetic session only. It never
 // restarts the user's app, deletes sessions, or changes permission modes.
 import assert from 'node:assert/strict'
@@ -22,8 +26,10 @@ import {enrolledMetadataController} from '../lib/metadata-controller-index.mjs'
 import {metadataTargetPreflightMatches,metadataTargetRegistered} from '../lib/native-metadata-control.mjs'
 import {openPrs} from '../lib/sessions.mjs'
 import { inspectRequest } from '../lib/requests.mjs'
-if (!process.argv.includes('--live')) throw new Error('Live qualification is stopped pending physical typing verification. Run with --live only after that incident is resolved.')
-const enrolled=process.argv.includes('--enrolled'),controllerSession=process.argv.includes('--controller')?process.argv[process.argv.indexOf('--controller')+1]:null
+const ordinary=process.argv.includes('--ordinary'),preflightOnly=process.argv.includes('--preflight-only')
+if(preflightOnly&&!ordinary)throw Error('--preflight-only requires explicit --ordinary profile')
+if (!process.argv.includes('--live')&&!preflightOnly) throw new Error('Live qualification is stopped pending physical typing verification. Run with --live only after that incident is resolved.')
+const enrolled=ordinary||process.argv.includes('--enrolled'),controllerSession=process.argv.includes('--controller')?process.argv[process.argv.indexOf('--controller')+1]:null
 const brokerOnly = process.argv.includes('--broker-only')
 const inputFree = process.argv.includes('--input-free')
 if(enrolled&&(!inputFree||brokerOnly||!controllerSession||!process.argv.includes('--session')))throw Error('--enrolled requires --input-free --controller and --session, without broker-only')
@@ -81,7 +87,7 @@ const op = async (name,args={})=>{
 async function step(name, fn) {
   const at = Date.now()
   try { const evidence = await fn(); const r={name,ok:true,ms:Date.now()-at,evidence};rows.push(r);console.log(JSON.stringify(r));return evidence }
-  catch(e){ const r={name,ok:false,ms:Date.now()-at,category:e.category,error:e.message,requestId:e.detail?.requestId,retrySafe:e.detail?.retrySafe};rows.push(r);console.log(JSON.stringify(r));throw e }
+  catch(e){ const r={name,ok:false,ms:Date.now()-at,category:e.category,error:e.message,...e.category==='qualification_gate'?{blockers:e.detail?.blockers}:{},requestId:e.detail?.requestId,retrySafe:e.detail?.retrySafe};rows.push(r);console.log(JSON.stringify(r));throw e }
 }
 async function waitOwnedIdle(){const end=Date.now()+12000,started=Date.now();for(;;){const r=await op('get_session',{session});if(enrolled&&r.live?.pid!==enrolledStatus.metadataTarget.pid)throw Error('owned fixture epoch changed while waiting for idle');if(r.live?.status==='idle')return {waitMs:Date.now()-started,pid:r.live.pid};if(!['busy','working','running'].includes(r.live?.status)||Date.now()>end)throw Error('owned fixture did not become idle');await new Promise(r=>setTimeout(r,100))}}
 async function observeUntil(predicate, seconds=30) {
@@ -97,7 +103,13 @@ async function waitJob(jobId,seconds=180){
 }
 try {
   if(inputFree)await step('input-resource-audit-before',async()=>{const r=await assertInputHealthy({phase:'before-input-free-qualification',evidence:join(STATE_DIR,'pressure',`input-free-${stamp}-before.json`)});return {filters:r.filters.length,inputAutomation:false}})
-  if(enrolled)await step('adopt-enrolled-fixture',async()=>{const record=getRecord(session),status=await runOp('broker_service_status',{session:controllerSession,service_id:(await import('../lib/receiver-runtime-selection.mjs')).loadReceiverSelection(getRecord(controllerSession).cwd).selector.serviceId});if(enrolledMetadataController(session,{})!==controllerSession||!status.verified||!status.readinessObserved||!status.nativePolicyObserved||status.admissionStopped||status.unresolvedRequestIds?.length||status.unreservedSlots<16||status.deadline-Date.now()<180000||status.metadataSendControl!==true||status.metadataStopControl!==true||!metadataTargetPreflightMatches({target:status.metadataTarget,record,peer:peerRecord(session),registered:metadataTargetRegistered(status.metadataTarget,{controlStateDir:STATE_DIR}),openPrCount:openPrs(record).length}))throw Error('whole enrolled fixture qualification preflight failed');enrolledStatus=status;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline}})
+  if(ordinary)await step('adopt-ordinary-fixture',async()=>{
+    const record=getRecord(session),enrollment=readSessionManagementEnrollment(),binding=readStandbyEnrollment(controllerSession),selected=(await import('../lib/receiver-runtime-selection.mjs')).loadReceiverSelection(getRecord(controllerSession).cwd),status=await runOp('broker_service_status',{session:controllerSession,service_id:selected.selector.serviceId})
+    if(enrollment?.controllerSession!==controllerSession)throw Error('ordinary fixture controller enrollment changed')
+    const proof=validateOrdinaryLiveFixture({session,controller:controllerSession,record,registry:loadRegistry().sessions[session],stateDir:STATE_DIR,status,peer:peerRecord(session),protectedIds:[controllerSession,binding?.standby.sessionId,brokerInfo().sessionId],sameStore:ordinarySessionsSameStore(record,getRecord(controllerSession),controllerSession),quarantine:uiPolicy().blocked})
+    enrolledStatus=status;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline,...proof}
+  })
+  else if(enrolled)await step('adopt-enrolled-fixture',async()=>{const record=getRecord(session),status=await runOp('broker_service_status',{session:controllerSession,service_id:(await import('../lib/receiver-runtime-selection.mjs')).loadReceiverSelection(getRecord(controllerSession).cwd).selector.serviceId});if(enrolledMetadataController(session,{})!==controllerSession||!status.verified||!status.readinessObserved||!status.nativePolicyObserved||status.admissionStopped||status.unresolvedRequestIds?.length||status.unreservedSlots<16||status.deadline-Date.now()<180000||status.metadataSendControl!==true||status.metadataStopControl!==true||!metadataTargetPreflightMatches({target:status.metadataTarget,record,peer:peerRecord(session),registered:metadataTargetRegistered(status.metadataTarget,{controlStateDir:STATE_DIR}),openPrCount:openPrs(record).length}))throw Error('whole enrolled fixture qualification preflight failed');enrolledStatus=status;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline}})
   else if (brokerOnly) await step('adopt-owned-fixture',async()=>{
     const record=getRecord(session)
     validateBrokerFixture({session,record,registry:loadRegistry().sessions[session],stateDir:STATE_DIR,broker:brokerInfo(),policy:uiPolicy(),currentSession:currentMain().sessionId,allowArchived:process.argv.includes('--restore-fixture')})
@@ -124,6 +136,7 @@ try {
     if(r.focus.includes('front app →'))assert.equal(after.frontApp,before.frontApp,'independent front-app readback')
     return {session,focus:r.focus,before,after,ms:r.bootMs,inputAutomation:false}
   })
+  if(!preflightOnly){
   cursor=(await op('session_events',{session})).cursor
   if(!controlsOnly){
   await step('durable-submit-and-recipient-reply',async()=>{
@@ -158,12 +171,12 @@ try {
     if(enrolled)await waitOwnedIdle()
     const r=await op('set_session_config',{session,title:`claude-driver v2 pressure ${stamp} batched`,pinned:true,effort:'low'})
     assert.equal(r.verified,true);assert.equal(r.titleSource,'tool');assert.equal(r.pinned,true)
-    if(enrolled){assert.equal(r.route,'independent-metadata');assert.equal(Object.keys(r.childJobs).length,3)}else{assert.equal(r.receiptSource,'native-tool-result');assert.equal(r.broker.length,3);assert.ok(r.requestId)}
+    if(ordinary)ordinaryBatchQualification(r,['set_session_title','set_pinned','set_session_effort']);else if(enrolled){assert.equal(r.route,'independent-metadata');assert.equal(Object.keys(r.childJobs).length,3)}else{assert.equal(r.receiptSource,'native-tool-result');assert.equal(r.broker.length,3);assert.ok(r.requestId)}
     await op('pin_session',{session,pinned:false})
     return {operations:3,requests:1,allVerified:true,requestId:r.requestId,brokerMs:r.ms}
   })
   if(!controlsOnly){
-  let replacementMessageId,replacementMessage
+  let replacementMessageId,replacementMessage,queuedMessageId,queuedMessage
   await step('queue-is-not-interrupt',async()=>{
     await op('send_message',{session,message:`Synthetic streaming controllability fixture. Generate the integers 1 through 6000, in order, one per line, as plain assistant text. Start immediately at 1, without explanation. After the last integer write ${markers.finished}. Do not use any tools, edit files, ask for approval, or message others. This bounded generation is the workload the bridge will interrupt.`})
     // Confirm a tool-free running turn. Native send receipts plus a live busy
@@ -174,7 +187,8 @@ try {
       await new Promise(r=>setTimeout(r,250))
     }
     const active=await op('get_session',{session});assert.ok(['busy','working'].includes(active.live?.status),'fixture must still be running before queue test');
-    const r=await op('steer_session',{session,mode:'queue',message:`Queued synthetic follow-up. When you reach this message, reply exactly ${markers.queued}. Do not run tools or message others.`})
+    queuedMessage=`Queued synthetic follow-up. When you reach this message, reply exactly ${markers.queued}. Do not run tools or message others.`
+    const r=await op('steer_session',{session,mode:'queue',message:queuedMessage});queuedMessageId=r.messageId
     assert.equal(r.delivery,'queued');assert.equal(r.applied,false)
     const s=await op('get_session',{session});assert.ok(['busy','working'].includes(s.live?.status));return {delivery:r.delivery,recipientStillBusy:true}
   })
@@ -189,12 +203,20 @@ try {
     assert.equal(r.queueDisposition,'existing queued messages are preserved by native stop')
     return {stopVerified:true,replacementReplyVerified:true,causalEvidence:replyProof(seen,r.messageId,markers.replacement,replacementMessage),oldPlanFinished:false,delivery:r.delivery}
   })
+  await step('queued-turn-preserved',async()=>{
+    if(!replyProof(observed,queuedMessageId,markers.queued,queuedMessage).verified)await observeUntil(()=>replyProof(observed,queuedMessageId,markers.queued,queuedMessage).verified,30)
+    const queued=replyProof(observed,queuedMessageId,markers.queued,queuedMessage),replacement=replyProof(observed,replacementMessageId,markers.replacement,replacementMessage)
+    assert.equal(queued.verified,true);assert.equal(replacement.verified,true)
+    assert.ok(observed.findIndex(e=>e.id===queued.peerEventId)<observed.findIndex(e=>e.id===replacement.peerEventId),'queued instruction precedes replacement instruction')
+    return {queuedReplyVerified:true,queuedInstructionPrecededReplacement:true,causalEvidence:queued}
+  })
   await step('single-native-recipient-replies',async()=>{
     const tail=await op('session_events',{session,cursor,include_text:true,include_causality:true});cursor=tail.cursor;observed.push(...tail.events)
     assert.equal(replyProof(observed,replacementMessageId,markers.replacement,replacementMessage).verified,true)
     for(const marker of [markers.initial,markers.replacement])assert.equal(new Set(observed.filter(x=>x.type==='assistant'&&x.text===marker).map(x=>x.id)).size,1)
     return {initialReplies:1,replacementReplies:1,duplicateReply:false}
   })
+  }
   }
 } catch(e) { process.exitCode=1 }
 finally {
@@ -205,7 +227,7 @@ finally {
     await Promise.all([...ownedJobs].map(id=>cancelJob(id)))
     rows.push({name:'interrupted',ok:false,session,remainingCleanup:!!session})
   }
-  if(session&&(enrolled?adopted:!brokerOnly||adopted)&&!controller.signal.aborted) await step(enrolled?'cleanup-restore':'cleanup-archive',async()=>{
+  if(!preflightOnly&&session&&(enrolled?adopted:!brokerOnly||adopted)&&!controller.signal.aborted) await step(enrolled?'cleanup-restore':'cleanup-archive',async()=>{
     const s=await op('get_session',{session})
     if(['busy','working'].includes(s.live?.status))await op('stop_session',{session})
     if(enrolled)await waitOwnedIdle()
@@ -225,14 +247,14 @@ finally {
   }).catch(()=>{process.exitCode=1})
   if(inputFree)await step('input-resource-audit-after',async()=>{const r=await assertInputHealthy({phase:'after-input-free-qualification',evidence:join(STATE_DIR,'pressure',`input-free-${stamp}-after.json`)});return {filters:r.filters.length,inputAutomation:false,uiQuarantine:uiPolicy().blocked}}).catch(()=>{process.exitCode=1})
   const report=join(STATE_DIR,'pressure',`live-v2-${stamp}.json`)
-  const required=controlsOnly?['adopt-owned-fixture',...(controlMode!=='batch'?['three-concurrent-native-controls']:[]),...(controlMode!=='concurrent'?['batched-native-controls']:[]),'cleanup-archive']:[enrolled?'adopt-enrolled-fixture':brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','batched-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','single-native-recipient-replies',enrolled?'cleanup-restore':'cleanup-archive']
+  const required=preflightOnly?['adopt-ordinary-fixture']:controlsOnly?['adopt-owned-fixture',...(controlMode!=='batch'?['three-concurrent-native-controls']:[]),...(controlMode!=='concurrent'?['batched-native-controls']:[]),'cleanup-archive']:[ordinary?'adopt-ordinary-fixture':enrolled?'adopt-enrolled-fixture':brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','batched-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','queued-turn-preserved','single-native-recipient-replies',enrolled?'cleanup-restore':'cleanup-archive']
   if(inputFree)required.push('input-resource-audit-before','input-resource-audit-after')
   const sourceAfter = runtimeFingerprint()
   const brokerRuntimeAfter=brokerInfo().runtime
   const brokerUnchanged=brokerRuntimeBefore?.build===brokerRuntimeAfter?.build&&brokerRuntimeBefore?.bootstrapHash===brokerRuntimeAfter?.bootstrapHash&&brokerRuntimeBefore?.generation===brokerRuntimeAfter?.generation
   const pinnedObserved=enrolled||!brokerRuntimeAfter?.pinned||brokerRuntimeAfter.integrity&&brokerRuntimeAfter.dependencyPathsObserved
   const ok=sourceBefore===sourceAfter&&(enrolled||brokerUnchanged)&&pinnedObserved&&rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
-  writeJsonAtomic(report,{scope:enrolled?'enrolled-native-profile':controlsOnly?'native-controls-only':inputFree?'input-free-live':brokerOnly?'native-broker-only':'full-live',excluded:enrolled?['session-creation','focus-restoration','cleanup-archive','physical-typing','UI-recovery']:[],controllerSession,enrolledServiceId:enrolledStatus?.serviceId,controlMode,session,markers,baseline,rows,attempts,required,ok,sourceBefore,sourceAfter,brokerRuntimeBefore,brokerRuntimeAfter})
-  recordMemory({kind:'test_result',topic:enrolled?'v2-enrolled-native-pressure':controlsOnly?'v2-native-controls-pressure':inputFree?'v2-input-free-pressure':brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',brokerBuild:brokerRuntimeAfter?.build??null,bootstrapHash:brokerRuntimeAfter?.bootstrapHash??null,evidence:report,lesson:`${inputFree?'Input-free live':brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}; brokerUnchanged=${brokerUnchanged}; pinnedDependenciesObserved=${pinnedObserved}`})
+  writeJsonAtomic(report,{scope:preflightOnly?'ordinary-preflight-only':ordinary?'ordinary-native-profile':enrolled?'enrolled-native-profile':controlsOnly?'native-controls-only':inputFree?'input-free-live':brokerOnly?'native-broker-only':'full-live',excluded:enrolled?['session-creation','focus-restoration','cleanup-archive','physical-typing','UI-recovery']:[],preflightOnly,ordinary,controllerSession,enrolledServiceId:enrolledStatus?.serviceId,controlMode,session,markers,baseline,rows,attempts,required,ok,sourceBefore,sourceAfter,brokerRuntimeBefore,brokerRuntimeAfter})
+  recordMemory({kind:'test_result',topic:preflightOnly?'v2-ordinary-preflight':ordinary?'v2-ordinary-native-pressure':enrolled?'v2-enrolled-native-pressure':controlsOnly?'v2-native-controls-pressure':inputFree?'v2-input-free-pressure':brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',brokerBuild:brokerRuntimeAfter?.build??null,bootstrapHash:brokerRuntimeAfter?.bootstrapHash??null,evidence:report,lesson:`${inputFree?'Input-free live':brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}; brokerUnchanged=${brokerUnchanged}; pinnedDependenciesObserved=${pinnedObserved}`})
   console.log(JSON.stringify({report,ok}))
 }

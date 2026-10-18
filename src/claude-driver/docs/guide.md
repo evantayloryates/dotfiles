@@ -2276,3 +2276,45 @@ Current acceptance frontier (preserves original full scope):
 Goal active; do not mark complete from these fresh harness/synthetic checks.
 
 Integrated current86d5 gate: all160 test files passed in35.3sec,1/1 round, sourceUnchanged; pressure/v2-2026-10-18T03-56-45-280Z.json. Aggregate hashed evidence .runtime/state/consolidated-harness-gate-20261017.json binds both actual harness reports and suite to identical source; loadedMCP adoption remains false.
+
+## October 18 ordinary combined runner adapted; late readiness blocks setup
+
+Existing scripts/live-v2.mjs now supports explicit --ordinary --input-free
+--controller <primary> --session <owned target>. Ordinary batch receipts require
+independent-session-management plus exact unique per-field requestIds, not fixed
+metadata childJobs. New queued-turn-preserved check requires an actual causal
+queued reply and queued instruction before replacement, beyond queued/busy receipt.
+The twelve-check ordinary profile restores baseline and never creates/archives,
+changes permissions or touches service actors. Original fresh creation/focus/archive
+requirements remain separate; this profile cannot claim full interface acceptance.
+
+--ordinary --preflight-only --input-free with exact controller/session performs
+only audits/readiness/fixture admission, no sends/cleanup/native controls. Fixture
+must be registered create under canonical driver-state/probe, own same account,
+bypass, no worktree/open PR, explicit high/etc effort AND tool-locked title baseline,
+exact native idle epoch; controller grants/readiness/policy/margins required.
+Preflight reports blockers;12 focused fixture/batch/causality/scope tests PASS.
+Actual preflight pressure/live-v2-2026-10-18T03-59-16-550Z.json refused missing
+explicit effort baseline; quarantine stayed true/filters0/no messages sent.
+
+Fixture setup recorded in .runtime/state/ordinary-live-preparation-20261017.json.
+Public effort-high jobj9eae2875526646a9859ebccac93c2370 verified, current fixture
+8f1... remains bypass/Haiku5.5/high, nativePID92860/start03:41:00 idle.
+Tool-locking same title jobjfbe55c52162a47bc8c81ac15714aac10 did NOT dispatch target:
+required-source renewalj82d7a883599a4b778aed4a499b0dc4e7 installed successor82d7...
+then readiness timed out30sec, phasebefore-readiness. Original target request/
+intent/admission/result files independently absent. Both primaryPID13210 and
+standbyPID13521 still alive/idle; no new governor event, crash, permission refusal
+or auto-update. Later same-epoch status readinesstrue/policyfalse/unresolved[].
+Late readiness is observed, NOT a successful original renewal. Retained binding
+still3011...; plan enrolled-generation-changed. TitleSource remains null; baseline
+preparation/full native runner NOT ready. Do not rerun title or full profile yet.
+
+NEXT agent-executable frontier: guarded continuation of original failed renewal
+AFTER verified late same-epoch readiness, preserving original failed job/digest.
+Perform only never-attempted policy/family and exact standby CAS; do not repeat
+prepare/quiesce/retire/activate or infer readiness from files/send return. Then
+verify current pair, finish tool-title setup after verified nondispatch, rerun
+preflight once and execute one consolidated ordinary native profile. No new message
+or forced outage tests this turn; full suite deferred. Goal active; all handles
+terminal and failed evidence preserved. Cached MCP remains older78678a build.
