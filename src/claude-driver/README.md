@@ -40,10 +40,13 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The restarted Codex-chat MCP now matches current source `18ef4d44`; an actual
-ordinary no-op request verified native receipt and automatic renewal of both
-expired controller leases. Fresh harness evidence remains separate from this
-loaded-client adoption proof.
+execution remains unqualified. The last consolidated gate on source `0c8a57a5`
+passed all 178 isolated test files and both fresh harnesses (10/10 each). One
+current-CLI ordinary no-op verified a native receipt and renewed the primary
+controller to that source, preserving its native process. The standby remained
+healthy on `18ef4d44`. This chat's loaded MCP still runs `18ef4d44` and reports
+refresh required; its earlier restart/adoption proof is historical. Development
+since that gate adds stronger restoration-proof checks and needs final adoption.
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
@@ -67,9 +70,15 @@ when Bypass was requested: this is reported unverified and follow-ups are deferr
 Workspace trust, hot-reload consent, permission raises and delete cards remain
 human gates. Bypass mode does not remove them.
 
-Qualification remains partial: unattended startup after app quit/restart, deleted-service replacement and
-sustained availability remain open. Current-source synthetic suite, fresh
-Claude/Codex harnesses and actual loaded MCP adoption have passed their scopes. Groups retain the legacy route; window/UI
+Exact missing-record restoration and same-identity pair reactivation now have
+explicit durable operations, private claims/child ledgers and isolated integration
+evidence. They preserve grants and reject uncertain replay. Actual deleted-service
+recovery remains unqualified and ordinary routing does not invoke it automatically.
+
+Qualification remains partial: unattended startup after app quit/restart, actual
+deleted-service recovery, sustained availability and current loaded-client adoption
+remain open. The isolated suite, fresh harnesses and native ordinary route passed
+their recorded source scopes. Groups retain the legacy route; window/UI
 operations remain quarantined. The default legacy `probe` still requires UI availability. Explicit
 `preflight --input-free --controller <id> --session <id>` reuses ordinary read-only
 qualification; `probe --input-free --controller <id> --session <id> --live` runs

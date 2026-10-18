@@ -1,3 +1,32 @@
+## October 18 recovery proof audit and current evidence boundaries
+
+Audit found async restored-pair transition proof re-read both roots but omitted
+final exclusive-claim bytes and active parent identity. Reader now independently
+requires the exact running broker_service_reactivate_restored_pair job, matching
+runtime/root/plan/experimental arguments; rechecks parent and claim after child
+reads. Claim drift, parent terminal/wrong operation and differing durable child
+receipts refuse. Shared test fixture retains original root/claim identity.
+Focused proof-reader/root/transition/production-integration/enrollment15 PASS.
+No native or full-suite repeat for this targeted correction.
+
+Last consolidated source0c8a57a5:178 files PASS37.2sec, fresh Claude/Codex10/10,
+actual CLI native ordinary no-op PASS after primary source renewal. This predates
+above reader correction. Actual loaded MCP still18ef; standby healthy18ef, primary
+0c8a, no unresolved attempts at last observation. README corrected stale statement
+that loaded MCP matches current host. Native success is not deleted-record proof.
+
+Original scope audit remains open: all four registrations recorded, two fresh
+execution harnesses pass; Cursor auth-gated and OpenCode execution unavailable.
+Input-free preflight/probe cover ordinary scope only; full UI/window paths remain
+quarantined. Named-folder/no-folder creation/fork/pool evidence is historical and
+must be source-scoped separately from native ordinary12. Actual missing-record
+restoration/reactivation and unattended all-process-absent startup are unqualified;
+no destructive loss test or unchanged appquit repeat authorized/performed here.
+Current host/client final gate still required. These gaps are not waived by the
+new recovery code or fixture counts. Goal active; next close remaining recovery
+readback coverage and current-source documentation before settled final client
+refresh/native suite. No live job or cleanup pending; Codex bridge stays parked.
+
 ## October 18 consolidated gate exposed/fixed sealed package capacity
 
 Full suite168 files on stable source FAILED9 (747/756 pass), original report

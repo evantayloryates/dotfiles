@@ -38,10 +38,12 @@ export function readRestoredPairRoot(jobId,{dir=join(STATE_DIR,'restored-pair-re
 export async function readRestoredPairTransitionProof(rootJobId,{read=readRestoredPairRoot,readRestoration=readRestoredRecordRoot,inspect=id=>inspectJob(id,{includeResult:true}),dir=join(STATE_DIR,'restored-pair-reactivations')}={}){
  const root=read(rootJobId),p=root.plan
  if(!job.test(p?.rootJobId||''))throw Error('reactivation restoration owner unqualified')
- const claim=JSON.parse(readReceiverFile(join(dir,'claims',p.rootJobId+'.json'),4096))
+ const claimFile=join(dir,'claims',p.rootJobId+'.json'),claimBytes=readReceiverFile(claimFile,4096),claim=JSON.parse(claimBytes)
  if(claim.reactivationJobId!==rootJobId||claim.restorationJobId!==p.rootJobId||claim.restorationRootSha256!==p.rootSha256||claim.expectedPlanSha256!==root.expectedPlanSha256)throw Error('reactivation claim unqualified')
+ const owner=await inspect(rootJobId)
+ if(owner?.jobId!==rootJobId||owner.operation!=='broker_service_reactivate_restored_pair'||owner.state!=='running'||owner.runtimeBuild!==root.runtimeBuild||owner.args?.restoration_job_id!==p.rootJobId||owner.args.expected_root_sha256!==p.rootSha256||owner.args.expected_plan_sha256!==root.expectedPlanSha256||owner.args.experimental!==true)throw Error('reactivation parent identity unqualified')
  const original=readRestoration(p.rootJobId),parent=await inspect(p.rootJobId),restoration=validateRestoredRecordRoot(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256})
  for(const c of [...Object.values(original.root.children),...Object.values(root.children??{})]){const actual=await inspect(c.jobId);if(!['jobId','operation','state','args','result'].every(k=>equal(actual[k],c.observation?.[k])))throw Error('durable child differs from retained observation')}
- if(!equal(read(rootJobId),root)||!equal(readRestoration(p.rootJobId),original))throw Error('transition roots changed')
+ if(!readReceiverFile(claimFile,4096).equals(claimBytes)||!equal(await inspect(rootJobId),owner)||!equal(read(rootJobId),root)||!equal(readRestoration(p.rootJobId),original))throw Error('transition roots changed')
  return {root,restoration}
 }
