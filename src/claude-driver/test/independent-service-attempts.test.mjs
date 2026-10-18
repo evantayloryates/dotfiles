@@ -38,3 +38,18 @@ test('only exact already-published native results settle; corrupted admission or
  files['native-admission-'+id+'-0.json'].generation=2;assert.deepEqual(reviewIndependentAttempts(args).unresolvedRequestIds,[id]);files['native-admission-'+id+'-0.json'].generation=1
  files['results/'+id+'.native.json'].results[0].ok=false;assert.deepEqual(reviewIndependentAttempts(args).unresolvedRequestIds,[id])
 })
+
+test('unknown attempt diagnostics expose presence only and never settle missing or unreadable evidence',()=>{
+ const {args,files}=fixture();files['requests/'+id+'.json']={ops:[{op:'send_message',args:{message:'PRIVATE_MESSAGE'}}],secret:'PRIVATE_SECRET'};files['controls/'+id+'.json']={state:'PRIVATE_STATE',dispatched:[]}
+ const original=args.context.read;args.context.read=name=>{if(name==='native-admission-'+id+'-0.json')throw Error('PRIVATE_ERROR');return original(name)}
+ const r=reviewIndependentAttempts(args),d=r.unresolvedAttempts[0]
+ assert.equal(d.operation,'send_message');assert.equal(d.operationScope,'unqualified');assert.equal(d.evidence.request,'present');assert.equal(d.evidence.admission,'unreadable');assert.equal(d.evidence.moduleResult,'absent');assert.equal(d.outcome,'unknown');assert.equal(d.replayAuthorized,false);assert.equal(d.retirementAuthorized,false);assert.equal(r.terminalAttemptReviewComplete,false);assert.ok(!JSON.stringify(r).includes('PRIVATE_'))
+})
+test('unknown read diagnostic requires exact runtime binding and still forbids replay or retirement',()=>{
+ const {args,files}=fixture(),c=args.context
+ c.pointer={build:'b'.repeat(64),pid:42,procStart:'old',sessionId:c.config.brokerSession,generation:1,bootstrapHash:'d'.repeat(64),nativeRequestBindingVersion:1}
+ files['requests/'+id+'.json']={ops:[{op:'list_sessions',args:{linked:true}}],nativeRuntimeBinding:{version:1,build:c.pointer.build,pid:42,procStart:'old',sessionId:c.pointer.sessionId,generation:1,bootstrapHash:c.pointer.bootstrapHash}}
+ let r=reviewIndependentAttempts(args),d=r.unresolvedAttempts[0];assert.equal(d.operationScope,'metadata-read');assert.equal(d.runtimeBindingVerified,true);assert.deepEqual(r.unresolvedRequestIds,[id]);assert.equal(r.terminalAttemptReviewComplete,false);assert.equal(r.retirementAuthorized,false)
+ files['requests/'+id+'.json'].nativeRuntimeBinding.pid=99;d=reviewIndependentAttempts(args).unresolvedAttempts[0];assert.equal(d.operationScope,'unqualified');assert.equal(d.runtimeBindingVerified,false)
+ files['requests/'+id+'.json'].ops=[{op:'PRIVATE_OPERATION'}];assert.equal(reviewIndependentAttempts(args).unresolvedAttempts[0].operation,'unqualified')
+})

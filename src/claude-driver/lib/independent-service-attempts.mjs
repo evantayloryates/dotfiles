@@ -4,6 +4,18 @@ import {screenNativeServiceRefusal,screenTerminalMissingRequestRefusal} from './
 import {nativeRequestBindingMatches} from './native-request-binding.mjs'
 import {independentOrdered as ordered} from './independent-service-context.mjs'
 const requestPattern=/^rpeer[a-f0-9]{32}$/
+// Diagnostic presence is not proof of execution or nonexecution. Never include
+// request arguments, tool content, transcript text or arbitrary error strings.
+export function unresolvedAttemptDiagnostic(context,id){
+ const {read,pointer}=context,objects={}
+ const names={intent:'.native-service-'+id+'.intent.json',request:'requests/'+id+'.json',control:'controls/'+id+'.json',entry:'broker-check-'+id+'-0-g'+pointer.generation+'.completed.json',admission:'native-admission-'+id+'-0.json',moduleResult:'.native-service-'+id+'.result.json',publishedResult:'results/'+id+'.native.json'}
+ const evidence=Object.fromEntries(Object.entries(names).map(([key,name])=>{try{objects[key]=read(name);return [key,'present']}catch(error){return [key,error.code==='ENOENT'?'absent':'unreadable']}}))
+ const request=objects.request,ops=request?.ops
+ const known=new Set(['get_session','list_sessions','archive_session','send_message','stop_session','set_session_title','set_session_model','set_session_effort','set_pinned','unarchive_session'])
+ const operation=Array.isArray(ops)&&ops.length===1&&known.has(ops[0]?.op)?ops[0].op:'unqualified'
+ let runtimeBindingVerified=false;try{runtimeBindingVerified=nativeRequestBindingMatches(request,pointer)===true}catch{}
+ return {requestId:id,operation,operationScope:runtimeBindingVerified&&['get_session','list_sessions'].includes(operation)?'metadata-read':'unqualified',runtimeBindingVerified,evidence,outcome:'unknown',replayAuthorized:false,retirementAuthorized:false}
+}
 // Read-only inventory. Missing, malformed and merely refused attempts remain
 // unresolved; only fully reviewed, already-published results count as settled.
 export function reviewIndependentAttempts({context,reservedRequestIds,names,now=Date.now()}){
@@ -20,7 +32,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
   ids.add(id)
  }
  if(ids.size>256)throw Error('attempt inventory bound')
- const settledRequestIds=[],unresolvedRequestIds=[],callbackRefusalRequestIds=[],terminalRefusalRequestIds=[]
+ const settledRequestIds=[],unresolvedRequestIds=[],unresolvedAttempts=[],callbackRefusalRequestIds=[],terminalRefusalRequestIds=[]
  for(const id of [...ids].sort()){
   let settled=false
   try{
@@ -39,7 +51,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
    const auditNames=names.filter(n=>/^native-policy-invocation-[A-Za-z0-9_-]+\.json$/.test(n));if(auditNames.length>128)throw Error('audit bound')
    terminal=screenTerminalMissingRequestRefusal({config,pointer,policy,ready:read('.native-service-'+config.id+'.ready.json'),intent:read('.native-service-'+id+'.intent.json'),marker:read('.native-service-'+id+'.no-dispatch.json'),entry:read('broker-check-'+id+'-0-g'+pointer.generation+'.completed.json'),policyInvocations:auditNames.map(read),absence,now}).terminalRefusalVerified
   }catch{}
-  if(terminal)terminalRefusalRequestIds.push(id);else unresolvedRequestIds.push(id)
+  if(terminal)terminalRefusalRequestIds.push(id);else{unresolvedRequestIds.push(id);unresolvedAttempts.push(unresolvedAttemptDiagnostic(context,id))}
  }
- return {settledRequestIds,unresolvedRequestIds,callbackRefusalRequestIds,terminalRefusalRequestIds,attemptsReviewed:ids.size,terminalAttemptReviewComplete:unresolvedRequestIds.length===0,retirementAuthorized:false,scopedUnloadQualified:false}
+ return {settledRequestIds,unresolvedRequestIds,unresolvedAttempts,callbackRefusalRequestIds,terminalRefusalRequestIds,attemptsReviewed:ids.size,terminalAttemptReviewComplete:unresolvedRequestIds.length===0,retirementAuthorized:false,scopedUnloadQualified:false}
 }

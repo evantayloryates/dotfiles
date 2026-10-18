@@ -2031,3 +2031,33 @@ renewal-successor lineage, then eligible original-pair recovery, then archive BO
 owned fixtures. Do not relax unknown MUTATION admission or retry unknown effects.
 This actual both-absent pressure event changes the next gate; stop repeating pool
 or scratch tests. Goal remains active; platform blocked threshold not met.
+
+## October 17 offline unknown-attempt diagnostics verified
+
+Actual selected9d576... offline review now exposes unresolvedAttempts, bounded
+metadata only: requestId, allowlisted single operation, exact runtimeBindingVerified,
+operationScope(metadata-read only for bound get_session/list_sessions), and presence
+of intent/request/control/entry/admission/moduleResult/publishedResult. Presence is
+present/absent/unreadable; unknown read/parse failures never masquerade as absence.
+No arguments, transcript/tool content, arbitrary op/error/control strings returned.
+Outcome stays unknown, replayAuthorizedfalse, retirementAuthorizedfalse. Existing
+terminalAttemptReviewComplete and recovery/retirement guards are unchanged.
+
+Current offline source9570a13abd441a75b54bccb6293064b4f6f05431f5ff6f59068eb171984fd8df
+observed installed792ad... generation after exact prior PID absence: original
+rpeerba99d43b96115cfc36fc9a00c7ca0c1a is bound list_sessions metadata-read,
+intent/request/control present, entry/admission/moduleResult/publishedResult absent.
+No claim of nonexecution or safe replay. Evidence
+.runtime/state/outage-offline-attempt-diagnostic-20261017.json.
+Focused offline/history/retirement/pair-plan18/18 PASS2.9sec; new privacy/unreadable/
+binding cases retain unknown history. No native wake, archive retry, bootstrap,
+permission change or full suite repeat. BOTH owned fresh lifecycle fixtures remain
+unarchived pending recovered controller; cleanup from prior checkpoint still open.
+
+Next changed-condition engineering: introduce narrowly verified offline abandonment
+of a metadata-only read after exact old PID and same-host absence, preserving
+original unknown outcome and never fabricating a success/nonexecution receipt.
+Mutation/unknown-op/mixed/malformed requests MUST continue blocking retirement.
+Then resolve retained enrollment vs interrupted renewal successor using original
+lineage and exact roles, qualify eligible pair bootstrap and archive both fixtures.
+Do not bypass the current planner refusal or replay the original family. Goal active.
