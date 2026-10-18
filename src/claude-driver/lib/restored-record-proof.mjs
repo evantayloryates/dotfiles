@@ -35,7 +35,16 @@ export function readRestoredRecordRoot(rootJobId,{kind='record',dir}={}){
  const root=JSON.parse(readReceiverFile(join(dir,rootJobId+'.json'),1048576))
  if(kind==='seeded'?root.kind!=='seeded-record-restoration':root.kind!==undefined)throw Error('restoration root kind differs')
  if(!/^[a-f0-9]{32}$/.test(root.plan?.serviceId||''))throw Error('exact restoration generation required')
- return {root,rootSha256:hash(root),claim:JSON.parse(readReceiverFile(join(dir,'claims',root.plan?.serviceId+'.json'),4096))}
+ return {root,rootSha256:hash(root),claim:JSON.parse(readReceiverFile(join(dir,kind==='seeded'&&root.continuation?'continuation-claims':'claims',root.plan?.serviceId+'.json'),4096))}
+}
+// Continuation admission independently reads the immutable failed origin and
+// actual parent/children; a copied snapshot in the new root is not authority.
+export async function observeRecoveryRecordProof(root,parent,claim,options,{read,inspect}={}){
+ if(!root.continuation)return validateRecoveryRecordRoot(root,parent,claim,options)
+ if(options.restorationKind!=='seeded')throw Error('seeded continuation kind required')
+ const {readSeededCheckpoint}=await import('./seeded-restoration-continuation.mjs')
+ const c=root.continuation,origin=await readSeededCheckpoint(c.originalJobId,c.originalRootSha256,{readRoot:read,job:inspect})
+ return validateRecoveryRecordRoot(root,parent,claim,{...options,origin})
 }
 
 export function validateRecoveryRecordRoot(root,parent,claim,{restorationKind='record',...options}={}){

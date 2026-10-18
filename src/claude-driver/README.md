@@ -237,6 +237,7 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
 | `broker_service_restoration_status` | A | bounded exact record-restoration or seeded-rebuild or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
 | `broker_service_seed_plan`, `broker_service_rebuild_missing_record` | A | explicit exact-identity no-history seed/import when record and all transcripts are absent; durable experimental execution only, native permission/readiness remain separate |
+| `broker_service_seed_continuation_plan`, `broker_service_continue_seeded_record` | A | exact failed pre-bootstrap retirement checkpoint; separately claimed durable continuation retains original failed root and claim; never repeats retirement or uncertain bootstrap/import |
 
 `set_session_config` accepts `title`, `pinned`, `model`, `effort` and
 `permission_mode` together. It sends one native request and verifies each

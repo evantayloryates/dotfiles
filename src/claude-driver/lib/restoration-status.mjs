@@ -13,11 +13,12 @@ const summary=r=>({jobId:r.jobId,state:states.has(r.state)?r.state:'unqualified'
 export async function inspectRestorationStatus(rootJobId,kind,{base=STATE_DIR,inspect=id=>inspectJob(id,{includeResult:false}),read=(file,limit)=>readReceiverFile(file,limit)}={}){
  if(!job.test(rootJobId||'')||!Object.hasOwn(specs,kind))throw Error('exact recovery job and kind required')
  const spec=specs[kind],file=join(base,spec.directory,rootJobId+'.json'),parent=await inspect(rootJobId)
- if(parent?.jobId!==rootJobId||parent.operation!==spec.operation)throw Error('recovery parent operation differs')
+ if(parent?.jobId!==rootJobId||parent.operation!==spec.operation&&!(kind==='seeded'&&parent.operation==='broker_service_continue_seeded_record'))throw Error('recovery parent operation differs')
  const common={kind,rootJobId,parent:summary(parent),nativeEpochAssessed:false,servingQualified:false,effectsPerformed:false,replayAuthorized:false,retrySafe:false}
  let root
  try{root=JSON.parse(read(file,1048576))}catch(error){if(error.code==='ENOENT')return {...common,journalAvailable:false,reason:'journal-not-published'};throw error}
  if(kind==='seeded'&&root.kind!=='seeded-record-restoration')throw Error('seeded journal kind differs')
+ if(kind==='seeded'&&(parent.operation==='broker_service_continue_seeded_record')!==(root.continuation!==undefined))throw Error('seeded continuation parent differs')
  if(root.schemaVersion!==1||root.jobId!==rootJobId||!hex.test(root.runtimeBuild||'')||typeof root.phase!=='string'||!/^[A-Za-z][-A-Za-z0-9]{0,79}$/.test(root.phase)||!root.children&&kind==='pair'||Object.keys(root.children??{}).some(k=>!spec.steps.includes(k)))throw Error('recovery journal unqualified')
  const children={}
  for(const [step,c]of Object.entries(root.children??{})){
@@ -26,5 +27,5 @@ export async function inspectRestorationStatus(rootJobId,kind,{base=STATE_DIR,in
   else children[step]={jobId:null,state:'submission-unconfirmed',observationRetained:false}
  }
  if(digest(JSON.parse(read(file,1048576)))!==digest(root))throw Error('recovery journal changed during inspection')
- return {...common,journalAvailable:true,rootSha256:digest(root),runtimeBuild:root.runtimeBuild,phase:root.phase,failureCategory:category(root.failure),children,...kind!=='pair'?{...kind==='seeded'?{bootstrapAttempted:root.bootstrapAttempted===true}:{},importAttempted:root.importAttempted===true,recordRestored:root.result?.recordRestored===true}:{restorationJobId:job.test(root.plan?.rootJobId||'')?root.plan.rootJobId:null,importAttempted:false,pairVerified:root.results?.verifyEnrollment?.qualified===true},...hex.test(root.expectedPlanSha256||'')?{planSha256:root.expectedPlanSha256}:{}}
+ return {...common,journalAvailable:true,rootSha256:digest(root),runtimeBuild:root.runtimeBuild,phase:root.phase,failureCategory:category(root.failure),children,...root.continuation?{originalJobId:job.test(root.continuation.originalJobId)?root.continuation.originalJobId:null}:{},...kind!=='pair'?{...kind==='seeded'?{bootstrapAttempted:root.bootstrapAttempted===true}:{},importAttempted:root.importAttempted===true,recordRestored:root.result?.recordRestored===true}:{restorationJobId:job.test(root.plan?.rootJobId||'')?root.plan.rootJobId:null,importAttempted:false,pairVerified:root.results?.verifyEnrollment?.qualified===true},...hex.test(root.expectedPlanSha256||'')?{planSha256:root.expectedPlanSha256}:{}}
 }

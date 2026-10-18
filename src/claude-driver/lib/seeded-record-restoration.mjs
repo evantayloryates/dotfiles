@@ -16,6 +16,12 @@ export async function runSeededRecordRestoration(expectedPlanSha256,recipe,d){
  await d.record('after-quiesce',q);await d.guard();await d.record('before-retire',plan);const r=await d.retire(plan)
  if(r?.sessionId!==plan.sessionId||r.serviceId!==plan.serviceId||r.filesRetired!==true||r.terminalAttemptReviewComplete!==true)throw Error('seed original retirement unqualified')
  await d.record('after-retire',r)
+ return finishSeededRecordRestoration(plan,recipe,d)
+}
+// Also used by an explicitly claimed continuation whose original retirement
+// root and child receipts have been independently verified. Never retires again.
+export async function finishSeededRecordRestoration(plan,recipe,d){
+ const expectedPlanSha256=serviceSeedPlanDigest(plan)
  const retired=async()=>{await d.guard();const p=await d.inspectRetired();if(p.oldGenerationRetired!==true||serviceSeedPlanDigest({...p,oldGenerationRetired:false})!==expectedPlanSha256)throw Error('seed retired proof changed');return p}
  const seed=await runServiceSeedProvision(recipe,plan.recipeSha256,{guard:d.guard,inspect:retired,claim:async()=>{},record:(phase,value)=>d.record('seed-'+phase,value),bootstrap:d.bootstrap,verifyTranscript:d.verifyTranscript})
  await d.record('seed-created',seed)

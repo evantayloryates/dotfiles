@@ -3,7 +3,7 @@ import {STATE_DIR} from './state.mjs'
 import {readReceiverFile} from './receiver-runtime-selection.mjs'
 import {standbyEnrollmentDigest} from './standby-enrollment.mjs'
 import {restoredPairPlanDigest,restoredPairChildSubmission} from './restored-pair-ledger.mjs'
-import {readRestoredRecordRoot,validateRecoveryRecordRoot} from './restored-record-proof.mjs'
+import {readRestoredRecordRoot,observeRecoveryRecordProof} from './restored-record-proof.mjs'
 import {inspectJob} from './jobs.mjs'
 const job=/^j[a-f0-9]{32}$/
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b)
@@ -42,8 +42,9 @@ export async function readRestoredPairTransitionProof(rootJobId,{read=readRestor
  if(claim.reactivationJobId!==rootJobId||claim.restorationJobId!==p.rootJobId||claim.restorationRootSha256!==p.rootSha256||claim.expectedPlanSha256!==root.expectedPlanSha256)throw Error('reactivation claim unqualified')
  const owner=await inspect(rootJobId)
  if(owner?.jobId!==rootJobId||owner.operation!=='broker_service_reactivate_restored_pair'||owner.state!=='running'||owner.runtimeBuild!==root.runtimeBuild||(owner.args?.restoration_kind??'record')!==kind||owner.args?.restoration_job_id!==p.rootJobId||owner.args.expected_root_sha256!==p.rootSha256||owner.args.expected_plan_sha256!==root.expectedPlanSha256||owner.args.experimental!==true)throw Error('reactivation parent identity unqualified')
- const original=readOriginal(p.rootJobId),parent=await inspect(p.rootJobId),restoration=validateRecoveryRecordRoot(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256,restorationKind:kind})
+ const original=readOriginal(p.rootJobId),parent=await inspect(p.rootJobId),restoration=await observeRecoveryRecordProof(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256,restorationKind:kind},{read:readOriginal,inspect})
  for(const c of [...Object.values(original.root.children),...Object.values(root.children??{})]){const actual=await inspect(c.jobId);if(!['jobId','operation','state','args','result'].every(k=>equal(actual[k],c.observation?.[k])))throw Error('durable child differs from retained observation')}
  if(!readReceiverFile(claimFile,4096).equals(claimBytes)||!equal(await inspect(rootJobId),owner)||!equal(read(rootJobId),root)||!equal(readOriginal(p.rootJobId),original))throw Error('transition roots changed')
+ if(original.root.continuation)await observeRecoveryRecordProof(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256,restorationKind:kind},{read:readOriginal,inspect})
  return {root,restoration}
 }

@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto'
-import {readRestoredRecordRoot,validateRecoveryRecordRoot} from './restored-record-proof.mjs'
+import {readRestoredRecordRoot,observeRecoveryRecordProof} from './restored-record-proof.mjs'
 import {inspectJob} from './jobs.mjs'
 import {getRecord} from './sessions.mjs'
 import {peerRecord} from './peer-direct.mjs'
@@ -33,12 +33,13 @@ export async function inspectRestoredNative(rootJobId,expectedRootSha256,{signal
  try{
   const first=read(rootJobId),{root,claim}=first
   if(first.rootSha256!==expectedRootSha256)throw Error('root changed')
-  const parent=await job(rootJobId),proof=validateRecoveryRecordRoot(root,parent,claim,{rootJobId,expectedRootSha256,restorationKind})
+  const parent=await job(rootJobId),proof=await observeRecoveryRecordProof(root,parent,claim,{rootJobId,expectedRootSha256,restorationKind},{read,inspect:job})
   for(const child of Object.values(root.children)){const current=await job(child.jobId),prior=child.observation;if(!['jobId','operation','state','args','result'].every(k=>equal(current[k],prior[k])))throw Error('child job changed')}
   const actor=root.originalSnapshot.binding[root.role]
   const check=()=>{const current=read(rootJobId);if(signal?.aborted||current.rootSha256!==expectedRootSha256||!equal(current.claim,claim)||standbyEnrollmentDigest(binding(root.primary))!==root.expectedEnrollmentSha256)throw Error('restoration context changed')}
   check();const saved=record(actor.sessionId),native=peer(actor.sessionId),selected=select(actor.cwd),absence=absent(actor),retired=await status(actor)
   check();if(!equal(record(actor.sessionId),saved)||!equal(peer(actor.sessionId),native)||!equal(select(actor.cwd),selected))throw Error('native evidence changed');absent(actor)
+  if(root.continuation)await observeRecoveryRecordProof(root,parent,claim,{rootJobId,expectedRootSha256,restorationKind},{read,inspect:job})
   return planRestoredNative({root,proof,record:saved,peer:native,selected,absence,retired,version:version(),accountStoreHash:account(),observedAt:Date.now()})
  }catch{return {action:'inspect',reason:'restored-native-inspection-unqualified',nativePreparationEligible:false,activationAuthorized:false,importAuthorized:false,replayAuthorized:false,effectsPerformed:false,serviceRestored:false}}
 }

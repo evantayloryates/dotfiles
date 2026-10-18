@@ -1,3 +1,50 @@
+## October 18 explicit seeded continuation restored the deleted service record
+
+Implemented broker_service_seed_continuation_plan and durable experimental
+broker_service_continue_seeded_record for exact failed after-retire roots with
+bootstrapfalse/importfalse. Validates immutable original root/hash/generation
+claim, failed original parent/arguments/source, independent completed retirement
+child receipts, current retired STOP/account/role/selector/UUID absence. Separate
+continuation-claims retains generation claim unchanged; new root copies verified
+retirement prefix and references original hash. One new bootstrap/import intent
+journal; no retirement repetition or uncertain-effect retry. Any seed/import
+intent, forged/missing/unknown child, version/source/account/role drift or duplicate
+continuation refuses. Original failed job and bytes remain unchanged.
+
+Normalized seeded proof now independently verifies origin parent/root/claim and
+actual original children before accepting continuation result; native readiness
+and pair enrollment readers use that verifier and reread after asynchronous work.
+Read-only restoration status kindseeded distinguishes continuation parent and
+reports originalJobId without exposing prompts/raw snapshots. Same existing kind
+seeded required explicitly; ordinary routing still does not auto-rebuild.
+Focused16 PASS: real private root/claim/journal/planner/adapter and fake native/CLI
+only; successful acceptEdits/bypass outcomes, normalized proof->native mode gate,
+bootstrap result-loss after artifact write, duplicate attempts, forged origins and
+changed actual retirement receipt refuse. No original claim reassignment.
+
+Actual originalje56f3ebcd2ab46c5a80e292429c8f7df/rootSHA
+bff9ca42367101a9d641614bffba796c04521c6dcb1d7bdd62a0ed6fbe69047d qualified.
+One new continuationj38a7cd1760f6421b8df54b3c862c525d COMPLETED9.1sec on
+source5ee1ea075972e7fc961b35584ec30db96f9d470f1cce92fcda69edba61698736.
+Minimal no-tools/no-MCP bootstrap and one import recreated sameUUIDaf930615,
+same account/cwd/Haiku, actual saved modedontAsk/unarchived. Title now
+claude-driver recovered service af930615. Independent record readback matches;
+no native peer. Bootstrap/import each once, no history replay/service/serving claim.
+Original failed retirement root retained, standby and ordinary serving pair untouched.
+Private deleted-service-native-fixture-20261018.json retains actual result/readback.
+Actual restored_pair_plan consumes seeded continuation proof and returnswait/
+person-permission-required, not blanket inspection failure.
+
+Async person action: In Claude Code open claude-driver recovered service af930615,
+select Bypass permissions, send ready. Then inspect same identity/new native epoch
+and exact reciprocal survivor; use restored_pair_plan and one claimed pair
+reactivation only after eligibility. No repeated seed, import or loader send.
+Full186 frozen-source suite PASS1/1,48.7sec/sourceChangedfalse, report
+pressure/v2-2026-10-18T17-16-28-494Z.json; private
+pressure/seeded-continuation-20261018.log. No live suite process remains. Native reciprocal service restoration and
+all-processes-absent automatic startup remain unqualified. Goal active; no live
+recovery worker, new record intentionally retained. Codex bridge parked.
+
 ## October 18 actual native deletion: transcript reaped; durable integration fixes
 
 App2.42304.0/CLI2.1.299 native deletion of the task-owned primary removed its

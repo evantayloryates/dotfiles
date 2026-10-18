@@ -1,3 +1,17 @@
+## October 18 native deleted-record reconstruction gate
+
+Actual task-owned native deletion removed record/process/all UUID transcripts.
+One explicit continuation of retained failed pre-bootstrap retirement rebuilt same
+UUID/account/cwd from a minimal no-tools/no-history seed, one bootstrap/import.
+Completedj38a7cd1760f6421b8df54b3c862c525d/source5ee1ea075972e7fc961b35584ec30db96f9d470f1cce92fcda69edba61698736.
+Independent record readback actualdontAsk/no native peer; seeded pair planwait/
+person-permission-required. Native service reactivation/always-on remain open.
+Original failure/claim/retirement children immutable and independently checked.
+Full186 suites PASS48.7sec/sourceChangedfalse:
+pressure/v2-2026-10-18T17-16-28-494Z.json. Focused16 PASS incl continuation origin
+proof, missing/changed actual child refusal and unknown-bootstrap no-second-seed.
+Prior harness/native12 source scopes remain historical, not this feature proof.
+
 ## October 18 actual headless seed CLI and fresh harness gate
 
 One actual bundled CLI2.1.299 contract, task-created UUID2043db15-e320-468b-8a8d-24079d85bd1a

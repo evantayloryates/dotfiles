@@ -2498,6 +2498,28 @@ worker's independent enrollment/account/generation checks.
 
 The October18 native deletion gate reached a retained failed `after-retire` root
 before seed/bootstrap/import. Do not rerun it or release its generation claim.
-Current recovery does not yet expose a qualified continuation for that checkpoint;
-inspect the original root and preserve its completed child receipts. Native
-reconstruction/reactivation remains an open qualification gate.
+Use the explicit checkpoint continuation below only after its independent plan
+qualifies. Preserve the original root and completed child receipts. Native service
+reactivation remains a separate qualification gate.
+
+
+## Continue a verified pre-bootstrap seeded checkpoint
+
+Inspect `broker_service_restoration_status` with `kind:"seeded"` for the failed
+original job and its exact root hash. `broker_service_seed_continuation_plan`
+requires `original_job_id` and `expected_original_root_sha256`; it qualifies only
+a fully observed failed `after-retire` root with no bootstrap/import intent.
+`broker_service_continue_seeded_record` takes those same values plus
+`experimental:true` through `driver_submit`. Reuse its idempotency key to inspect
+that continuation; never release the old generation claim or create another
+bootstrap attempt after uncertain output.
+
+The original failed root, claim and completed retirement jobs remain unchanged.
+A separate exclusive continuation claim and journal retain new bootstrap/import
+intents, original root hash and verified retirement prefix. Result readers
+independently verify both parent roots and actual child receipts. Inspect the
+continuation with restoration status `kind:"seeded"`, and pass its job ID to
+restored pair planning with `restoration_kind:"seeded"`. Record restoration does
+not establish bypass mode, native startup or serving readiness. The Oct18 native
+fixture recreated the original UUID record, then correctly waited for human mode
+selection/startup; full reciprocal service recovery is still unqualified.

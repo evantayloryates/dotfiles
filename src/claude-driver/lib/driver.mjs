@@ -1085,6 +1085,18 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable seeded rebuild required',{category:'bad_args'});return(await import('./seeded-restoration-execute.mjs')).executeSeededRestoration(args.session,args.role,args.expected_enrollment_sha256,args.expected_plan_sha256,ctx)},
   },
   {
+    name:'broker_service_seed_continuation_plan',title:'Inspect a failed pre-bootstrap seeded checkpoint',readOnly:true,
+    description:'Read-only exact failed after-retire root and original claim, independently observed completed retirement jobs and fresh absence/account/role proof. No new seed/import or claim reassignment. Bootstrap/import intents, uncertain child jobs and competing origins refuse.',
+    schema:{required:['original_job_id','expected_original_root_sha256'],properties:{original_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_original_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},
+    run:async(args,ctx)=>(await import('./seeded-restoration-continuation.mjs')).inspectSeededContinuation(args.original_job_id,args.expected_original_root_sha256,ctx),
+  },
+  {
+    name:'broker_service_continue_seeded_record',title:'Continue one verified pre-bootstrap seeded checkpoint',readOnly:false,
+    description:'Experimental durable separately claimed continuation of one exact failed after-retire rebuild with independently completed retirement and no seed/import intents. Preserves original failed root, generation claim and child jobs. Own one-use bootstrap/import journal; does not repeat retirement, raise permissions or replay unknown work.',
+    schema:{required:['original_job_id','expected_original_root_sha256','experimental'],properties:{original_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_original_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable seeded continuation required',{category:'bad_args'});return(await import('./seeded-restoration-continuation.mjs')).continueSeededRestoration(args.original_job_id,args.expected_original_root_sha256,ctx)},
+  },
+  {
     name:'broker_service_restoration_status',title:'Inspect one record-restoration or pair-reactivation attempt',readOnly:true,
     description:'Bounded private journal and independently observed exact parent/child handles, root hash, phase and sanitized failure category. Reports uncertain submissions without retrying. No native readiness assessment, imports, effects, replay or retry authority.',
     schema:{required:['root_job_id','kind'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},kind:{type:'string',enum:['record','seeded','pair']}}},
