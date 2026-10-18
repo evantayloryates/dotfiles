@@ -43,7 +43,7 @@ __terminal_preview() {
       ( setopt pipefail; python3 "$DOTFILES_DIR/src/python/terminal_pdf_preview.py" "$1" "$display_scale" "$columns" | chafa --probe=off --exact-size=on --size="$((columns - 1))x" - ) || return 1 ;;
     markdown)
       command -v mdcat >/dev/null 2>&1 || return 1
-      mdcat --local --no-pager "$1" ;;
+      mdcat --local --no-pager --columns=100 "$1" ;;
   esac
 }
 
