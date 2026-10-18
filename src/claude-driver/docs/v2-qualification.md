@@ -1,3 +1,35 @@
+## October 17 eligible both-absent recovery wired before ordinary target dispatch
+
+Added automatic-pair-recovery for ordinary account-bound requests only. Healthy
+primary returns immediately; surviving standby stays on existing cold-recovery
+path. Exact automatic enrollment plus independently eligible pair plan required.
+Original target account/identity and retained grants checked before recovery;
+fixed recipient-epoch operations never silently adopt a replacement standby.
+A separate automatic-pair lock serializes parents BEFORE controller route lock,
+avoiding parent/child deadlock. Bootstrap child uses stable controller+binding
+idempotency key and durable240sec scheduler budget; submission/result/checkpoint
+uncertainty stops without retry. Child may continue after parent cancellation.
+New target request is still NOT dispatched until binding, epochs, intended target,
+source/generation/capacity/grants are freshly admitted under normal route lock.
+
+Recovery job trace is retained in automatic-pair-recoveries/<parent>.json and
+ordinary route ledgers/public results as pairRecoveryJobId/recoveryMode. A failed
+post-recovery admission retains targetDispatchedfalse and original child identity.
+No background wake, observer-owned legacy recovery or repeated outage test added.
+Focused automatic/cold/maintenance/MCP37/37 PASS12.7sec; no full/native repeat after
+prior successful real governor bootstrap. Implementation/synthetic coverage does
+not itself qualify automatic native outage dispatch.
+
+Remaining explicit gap: eligible pairs recover automatically, but an interrupted
+renewal with a not-yet-abandoned unknown read still refuses planning. Need compose
+exact offline metadata-read abandonment child (preserving unknown/nonmutation
+scope) before replan, then exact lineage bootstrap; unknown mutations remain held.
+Do not imply the earlier explicit abandonment was automatic. Following integration,
+perform strategic current-source cross-harness/native qualification and one final
+MCP refresh. Live pair89c7/c404 remains prior source; no new messages/fixtures or
+native effects this turn. Original owned lifecycle fixture cleanup stays complete.
+Goal active; all test handles terminal.
+
 ## October 17 real both-absent governor recovery completed with renewal lineage
 
 Connected exact verified interrupted-renewal lineage to pair planning/execution,
