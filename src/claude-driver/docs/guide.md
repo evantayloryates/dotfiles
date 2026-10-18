@@ -2523,3 +2523,12 @@ restored pair planning with `restoration_kind:"seeded"`. Record restoration does
 not establish bypass mode, native startup or serving readiness. The Oct18 native
 fixture recreated the original UUID record, then correctly waited for human mode
 selection/startup; full reciprocal service recovery is still unqualified.
+
+
+The minimal recovery seed explicitly uses CLI `dontAsk` with all tools and MCP
+servers disabled. In the Oct18 native import, Desktop preserved that mode and
+showed “Don't ask”, although the displayed mode menu omitted that entry. `dontAsk`
+denies calls which would prompt; it does not grant bypass authority. Select actual
+Bypass permissions through the native UI before service reactivation. Fresh native
+processes can separately require loader initialization and person-owned hot-reload
+consent. Installation and a saved bypass mode alone do not establish readiness.

@@ -1,3 +1,54 @@
+## October 18 recovered bypass confirmed; pair activation reached native loader gate
+
+Taylor supplied Desktop ref-1/ref-2 images showing actual Don't ask label and
+mode menu without that entry before selecting bypass. Source service-rebuild-seed
+explicitly requests dontAsk for no-tools/no-MCP seed; imported native record kept
+that mode. This is NOT bypass: official Claude permissions docs state actions
+which would prompt are denied, preapproved/no-approval actions can run. Our seed
+also disabled tools/MCPs independently. Do not describe all imports as universally
+acceptEdits: regular creation and this seeded import have distinct actual outcomes.
+Verified same restoredUUIDaf930615 now savedbypassPermissions, idle newPID41342/
+startSunOct18 17:16:23UTC/desktop2.1.299. Startup cause remains unassessed.
+
+Exact seeded pair plan qualified original continuationj38a7... and restored
+primary epoch plus unchanged standby23690. One durable pair reactivation
+jd64da9d75f294eb7868a201b40bbb634/source5ee1ea07 executed:
+prepare-primaryje6959ee1ad45444b924620f713d06631,
+prepare-standbyj45ac0aba1e424f00be90a3cb6ff7b58e,
+quiesce-survivorj6e99e46383b3434f8becaa8bddbbb7d4,
+retire-survivorj4ac6515c6f1b4c50a394e43c70889b58,
+activate-primaryj0b6e3a3f871a476ebe7cbd07fe591e28 all COMPLETED.
+Original standby generation filesretired with STOP; settings preserved.
+Primary successor e6959ee1 installed/new epoch, standby successor45ac0aba prepared
+NOT activated. ParentFAILED before-readiness-primary, precise retained failure
+independent_service_readiness_timeout. Native loader had not initialized; source
+and prepared roles remained unchanged. No policy/read/family/enrollment CAS or
+import repetition, and no serving/always-on claim. Failed root/claim preserved.
+
+After confirming actual failed parent, captured fresh recovered-session event
+cursor then one explicit loader Skill entryj383eaeaa2c374a27818abb9ddf174e1b,
+exact peer native user receipt. Current successor statusverifiedtrue/readinessfalse/
+nativeInputRequiredtrue; request slots0. Async person action: Claude Code exact
+recovered title, IF Enable hot reloading for this session? choose Enable for this
+session and Submit. Native consent is separate from bypass; do not resend loader
+or answer card. Private deleted-service-native-fixture-20261018.json retains all.
+
+NEXT: after native loader consent, inspect same installed primary readiness and
+exact original pair child results. Implement an explicit safe continuation of this
+failed pair prefix (original root/claim preserved). Do NOT resubmit whole pair
+reactivation: its restoration claim is already consumed and survivor retired.
+New continuation must independently attest original failed parent/root/hash,
+completed prepare/quiesce/retire/activate children and exact native source/epochs/
+settings/roles, adopt existing primary successor and prepared standby without
+repeating effects, then policy-primary, standbyactivation/readiness/policy,
+reciprocal reads/family and qualified enrollment CAS. Preserve original child
+idempotency/source lineage in transition proof; current-source continuation may
+need to read sealed original5ee1ea07 packages without pretending they are newly
+compiled. Refuse unknown partial prefix, source/account/epoch/selector drift and
+competing continuation; never release/reassign original restoration claim.
+Working broker pair and ProDevs untouched; no live pair/loader worker remains.
+Goal active, Codex bridge parked. No suite rerun: no runtime edits this turn.
+
 ## October 18 continuation source fresh cross-harness checks; native mode pending
 
 Fresh actual filtered Claude/Codex harnesses on source5ee1ea075972e7fc961b35584ec30db96f9d470f1cce92fcda69edba61698736
