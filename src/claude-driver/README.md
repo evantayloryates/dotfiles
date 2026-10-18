@@ -522,10 +522,18 @@ is no environment override. Transport acceptance does not qualify model serving.
 Original mechanism qualification verified against Claude desktop 2.9939.4, bundled Claude Code CLI 2.1.284 and
 Codex CLI 0.159.0 on 2026-09-30.
 
-V2 qualification on 2026-10-06 uses source fingerprints and retained private
-reports. Current native environment is Claude desktop 2.19675.0 / bundled CLI
-2.1.286; comprehensive live qualification remains unfinished.
+V2 qualification uses source fingerprints and retained private reports. The
+October 6 environment was Claude desktop 2.19675.0 / bundled CLI 2.1.286;
+those results retain their historical scope.
 See [v2 qualification](docs/v2-qualification.md) for evidence and outstanding
-checks, including refreshing this chat's still-legacy MCP connection.
+checks, and the [full completion audit](docs/completion-audit.md) for current
+requirements and limits.
 
 Current staging status and outstanding implementation: [docs/staging-status.md](docs/staging-status.md).
+
+Verified against Claude desktop 2.42304.0 / bundled CLI 2.1.299 on 2026-10-18:
+installed metadata, four saved MCP registrations, and the unchanged 195-file
+isolated suite. Fresh Claude 2.1.299 and Codex 0.159.3 MCP contracts each pass
+10/10 on private synthetic stores. This chat's loaded MCP still needs refresh.
+Independent native clients can receive duplicate input during helper retirement;
+UI quarantine remains enabled and full native qualification is incomplete.

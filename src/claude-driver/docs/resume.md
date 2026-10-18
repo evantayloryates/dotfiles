@@ -1,3 +1,35 @@
+## October 18 read-only completion and registration audit
+
+Current source remains182ed05d; full goal remains incomplete. All four saved
+MCP registrations enabled/canonical; both Claude/Codex skills installed as real
+directories with SKILL.md/MEMORY.md/memories/. CLI/MCP share93 unique OPS.
+Fresh actual protocol checks already pass10/10 each for Claude/Codex on private
+synthetic stores; do not repeat them unchanged. Cursor now independently reports
+unauthenticated through supported JSON status; OpenCode is absent from PATH.
+No auth, install or saved configuration change was made.
+
+Actual calling MCP stillfcf484e3/source182ed05d/restartRequired=true; native
+controller admission unverified, effects0/recoveryfalse. ProDevs saved state is
+unarchived+pinned; saved idle process metadata is not native serving proof.
+No wake/restart/message/input occurred. Entire195-suite filename set,199 evidence
+filenames/hashes, source and installed binary identity match the frozen68.519s
+passing result. Briefhasha7c74940 and quarantinehash9808e860 are unchanged.
+README historical version footer corrected; current environment2.42304.0/2.1.299
+is explicitly metadata/contract scope, not native UI clearance.
+
+Private native-owner-20261018/completion-{registration-current,skill-install,
+final-audit,suite-reuse}.json plus cursor-auth-status-sanitized.json retain the
+refresh. Completion audit maps the full original requirements and next owners.
+The isolated hook approval was already consumed by the retained actual-host
+tests; no consent repetition or new unchanged native test is needed.
+
+NEXT: native safety requires a changed safe runtime, supported owner-scoped
+disposal or proved cross-client input coordination. Prepared upstream packet is
+not sent. Local CUA stays disabled. No unchanged input/physical-key setup, native
+runtime patch, broker wake or auth change. MCP refresh alone cannot fix input
+corruption. Goal ACTIVE, not complete; read actual goal status before ending an
+unfinished turn and apply blocked threshold only at a genuine repeated impasse.
+
 ## October 18 valid paste route still corrupts an independent active client
 
 VERIFIED FAILURE on unchanged production182ed05d/nativef21c31c0. Buffered logs

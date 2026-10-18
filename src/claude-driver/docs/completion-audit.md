@@ -64,12 +64,37 @@ The original [brief](brief.md) remains unchanged (SHA256
 
 ## Original requirements and current proof
 
+Read-only refresh at 2026-10-18T21:38Z confirms all four saved registrations
+are enabled and resolve to the executable canonical launcher. Claude and Codex
+global skills are separate real directories; each has SKILL.md, MEMORY.md and
+memories/. CLI and MCP derive the same 93 uniquely named operations from OPS.
+These are configuration and interface findings, not four live harness passes.
+Cursor's supported JSON status currently reports unauthenticated; OpenCode is
+absent from PATH. No login, install or configuration change was attempted.
+
+Actual calling-chat MCP readback still has runtime fcf484e3, source182ed05d and
+restartRequired=true. Native controller admission remains unverified with zero
+native effects requested and no recovery attempted. ProDevs saved readback is
+unarchived and pinned; its saved idle PID is not independently verified serving
+evidence. No ordinary-chat message was sent during this refresh.
+
+Reusing the full195-file result is independently justified by equality of the
+entire test filename set, all199 evidence filename/hash entries, runtime source
+and installed Claude binary identity. No new test is hidden by checking only
+old hash keys. Original brief and quarantine hashes remain unchanged. No full
+suite rerun or native input probe was needed for this documentation audit.
+
+Private refresh artifacts in pressure/input-investigation-20261018/
+native-owner-20261018: completion-registration-current.json,
+completion-skill-install.json, completion-final-audit.json,
+cursor-auth-status-sanitized.json and completion-suite-reuse.json.
+
 | Requirement | Finding | Evidence and limit |
 | --- | --- | --- |
 | Ready whenever the Mac is logged in and active | Incomplete | Saved app-quit readback explicitly says automaticAppRestartQualified=false and humanStartupRequired=true. No changed supported ingress exists for all-Code-processes-absent startup. Do not repeat unchanged outage tests. |
 | MCP registered in Claude Code, Codex, Cursor and OpenCode | Verified configuration | All four enabled commands resolve to the same current launcher. Two spellings use the dotfiles symlink; these are not different installations. Registration does not prove executable/auth access. |
 | Actual cross-harness operation | Partial | Fresh actual Claude2.1.299/Haiku4.5 and Codex0.159.3/configured gpt-6-sol each pass10/10 on current182ed05d, private synthetic MCP stores only; no native controls or shell calls. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
-| Global skill and shared guidance | Verified installation | Claude skill is a real directory with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory. |
+| Global skill and shared guidance | Verified installation | Claude and Codex skills are real directories, each with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory; all93 operations share OPS definitions. |
 | Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 195-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
 | Queue, stop and interrupt | Native evidence | Ordinary12 on df52d791 passed busy queue, native stop/replacement, preserved queued turn and unique causal replies. Current full suite passes frozen recipient and uncertainty cases. Recipient receipt is not instruction application; reply evidence is assessed separately. |
 | Ordinary chats, including ProDevs | Native evidence | df52d791 same-state ProDevs pin completed through the ordinary native route; readback after current project gate still verifies unarchived and pinned. No test task message was sent to ProDevs. |
@@ -88,7 +113,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Sustained serving under natural pressure | Incomplete | Recorded short same-PID residency and a natural governor eviction are different evidence. No current report proves continuous serving through every pressure/quit/consent circumstance. |
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
-| Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
+| Docs and publication | Checkpoint maintained | README, guide, findings, resume and qualification records retain source-specific limits. Updates are committed and published through dotfiles-publish; the original brief remains unchanged. |
 | Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Latest actual readback reports runtime fcf484e3/source182ed05d/restartRequired:true; native controller admission remains unverified. Current source182ed05d has isolated and remote read-only proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
@@ -197,3 +222,15 @@ legacy broker, change auth/person gates, or call the objective complete because
 fresh synthetic-store MCP contracts passed. Always-on cold startup, natural
 pressure, native person gates and the remaining original requirements still
 need their own authoritative proof.
+
+The next native safety action belongs to the runtime maintainer or an explicitly
+scoped implementation that changes that condition. The prepared upstream packet
+has not been sent. Taylor need not repeat the already approved isolated hook
+consent; its actual dispatch and failed cleanup evidence are retained separately.
+Refreshing this chat's MCP would adopt source182ed05d but would not repair the
+native input failure. Cursor authentication and OpenCode installation are
+separate access prerequisites for eventual four-harness execution, not reasons to
+alter credentials or configuration during this audit. The agent can requalify
+when a changed safe runtime/coordination condition is available. Do not keep
+running identical native probes, restart the observer's broker or mark the full
+goal complete in the meantime.
