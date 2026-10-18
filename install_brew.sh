@@ -32,7 +32,7 @@ log() {
 # they're also depended on directly (webp for assets/wallpaper.webp) rather
 # than being left as incidental dependencies that a future `brew autoremove`
 # could take out from under us.
-FORMULAE=(libtiff webp ffmpeg imagemagick chafa)
+FORMULAE=(libtiff webp ffmpeg imagemagick chafa poppler mdcat)
 [[ -n "$BREW_FORMULAE" ]] && read -r -a FORMULAE <<< "$BREW_FORMULAE"
 
 # --- Homebrew itself --------------------------------------------------------

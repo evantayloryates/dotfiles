@@ -59,6 +59,8 @@ something setup should do behind your back.
 | `ffmpeg` | Video workhorse |
 | `imagemagick` | Image workhorse |
 | `chafa` | Inline terminal image previews through `o <image>` |
+| `poppler` | PDF page previews and text extraction through `o <file.pdf>` |
+| `mdcat` | Styled terminal previews for Markdown files |
 
 `libtiff` and `webp` would arrive anyway as dependencies of the other two; listing
 them keeps a future `brew autoremove` from taking them back out.
@@ -70,7 +72,7 @@ them keeps a future `brew autoremove` from taking them back out.
   `/usr/local` (Intel) — and then `eval`s `brew shellenv`, matching the shape
   `src/path/common.sh` gives interactive shells.
 - **`brew update` only runs when something is actually missing.** It's the expensive
-  step (it fetches every tap), so a re-run with all four formulae present makes zero
+  step (it fetches every tap), so a re-run with all required formulae present makes zero
   network calls. Formulae install one at a time, so one broken formula can't take the
   rest of the list down with it.
 - **Linking is converged too.** Homebrew records each linked keg under
@@ -278,19 +280,26 @@ reload_dotfiles  # or use the alias: dr
 
 ## 🎯 Customization
 
-### Preview and copy an image with `o`
+### Preview and copy a file with `o`
 
-On macOS, `o image.png` renders a single existing image in the terminal with
-Chafa, then places a macOS file URL for the original image on the clipboard.
-A file-capable chat composer can read the original bytes, format, and metadata
-from that URL. If that copy fails, `o` prints a red error and copies
-the decoded image as PNG data instead. The PNG fallback runs in memory and
+On macOS, `o image.png` renders an image with Chafa. `o document.pdf` shows
+the first page with its page count and a short extract of selectable text.
+`o notes.md` renders Markdown with mdcat, including local resources only.
+Markdown needs a `.md` or `.markdown` suffix and text content; images and PDFs
+are detected from their contents.
+
+After the preview, `o` places a macOS file URL for the original file on the
+clipboard. A file-capable chat composer can read the original bytes, format,
+and metadata from that URL. If this fails, image files fall back to in-memory
+PNG data; PDFs and Markdown skip that step. All three types then fall back to
+copying the absolute path if needed. Failed steps print a short red error, and
+the success message says which representation was copied. The PNG fallback
 creates no temporary file; animated images fall back to their first frame.
 JPEG, PNG, WebP, TIFF, AVIF, HEIC, SVG, GIF, BMP, and ICO are covered by the
 local fixtures in `/Users/taylor/Desktop/tests`.
 
 `o` with no arguments still opens the current directory. Flags, multiple
-arguments, directories, and files whose contents are not a supported image
+arguments, directories, and files outside these supported types
 still go through macOS `open`. The system default app for images is unchanged.
 Reload an existing shell with `reload`, or open a new shell.
 
@@ -298,9 +307,10 @@ Reload an existing shell with `reload`, or open a new shell.
 
 `cs [name]` (or `clipsend [name]`) saves clipboard content to `~/Desktop`,
 prints the saved path, and copies that absolute path back to the clipboard. If
-the saved file passes the same content-based image check used by `o`, `cs` also
-renders it with Chafa in the terminal. The preview does not change the path on
-the clipboard; directories and other file types are saved without a preview.
+the saved file passes the shared image, PDF, or Markdown check used by `o`,
+`cs` also previews it in the terminal. Its copy chain contains only the path
+step, so the clipboard ends with the saved absolute path. Directories and
+other file types are saved without a preview.
 
 ```zsh
 cs my-json-results  # Valid JSON -> ~/Desktop/my-json-results.json
