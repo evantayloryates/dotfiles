@@ -1,3 +1,42 @@
+## October 18 input investigation: narrow cleanup acknowledgement corrected
+
+Taylor answered "Investigate the input defect" while UI remains disabled.
+Actual goal resumed ACTIVE; prior blocked audit does not carry over. Work is
+narrow input investigation, not general Codex bridge or1Password changes.
+See docs/input-defect-investigation.md for causal limits and next native proof.
+
+Historical incident had two active helper keyboard filters on exact Claude PID,
+persisted across JS reset; helper retirement removed filters and human recovery
+was confirmed. Current read-only audits filters[]; helper70326 desktop-owned by
+69938, current package0.7.8/shared native IPC. Native server callback lifetime
+is unavailable in reviewed JS; no public scoped filter disposal method found.
+No current-binary fixed/unfixed or complete physical causal-chain claim.
+
+Concrete local regression reproduced against actual UI worker/fake backend:
+archive refusal containing ` archived.` was parsed as success, worker exit0.
+Original failing test/log preserved: pressure/input-investigation-20261018/.
+Bridge closeSession now has opt-in strict structured receipt for private worker;
+default public string contract unchanged. Refusal/lost ack retains original
+thread mapping, reports archiveOutcomeunverified, and fails lease. No retry or
+new thread. Disconnected backend cannot silently skip cleanup. Receipt explicitly
+says nativeInputReleaseAssessedfalse; parent filter post-audit remains required.
+
+Focused12 PASS; full191 PASS44.9sec frozen source/suite/installed Claude identity,
+sourceChangedfalse: pressure/v2-2026-10-18T18-58-16-228Z.json. New source
+5d15b13f439b81452637d44e9b43d93b311c53add202fdf894d77a2a206aa9ac.
+Private investigation.json/final-readback.json bind shipped/bridge source hashes,
+helper version/hash, filters0 and unchanged quarantine hash. No CUA initialized,
+native IPC/input, helper/app/session kill, permissions/auth/quarantine change,
+native test or new chat. No worker/cleanup remains. Original incident unchanged.
+
+NEXT: native scoped filter lifetime and physical-key qualification require a
+separately authorized isolated macOS test environment; current user instruction
+keeps UI disabled. Do not attempt that live test or clear quarantine. This fix
+only prevents false cleanup claims; it does not solve original typing defect
+or all-processes-absent startup. Loaded actual MCP remainsfcf4/source5d15/
+restartRequiredtrue; no new restart request until native route can be qualified.
+Previous native/harness proofs retain their earlier sources; don't relabel5d15.
+
 ## October 18 resumed audit 3: blocked on unattended native startup
 
 Same startup barrier persists in three consecutive resumed goal turns, including

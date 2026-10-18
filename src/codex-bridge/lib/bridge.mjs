@@ -211,7 +211,7 @@ export class Bridge {
 
   // Archive the session's thread on the daemon (which frees its MCP servers,
   // Computer Use REPL and app-server child) and forget the mapping.
-  async closeSession(session) {
+  async closeSession(session, { strict = false } = {}) {
     session = String(session)
     if (this.active.has(session)) throw new BridgeError(`session "${session}" has a turn running; interrupt it first`)
     const rec = loadState().sessions[session]
@@ -221,12 +221,21 @@ export class Bridge {
     try {
       await this.app.request('thread/archive', { threadId: rec.threadId })
     } catch (err) {
+      // Private UI leases need an unambiguous acknowledgement and must retain
+      // their original handle when archive outcome is unknown. Do not infer
+      // native helper/resource disposal from the archive RPC acknowledgement.
+      if (strict) {
+        const failure = new BridgeError(`archive acknowledgement unavailable for thread ${rec.threadId}: ${err.message.slice(0, 120)}; mapping retained`)
+        failure.cleanup = { threadId: rec.threadId, archiveAcknowledged: false, archiveOutcome: 'unverified', mappingRetained: true, nativeInputReleaseAssessed: false }
+        throw failure
+      }
       archived = `archive failed (${err.message.slice(0, 120)}); mapping dropped anyway`
     }
     this.#loaded.delete(rec.threadId)
     updateState((s) => {
       delete s.sessions[session]
     })
+    if (strict) return { threadId: rec.threadId, archiveAcknowledged: true, mappingDropped: true, nativeInputReleaseAssessed: false }
     return `session "${session}" closed: thread ${rec.threadId} ${archived}. A new call with this session name starts a fresh thread.`
   }
 

@@ -41,10 +41,11 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `fcf484e3` passes all 191
-isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on this
-source. After Taylor restarted Codex, this desktop chat verified matching loaded
-and on-disk `fcf484e3` builds with `restartRequired:false` through its actual MCP.
+execution remains unqualified. Current host source `5d15b13f` passes all 191
+isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on
+`fcf484e3`. After Taylor restarted Codex, this desktop chat adopted `fcf484e3`.
+The later input-cleanup correction now requires a future loaded-client refresh;
+the MCP correctly distinguishes its loaded build from current source.
 One actual human-assisted native deletion test reaped the
 record and transcript, rebuilt the original UUID/account/workspace without replay,
 and restored both reciprocal receiver roles with native reads and verified
@@ -55,6 +56,13 @@ unqualified. The twelve-check ordinary profile passed on source `df52d791`.
 A current-source two-target project archive also passed with real child jobs,
 exact native receipts and restored baselines. Read-only post-restart MCP inspection
 retains those completed jobs and verifies ProDevs remains unarchived and pinned.
+
+The [input-defect investigation](docs/input-defect-investigation.md) reproduced
+and corrected a cleanup false-success condition using a synthetic backend.
+Strict private-worker cleanup now uses a structured archive acknowledgement and
+retains the thread handle on refusal or lost acknowledgement. Twelve focused
+checks passed. Native filter disposal and physical input are still unqualified;
+UI quarantine remains enabled. No native/UI test was run for this correction.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

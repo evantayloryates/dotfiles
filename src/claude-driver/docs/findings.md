@@ -1,4 +1,31 @@
-## October 18: this Codex chat adopts the final MCP after restart
+## October 18: input investigation reproduces a false cleanup success
+
+Taylor authorized investigating the input defect with UI disabled. Current
+read-only tap audit found no active helper keyboard filters targeting Claude;
+the October 6 two-filter/reset-survival/helper-retirement evidence remains a
+stale-filter hypothesis, not full native callback or current-binary proof.
+Installed desktop26.1013.31256/build20586, helper26.1013.1001501/build1001501;
+current helper is desktop-owned outside the private lease process group.
+Reviewed shipped client uses shared native IPC and has no public scoped-filter
+dispose method in the inspected files. No native client method was invoked.
+
+An isolated actual UI worker falsely exited0/reported threadArchived when its
+archive RPC failed with text containing ` archived.`. Failed proof preserved in
+pressure/input-investigation-20261018/ambiguous-archive-response.log. The worker
+now consumes a strict structured acknowledgement from the existing bridge;
+refusal/lost acknowledgement retains original mapping and reports unverified,
+never retries. Disconnection cannot silently skip cleanup. Legacy public close
+behavior preserved; unrelated Codex bridge fixes remain parked. Receipt does
+not claim native input release; independent filter post-audit still required.
+
+Focused12 PASS; final full191 PASS44.9sec, source/suite/installed identity frozen:
+pressure/v2-2026-10-18T18-58-16-228Z.json, source5d15b13f. Final targeted filters0,
+quarantine hash unchanged, reviewed source/dependency hashes unchanged. No CUA,
+keyboard/native IPC, permission/auth/quarantine change, app/helper termination,
+new chat or native profile. Full report docs/input-defect-investigation.md.
+Loaded MCP remainsfcf4/source5d15/restartRequiredtrue; no repeated restart request.
+Physical input/filter teardown and unattended cold startup remain unqualified.
+Goal ACTIVE after user authorization; no test worker or cleanup pending.
 
 Actual loaded MCP now reports runtimeBuild==sourceBuild fcf484e3 and
 restartRequiredfalse. The same MCP reads the retained project parent and two

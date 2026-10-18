@@ -1,3 +1,18 @@
+## October 18 input-cleanup investigation — isolated correction only
+
+Current source5d15b13f: full191 frozen PASS44.9sec and focused12 PASS. Actual
+production UI worker/fake backend reproduced false cleanup success when archive
+refusal contained the English success phrase. Strict structured ack replaces
+text matching and retains thread mapping on refusal/lost ack; no automatic
+retry. Existing public close contract preserved. Native release explicitly
+unassessed; post-lease audit and human quarantine unchanged. No native/UI test,
+input, helper kill or permission change. Exact report/limits:
+docs/input-defect-investigation.md; private pressure/input-investigation-20261018/.
+Actual MCP remainsfcf4/source5d15/restartRequiredtrue after this later correction;
+prior adoption/harness/native proof stays source-qualified. No repeat restart
+request while UI is disabled. Goal ACTIVE following Taylor's authorization to
+investigate the input defect; original physical defect/cold startup still open.
+
 ## October 18 final loaded-client adoption closed
 
 After Taylor restarted Codex, actual this-chat MCP runtime/source match fcf484e3,

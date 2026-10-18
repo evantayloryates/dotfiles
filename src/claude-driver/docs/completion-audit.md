@@ -4,7 +4,11 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current source: `fcf484e3e94b4dfa804ec3bdca375d64d6f42cada92f3de27c500933ab5cbbc9`.
+Current source: `5d15b13f439b81452637d44e9b43d93b311c53add202fdf894d77a2a206aa9ac`.
+The [input investigation](input-defect-investigation.md) added a narrow cleanup
+acknowledgement correction after the fcf484e3 adoption checkpoint. Full191 and
+twelve focused checks pass on the new code. Native, actual harness and loaded
+MCP proofs retain their separately recorded earlier sources.
 The original [brief](brief.md) remains unchanged (SHA256
 `a7c74940d24e40877a04bea392a64406b2f9b79068012d6ae8082c8588fc7af7`).
 
@@ -14,7 +18,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | --- | --- | --- |
 | Ready whenever the Mac is logged in and active | Incomplete | Saved app-quit readback explicitly says automaticAppRestartQualified=false and humanStartupRequired=true. No changed supported ingress exists for all-Code-processes-absent startup. Do not repeat unchanged outage tests. |
 | MCP registered in Claude Code, Codex, Cursor and OpenCode | Verified configuration | All four enabled commands resolve to the same current launcher. Two spellings use the dotfiles symlink; these are not different installations. Registration does not prove executable/auth access. |
-| Actual cross-harness operation | Partial | Fresh actual Claude and Codex MCP contracts each pass 10/10 on current source. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
+| Actual cross-harness operation | Partial | Fresh actual Claude and Codex MCP contracts each passed 10/10 on fcf484e3, before the narrow input-cleanup correction. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
 | Global skill and shared guidance | Verified installation | Claude skill is a real directory with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory. |
 | Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 191-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
 | Queue, stop and interrupt | Native evidence | Ordinary12 on df52d791 passed busy queue, native stop/replacement, preserved queued turn and unique causal replies. Current full suite passes frozen recipient and uncertainty cases. Recipient receipt is not instruction application; reply evidence is assessed separately. |
@@ -35,7 +39,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Verified | After Taylor restarted Codex, actual loaded driver_status reported runtimeBuild==sourceBuild==fcf484e3 and restartRequired:false. The same MCP independently read the completed project parent/two children and ProDevs unarchived+pinned state. No new target effect or native test was required. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; latest correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. It now correctly reports runtime fcf484e3/source 5d15b13f/restartRequired:true after the later input-cleanup correction. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 
@@ -82,13 +86,13 @@ retained. Codex-driver and 1Password work remain separate.
 
 ## Next changed condition
 
-Loaded-client adoption is now closed. After the user resume, the same native
-startup blocker persisted through three consecutive goal turns, independently
-revalidated against unchanged installed handlers and the actual saved app-quit
-readback. The resumed blocked audit is satisfied; the goal is BLOCKED, not
-complete. There is no remaining Codex restart request, live test process or
-fixture cleanup pending. Taylor's direction is requested on whether to unpark
-the separate input-defect investigation; UI stays disabled during investigation.
+Taylor authorized the separate input-defect investigation while keeping UI
+disabled, and the actual goal resumed ACTIVE. It found and corrected a local
+cleanup false-positive without starting Computer Use. That correction does not
+resolve the physical input or native startup blocker. No live test process,
+fixture cleanup, quarantine release or further restart request is pending.
+The latest source is isolated-tested; actual loaded-client/native/harness
+adoption of that cleanup source remains a separate future gate.
 
 The remaining always-on startup, natural-pressure and person-gate requirements
 need a changed supported platform ingress or an independently resolved quarantine;

@@ -25,13 +25,14 @@ finally{
  // Disconnecting the transport or resetting JS alone does not release
  // a loaded thread's MCP/native input resources. Reuse the core's explicit
  // session close before terminating this private backend.
- if(bridge?.app.connected){
+ if(bridge){
   try{
-   const closed=await bridge.closeSession('claude-driver-ui')
-   if(!closed.includes(' archived.'))throw new Error(closed)
-   outcome.cleanup={threadArchived:true,receipt:closed}
+   if(!bridge.app.connected)throw new Error('private backend disconnected before archive acknowledgement')
+   const closed=await bridge.closeSession('claude-driver-ui',{strict:true})
+   if(closed?.archiveAcknowledged!==true||closed.mappingDropped!==true||typeof closed.threadId!=='string'||!closed.threadId)throw new Error('archive acknowledgement unqualified')
+   outcome.cleanup={threadArchived:true,receipt:closed,nativeInputReleaseAssessed:false}
   }catch(e){
-   outcome={...outcome,error:{category:'tier_c_cleanup_failed',message:e.message}}
+   outcome={...outcome,...e.cleanup?{cleanup:e.cleanup}:{},error:{category:'tier_c_cleanup_failed',message:e.message}}
    process.exitCode=1
   }
  }
