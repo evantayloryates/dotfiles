@@ -1,3 +1,32 @@
+## October 18 seeded restoration production adapter and filesystem gate
+
+Added seeded-restoration-execute.mjs internal adapter: exact durable context/plan,
+original primary route lock, immutable identity/recipe/account/source/version/role/
+selection snapshots, exclusive generation claim, actual scheduler retirement child
+handles and one bounded runCli bootstrap (fixed no-tools/no-MCP args), exact new
+transcript metadata locator, one focus-preserving deep-link import and same-account
+record/mode readback. Never invokes TierA automatic failed-bootstrap cleanup.
+Original new transcript/intent survives unknown bootstrap results. Source/account/
+policy/selection drift fails closed, native old PID absence and retired terminal
+history rechecked immediately before import. Not publicly exposed yet.
+
+Fresh transcript locator scans bounded project metadata and requires one exact
+private UUID transcript with any side-directory in same project; duplicates,
+foreign side-directory, links, empty/writable/foreign files and drift refuse.
+No transcript bytes read. Journal now explicitly kindseeded-record-restoration
+and retains top-level original enrollment digest for forthcoming normalized proof.
+
+Focused seeded adapter/sequence/planner/locator/recipe/existing-import24 PASS.
+Real private record/identity/policy/transcript files, kernel route lock, claim/root
+and child scheduler protocol; native lifecycle, CLI inference and deep-link effects
+simulated. Accept-edits/bypass outcomes explicit. CLI-result loss after transcript
+write preserves seed-before-bootstrap/bootstrapAttemptedtrue/importAttemptedfalse,
+no second bootstrap. No live CLI/auth/import/deletion/permission work performed.
+Next exact seeded-root/parent/recipe/claim/children proof and explicitly selected
+root kind into existing same-identity pair native/role reactivation; no generic
+proof coercion. Then expose/status/consolidate at stable gate. Goal active, no live
+jobs/cleanup pending; Codex bridge remains parked.
+
 ## October 18 seeded-record sequence and exclusive filesystem journal
 
 Added seeded-record-restoration.mjs orchestration: exact initial seed/recipe/identity

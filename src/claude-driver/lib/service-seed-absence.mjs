@@ -24,3 +24,21 @@ export function inspectServiceSeedTranscriptAbsence(cliSessionId,{projectsDir=jo
   return {verified:true,allTranscriptsAbsent:true,cliSessionId,projectCount:directories.length,fingerprint,contentRead:false,effectsPerformed:false}
  }catch{return no('project-metadata-unavailable')}
 }
+// Locate one exact freshly created UUID even when cwd's project name is hashed.
+// No transcript bytes are read; duplicate transcripts/side directories refuse.
+export function inspectServiceSeedTranscript(cliSessionId,{projectsDir=join(homedir(),'.claude','projects'),maxProjects=4096,uid=process.getuid()}={}){
+ if(!uuid.test(cliSessionId||'')||!Number.isInteger(maxProjects)||maxProjects<1||maxProjects>4096)throw Error('exact bounded seed transcript identity required')
+ const no=reason=>({verified:false,reason,contentRead:false,effectsPerformed:false})
+ try{
+  const root=resolve(projectsDir),r=lstatSync(root)
+  if(!r.isDirectory()||r.isSymbolicLink()||r.uid!==uid||r.mode&0o022||realpathSync(root)!==root)return no('project-root-unqualified')
+  const names=readdirSync(root).sort();if(names.length>maxProjects)return no('project-inventory-bound')
+  const dirs=[],found=[]
+  for(const name of names){const path=join(root,name),s=lstatSync(path);if(s.isSymbolicLink()||s.uid!==uid)return no('project-entry-unqualified');if(!s.isDirectory())continue;if(s.mode&0o022)return no('project-directory-unqualified');dirs.push({path,stamp:stamp(s)})
+   for(const suffix of ['.jsonl',''])try{const file=join(path,cliSessionId+suffix),a=lstatSync(file);if(a.isSymbolicLink()||a.uid!==uid||a.mode&0o077||suffix&&(!a.isFile()||a.size<1)||!suffix&&!a.isDirectory())return no('exact-cli-artifact-unqualified');found.push({file,project:path,suffix,stamp:stamp(a)})}catch(error){if(error.code!=='ENOENT')throw error}
+  }
+  const files=found.filter(x=>x.suffix==='.jsonl');if(files.length!==1||found.some(x=>x.project!==files[0].project))return no('exact-single-transcript-required')
+  if(!same(names,readdirSync(root).sort())||!same(stamp(r),stamp(lstatSync(root)))||dirs.some(d=>!same(d.stamp,stamp(lstatSync(d.path))))||found.some(a=>!same(a.stamp,stamp(lstatSync(a.file)))))return no('project-metadata-changed')
+  return {verified:true,cliSessionId,fingerprint:createHash('sha256').update(JSON.stringify({cliSessionId,root,artifacts:found})).digest('hex'),contentRead:false,effectsPerformed:false}
+ }catch{return no('project-metadata-unavailable')}
+}
