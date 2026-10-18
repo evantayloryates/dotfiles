@@ -1,3 +1,26 @@
+## October 17 MCP UI correction and independent service health candidate
+
+Taylor supplied Desktop/question-p1.png and question-p2.png. Read both: actual
+Codex Plugins/MCPs page shows enable toggle and gear; editor shows launch command,
+arguments/env/cwd/save/uninstall, NO Restart button. Earlier generic docs-based
+instruction was wrong for this installed custom-MCP surface. Acknowledge correction;
+do not instruct uninstall/remove/readd or global restart. Asked minimally:
+In Codex Plugins -> MCPs,turn claude-driver off,then on. This is a reversible
+reconnect attempt, NOT yet verified reload. Direct driver_status must prove actual
+loadedruntime=current/restartRequiredfalse after user action before claiming fixed.
+
+While waiting, found service_health described only legacy broker. Added optional
+EXACT session+service_id pair; default legacy behavior unchanged. New independent
+snapshot sanitizes fixed identity/build/native evidence/readiness/policy/capacity/
+expiry/unknown count. No prompt/results/cwd or rawerror data; inferenceunknown,
+no authorization/recovery/nativeeffects/model calls. Missing/stopped/expired/busy/
+foreign/unknown evidence never becomes observed read admission. Explicit receiver
+only, no broad session inventory. Retains same bounded diagnostic metadata policy.
+Focused3healthtests pass including privacy and fail-closed cases. Actual primary
+CLI health snapshot health-1792284518008.json verifiedlive/PID96436/readiness+policy/
+admissionobserved/0unknown/23slots/notexpired,0nativeeffects. Full v2-2026-10-18T00-48-55-856Z PASS1/1/sourceunchanged; filtered
+Claude00-48-18-389Z/Codex00-48-19-537Z PASS10each. No native effect jobs active.
+
 ## October 17 recovered-controller concurrent reads and current idle observation
 
 Previousbatch7d39bd9. Four CONCURRENT durable broker_service_read submissions on

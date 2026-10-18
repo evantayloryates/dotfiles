@@ -1619,3 +1619,13 @@ stages and a terminal wake preparation refusal with no publication. A persistent
 one-use claim prevents another continuation of the same original child. Only
 remaining restoration stages run; the failed jobs remain failed. Standby rebind
 uses the new completed continuation parent. This does not enable automatic recovery.
+
+### Independent service health snapshots
+
+`service_health {session, service_id}` observes only that exact independent
+receiver and writes bounded metadata diagnostics. Both arguments are required
+together; omitting both retains legacy broker diagnostics. The snapshot separates
+native epoch/readiness/policy, capacity, expiry and unresolved count from inference
+availability. Observed read admission is evidence only and never authorizes an
+operation, wake or recovery. Prompts, raw results, paths and exception text are
+excluded. An old legacy broker snapshot does not describe the independent pair.

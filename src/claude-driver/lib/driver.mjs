@@ -1151,9 +1151,9 @@ export const OPS = [
   },
   {
     name:'service_health', title:'Service health diagnostics', readOnly:true,
-    description:'Observe broker liveness, runtime integrity and serving evidence without inference; persist bounded metadata-only diagnostic history. Never authorizes dispatch.',
-    schema:{properties:{}},
-    run:async()=>{const {captureServiceDiagnostics}=await import('./service-diagnostics.mjs');return captureServiceDiagnostics()},
+    description:'Observe legacy broker or explicitly named independent service liveness, runtime integrity and serving evidence without inference; persist bounded metadata-only diagnostic history. Never authorizes dispatch.',
+    schema:{properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},
+    run:async(args,ctx)=>{const d=await import('./service-diagnostics.mjs');if(args.session!==undefined||args.service_id!==undefined){if(!args.session||!args.service_id)throw new DriverError('exact session and service_id required together',{category:'bad_args'});return d.captureIndependentServiceDiagnostics(args.session,args.service_id,{signal:ctx.signal})}return d.captureServiceDiagnostics()},
   },
   {
     name: 'broker_recovery_status',
