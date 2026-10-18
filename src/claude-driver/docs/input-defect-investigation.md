@@ -9,6 +9,10 @@ retention with real Codex turn metadata and a successful Stop hook, including a
 15-second settling window while a second client remains connected. Hook success
 does not establish native cleanup; adding a duplicate hook would not resolve the
 observed boundary.
+The later [ownership investigation](native-input-ownership.md) identifies native
+app-instance/deactivation paths and the user-wide socket boundary, and adds
+secondary-target filter evidence to the existing audit without changing its
+Claude-specific health gate.
 No local Computer Use runtime, input injection, helper retirement or quarantine
 release occurred.
 

@@ -41,10 +41,10 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `5d15b13f` passes all 191
+execution remains unqualified. Current host source `4d2c654e` passes all 191
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on
 `fcf484e3`. After Taylor restarted Codex, this desktop chat adopted `fcf484e3`.
-The later input-cleanup correction now requires a future loaded-client refresh;
+The later input-cleanup and diagnostic corrections require a future loaded-client refresh;
 the MCP correctly distinguishes its loaded build from current source.
 One actual human-assisted native deletion test reaped the
 record and transcript, rebuilt the original UUID/account/workspace without replay,
@@ -63,6 +63,13 @@ Strict private-worker cleanup now uses a structured archive acknowledgement and
 retains the thread handle on refusal or lost acknowledgement. Twelve focused
 checks passed. Native filter disposal and physical input are still unqualified;
 UI quarantine remains enabled. No native/UI test was run for this correction.
+
+Input-audit evidence also retains helper keyboard filters on other target PIDs,
+with an explicit target-specific scope and `nativeInputReleaseAssessed:false`.
+Those records aid diagnosis without treating another client's active filters as
+stale or changing the Claude health gate. [Actual-host tests](docs/host-turn-end-qualification.md)
+confirm retention despite successful Stop dispatch; [ownership findings](docs/native-input-ownership.md)
+rule out separate CODEX_HOME directories as sufficient helper isolation.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

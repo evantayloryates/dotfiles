@@ -4,11 +4,15 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current source: `5d15b13f439b81452637d44e9b43d93b311c53add202fdf894d77a2a206aa9ac`.
+Current source: `4d2c654e092301b6369f1027a87267ac539543287ea22934ba31d41123e1e17a`.
 The [input investigation](input-defect-investigation.md) added a narrow cleanup
 acknowledgement correction after the fcf484e3 adoption checkpoint. Full191 and
 twelve focused checks pass on the new code. Native, actual harness and loaded
-MCP proofs retain their separately recorded earlier sources.
+MCP proofs retain their separately recorded earlier sources. The later
+[ownership/audit change](native-input-ownership.md) retains secondary-target
+filter metadata without changing the Claude gate. Five focused tests and the
+full 191-file isolated suite pass on current source (47.9 seconds,
+pressure/v2-2026-10-18T19-47-35-408Z.json).
 The original [brief](brief.md) remains unchanged (SHA256
 `a7c74940d24e40877a04bea392a64406b2f9b79068012d6ae8082c8588fc7af7`).
 
@@ -39,7 +43,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Prior adoption verified; latest correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. It now correctly reports runtime fcf484e3/source 5d15b13f/restartRequired:true after the later input-cleanup correction. No further restart is requested during disabled-UI investigation. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source 4d2c654e has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 
@@ -99,8 +103,13 @@ The later [actual-host qualification](host-turn-end-qualification.md) adds real
 native context and verified Stop dispatch: keyboard filters still persisted for
 15 seconds after host EOF while another client stayed connected. Both synthetic
 deliveries were exact; cleanup correctly failed. Physical duplicate typing is
-not reproduced or ruled out. Next inspect the native owner/reference and supported
-helper-instance boundary before designing an ownership fix. No fabricated
+not reproduced or ruled out. The [ownership investigation](native-input-ownership.md)
+then found app termination clears filters while another client/helper stays live,
+and that separate CODEX_HOME directories still select a shared user socket.
+No supported owner-scoped release endpoint was found in the reviewed API. The
+[upstream reproduction packet](native-input-upstream-repro.md) is prepared,
+not sent. A supported native release contract or changed runtime is needed for
+the next cleanup qualification. No fabricated
 metadata/private disposal route/shared-helper kill is authorized. All owned
 remote processes are stopped, Switchboard is preserved,
 and no fixture cleanup, local quarantine release or restart request is pending.

@@ -1,3 +1,58 @@
+## October 18 native app lifetime narrowed; audit coverage improved
+
+PROGRESS: source4d2c654e adds secondary-target helper keyboard-filter evidence to
+the existing audit. It preserves the Claude-specific filter gate and records
+nativeInputReleaseAssessed:false; other callers' active filters do not become
+inferred leaks. Original native snapshot replay retains both previously omitted
+targets. Five focused tests pass; full191 passes once in47.9s with unchanged
+source/suite/installed identity (pressure/v2-2026-10-18T19-47-35-408Z.json).
+No loaded-MCP or actual native/harness proof is relabeled as this source.
+Candidate memorya21a75f9 is independently readable through the actual MCP;
+that proves shared-memory visibility, not loaded-source adoption.
+
+Static current client60b3653f connects first to a shared macOS-user socket;
+CODEX_HOME only selects a fallback app launch. Separate test homes are not
+helper isolation. Native symbols show a shared app-instance manager, app
+controller/focus enforcer/termination observer and ViewBridge keyboard tap.
+Compiled end-by-user-request calls controller deactivation, but no public App
+release/deactivate endpoint was found. Internal pipe/env overrides were not used.
+
+Changed-condition remote test run-1792352881902-3c70a408 first reproduced real
+Stop/EOF retention, then stopped ONLY the disposable fixture through its own
+stop file. Both filters cleared at1/5s while helper2576 and the same second
+client remained live. Last-client EOF then removed helper normally. This narrows
+cleanup to an app-lifetime boundary in this fixture; not a physical-key callback
+proof, supported scoped-release fix or justification to quit Claude per request.
+
+Detailed findings: docs/native-input-ownership.md. Prepared, NOT SENT upstream
+packet: docs/native-input-upstream-repro.md. Twelve additional private remote
+files mirrored and hash-verified under native-owner-20261018; final inventory has
+no owned process/helper/filter, original four non-helper taps, old repo0203e604
+clean and Switchboard/caffeinate508/510 unchanged. Local quarantine9808e860 stays
+blocked/unchanged. No local CUA/input, helper kill, permission/auth change, app
+restart or new human prompt. Original service pairs/ProDevs/observer retained.
+
+Blocked audit NOT satisfied: despite the repeated cleanup failure, a new concrete
+read-only startup lead remains. Static strings found the same pipe-path override
+name in the native helper itself. NEXT inspect server-side binding/startup and
+instance semantics before deciding whether a remote owned-instance isolation
+experiment is justified. No override executed or isolation contract proven.
+The generic SocketServer symbol search found only lock-screen authorization
+code; it is unrelated and must not be followed. Keep the next inspection scoped
+to the Computer Use service's ordinary startup/pipe binding, excluding auth.
+Keep actual goal ACTIVE; never call the mere presence of a string a supported
+mode or weaken permissions/signatures to test it. No local helper work.
+
+No supported native disposal API/source fix or safe per-worker isolation has
+yet been established. Repeating probes, duplicating Stop hooks, resetting JS or
+changing CODEX_HOME alone does not supply that contract. App termination is not
+an acceptable per-request cleanup strategy for ordinary Claude work. The prepared
+upstream packet is ready for review/share if the startup lead does not establish
+a legitimate ownership path; no external send is authorized. Always-on cold
+startup, physical-input qualification, current actual adoption and the full audit
+remain open. Broad Codex bridge fixes and1Password stay parked. No native test
+handle, fixture cleanup or human prompt is pending.
+
 ## October 18 actual host Stop verified; native filter cleanup still fails
 
 PROGRESS: Taylor approved isolated one-off tests of the exact reviewed Stop hook.

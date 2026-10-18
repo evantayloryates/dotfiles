@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 const root=mkdtempSync(join(tmpdir(),'claude-input-health-'))
 process.env.CLAUDE_DRIVER_STATE_DIR=root
-const {survivingClaudeFilters,assertInputHealthy}=await import('../lib/input-health.mjs')
+const {survivingClaudeFilters,inputFilterInventory,assertInputHealthy}=await import('../lib/input-health.mjs')
 const {readJson,writeJsonAtomic}=await import('../lib/state.mjs')
 const {UI_QUARANTINE}=await import('../lib/ui-policy.mjs')
 const processes='42 /Users/test/.codex/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService\n7 /Applications/Claude.app/Contents/MacOS/Claude\n8 /Applications/Other.app/Contents/MacOS/Other\n99 /Applications/Other.app/Contents/MacOS/SkyComputerUseService'
@@ -22,6 +22,22 @@ test('clean audit records evidence without releasing an existing human quarantin
  await assertInputHealthy({phase:'after-lease',evidence,audit:async()=>({at:'audit',filters:[]})})
  assert.equal(readJson(evidence).filters.length,0)
  assert.equal(readJson(UI_QUARANTINE).reason,'human incident')
+})
+test('retains helper filters on other targets without inferring ownership or native release',async()=>{
+ const viewBridge={...tap,tapId:3,targetPid:431}
+ const otherApp={...tap,tapId:4,targetPid:8}
+ const inventory=inputFilterInventory([viewBridge,otherApp,{...tap,ownerPid:99}],processes)
+ assert.deepEqual(inventory.filters,[])
+ assert.deepEqual(inventory.otherTargetFilters.map(t=>t.targetPid),[431,8])
+ assert.equal(inventory.nativeInputReleaseAssessed,false)
+ writeJsonAtomic(UI_QUARANTINE,{blocked:false})
+ const evidence=join(root,'other-targets.json')
+ await assertInputHealthy({phase:'metadata-only',evidence,audit:async()=>inventory})
+ assert.deepEqual(readJson(evidence).otherTargetFilters,[viewBridge,otherApp])
+ assert.equal(readJson(evidence).nativeInputReleaseAssessed,false)
+ assert.equal(readJson(UI_QUARANTINE).blocked,false)
+ // Restore the original human incident for the later leak-preservation check.
+ writeJsonAtomic(UI_QUARANTINE,{blocked:true,reason:'human incident',at:'original',source:'human'})
 })
 test('a leaked filter quarantines further UI leases and preserves a human incident',async()=>{
  await assert.rejects(assertInputHealthy({phase:'after-lease',evidence:join(root,'leak.json'),audit:async()=>({filters:[tap]})}),e=>e.category==='ui_quarantined')

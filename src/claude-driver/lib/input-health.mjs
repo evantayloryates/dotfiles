@@ -10,19 +10,26 @@ import {UI_QUARANTINE} from './ui-policy.mjs'
 const run=promisify(execFile)
 const script=fileURLToPath(new URL('../scripts/input-taps.swift',import.meta.url))
 
-export function survivingClaudeFilters(taps,processes) {
+export function inputFilterInventory(taps,processes) {
  if(!Array.isArray(taps))throw new Error('invalid input audit')
  const pids=new Map(processes.trim().split('\n').filter(Boolean).map(line=>{
   const m=line.trim().match(/^(\d+)\s+(.+)$/)
   if(!m)throw new Error('invalid process audit')
   return [Number(m[1]),m[2]]
  }))
- return taps.filter(t=>{
+ const helperKeyboardFilters=taps.filter(t=>{
   if(!Number.isInteger(t.ownerPid)||!Number.isInteger(t.targetPid)||!Number.isInteger(t.tapId)||typeof t.enabled!=='boolean'||!Number.isInteger(t.options)||!/^\d+$/.test(t.mask))throw new Error('invalid tap metadata')
   return t.enabled&&t.options===0&&(BigInt(t.mask)&7168n)!==0n
    &&/\/Codex Computer Use\.app\/Contents\/MacOS\/SkyComputerUseService$/.test(pids.get(t.ownerPid)||'')
-   &&/\/Claude\.app\/Contents\/MacOS\/Claude$/.test(pids.get(t.targetPid)||'')
  })
+ const filters=helperKeyboardFilters.filter(t=>/\/Claude\.app\/Contents\/MacOS\/Claude$/.test(pids.get(t.targetPid)||''))
+ const claudeIds=new Set(filters.map(t=>t.tapId))
+ return {scope:'claude-targeted-keyboard-filters',nativeInputReleaseAssessed:false,filters,
+  otherTargetFilters:helperKeyboardFilters.filter(t=>!claudeIds.has(t.tapId))}
+}
+
+export function survivingClaudeFilters(taps,processes) {
+ return inputFilterInventory(taps,processes).filters
 }
 
 export async function auditInputFilters() {
@@ -33,7 +40,7 @@ export async function auditInputFilters() {
  ])
  if(results.some(r=>r.status!=='fulfilled'))throw new Error('native input audit unavailable')
  const taps=JSON.parse(results[0].value.stdout)
- return {at:new Date().toISOString(),filters:survivingClaudeFilters(taps,results[1].value.stdout)}
+ return {at:new Date().toISOString(),...inputFilterInventory(taps,results[1].value.stdout)}
 }
 
 export async function assertInputHealthy({phase,evidence,audit=auditInputFilters}) {
