@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+"""kck rearm: re-arm Taylor's slot-3 Call Guidance smoke call at a chosen time.
+
+  kck rearm                         ask: "Rearm for 6:50p today? [Y/n]" (Enter = yes), or enter a time step by step
+  kck rearm -m10 -d18 -h15 -min30   no questions: use these parts, the rest default to now (America/New_York)
+
+The default offered is the last time used for the current call, else the next 5-minute mark after now.
+Runs ~/src/github/kickoff/.scratch/mono-smoke/rearm.sh, which moves the same call and pre-creates its Twilio
+room with recording off. Last-used times are kept in ~/.local/state/kck-rearm/last.json, keyed by call id.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+ET = ZoneInfo('America/New_York')
+REARM = Path.home() / 'src/github/kickoff/.scratch/mono-smoke/rearm.sh'
+STATE = Path.home() / '.local/state/kck-rearm/last.json'
+FIELDS = ('year', 'month', 'day', 'hour', 'minute')
+DAYS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
+TTY = sys.stdout.isatty()
+
+
+def color(text, code):
+    return f'\033[{code}m{text}\033[0m' if TTY else text
+
+
+def clock(at):
+    h = at.hour % 12 or 12
+    return f"{h}:{at.minute:02d}{'a' if at.hour < 12 else 'p'}"
+
+
+def describe(at, now):
+    """'6:50p today', '6:50p next Weds', 'Oct 30 6:50p' (time yellow if past, green if future)."""
+    t = color(clock(at), '33' if at < now else '32')
+    days = (at.date() - now.date()).days
+    if days == 0:
+        return f'{t} today'
+    if days == 1:
+        return f'{t} tomorrow'
+    if days == -1:
+        return f'{t} yesterday'
+    if 2 <= days <= 6:
+        return f'{t} next {DAYS[at.weekday()]}'
+    if -6 <= days <= -2:
+        return f'{t} last {DAYS[at.weekday()]}'
+    year = f' {at.year}' if at.year != now.year else ''
+    return f"{at.strftime('%b')} {at.day}{year} {t}"
+
+
+def next_five(now):
+    """The next 5-minute mark strictly after now."""
+    base = now.replace(second=0, microsecond=0)
+    return base + timedelta(minutes=5 - base.minute % 5)
+
+
+def parse_flags(args, now):
+    """-y2026 -m10 -d18 -h15 -min30 (or `-d 18`). -m is the month unless it follows -h (then the minute)."""
+    names = {'y': 'year', 'year': 'year', 'mo': 'month', 'month': 'month', 'd': 'day', 'day': 'day',
+             'h': 'hour', 'hr': 'hour', 'hour': 'hour', 'min': 'minute', 'mi': 'minute', 'minute': 'minute'}
+    vals, i, seen_hour = {}, 0, False
+    while i < len(args):
+        m = re.fullmatch(r'--?([a-z]+?)(\d+)?', args[i])
+        if not m:
+            raise SystemExit(f'kck rearm: unknown argument {args[i]!r}')
+        key, num = m.group(1), m.group(2)
+        if num is None:
+            i += 1
+            if i >= len(args) or not args[i].isdigit():
+                raise SystemExit(f'kck rearm: {args[i - 1]} needs a number')
+            num = args[i]
+        if key == 'm':
+            field = 'minute' if seen_hour else 'month'
+        elif key in names:
+            field = names[key]
+        else:
+            raise SystemExit(f'kck rearm: unknown flag {args[i]!r} (use -y -m -d -h -min)')
+        seen_hour = seen_hour or field == 'hour'
+        vals[field] = int(num)
+        i += 1
+    parts = {f: vals.get(f, getattr(now, f)) for f in FIELDS}
+    try:
+        return datetime(**parts, tzinfo=ET)
+    except ValueError as e:
+        raise SystemExit(f'kck rearm: not a valid date/time ({e})')
+
+
+def parse_hour(text):
+    m = re.fullmatch(r'\s*(\d{1,2})\s*([ap])?m?\s*', text.lower())
+    if not m:
+        raise ValueError(f'hour {text!r}')
+    h, ap = int(m.group(1)), m.group(2)
+    if ap:
+        if not 1 <= h <= 12:
+            raise ValueError(f'hour {text!r}')
+        h = h % 12 + (12 if ap == 'p' else 0)
+    if not 0 <= h <= 23:
+        raise ValueError(f'hour {text!r}')
+    return h
+
+
+def ask_parts(defaults):
+    """Prompt year..minute; Enter keeps the bracketed value. Re-prompts from year on a bad date."""
+    print('Enter keeps the value in [brackets]. Hour is 0-23, or like 6p. Ctrl-C cancels.')
+    raw = {f: str(defaults[f]) for f in FIELDS}
+    labels = {'year': 'Year', 'month': 'Month', 'day': 'Day', 'hour': 'Hour', 'minute': 'Minute'}
+    while True:
+        for f in FIELDS:
+            hint = raw[f]
+            if f == 'hour':
+                try:
+                    hint = f'{raw[f]}, {clock(datetime(2000, 1, 1, parse_hour(raw[f]))).replace(":00", "")}'
+                except ValueError:
+                    pass
+            got = input(f'  {labels[f]} [{hint}]: ').strip()
+            if got:
+                raw[f] = got
+        try:
+            parts = {f: int(raw[f]) for f in ('year', 'month', 'day', 'minute')}
+            parts['hour'] = parse_hour(raw['hour'])
+            return datetime(**parts, tzinfo=ET)
+        except ValueError as e:
+            print(color(f"Couldn't read that as a date and time ({e}). Starting again from the year, with what you typed as the defaults.", '31'))
+
+
+def load_state():
+    try:
+        return json.loads(STATE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def save_state(call_id, at):
+    state = load_state()
+    state[call_id] = at.isoformat()
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(json.dumps(state, indent=2) + '\n')
+
+
+def current_call():
+    out = subprocess.run(['bash', str(REARM), '--call-id'], capture_output=True, text=True)
+    if out.returncode != 0:
+        raise SystemExit(f'kck rearm: could not read the smoke call (is Docker up?)\n{out.stderr.strip()}')
+    return (out.stdout.split() or ['none'])[0]
+
+
+def run_rearm(at):
+    args = ['-y', str(at.year), '-mo', str(at.month), '-d', str(at.day), '-h', str(at.hour), '-min', str(at.minute)]
+    proc = subprocess.run(['bash', str(REARM), *args], capture_output=True, text=True)
+    call_id = None
+    for line in proc.stdout.splitlines():
+        if line.startswith('CALL_ID='):
+            call_id = line.split('=', 1)[1].strip()
+        elif line.strip():
+            print(line)
+    if proc.returncode != 0:
+        sys.stderr.write(proc.stderr)
+        raise SystemExit(proc.returncode)
+    return call_id
+
+
+def main():
+    now = datetime.now(ET)
+    if sys.argv[1:] and sys.argv[1] in ('-?', '--help', 'help'):
+        print(__doc__.strip())
+        return
+    call_id = current_call()
+    if sys.argv[1:]:
+        at = parse_flags(sys.argv[1:], now)
+        print(f'Rearming for {describe(at, now)}')
+    else:
+        stored = load_state().get(call_id)
+        at = datetime.fromisoformat(stored).astimezone(ET) if stored else next_five(now)
+        got = input(f'Rearm for {describe(at, now)}? [Y/n] ').strip().lower()
+        if got not in ('', 'y', 'yes'):
+            at = ask_parts({f: getattr(at, f) for f in FIELDS})
+            print(f'Rearming for {describe(at, now)}')
+    new_id = run_rearm(at) or call_id
+    save_state(new_id, at)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print('\nCancelled; nothing changed.')
+        sys.exit(130)

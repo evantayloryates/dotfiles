@@ -67,3 +67,44 @@ Private evidence: pressure/input-investigation-20261018/native-owner-20261018/
 custom-wrapper-audit-20261018.json records selected nonsecret config, source
 hashes, retained roster/effect proof and the unverified hypotheses. Global config
 SHA13ad57b1/project config89c16836 and the native engine remain unchanged.
+
+## Input-free lifecycle entry-point comparison
+
+Remote wrapper-lifecycle-1792364475276 compares the actual reviewed NodeREPL
+executable directly with the actual packaged CUA launcher. Both use an identical
+recording trusted service in place of Sky/browser, an empty bootstrap banner,
+an absent helper startup sentinel and an unused private socket. No Computer Use
+API, app, model/provider, credential, approval or keyboard input is used.
+
+Each route exposes js/js_add_node_module_dir/js_reset/turn_ended. A service RPC
+registers one turn-end handler; one explicit synthetic Stop notification invokes
+it exactly once with matching contract-only session/turn IDs, and a later RPC
+reads the in-memory receipt. Both processes exit normally0 without forced
+cleanup; owned native helper inventory is empty before and after. This confirms
+callback-delivery parity for a supplied notification and preservation of the
+trusted-service override by the packaged launcher. It does not test native
+cleanup, exact custom/browser bootstrap, real host routing or duplicate events.
+
+The initial attempt1792364447005 remains failed: its recording service tried to
+write a log and both runtimes returned EPERM. Neither acquired Sky or started a
+helper; both exited0. The corrected recorder keeps its state in memory and
+returns it over RPC. No sandbox/permission change was used to pass the check.
+Each attempt retains its exact harness and recording-service sources.
+
+Private wrapper-lifecycle-evidence/manifest.json verifies eight report/source
+files,32182 bytes. Final independent process readback finds no owned test group
+or copied native helper and preserves uv508/caffeinate510. The first combined
+artifact/repository-readback command timed out; no repo state is inferred from
+that timeout. A bounded eight-file retrieval and separate process inventory
+succeeded without rerunning either comparison. Current production fingerprint,
+all195 top-level suite files/all199 evidence hashes and installed identity still
+match the frozen passing suite; nested diagnostics do not relabel native proof.
+
+This narrows the next question: the direct custom NodeREPL accepts turn_ended,
+but the saved plugin hook names cua_repl. Whether the actual host also notifies
+the direct server through another path is still unverified. Top-level native
+notify must not be treated as equivalent to NodeREPL callback dispatch. The next
+changed-condition gate is an actual-host, input-free routing trace with both
+recording endpoints and the already reviewed scoped Stop hook; retain real host
+metadata and reject native capabilities. Do not add global hooks or change
+plugin toggles based only on this transport comparison.

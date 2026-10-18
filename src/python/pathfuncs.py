@@ -61,7 +61,8 @@ CONFIG = [
   # `kickoff code` (and every alias) opens the dev container instead of the local folder.
   # Connect directly: `devpod up` reruns host-init and can remove the running DB.
   p('kickoff',     '~/src/github/kickoff',              'cd', aliases=['kick', 'kck'],
-    commands={'code': KICKOFF_CONTAINER, 'container': KICKOFF_CONTAINER}),
+    commands={'code': KICKOFF_CONTAINER, 'container': KICKOFF_CONTAINER,
+              'rearm': '$DOTFILES_DIR/bin/kck-rearm <args>'}),
   p('library',     '~/Library',                         'cd', aliases=['lib', 'Library']),
   p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('movies',      '~/Movies',                          'cd', aliases=['mov', 'Movies']),

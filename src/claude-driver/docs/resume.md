@@ -1,3 +1,23 @@
+## October 18 input-free wrapper lifecycle comparison passes
+
+New diagnostic wrapper-lifecycle-1792364475276 runs only on the owned remote
+host. Actual direct NodeREPL and packaged CUA launcher each deliver one supplied
+synthetic Stop to one recording-service handler and preserve matching IDs.
+Both expose turn_ended and exit normally0; no helper exists before/after. Sky
+and browser services are replaced by a recording stub, bootstrap is empty,
+native startup is disabled, and no app/input/provider/credential/approval is used.
+This is callback transport parity, not real-host routing or native cleanup.
+Initial4447005 remains failed on recorder EPERM; corrected in-memory recording
+changes no permissions. Exact sources and reports are preserved separately.
+
+NEXT changed condition: actual-host input-free routing trace with both recording
+endpoints and the exact already approved Stop hook. Plugin hook names cua_repl;
+the custom direct NodeREPL can accept turn_ended but whether the host calls it
+through another path remains unverified. Native notify is a separate route and
+does not prove NodeREPL callback dispatch. Use actual host metadata, reject native
+capabilities and keep local UI quarantined. No global hook/plugin/runtime change
+or unchanged two-helper input probe is justified. Goal remains incomplete.
+
 ## October 18 custom-wrapper audit corrects the attribution frontier
 
 Taylor clarified the custom CUA deployment. Read-only selected config/source
