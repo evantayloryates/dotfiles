@@ -1,3 +1,26 @@
+## October 18 input investigation blocked on isolated native qualification
+
+Third consecutive goal turn after Taylor authorized input investigation while
+keeping UI disabled. First turn made progress9545b1f (strict cleanup correction);
+second made progress8f58941 (native lifetime boundary and unsubscribe ruled out).
+The same required native physical/filter-lifetime proof remained unavailable in
+all three; independent authorized offline work is now checkpointed. This turn
+is NO PROGRESS, not a verified wait. No live diagnostic or native request handle.
+
+Revalidated clean published worktree/source5d15b13f, original quarantine enabled
+with unchanged hash9808e860, and current helper unchangedSHAf21c31c0. Existing
+focused12/full191 evidence remains; no tests or native experiments repeated.
+No changed supported unattended native startup ingress. Full goal NOT complete.
+
+Blocked audit satisfied: mark actual goal BLOCKED after this checkpoint is
+published. The existing question asks whether an isolated macOS VM/spare Mac is
+available; no answer received or inferred. Taylor must identify that test target
+or direct a different recovery architecture before native work can proceed.
+Keep this desktop UI-disabled; no helper kill, input, permission/auth change,
+quarantine release or new restart request. Ordinary/recovered actors and observer
+broker retained. Broad Codex bridge fixes and1Password remain separate; only the
+explicitly authorized narrow input-cleanup investigation was undertaken.
+
 ## October 18 native input cleanup boundary narrowed without UI
 
 Previous turn was progress9545b1f: strict acknowledgement correction, full191

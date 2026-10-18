@@ -87,10 +87,13 @@ retained. Codex-driver and 1Password work remain separate.
 ## Next changed condition
 
 Taylor authorized the separate input-defect investigation while keeping UI
-disabled, and the actual goal resumed ACTIVE. It found and corrected a local
-cleanup false-positive without starting Computer Use. That correction does not
-resolve the physical input or native startup blocker. No live test process,
-fixture cleanup, quarantine release or further restart request is pending.
+disabled. It corrected a local cleanup false-positive and narrowed the native
+filter-lifetime question without starting Computer Use. The same physical/native
+startup barrier persisted for three consecutive goal turns while independent
+offline work was completed. The goal is now BLOCKED awaiting an isolated macOS
+test target or Taylor's direction on a different recovery architecture. The
+existing VM/spare-Mac question is unanswered. No live test process, fixture
+cleanup, quarantine release or further restart request is pending.
 The latest source is isolated-tested; actual loaded-client/native/harness
 adoption of that cleanup source remains a separate future gate.
 
