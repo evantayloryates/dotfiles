@@ -6,6 +6,19 @@ _term_image() {
   /Applications/kitty.app/Contents/MacOS/kitten icat "$@"
 }
 
+__o_is_chafa_image() {
+  [[ -f "$1" ]] && command -v chafa >/dev/null 2>&1 || return 1
+
+  # Inspect the target of a symlink and its contents, not the path suffix.
+  local mime
+  mime=$(/usr/bin/file -L -b --mime-type -- "$1") || return 1
+  case "$mime" in
+    image/avif|image/bmp|image/gif|image/heic|image/heif|image/jpeg|image/jxl|image/png|image/qoi|image/svg+xml|image/tiff|image/vnd.microsoft.icon|image/webp|image/x-qoi|image/x-xwindowdump)
+      return 0 ;;
+  esac
+  return 1
+}
+
 __show() {
   if [[ -z "$1" ]]; then
     echo 'Usage: img <image_path_or_url>'

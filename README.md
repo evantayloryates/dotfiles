@@ -58,6 +58,7 @@ something setup should do behind your back.
 | `webp` | `cwebp`/`dwebp`, and what `assets/wallpaper.webp` needs |
 | `ffmpeg` | Video workhorse |
 | `imagemagick` | Image workhorse |
+| `chafa` | Inline terminal image previews through `o <image>` |
 
 `libtiff` and `webp` would arrive anyway as dependencies of the other two; listing
 them keeps a future `brew autoremove` from taking them back out.
