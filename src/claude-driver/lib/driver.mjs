@@ -797,7 +797,7 @@ export const OPS = [
       const brokerId = brokerInfo().sessionId
       const enrollment=(await import('./session-management-controller.mjs')).readSessionManagementEnrollment()
       const standby=enrollment?(await import('./standby-enrollment.mjs')).readStandbyEnrollment(enrollment.controllerSession):null
-      const {projectArchiveSelection,requireCompleteProjectArchive,requireProjectCleanupScope}=await import('./project-archive-control.mjs')
+      const {projectArchiveSelection,requireCompleteProjectArchive,requireProjectCleanupScope,requireProjectCleanupInventory}=await import('./project-archive-control.mjs')
       const {targets,excluded}=projectArchiveSelection(recs,[brokerId,callerHostSession(),enrollment?.controllerSession,standby?.standby?.sessionId])
       const gate = []
       if (!scratch && !mine) {
@@ -816,7 +816,7 @@ export const OPS = [
       const plan = { folder, excluded, class: scratch ? 'scratch' : mine ? 'driver' : 'user', sessions: targets.map((r) => ({ sessionId: r.sessionId, title: r.title })), gate }
       if (args.dry_run !== false) return { dryRun: true, ...plan, wouldProceed: !gate.length || !!args.override }
       if (gate.length && !args.override) throw new DriverError(`refused: ${gate.join('; ')}. Ask Taylor; pass override:true only with his explicit approval.`, { category: 'gate_project', detail: plan })
-      if(args.delete_folder)requireProjectCleanupScope(folder,[BROKER_DIR,enrollment?.receiverCwd,standby?.primary?.cwd,standby?.standby?.cwd,...[brokerId,callerHostSession()].filter(Boolean).map(id=>getRecord(id)?.cwd)])
+      if(args.delete_folder){if(!['temp','probe'].includes(reg.folders[folder]?.kind))throw new DriverError('delete_folder only applies to driver-created temporary folders',{category:'gate_project',detail:{folder,folderDeleted:false,dispatched:false}});requireProjectCleanupScope(folder,[BROKER_DIR,enrollment?.receiverCwd,standby?.primary?.cwd,standby?.standby?.cwd,...[brokerId,callerHostSession()].filter(Boolean).map(id=>getRecord(id)?.cwd)])}
       const ops = targets.map((r) => ({ op: 'archive_session', args: { session_id: r.sessionId, reason: `claude-driver archive_project ${folder}` } }))
       if (!ops.length) return { ...plan, archived: [] }
       let archiveRoute
@@ -826,7 +826,8 @@ export const OPS = [
       requireCompleteProjectArchive(targets.map(r=>r.sessionId),archived)
       let folderDeleted = false
       if (args.delete_folder) {
-        if (!(reg.folders[folder]?.kind === 'temp' || reg.folders[folder]?.kind === 'probe')) throw new DriverError('delete_folder only applies to driver-created temporary folders', { category: 'gate_project' })
+        if (!['temp','probe'].includes(loadRegistry().folders[folder]?.kind)) throw new DriverError('delete_folder only applies to driver-created temporary folders', { category: 'gate_project' })
+        requireProjectCleanupInventory(folder,allRecords({includeArchived:false}))
         const { rmSync } = await import('node:fs')
         rmSync(folder, { recursive: true, force: true })
         await updateRegistry((r) => delete r.folders[folder])

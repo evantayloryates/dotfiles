@@ -1,3 +1,43 @@
+## October 17 durable independent project archive batches
+
+Previous turn = progress (account-store admission and safe cleanup). Durable
+archive_project without explicit alternate route now selects the independent
+controller, retaining existing dry-run/scratch/user override/excluded-service gates.
+Bounded128 unique exact targets, stable distinct contexts parent+session, private
+project-archive-routes ledger. Whole account/folder/identity/protected-actor set
+checks before first effect; repeat per target. Calls public archive_session
+sequentially; each native receipt and saved archived state must verify before
+next. Already-archived targets get no fabricated native receipt and still require
+saved verification. Unknown/failed/pending/cancelled/moved/foreign effects stop
+remaining targets with original IDs, prior verified archives and no replay/cleanup.
+No new permissions/sidebar rights. Synchronous/explicit alternate paths retain
+legacy behavior; native batch qualification remains pending.
+
+Cleanup additionally refuses ANY retained service directory under the folder,
+including aliases (even when service actors were excluded from archive selection).
+Invalid delete_folder ownership refuses BEFORE native effects. Recheck current
+registry ownership and fresh active session inventory before removal; a newly
+created/unarchived record after initial selection prevents cleanup. Existing
+explicit delete_folder authority stays required and limited to driver-created
+temp/probe folders. No deletion method or native approval is bypassed.
+
+Focused28 PASS (~12.7sec) project batch/policy + actual isolated MCP regressions;
+final focused8 PASS after fresh-inventory guard, syntax/diff checks pass. Fixtures
+prove partial saved archive cannot delete work and invalid cleanup dispatches no
+archives. No REAL project archived or folder deleted, no new chat/message/native
+renewal/CUA/app restart. No full suite repeated this interim gate. Core batch code
+was included by another shared-master client in1c7cd4d (required shared add-A),
+not lost; remaining guards/docs checkpoint separately. No unrelated edits undone.
+
+NEXT: audit grouped ordinary operations and remaining lifecycle/window/person
+interfaces, then consolidate final-source integration/native qualification gates.
+New project batch/account-store proof need native qualification together when
+appropriate; don't archive user projects to prove activity. Both-absent recovery,
+natural pressure and final THIS-CHAT loaded-MCP adoption remain open. Goal ACTIVE;
+all test handles terminal. Current native controllers remain on older982 source
+until automatic required-source renewal; no manual wake/restart. Codex-driver and
+1Password remain separate.
+
 ## October 17 account-store admission and project cleanup safeguards
 
 Previous turn = progress (ordinary interrupt native982 + same-source integration).

@@ -1822,4 +1822,15 @@ archive_project excludes the caller and configured legacy/independent service
 actors. Its dry run lists those exclusions. Folder cleanup is refused unless the
 exact selected target set is independently saved archived; a partial outcome
 returns archived/notArchived with folderDeleted:false and no replay permission.
-This safeguard does not yet replace the legacy project batch transport.
+Durable default-route batches now use the independent controller as described below;
+synchronous and explicit alternate-route batches keep their existing behavior.
+
+### Independent project batches
+
+Durable archive_project default routing uses at most 128 exact unique targets,
+with stable per-session contexts and a retained parent ledger. All target/account/
+folder/service exclusions are checked before the first archive and again per step.
+Stop on uncertainty; inspect project-archive-routes rather than replaying the batch.
+Cleanup remains separately gated: complete saved archives, valid current temp/probe
+ownership, no retained service directory (including aliases), and no fresh active
+session under the folder. The native project-batch gate remains pending.
