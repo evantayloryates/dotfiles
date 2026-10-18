@@ -1,3 +1,39 @@
+## October 17 automatic interrupted-family read reconciliation composed
+
+Normal ordinary request recovery can now screen the exact interrupted-renewal
+family read BEFORE eligible pair planning. Optional internal pending-read mode
+checks original failed renewal/retired predecessor/unchanged epoch-role-settings
+and requires exactly one generation-bound list_sessions unknown, expired request,
+finished worker, intent/request/control present and entry/admission/result absent.
+It returns qualified:false + metadataReadAbandonmentEligible:true, never a terminal
+history or adoptable source map. Original status arrays are not modified or faked;
+role bytes are compared directly against reviewed predecessor for candidate scope.
+
+An eligible candidate gets one durable broker_service_abandon_read child with
+stable controller+service+request key, original candidate/submission/job/result in
+parent recovery ledger. Native offline abandonment retains all its own exact
+PID/same-host/request/worker/privacy/late-evidence checks. Result must retain unknown,
+no receipt/replay; guard/replan occurs afterward. Bootstrap cannot start until
+fresh full lineage and both-absent plan pass. Uncertain child/checkpoint/cancel,
+mutation/mixed/unknown operations and late/unreadable evidence stop without retry.
+Not-yet-expired/unfinished reads refuse before child submission rather than
+poisoning a future stable abandonment key with a premature failed attempt.
+
+Focused57/57 PASS13.2sec (auto orchestration, lineage, read abandonment/history,
+pair planner/executor/continuation and actual isolated MCP regression). Log
+.runtime/state/automatic-read-abandonment-focused-20261017.log. No native outage,
+wake/message/archive, permission or app/process manipulation repeated this turn.
+Earlier explicit natural-outage native proof remains source-specific d423; current
+automatic composition is implementation/synthetic evidence pending native gate.
+Current89c7/c404 pair remains prior source, fresh-fixture cleanup still complete.
+
+Next consolidated gate: actual filtered Claude/Codex harness contracts on stable
+source, reconcile final native scope/audit and one final loaded-client adoption.
+Automatic native outage dispatch remains unqualified until changed-condition
+proof exists; do not manufacture another outage for every interim edit. Group/
+window/person-only/appquit/sustained-pressure requirements remain in full audit.
+Goal active, all focused test handles terminal.
+
 ## October 17 eligible both-absent recovery wired before ordinary target dispatch
 
 Added automatic-pair-recovery for ordinary account-bound requests only. Healthy
