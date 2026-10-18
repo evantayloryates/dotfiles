@@ -16,7 +16,8 @@ No quarantine, native consent or legacy admission bypass is authorized.
 
 For a submitted missing-record recovery, inspect
 `broker_service_restoration_status {root_job_id, kind:"record"}`; for its submitted
-pair reactivation use `kind:"pair"`. It returns the original phase/root hash and
+seeded record rebuild use `kind:"seeded"`; for its pair reactivation use
+`kind:"pair"`. It returns the original phase/root hash and
 independently observed child handles without exposing snapshots or transcript
 text. `submission-unconfirmed` requires original-handle reconciliation; it is not
 permission to submit again. A completed child does not erase a failed parent or
@@ -2469,3 +2470,23 @@ review that exact retired STOP as an intermediate step; normal loss planning
 continues to refuse STOP. A failed retirement/import is never wholesale retried.
 Filesystem integration tests mock native lifecycle/import and prove no live loss
 recovery; record restoration remains separate from reciprocal service reactivation.
+
+## Missing service record and transcript
+
+`broker_service_seed_plan` inspects one exact enrolled primary or standby using
+its current enrollment digest. It refuses an existing record, any matching CLI
+UUID artifact, ambiguous metadata, STOP, unresolved work or account/role drift.
+A qualified plan returns a digest, not authority to execute a request.
+`broker_service_rebuild_missing_record` requires that digest, enrollment digest,
+`experimental:true` and a durable `driver_submit`. It retains retirement child
+handles and separate one-use bootstrap/import intents. Unknown results require
+original-root inspection, never a new bootstrap or import retry.
+
+After a verified seeded record exists, explicitly pass
+`restoration_kind:"seeded"` to `broker_service_restored_pair_plan` and the subsequent
+exact-hash `broker_service_reactivate_restored_pair`. The default kind `record`
+only accepts a surviving-transcript restoration root. Neither path grants bypass
+mode or clears trust/hot-reload cards. A restored record can still require a person
+before a new idle desktop process and reciprocal roles can be qualified. Actual
+native deleted-service recovery remains unqualified; ordinary routing does not
+automatically invoke these experimental rebuild operations.

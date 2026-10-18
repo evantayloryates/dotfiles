@@ -1,3 +1,32 @@
+## October 18 seeded public interfaces and consolidated185 gate
+
+Registered read-only broker_service_seed_plan and durable experimental
+broker_service_rebuild_missing_record with exact enrollment/plan hashes. Existing
+restored_pair_plan/reactivate operations accept explicit restoration_kind record|
+seeded (defaultrecord); selector namespace and normalized proof stay distinct.
+Restoration status kindseeded preserves bootstrap/import intents and independently
+observed retirement handles, never retry authority. CLI diagnostic plan scripts
+also accept explicit kind. README/operator guide document commands and native
+permission/startup/qualification boundaries. Automatic ordinary routing unchanged.
+
+Focused driver/seeded adapter/pair integration/reader9 PASS; actual current CLI
+read-only seed plan on existing primary returns saved-service-record-present,
+seedPreparationEligiblefalse/effectsPerformedfalse. No native lifecycle mutation.
+Full185 test files PASS1/1 round54.6sec/sourceChangedfalse, build
+e9dd31e4e92beece99114681085ad1d30108ace5fc3f495cb90885681d9c6818,
+pressure/v2-2026-10-18T07-29-07-066Z.json; private log
+pressure/seeded-rebuild-consolidated-20261018.log. No source edits during gate.
+
+Last actual loaded-MCP/native12/fresh harness proof source79619016 is historical
+relative to new seeded feature. Avoid another repeated refresh/native12 until
+remaining substantial validation is settled. Next one bounded actual headless
+no-tools seed-bootstrap contract on task-created identity/folder (no app import),
+then fresh filtered harnesses and seeded-root/native consent feasibility. Actual
+native deletion/rebuild and unattended all-Code-processes-absent startup remain
+unqualified. Do not delete serving pair or counterfeit original ownership proof
+to manufacture native tests. Goal active; no live jobs/cleanup pending. Codex
+bridge remains parked.
+
 ## October 18 seeded-root proof and explicit root-kind reactivation path
 
 Added seeded-record-proof.mjs: exact completed rebuild parent operation/arguments/

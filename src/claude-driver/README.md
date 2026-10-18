@@ -76,7 +76,8 @@ evidence. They preserve grants and reject uncertain replay. Actual deleted-servi
 recovery remains unqualified and ordinary routing does not invoke it automatically.
 Installed app deletion can also reap the CLI transcript after ownership/liveness
 checks. The current same-identity path requires a surviving exact transcript and
-fails closed otherwise; it does not yet rebuild a service whose transcript is gone.
+fails closed otherwise. An explicit minimal-seed rebuild path now handles missing
+transcripts in isolated fixtures; live deletion/rebuild remains unqualified.
 
 Qualification remains partial: unattended startup after app quit/restart, actual
 deleted-service recovery, sustained availability
@@ -234,7 +235,8 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
 | `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
-| `broker_service_restoration_status` | A | bounded exact record-restoration or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
+| `broker_service_restoration_status` | A | bounded exact record-restoration or seeded-rebuild or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
+| `broker_service_seed_plan`, `broker_service_rebuild_missing_record` | A | explicit exact-identity no-history seed/import when record and all transcripts are absent; durable experimental execution only, native permission/readiness remain separate |
 
 `set_session_config` accepts `title`, `pinned`, `model`, `effort` and
 `permission_mode` together. It sends one native request and verifies each
