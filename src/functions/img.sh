@@ -19,6 +19,18 @@ __o_is_chafa_image() {
   return 1
 }
 
+__o_preview_and_copy() {
+  chafa --probe=off "$1" || return
+
+  local error
+  if error=$(/usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" "$1" 2>&1); then
+    print -r -- '✅ Image contents copied to clipboard (PNG)'
+  else
+    print -u2 -- "❌ Image previewed, but clipboard copy failed: $error"
+    return 1
+  fi
+}
+
 __show() {
   if [[ -z "$1" ]]; then
     echo 'Usage: img <image_path_or_url>'

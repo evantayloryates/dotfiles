@@ -278,6 +278,21 @@ reload_dotfiles  # or use the alias: dr
 
 ## 🎯 Customization
 
+### Preview and copy an image with `o`
+
+On macOS, `o image.png` renders a single existing image in the terminal with
+Chafa, then puts its image pixels on the clipboard as PNG data. The success
+message says **image contents copied to clipboard**. Paste into an image-capable
+chat composer to attach an image; the clipboard contains no file path or file
+URL. JPEG, PNG, WebP, TIFF, AVIF, HEIC, SVG, GIF, BMP, and ICO are covered by
+the local fixtures in `/Users/taylor/Desktop/tests`. Animated images copy their
+first frame as PNG.
+
+`o` with no arguments still opens the current directory. Flags, multiple
+arguments, directories, and files whose contents are not a supported image
+still go through macOS `open`. The system default app for images is unchanged.
+Reload an existing shell with `reload`, or open a new shell.
+
 ### Save the clipboard with `cs`
 
 `cs [name]` (or `clipsend [name]`) saves clipboard content to `~/Desktop`,

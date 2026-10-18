@@ -4,6 +4,8 @@
 import {nativePolicyPeerMatches,nativePolicySettingsPath,serviceStateBindingMatches} from '../lib/runtime-entry.mjs'
 import {isMetadataOperation} from '../lib/native-metadata-control.mjs'
 import {nativeMetadataTargetObservation} from '../lib/native-metadata-admission.mjs'
+import {ordinarySessionTargetObservation,ordinarySessionBindingValid} from '../lib/ordinary-session-control.mjs'
+import {getRecord} from '../lib/sessions.mjs'
 import {inspectNativeResourcePid} from '../lib/native-resource-process.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
 import {constants,openSync,closeSync,fstatSync,readFileSync,readSync,existsSync,writeFileSync,lstatSync,renameSync,unlinkSync} from 'node:fs'
@@ -164,8 +166,12 @@ async function main(){
    if(policy?.nativeEffectAdmissionVersion!==1||request?.nativeEffectAdmissionPolicy?.version!==1||policy.sha256!==request.nativeEffectAdmissionPolicy.handlerSha256||policy.settingsHash!==request.nativeEffectAdmissionPolicy.settingsHash||createHash('sha256').update(readFileSync(process.argv[1])).digest('hex')!==policy.sha256||createHash('sha256').update(readFileSync(settingsPath)).digest('hex')!==policy.settingsHash)throw Error('policy')
    const tools=Object.fromEntries([...body.toString().matchAll(/^\| (\w+) \| (mcp__\w+) \|$/gm)].map(m=>[m[1],m[2]])),index=nativeAdmissionIndex({input,pointer,entry,request,control,tools})
    if(index<0)throw Error('checkpoint')
-   let metadataTarget
-   if(isMetadataOperation(request.ops[index].op)||Object.hasOwn(request,'nativeMetadataTargetBinding')){
+   let metadataTarget,sessionTarget
+   if(Object.hasOwn(request,'nativeSessionTargetBinding')){
+    if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
+    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId)})
+    if(!sessionTarget)throw Error('ordinary session target identity or grant')
+   }else if(isMetadataOperation(request.ops[index].op)||Object.hasOwn(request,'nativeMetadataTargetBinding')){
     if(manifest?.nativeMetadataTargetVersion!==1||pointer.nativeMetadataTargetVersion!==1)throw Error('metadata target capability')
     const target=request.nativeMetadataTargetBinding
     if(!Number.isSafeInteger(target?.pid)||target.pid<=1)throw Error('metadata target identity')
@@ -174,7 +180,7 @@ async function main(){
    }
    // Consume the actual native admission before the tool executes. A duplicate
    // invocation cannot reuse a model's old successful Bash checkpoint.
-   let fd;try{fd=openSync(join(dir,'native-admission-'+request.id+'-'+index+'.json'),constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);writeFileSync(fd,JSON.stringify({requestId:request.id,index,toolUseId:input.tool_use_id,at:Date.now(),pid:pointer.pid,procStart:pointer.procStart,build:pointer.build,generation:pointer.generation,...metadataTarget?{metadataTarget}:{}}))}finally{if(fd!==undefined)closeSync(fd)}
+   let fd;try{fd=openSync(join(dir,'native-admission-'+request.id+'-'+index+'.json'),constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);writeFileSync(fd,JSON.stringify({requestId:request.id,index,toolUseId:input.tool_use_id,at:Date.now(),pid:pointer.pid,procStart:pointer.procStart,build:pointer.build,generation:pointer.generation,...metadataTarget?{metadataTarget}:{},...sessionTarget?{sessionTarget}:{}}))}finally{if(fd!==undefined)closeSync(fd)}
    valid=true
   }catch{}
   // No allow decision; existing platform checks and approval cards still apply.

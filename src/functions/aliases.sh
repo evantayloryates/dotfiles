@@ -21,7 +21,7 @@ gp      () { git push "$@"                                                      
 gs      () { git status "$@"                                                                              ;} # Note: this will overwrite /opt/homebrew/bin/gs (Ghostscript) interactively only; scripts/ImageMagick still resolve it from PATH, and `command gs` reaches it
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} # interactive convenience: -pv prints the path. Scripts/hooks in src must call `command mkdir`.
-o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; elif [ $# -eq 1 ] && [[ "$1" != -* ]] && __o_is_chafa_image "$1"; then chafa --probe=off "$1"; else open "$@"; fi ;} # Single supported image: preview in this terminal; everything else uses macOS open.
+o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; elif [ $# -eq 1 ] && [[ "$1" != -* ]] && __o_is_chafa_image "$1"; then __o_preview_and_copy "$1"; else open "$@"; fi ;} # Single supported image: preview and copy its image data; everything else uses macOS open.
 path    () { clear ; python3 "$DOTFILES_DIR/src/python/path.py"                                           ;} # 
 pip3    () { pip "$@"                                                                                     ;} # 
 py      () { python "$@"                                                                                  ;} # 
