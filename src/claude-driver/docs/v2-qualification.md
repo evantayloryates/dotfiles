@@ -2371,3 +2371,52 @@ integrated qualification plan without repeating qualified native send/archive/st
 Both-absent bootstrap, natural pressure, broader native lifecycle/person tests and
 final loaded-MCP/source adoption remain open. Goal ACTIVE; no live job pending.
 Codex-driver and 1Password remain separate.
+
+## October 17 integrated creation contracts and ordinary interrupt identities
+
+Previous turn = progress (creation permission mismatch defers effects). One integrated
+batch on source3e6cf9a6acf50c87a5dda75f41e850c34a25e04962e5c87dbcf78703848187fa:
+synthetic1/1 PASS41.9sec, v2-2026-10-18T03-13-42-118Z.json; actual filtered Claude
+Haiku4.5 contract10/10 PASS23.3sec, harness-v2-claude-2026-10-18T03-13-04-901Z.json;
+actual filtered Codex CONFIGURED gpt-6-sol contract10/10 PASS15.6sec,
+harness-v2-codex-2026-10-18T03-13-06-134Z.json. Source and global configs unchanged.
+All fixture-only, no native messages. These are pre-fix-source evidence below,
+NOT final host/current loaded-MCP/native qualification.
+
+Audit uncovered ordinary interrupt fallback reused parent job context for stop AND
+send. Native request IDs would collide after a successful stop. Added dedicated
+ordinary-steer-route using existing runNativeInterrupt and distinct deterministic
+stop/send identities, durable parent ledger, original target identity/epoch and
+whole two-request capacity/grant preflight. Actual public steer_session interrupt
+selects it for ordinary recipients; queue/default sends retain existing semantics.
+Pending/unknown stop, cancellation, controller/recipient drift or failed checkpoint
+prevents replacement. Existing recipient control lock covers both phases.
+
+Replacement send now carries optional expected original PID/start through host
+preflight, request nativeSessionSendEpoch, actual native admission and retained
+sendEpoch evidence. Must still be SAME idle peer at admission, not merely a host
+check before enqueue. Standalone ordinary sends remain free of recipient-epoch
+prerequisites. Receipt review refuses absent/mismatched admitted epoch. No native
+arguments, rights or permission mode widened. Route health advertises steer only
+with explicit send+stop grants across config/policy/pointer.
+
+Older loaded hooks cannot prove this new optional epoch binding. Maintenance
+requiredBuild now requests ONE recorded source renewal before this sequence,
+preserving scope/roles/epoch/grants and requiring verified successor source.
+Unqualified budget/history never becomes a renewal attempt. Expected-epoch send
+also requires current source. Native maintenance ledger retains requiredBuild.
+Old installed native source2fdaa remains unmodified this turn; new interrupt will
+renew before effects rather than silently use its weaker old proof.
+
+Focused42 PASS (admission/receipt/identity/maintenance/interrupt/send/health); final
+narrow20 PASS after budget-before-renew guard. Changed JS syntax/diff checks pass.
+No repeat full/harness/native cycle after discovering this gap; original batch is
+retained, final source now newer. No desktop messages, app restart, settings or
+permissions touched. Ordinary busy-stop native proof stays historical by source;
+new ordinary interrupt sequence awaits one integrated native qualification gate.
+
+NEXT: qualify actual ordinary interrupt sequence once (current-source renewal,
+controlled busy owned target, stop+replacement distinct receipts, original epoch
+and reply observation), then review remaining lifecycle/group/window/person and
+both-absent/pressure/loaded-MCP requirements. Don't repeat standalone native stop
+or replay old requests. Goal ACTIVE; all three test handles terminal, no live job.

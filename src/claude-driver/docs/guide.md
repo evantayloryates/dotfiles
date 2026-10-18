@@ -1798,3 +1798,14 @@ does not dispatch first_message, lock the title, assign the group or automatical
 raise permissions. Inspect that existing session and resolve the native permission
 step deliberately; do not recreate or replay the original request. An empty bypass
 pool therefore cannot silently start the real task in Accept edits.
+
+### Ordinary interrupt steering
+
+Durable steer_session mode:interrupt uses distinct retained stop and replacement
+request contexts for ordinary recipients. It requires explicit management/send/stop
+grants, whole-operation budget and the original recipient epoch. Replacement is
+allowed only after native stop receipt and same-epoch idle, and that idle epoch is
+checked again at actual native send admission. Old receiver source is renewed once
+before effects to support the new epoch binding. Pending/unknown outcomes stop the
+sequence without replay. Queue mode remains a normal queued send. This new sequence
+has focused synthetic evidence; native integrated qualification is pending.

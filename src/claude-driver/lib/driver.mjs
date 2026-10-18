@@ -220,6 +220,7 @@ export const OPS = [
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
       const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
       if(controller){ctx.tier='independent-native-steer';if(args.mode==='interrupt')return (await import('./native-steer-route.mjs')).routeNativeSteer(rec.sessionId,controller,args,ctx);return {...await (await import('./native-send-route.mjs')).routeNativeSend(rec.sessionId,controller,args,ctx),steeringMode:'queue',stopped:false,applied:false}}
+      if(args.mode==='interrupt'&&sessionManagementController(rec.sessionId)){ctx.tier='independent-session-interrupt';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-steer-route.mjs').then(m=>m.routeOrdinarySteer(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
