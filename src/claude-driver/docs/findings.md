@@ -1767,3 +1767,53 @@ natural pressure and final THIS-CHAT loaded-MCP adoption remain open. Goal ACTIV
 all test handles terminal. Current native controllers remain on older982 source
 until automatic required-source renewal; no manual wake/restart. Codex-driver and
 1Password remain separate.
+
+## October 17 frozen archive-only project jobs and native account proof
+
+Previous turn = progress (independent project batching). Planned native gate's dry
+run selected ONLY owned controltarget8f1... under its driver-state folder, no gates,
+wouldProceedtrue. First submission refused BEFORE job/native effects because
+archive_project remained scheduler-excluded: previous durable branch was unreachable.
+That refusal is preserved in project-native-account-20261017.json, not relabelled.
+
+Corrected scheduler boundary CONDITIONALLY: background project jobs require explicit
+dry_run:false, archive-only (delete_foldertrue remains forbidden), no alternate
+route and configured independent controller. Submission runs current dry-run gates,
+freezes exact folder/controller/account bindings/target IDs/service exclusions in
+job metadata. Idempotent reattachment keeps original snapshot. Worker rechecks
+current gates and exact snapshot before any effect; inventory/account/controller/
+exclusion drift refuses, not retargets. Worker ALSO revalidates archive-only flags
+independently of stored snapshot. Foreground cleanup stays separately gated; no
+background folder deletion or approval-card bypass is introduced.
+
+Native gate on99e780865c3fd4cb6ede8d51aff0017f635987b703f523fe1927f20bd230e9a3:
+new archive_project jobj50ee461cfbd945ed8d318f3942c4b0e8 completed via frozen
+independent parent; exact childjda626793334c13f3d06ffde0a3e810a6/native request
+rpeerda626793334c13f3d06ffde0a3e810a6. Saved archivedtrue independently read BEFORE
+restore. Actual native admission includes controllerStoreHash matching target
+storeHash, same exact target. Automatic required-source renewal produced CURRENT
+PRIMARY service750877f7733b4a95bf05735881d5a93d, PID96436/startSunOct18 00:42:30,
+readiness/policy verified, fresh familyrpeercf715ee7fe13f8288dbf31b2e0da1d3d.
+Controller idle, unresolved IDs empty. Native store-bound positive scope now proven.
+
+Restorejc4ad68428bea48dbb4a39c9dce084374 via TierA deep link: independent title/
+titleSource/model/effort/permission/archive/pin baseline restored. Target has NO
+live peer afterward; this is saved restoration, not unattended startup proof.
+FolderDeletedfalse, no folder removed. No user projects/ProDevs/new chats/messages/
+CUA/keyboard/auth/permission or app restart. User's current Browser foreground was
+restored by normal focus semantics; don't claim a fixed Codex foreground.
+Evidence .runtime/state/project-native-account-20261017.json, qualificationtrue
+scoped to ONE-target archive-only batch, same-store proof and saved restoration.
+
+Same-source99 integrated synthetic1/1 PASS36.1sec, sourceUnchanged:
+pressure/v2-2026-10-18T03-28-12-122Z.json. Focused31 preceded native gate. After
+that integrated run, added worker-side archive-only revalidation and an actual
+isolated MCP refusal test: focused32 PASS (~12.8sec). This narrow final guard is
+newer source; don't call the99 report final-source blanket proof. No native rerun
+for a guard that leaves the tested non-destructive request unchanged.
+
+NEXT: consolidated original-scope audit and remaining ordinary group/lifecycle/
+window/person, both-absent/pressure/final loaded-MCP gates. Multi-target native
+project batches remain unqualified by this one-target proof (synthetic sequencing
+covers multiple targets). Avoid repeated scratch archiving/messages. Goal ACTIVE;
+all job/test handles terminal; controller idle, target dormant after restoration.

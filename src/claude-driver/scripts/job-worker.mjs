@@ -26,7 +26,7 @@ if (initial) {
     try { const j = readJson(jobFile(id), null); if (j?.cancelRequestedAt || Date.now() >= initial.expiresAt) controller.abort() } finally { watching = false }
   }, 100)
   try {
-    const result = await runOp(initial.operation, initial.args, { harness: `job:${initial.harness}`, jobId:id, signal: controller.signal,
+    const result = await runOp(initial.operation, initial.args, { harness: `job:${initial.harness}`, jobId:id,projectArchiveSnapshot:initial.projectArchiveSnapshot, signal: controller.signal,
       progress: message => { progressWrites = progressWrites.then(() => update(j=>({ ...j, progress: [...(j.progress || []).slice(-19), { at: Date.now(), message }] }))) } })
     await progressWrites
     await update(j => ({ ...j, state: result?.handedBack ? 'handed_back' : result?.verified === false ? 'unverified' : 'completed', result, finishedAt: Date.now() }))

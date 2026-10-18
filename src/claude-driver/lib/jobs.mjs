@@ -20,11 +20,12 @@ const canonical = x => Array.isArray(x) ? x.map(canonical) : x && typeof x === '
 export const lockedJob = (id, fn) => withLock(`job-${id}`, fn, { timeoutMs: 5000 })
 function alive(pid) { try { process.kill(pid, 0); return true } catch (e) { return e.code !== 'ESRCH' } }
 export async function submitJob({ operation, arguments: args = {}, idempotency_key, timeout_sec = 180 }, ctx = {}) {
-  const { OPS, validateOp } = await import('./driver.mjs')
+  const { OPS, validateOp, runOp } = await import('./driver.mjs')
   const { callerHostSession, resolveSession } = await import('./sessions.mjs')
   const op = OPS.find(o => o.name === operation)
-  if (!op || EXCLUDED.has(operation)) throw new DriverError('operation is not submit-capable', { category: 'bad_args' })
+  if (!op || EXCLUDED.has(operation)&&operation!=='archive_project') throw new DriverError('operation is not submit-capable', { category: 'bad_args' })
   validateOp(operation, args)
+  if(operation==='archive_project')(await import('./project-archive-control.mjs')).validateProjectArchiveJobArgs(args)
   const fingerprint = createHash('sha256').update(JSON.stringify(canonical({ operation, args, timeout_sec }))).digest('hex')
   const key = idempotency_key || randomUUID()
   if (typeof key !== 'string' || !key.length || key.length > 200) throw new DriverError('idempotency_key must be 1–200 characters', { category: 'bad_args' })
@@ -41,8 +42,10 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
     const boundArgs = { ...args }
     if (typeof boundArgs.session === 'string') boundArgs.session = resolveSession(boundArgs.session).sessionId
     if (Array.isArray(boundArgs.sessions)) boundArgs.sessions = boundArgs.sessions.map(s => resolveSession(s).sessionId)
+    let projectArchiveSnapshot
+    if(operation==='archive_project'){const plan=await runOp('archive_project',{...args,dry_run:true},{harness:ctx.harness});projectArchiveSnapshot=(await import('./project-archive-control.mjs')).freezeProjectArchivePlan(plan);boundArgs.folder=projectArchiveSnapshot.folder}
     const callerSession = callerHostSession()
-    const job = { id, operation, args: boundArgs, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
+    const job = { id, operation, args: boundArgs,...projectArchiveSnapshot?{projectArchiveSnapshot}:{}, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
     writeJsonAtomic(jobFile(id), job)
     writeJsonAtomic(index, { jobId: id, fingerprint })
     const child = spawn(process.execPath, [fileURLToPath(new URL('../scripts/job-worker.mjs', import.meta.url)), id], {

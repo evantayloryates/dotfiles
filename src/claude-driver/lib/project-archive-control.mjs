@@ -46,3 +46,16 @@ export function requireProjectCleanupInventory(folder,records){
  const parent=canonical(folder),inside=path=>typeof path==='string'&&within(canonical(path),parent),pending=records.filter(r=>r.isArchived!==true&&(inside(r.cwd)||inside(r.originCwd))).map(r=>r.sessionId)
  if(pending.length)throw new DriverError('folder cleanup refused: current session inventory is not fully archived',{category:'outcome_unknown',detail:{folder,notArchived:pending,folderDeleted:false,retrySafe:false}})
 }
+export function validateProjectArchiveJobArgs(args){
+ if(args?.dry_run!==false||args.delete_folder===true||args.via_broker!==undefined)throw new DriverError('durable project jobs are archive-only: explicit dry_run:false, no folder deletion or alternate route',{category:'bad_args',detail:{dispatched:false}})
+}
+export function freezeProjectArchivePlan(plan,dependencies={}){
+ const enrollment=dependencies.enrollment??readSessionManagementEnrollment(),record=dependencies.record??getRecord
+ if(plan?.wouldProceed!==true||!enrollment?.controllerSession||!Array.isArray(plan.sessions)||plan.sessions.length>128||new Set(plan.sessions.map(r=>r.sessionId)).size!==plan.sessions.length)throw new DriverError('project job requires an allowed bounded dry-run plan and independent controller',{category:'gate_project',detail:{dispatched:false}})
+ const controller=enrollment.controllerSession,c=record(controller),bindings=plan.sessions.map(row=>{const r=record(row.sessionId);if(!ordinarySessionsSameStore(r,c,controller))throw new DriverError('project submission account scope unqualified',{category:'gate_project',detail:{dispatched:false}});return ordinarySessionBinding(r,controller)}).sort((a,b)=>a.sessionId.localeCompare(b.sessionId))
+ return {version:1,folder:plan.folder,controllerSession:controller,bindings,excluded:(plan.excluded??[]).map(r=>r.sessionId).sort()}
+}
+export function verifyProjectArchiveSnapshot(snapshot,plan,dependencies){
+ let current;try{current=freezeProjectArchivePlan({...plan,wouldProceed:true},dependencies)}catch{throw new DriverError('project job scope changed before effects',{category:'project_scope_changed',detail:{dispatched:false,retrySafe:false}})}
+ if(JSON.stringify(snapshot)!==JSON.stringify(current))throw new DriverError('project job no longer matches its submitted folder/account/targets/service exclusions',{category:'project_scope_changed',detail:{dispatched:false,retrySafe:false}})
+}

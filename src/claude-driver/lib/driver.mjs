@@ -816,6 +816,7 @@ export const OPS = [
       const plan = { folder, excluded, class: scratch ? 'scratch' : mine ? 'driver' : 'user', sessions: targets.map((r) => ({ sessionId: r.sessionId, title: r.title })), gate }
       if (args.dry_run !== false) return { dryRun: true, ...plan, wouldProceed: !gate.length || !!args.override }
       if (gate.length && !args.override) throw new DriverError(`refused: ${gate.join('; ')}. Ask Taylor; pass override:true only with his explicit approval.`, { category: 'gate_project', detail: plan })
+      if(ctx.jobId){(await import('./project-archive-control.mjs')).validateProjectArchiveJobArgs(args);if(!ctx.projectArchiveSnapshot)throw new DriverError('durable project archive lacks frozen submission scope',{category:'bad_args',detail:{dispatched:false}});(await import('./project-archive-control.mjs')).verifyProjectArchiveSnapshot(ctx.projectArchiveSnapshot,plan)}
       if(args.delete_folder){if(!['temp','probe'].includes(reg.folders[folder]?.kind))throw new DriverError('delete_folder only applies to driver-created temporary folders',{category:'gate_project',detail:{folder,folderDeleted:false,dispatched:false}});requireProjectCleanupScope(folder,[BROKER_DIR,enrollment?.receiverCwd,standby?.primary?.cwd,standby?.standby?.cwd,...[brokerId,callerHostSession()].filter(Boolean).map(id=>getRecord(id)?.cwd)])}
       const ops = targets.map((r) => ({ op: 'archive_session', args: { session_id: r.sessionId, reason: `claude-driver archive_project ${folder}` } }))
       if (!ops.length) return { ...plan, archived: [] }
@@ -1323,11 +1324,11 @@ export function validateOp(name, args) {
 export async function runOp(name,args={},options={}){
  return withLifecycleContext({operationId:randomUUID(),operation:name,build:RUNTIME_BUILD},()=>runOpInner(name,args,options))
 }
-async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId } = {}) {
+async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId,projectArchiveSnapshot } = {}) {
   if(jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid operation job context',{category:'bad_args'})
   const op = validateOp(name, args)
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
-  const ctx = { args, harness, progress, signal,jobId, notes: [], tier: null }
+  const ctx = { args, harness, progress, signal,jobId,projectArchiveSnapshot, notes: [], tier: null }
   const t0 = Date.now(),operationId=lifecycleContext().operationId
   if(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct')ctx.directDeadline=t0+Math.ceil((args.receipt_timeout_sec??15)*1000)
   const trace=(event,extra={})=>lifecycleEvent(event,{operationId,operation:name,build:RUNTIME_BUILD,versions:row.versions,...extra})

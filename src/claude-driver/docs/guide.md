@@ -1833,4 +1833,14 @@ folder/service exclusions are checked before the first archive and again per ste
 Stop on uncertainty; inspect project-archive-routes rather than replaying the batch.
 Cleanup remains separately gated: complete saved archives, valid current temp/probe
 ownership, no retained service directory (including aliases), and no fresh active
-session under the folder. The native project-batch gate remains pending.
+session under the folder. A one-target frozen archive-only native gate and same-store admission passed on
+source99e7808. Multi-target native sequencing remains separate.
+
+### Project jobs and foreground cleanup
+
+archive_project is conditionally submit-capable only with dry_run:false, no
+delete_folder:true and no alternate route. Submission captures an allowed dry-run
+snapshot; the worker checks the same folder, account, exact target identities and
+service exclusions again. Scope changes fail before effects. Job metadata never
+authorizes deletion: worker execution independently enforces archive-only flags.
+Foreground delete_folder remains a separate existing gated operation.
