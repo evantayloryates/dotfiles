@@ -1276,3 +1276,14 @@ wakes or repairs it. Native metadata results without navigation attribution need
 fresh endpoint focus observations, not assumed restoration. Changed/unknown views
 remain untouched and unconfirmed; matching endpoints do not establish uninterrupted
 focus. Focus/status focused tests pass; no repeated live user-chat mutation.
+
+## October 17 ordinary configuration avoids unserved legacy dependency
+
+Explicit session_metadata_control adds title/model/effort to account-bound ordinary
+session management without expanding existing unarchive/pin-only grants. Public
+model change then restoration on an existing owned non-enrolled target passed native
+receipts and saved state, with original baseline restored and focus endpoints
+unchanged. Batch fields are sequential and individually durable; failure/unknown
+stops later fields. Historical missing false grants normalize to false across host
+upgrades, while true-right/target/argument changes reject. See resume.md for exact
+source, jobs, reports and remaining native/loaded-client qualification boundaries.

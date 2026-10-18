@@ -1,5 +1,5 @@
 import {inspectMetadataEnrollment} from './metadata-controller-index.mjs'
-import {recoveryRoleFromHistory} from './recovery-role.mjs'
+import {recoveryRoleFromHistory,recoveryRoleProofMatches} from './recovery-role.mjs'
 import {createHash} from 'node:crypto'
 import {readPairBootstrapRoot,pairImportEpochQualified,pairMetadataEnrollmentMatches} from './pair-bootstrap-proof.mjs'
 import {standbyEnrollmentDigest,readStandbyEnrollment} from './standby-enrollment.mjs'
@@ -42,7 +42,7 @@ export async function inspectPairImportContinuation(primary,expectedEnrollmentSh
   if(!r||openPrs(r).length||r.worktreePath||r.permissionMode!=='bypassPermissions'||inspectNativeResourcePid(old.pid)!==null||JSON.stringify(ordinarySessionBinding(r,other.sessionId))!==JSON.stringify(snapshot.identity)||JSON.stringify(loadReceiverSelection(old.cwd))!==JSON.stringify(snapshot.selection))throw Error('original account/selector/absence changed')
   const history=await inspectIndependentService(old.sessionId,old.serviceId,{signal,historical:true})
   if(!history.verified||history.verificationMode!=='historical-retired'||history.sourceDisposition!=='files-retired'||history.admissionStopped!==true||history.stopMarkerMatchesGeneration!==true||history.terminalAttemptReviewComplete!==true||history.unresolvedRequestIds?.length||history.nativeEpoch?.pid!==old.pid||history.nativeEpoch.procStart!==old.procStart)throw Error('original retired history changed')
-  const restoredRole=recoveryRoleFromHistory(history,snapshot.policy,{sessionId:old.sessionId,receiverCwd:old.cwd,admitTarget:t=>['sessionId','cwd','pid','procStart'].every(k=>t[k]===other[k])});if(JSON.stringify(restoredRole)!==JSON.stringify(snapshot.role))throw Error('original role changed')
+  const restoredRole=recoveryRoleFromHistory(history,snapshot.policy,{sessionId:old.sessionId,receiverCwd:old.cwd,admitTarget:t=>['sessionId','cwd','pid','procStart'].every(k=>t[k]===other[k])});if(!recoveryRoleProofMatches(restoredRole,snapshot.role))throw Error('original role changed')
   for(const phase of ['quiesce','retire']){const c=root.children[phase+'-'+role],fresh=await inspectJob(c.jobId,{includeResult:true});if(fresh.state!=='completed'||fresh.operation!==c.observation.operation||JSON.stringify(fresh.args)!==JSON.stringify(c.observation.args)||JSON.stringify(fresh.result)!==JSON.stringify(c.observation.result))throw Error('original child no longer terminal')}
   const intent=root.importIntents?.[role]
   if(intent){if(!pairImportEpochQualified({old,record:r,peer:p,oldPidAbsent:true,startedAt:intent.startedAt,observedAt:now}))throw Error('attempted import still lacks qualified changed-condition native epoch');const previous=root.results['import-'+role];if(previous&&(previous.epoch?.pid!==p.pid||previous.epoch.procStart!==p.procStart))throw Error('previously verified imported epoch changed');epochs[role]={sessionId:old.sessionId,cwd:old.cwd,pid:p.pid,procStart:p.procStart};retained['import-'+role]={newEpochVerified:true,epoch:epochs[role],startedAt:intent.startedAt,observedAt:now,processStartAttribution:'changed-condition-observation',servingQualified:false,originalImportRootJobId:rootJobId}}

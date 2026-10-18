@@ -1704,3 +1704,24 @@ run once. Keep the original failure and reattach the returned continuation job.
 A claimed root returns its existing continuation job ID; do not bypass it with a
 new key. Only a terminal continuation that published no new effects can safely
 reassign its claim, retaining prior claim history. Native outage proof is pending.
+
+
+### Additional ordinary title, model and effort grant
+
+`session_metadata_control:true` is a separate explicit preparation/renewal grant.
+It requires `session_management_control:true` (or a verified inherited management
+grant). Old management-only generations remain limited to unarchive and pin.
+The new grant permits ordinary `rename_session` and `set_session_config` fields
+`title`, `pinned`, `model` and `effort`. It does not grant permission changes,
+messages, archive, deletion or arbitrary tools. Preserve fixed scratch grants.
+
+These public operations use durable driver_submit and the enrolled ordinary
+controller when no fixed scratch metadata enrollment applies. Every field gets a
+stable native request identity; all arguments and whole-batch capacity/lifetime
+are checked first. Fields apply sequentially, not as a rollback transaction.
+An unknown or failed field prevents later fields. Reconcile that exact request
+with its receiver/service ID; never resend the whole batch under a new key.
+Native admission binds target/account identity and separate config/policy/runtime
+metadata grants. Saved titleSource tool, model/effort/pin values and exact receipt
+hashes are independently checked. Targets need not be live, bypass or driver-created.
+`driver_status.sessionManagement.operations` reports this separate capability.

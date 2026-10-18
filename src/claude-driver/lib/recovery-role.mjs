@@ -13,5 +13,15 @@ export function recoveryRoleFromHistory(status,policy,{sessionId,receiverCwd,adm
  return {version:1,bindings,grants,prepareArguments}
 }
 export function recoveredRoleMatches(role,status){
- return !!(role?.version===1&&status?.verified&&['metadataTarget','archiveTarget'].every(k=>role.bindings[k]?same(role.bindings[k],status[k]):status[k]===undefined)&&flags.every(([k])=>(status[k]===true)===role.grants[k]))
+ return !!(role?.version===1&&status?.verified&&['metadataTarget','archiveTarget'].every(k=>role.bindings[k]?same(role.bindings[k],status[k]):status[k]===undefined)&&flags.every(([k])=>(status[k]===true)===(role.grants[k]===true)))
+}
+
+// Host upgrades may add a new explicit grant. Omitted historical grants mean
+// false, never authority; compare true grants and exact original target scope.
+export function recoveryRoleProofMatches(current,retained){
+ if(current?.version!==1||retained?.version!==1||!current.bindings||!retained.bindings||!current.grants||!retained.grants||!current.prepareArguments||!retained.prepareArguments)return false
+ const bindingKeys=Object.keys(current.bindings).sort();if(JSON.stringify(bindingKeys)!==JSON.stringify(Object.keys(retained.bindings).sort())||bindingKeys.some(k=>!same(current.bindings[k],retained.bindings[k])))return false
+ const known=new Set(flags.map(([k])=>k));if(Object.keys(retained.grants).some(k=>!known.has(k)))return false
+ const ordered=x=>JSON.stringify(Object.entries(x).sort())
+ return flags.every(([k])=>(current.grants[k]===true)===(retained.grants[k]===true))&&ordered(current.prepareArguments)===ordered(retained.prepareArguments)
 }

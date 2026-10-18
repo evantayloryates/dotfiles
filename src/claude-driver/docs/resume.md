@@ -1,3 +1,71 @@
+## October 17 audit/ordinary metadata: gap closed before outage test
+
+Previous turn = progress (failed-import continuation). Final code audit verified
+actual peer startedAt is numeric and imported actor CLI IDs equal local UUIDs;
+source inventory239files remains below sealed max256. No controlled outage or
+app restart performed. Scanner found4 old report hashes pending. Bounded review
+excludes recommendations/commands as authority. Current legacy35b... PID79060 idle,
+residentfalse, runtime4af086 integritytrue but dependencyEvidence native-process-
+epoch-mismatch. Detector requestIDs rmuxpnohk-c8bd2b (pin), rmuxppvkw-2f19d6 and
+rmuxqc2c7-c5ba43 (archive) are now expired, recorded dispatched[], result present,
+no native result; this is not retroactive causal proof or replay authority.
+All4 reports remain PENDING, no ack/wake/restart/replay. Durable hash-bound review:
+.runtime/state/report-reviews/legacy-20261018T0247.json. Do NOT reload unchanged
+reports every turn: next trigger changed report hash, exact legacy runtime/epoch
+change or explicit historical-forensic task. Original old integrity-check cause
+and causal native evidence remain unresolved; observer owns legacy recovery.
+
+Audit exposed ordinary rename/config still depending on unserved legacy path.
+Implemented separate sessionMetadataControl (public session_metadata_control:true)
+across sealed package0.11.0, policy, runtime pointer, prepare/activate/inspect,
+renewal, maintenance and cold/pair-role preservation. Requires management grant;
+old management-only generations gain NO new effects. Allowlist title/model/effort
+only (pin/unarchive base unchanged), never permission/messages/archive/delete.
+Ordinary target identity/account binding; archived targets refuse config. Exact
+native admission plus retained titleSource tool/model/effort postconditions and
+receipt hash needed for historical settlement. Callback only exact native calls.
+Public rename_session/set_session_config use ordinary route if no fixed scratch
+metadata route; batch prevalidates all fields/count/margin, stable per-field context
+IDs (NOT scheduler jobs), serial native requests; uncertainty stops later fields.
+Permission/fallback args refused before effects. Default focus endpoint evidence.
+Health advertises rename/config only with explicit matching sealed metadata grant.
+
+Focused63 PASS. Integrated full synthetic1/1 PASS40.6sec source
+91ffee2d009cf0d50febdef6e59ca85a47de92f1a2b85c07535ffdcc410bc712,
+pressure/v2-2026-10-18T02-44-40-450Z.json. ONE representative actual configuration
+workflow on existing OWNED controltargetlocal_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd
+(no fixed metadata index) passed through PUBLIC set_session_config:
+renewje6f57ed20c7d4964a53996c633f93105 added metadata grant, source91ffee, new
+PRIMARY servicee6f57ed20c7d4964a53996c633f93105, same PID96436/start00:42:30.
+Standby a3a811e613274980b931ae984a82f3e7 unchanged PID90418; automatic binding CAS
+refresh TRUE, familyrpeer20f2fc03eb2ed10bb5e53cef7ec32766, new digest
+5c9c209da0d2810a63f729f5453d23bd5f8d5610b8edd686662307e5b9d464ff.
+setj4ac6dfbf2e0847da8b2cacdd894e3a3b changed Haiku5.5->Opus5.5; independent
+saved model confirmed. restorej6101811602b34d568a3b278b103791b1 restoredHaiku5.5.
+Both exact native receipts and saved values verified. Full baseline model/title/
+titleSource/effort/permission/archive matched after cleanup. No inference/message;
+ProDevs unchanged. Both focus endpoints Codex front + ProDevs main remained same;
+this is endpoint proof, not uninterrupted full-layout proof. Evidence
+.runtime/state/ordinary-model-native-20261017.json. Native title/effort separately
+not repeated; source callback/admission/result tests cover fields. No native jobs
+running at checkpoint. No global app or actor restart, keyboard/CUA/auth changes.
+
+After native91ffee proof, fixed historical role-proof comparison: newly added
+omitted false grants normalize to FALSE; unknown grant keys/changed true rights,
+prepare arguments or target scopes reject. Host source can upgrade without
+stranding old failure records or granting new rights. Focused16 role/continuation/
+ordinary checks PASS; no repeat native configuration/full suites for this narrow
+compatibility fix. Do not claim old full/native report as final-host-source proof.
+
+NEXT substantial gate remains actual both-absent bootstrap/outage. Choose a scoped
+supported way without disturbing observer-owned legacy or unrelated work; app-quit
+is broader than the pair. Bootstrap/continuation remain experimental, NOT default
+public fallback until native qualified. Broader ordinary send/archive/permission,
+create/fork/no-folder/window/person/deletion/natural pressure original brief still
+open. Loaded current chat MCP remains stale until final refresh; CLI/native result
+above does NOT establish loaded MCP adoption. Final source synthetic+filtered
+harness/native/loaded-client batch at end, not per-edit loops. Goal ACTIVE.
+
 ## October 17 continuation: failed-import continuation without replay
 
 Previous turn = progress (durable absent-pair executor + real live-actor refusal).
