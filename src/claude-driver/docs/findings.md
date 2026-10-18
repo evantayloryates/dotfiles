@@ -1,3 +1,30 @@
+## October 18 actual restarted Codex MCP adopted; expired pair renewed
+
+Taylor restarted Codex and resumed work. Actual this-chat driver_status reports
+runtimeBuild==sourceBuild18ef4d442ae72cce83e46b6df014662eca4818cc1b11662c34a1fa996398cede,
+restartRequiredfalse and current ordinary status fields. Adoption gate CLOSED.
+Both peers survived waiting >1hour, but leases expired; no unknown requests.
+One current actual MCP durable pinfalse no-op on owned8f1 fixture,
+j66616ef179b04d449e83e3c8836612b5, COMPLETED with native receipt in8.8sec.
+Automatic maintenancej4c0873b6d57f4ca688d16acc36382c24 renewed expired primary
+AND standby, preserved roles/settings/native epochs and re-enrolled pair.
+No messages, app restart, new session, full profile or prior failed pin replay.
+
+Independent actual-mcp-adoption-renewal-20261018.json verifies primary4c0873b6d57f4ca688d16acc36382c24
+PID87665/start04:25:46 and standby7adb902f27ad405f8c7a9b6db28cde5e
+PID89119/start04:26:26, both source18ef4d44, idle/readiness/policytrue, fresh
+deadlines/unresolved[]. Maintenance standbyRefreshQualifiedtrue. Actual MCP
+status afterward route admissionobserved/currentSourceMatches/pairGenerationMatchestrue.
+This is bounded same-process survival + lease renewal evidence, not proof of
+unattended fresh-app startup or indefinite governor immunity.
+
+Actual MCP read-only ProDevs metadata: exact437775cb title ⏸️ ProDevs,
+isArchivedfalse/pinnedtrue. No messages or reapplication of prior mutations.
+Next remaining substantial frontier: supported unattended all-process-absent
+startup/deleted-service controlled replacement; do not repeat unchanged outage
+or full native12. Existing code18ef suite164/fresh harnesses and current native
+renewal evidence align. Goal actual ACTIVE; no live jobs/cleanup pending.
+
 ## October 18 requested Codex reload API pressure test
 
 Taylor explicitly requested exploring access to config/mcpServer/reload for this

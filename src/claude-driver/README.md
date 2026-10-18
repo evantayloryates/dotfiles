@@ -39,9 +39,10 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The existing Codex-chat MCP binding still needs
-one refresh after source settles. Fresh harness evidence does not prove adoption
-by an already-running MCP client.
+execution remains unqualified. The restarted Codex-chat MCP now matches current source `18ef4d44`; an actual
+ordinary no-op request verified native receipt and automatic renewal of both
+expired controller leases. Fresh harness evidence remains separate from this
+loaded-client adoption proof.
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
@@ -65,9 +66,9 @@ when Bypass was requested: this is reported unverified and follow-ups are deferr
 Workspace trust, hot-reload consent, permission raises and delete cards remain
 human gates. Bypass mode does not remove them.
 
-Qualification remains partial: final current-source suite/harness consolidation,
-actual cached MCP adoption, app quit/restart, deleted-service replacement and
-sustained availability remain open. Groups retain the legacy route; window/UI
+Qualification remains partial: unattended startup after app quit/restart, deleted-service replacement and
+sustained availability remain open. Current-source synthetic suite, fresh
+Claude/Codex harnesses and actual loaded MCP adoption have passed their scopes. Groups retain the legacy route; window/UI
 operations remain quarantined. The default legacy `probe` still requires UI availability. Explicit
 `preflight --input-free --controller <id> --session <id>` reuses ordinary read-only
 qualification; `probe --input-free --controller <id> --session <id> --live` runs
