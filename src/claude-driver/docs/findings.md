@@ -1,3 +1,34 @@
+## October 18 requested Codex reload API pressure test
+
+Taylor explicitly requested exploring access to config/mcpServer/reload for this
+chat without app restart. Read-only existing codex-bridge transport reused as
+reference only; no Codex bridge code/config changed. Official app-server docs
+confirm reload queues loaded-thread refresh; installed CLI generated schema has
+null params, no threadId/serverName selector. CLI mcp/debug expose no reload.
+
+Supported codex app-server proxy default control socket absent (ENOENT), no daemon
+started. Current shell parent app-serverPID25468 verified app-owned and listening
+on neither named Unix socket nor TCP; stdio socket pairs belong to existing app
+transport, not attachable published endpoint. No process environment/token read,
+FD hijack, debugger/injection, app/process kill, permission/auth changes or UI.
+Available tool inventory has no generic app-server reload call.
+
+Isolated private app-server accepted config/mcpServer/reload => {}, loaded threads
+0 before/after; currentChatAffectedfalse, no threads created, native effects0.
+Proof .runtime/state/codex-reload-api-probe-success-20261018.json and reusable private
+probe.mjs. Initial attempt exited on unsupported global --ignore-user-config flag;
+failed report retained, corrected to normal private --stdio with no thread starts.
+A new MCP helper could call ITS server, not automatically reach current app process.
+Cannot claim a fresh server reload refreshed this chat. Adding an MCP also cannot
+bootstrap itself into the already-cached tool roster without a refresh.
+
+Result: API exists and callable in owned process, but no supported live transport
+or forwarding tool established to this desktop app-server. Future app integration
+could expose reload, or a stable MCP proxy could replace workers after one initial
+reconnection; neither retrofits currently running stdio process. No restart done.
+Ordinary current CLI remains usable while waiting. Original goal status blocked
+pending actual MCP adoption; native startup/deleted-session scope still incomplete.
+
 ## October 18 consolidated gate; actual loaded MCP remains blocked
 
 Current source18ef4d442ae72cce83e46b6df014662eca4818cc1b11662c34a1fa996398cede:
