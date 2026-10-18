@@ -1,3 +1,26 @@
+## October 18 minimal no-history service seed primitive
+
+Added service-rebuild-seed.mjs recipe and orchestration, no public operation or
+live CLI invocation. Immutable retained service identity pins exact original CLI
+UUID/cwd, fixed recovery title/model/marker; no resume/fork/history instructions.
+Arguments disable tools, MCP servers and setting sources; dontAsk mode, one turn,
+JSON exact UUID/marker/success/turn-count check. No bypass request or native import.
+Sequence requires independently supplied exact missing-record/all-transcripts-absent,
+old PID absent/retired/roles-preserved proof and one-use durable claim callbacks,
+with before/after bootstrap checkpoints. Any unknown result is retained, no cleanup
+or retry. A verified new transcript never means record/service/permission restored.
+
+Focused seed4 PASS: exact args/no grants/history, both no-later-effect proof/checkpoint
+failures, CLI identity/marker/error/multi-turn refusal. Isolated stubs only. Native
+seed/transcript reconstruction remains UNQUALIFIED, no credential/CLI inference,
+file deletion or app mutation performed. Next implement bounded exact-UUID absence
+locator (including hashed project directories), same-account retained-role planner,
+and durable one-use seed root before exposing execution. Existing seeded transcript
+loss must never reuse a record-present or other-account UUID; preserve native delete
+intent/STOP. Source changed from qualified79619016; no repeated client refresh or
+native suite until this substantial frontier settles. Goal active, no live jobs or
+cleanup pending. Codex bridge remains parked.
+
 ## October 18 installed delete contract changes recovery frontier
 
 Read-only exact current app2.42304.0/CLI2.1.299 source audit contradicts any blanket
