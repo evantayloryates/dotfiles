@@ -1,3 +1,25 @@
+## October 18 exact service UUID absence inventory
+
+Added service-seed-absence.mjs: bounded metadata-only inventory across up to4096
+CLI project entries, using exact UUID transcript/side-directory names instead of
+reconstructing cwd's possibly truncated/hashed project name. Owned canonical root,
+owned non-symlink project directories, no group/world writes, before/after root
+and per-directory identity/metadata checks. Exact UUID artifact (including broken
+link), project/root link, foreign owner, unsafe permissions, inventory overflow,
+metadata error or drift never establishes absence. No transcript/side-directory
+contents opened. Output only proof/fingerprint/count, no project paths or names.
+
+Focused absence+seed8 PASS. Actual current primary CLI UUIDc0a18601... read-only
+inventory returns exact-cli-artifact-present/allTranscriptsAbsentfalse/contentReadfalse,
+so rebuilding cannot overwrite that extant identity. No live CLI bootstrap,
+credentials, import, deletion, permission or app effect. Existing final native12
+and source796 qualification remain historical relative to seed development.
+Next same-account/retained-role/STOP-aware rebuild planner plus durable one-use
+seed root, then integrate with existing record import/reactivation only after
+actual permission/native gates. Do not infer record absence from this transcript
+inventory, or transcript absence from a single guessed path. Goal active; no live
+jobs or cleanup pending. Codex bridge remains parked.
+
 ## October 18 minimal no-history service seed primitive
 
 Added service-rebuild-seed.mjs recipe and orchestration, no public operation or
