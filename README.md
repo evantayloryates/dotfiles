@@ -281,12 +281,13 @@ reload_dotfiles  # or use the alias: dr
 ### Preview and copy an image with `o`
 
 On macOS, `o image.png` renders a single existing image in the terminal with
-Chafa, then puts its image pixels on the clipboard as PNG data. The success
-message says **image contents copied to clipboard**. Paste into an image-capable
-chat composer to attach an image; the clipboard contains no file path or file
-URL. JPEG, PNG, WebP, TIFF, AVIF, HEIC, SVG, GIF, BMP, and ICO are covered by
-the local fixtures in `/Users/taylor/Desktop/tests`. Animated images copy their
-first frame as PNG.
+Chafa, then places a macOS file URL for the original image on the clipboard.
+A file-capable chat composer can read the original bytes, format, and metadata
+from that URL. If that copy fails, `o` prints a red error and copies
+the decoded image as PNG data instead. The PNG fallback runs in memory and
+creates no temporary file; animated images fall back to their first frame.
+JPEG, PNG, WebP, TIFF, AVIF, HEIC, SVG, GIF, BMP, and ICO are covered by the
+local fixtures in `/Users/taylor/Desktop/tests`.
 
 `o` with no arguments still opens the current directory. Flags, multiple
 arguments, directories, and files whose contents are not a supported image

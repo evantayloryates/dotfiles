@@ -145,7 +145,7 @@ export async function stageRelease({evidence=[]}={}) {
 // Called only under the broker lifecycle lock, after exact native admission.
 // A crash between pointer and instructions remains stopped. Current clients
 // reject the owned handoff STOP instead of clearing it on request admission.
-export function commitRelease(build,{sessionId,pid,procStart,nonce,serviceStateBinding,sessionManagementControl=false},render) {
+export function commitRelease(build,{sessionId,pid,procStart,nonce,serviceStateBinding,sessionManagementControl=false,sessionMetadataControl=false},render) {
  if(!Number.isInteger(pid)||pid<=0||typeof procStart!=='string'||!procStart||typeof sessionId!=='string'||!/^local_[a-f0-9-]{36}$/.test(sessionId)||typeof nonce!=='string'||!nonce||nonce.length>128)throw new DriverError('release activation requires native PID and start epoch',{category:'broker_handoff_refused'})
  if(serviceStateBinding!==undefined&&!serviceStateBindingMatches({binding:serviceStateBinding,dir:BROKER_DIR,sessionId,build,receiverCwd:serviceStateBinding?.receiverCwd}))throw new DriverError('release service namespace binding refused',{category:'broker_handoff_refused'})
  const release=validateRelease(build),prior=activeRelease()
@@ -153,8 +153,9 @@ export function commitRelease(build,{sessionId,pid,procStart,nonce,serviceStateB
  const before=existsSync(RUNTIME_POINTER)?readFileSync(RUNTIME_POINTER):null
  const instructions=join(BROKER_DIR,'CLAUDE.md'),oldText=existsSync(instructions)?readFileSync(instructions):null
  try {
+  if(typeof sessionMetadataControl!=='boolean'||sessionMetadataControl&&!sessionManagementControl)throw Error('invalid ordinary metadata receiver grant')
   if(typeof sessionManagementControl!=='boolean'||sessionManagementControl&&serviceStateBinding===undefined)throw Error('invalid ordinary session receiver grant')
-  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...sessionManagementControl?{sessionManagementControl:true}:{},...(release.manifest.nativeMetadataTargetVersion===1?{nativeMetadataTargetVersion:1}:{}),...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),...(serviceStateBinding!==undefined?{serviceStateBinding}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
+  writeJsonAtomic(RUNTIME_POINTER,{schemaVersion:1,...sessionManagementControl?{sessionManagementControl:true}:{},...sessionMetadataControl?{sessionMetadataControl:true}:{},...(release.manifest.nativeMetadataTargetVersion===1?{nativeMetadataTargetVersion:1}:{}),...(release.manifest.nativeRequestBindingVersion===1?{nativeRequestBindingVersion:1}:{}),...(serviceStateBinding!==undefined?{serviceStateBinding}:{}),build,bootstrapHash:installBootstrap(),previousBuild:prior?.build??null,generation:(prior?.pointer.generation??0)+1,activatedAt:new Date().toISOString(),sessionId,pid,procStart,handoffNonce:nonce})
   writeFileSync(instructions,render(),{mode:0o600})
  }catch(e){
   if(before)writeFileSync(RUNTIME_POINTER,before,{mode:0o600});else rmSync(RUNTIME_POINTER,{force:true})

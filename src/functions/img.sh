@@ -23,11 +23,44 @@ __o_preview_and_copy() {
   chafa --probe=off "$1" || return
 
   local error
-  if error=$(/usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" "$1" 2>&1); then
-    print -r -- '✅ Image contents copied to clipboard (PNG)'
+  if error="$(__o_copy_file "$1" 2>&1)"; then
+    print -r -- '✅ File contents copied to clipboard'
   else
-    print -u2 -- "❌ Image previewed, but clipboard copy failed: $error"
-    return 1
+    __o_copy_failure '❌ Copy Failure:' "$error"
+    if error="$(__o_copy_png "$1" 2>&1)"; then
+      print -r -- '✅ Transcoded png contents copied to clipboard'
+    else
+      __o_copy_failure '❌ Transcode Copy Failure:' "$error"
+      return 1
+    fi
+  fi
+}
+
+__o_copy_file() {
+  /usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" file "${1:A}"
+}
+
+__o_copy_png() {
+  /usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" png "$1"
+}
+
+__o_copy_failure() {
+  local label="$1" message="$2"
+  message="${message%%$'\n'*}"
+  message="${message//$'\r'/ }"
+  message="${message//$'\e'/}"
+  message="${message//$'\t'/ }"
+  message="${message##*execution error: }"
+  while [[ "$message" == 'Error: '* ]]; do message="${message#Error: }"; done
+  if [[ "$message" =~ ' \(-[0-9]+\)$' ]]; then message="${message% *}"; fi
+  message="${message#"${message%%[![:space:]]*}"}"
+  message="${message%"${message##*[![:space:]]}"}"
+  [[ -n "$message" ]] || message='Unknown Error'
+
+  if (( ${#message} > 50 )); then
+    printf '\033[37m%s\033[31m %s\033[90m...\033[0m\n' "$label" "${message[1,47]}" >&2
+  else
+    printf '\033[37m%s\033[31m %s\033[0m\n' "$label" "$message" >&2
   fi
 }
 
