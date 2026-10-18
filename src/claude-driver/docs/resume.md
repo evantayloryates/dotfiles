@@ -1,3 +1,31 @@
+## October 18 single-endpoint callback receipt passes; native notify still distinct
+
+Recording-only singleendpoint5062060 passes on actualhost0.163.0-alpha.10.2:
+only cua_repl/packagedlauncher/custom recording services, unchanged reviewed
+Stop hook, real matching thread01a15148-67f2-7ac3-bb21-29a3d998f133 and turn
+01a15148-67f9-72c1-bf24-e8a72b828049. Fixture RPC after Stop reads exactly one
+callback before forwarding its original result. Host0, groupempty after bounded
+<=2s observation, no signal/helper/app/input/model/auth. No native cleanup claim.
+
+ActualSkyJSsetup contract5109042 imports reviewedservice5b2fa2f0 with denied
+native/network/launch capabilities: returns11Macmethods, registers0JSturnhandlers,
+attempts0connections/launches/network. Setup only, no actualNodeREPL/appacquisition;
+laternative/Rustownership remains open. Static client4861d29e/helperf21c31c0
+inspection finds nativeIPCturnendrequest, receiver/callback and lockscreen method.
+No binary invoked; bounded disassembly does not establish filter release or
+private socket binding. Recorder callback success cannot substitute for native
+cleanup. Prior failing input/report verdicts remain unchanged.
+
+Mirror wrapper-single-endpoint-evidence10files/47607bytes verifies sources,
+config/hook/host/MCP and setup receipts. Final no ownedgroup/helper, uv508 and
+caffeinate510 preserved. Local config/quarantine/source unchanged.
+
+NEXT: recording substitute for top-level native notify in an isolated host to
+capture actual payload/IDs/order relative to JSStop, without invoking the native
+client. Then compare the actual bridge app-server/worker behavior. Do not apply
+live global settings, add an unreviewed hook, infer historical physical-key cause
+or repeat unchanged nativeinput. Goal active/incomplete; Codex fixes still parked.
+
 ## October 18 actual-host cleanup routing follows the server name
 
 Recording-only actual Codex host traces4763693/4832692 use the exact approved

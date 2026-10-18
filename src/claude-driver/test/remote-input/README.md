@@ -4,6 +4,24 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`wrapper-lifecycle.mjs` compares the reviewed direct NodeREPL and packaged CUA
+entrypoints with a recording trusted service, empty bootstrap and disabled native
+startup. A supplied synthetic turn-end notification must reach one callback.
+`wrapper-host-routing.mjs` uses the actual ephemeral host and deterministic local
+provider with the exact previously reviewed Stop hook. Its two-endpoint mode
+traces name-bound routing; `--swap-entrypoints` changes executable mapping only.
+`--single-endpoint` configures only cua_repl and reads its recording callback
+state after the real Stop hook using the actual unchanged host IDs. These modes
+never load Sky/browser, acquire apps, inject input or change saved hook trust.
+Original admission/retirement failures remain separate from derived routing proof.
+
+`sky-setup-contract.mjs` imports the actual reviewed Sky JavaScript service on
+the remote host, calls setup only and traps native pipe, launch and network
+capabilities. It observes JavaScript handler registration, not an acquired app's
+native/Rust lifetime. It never starts an actual NodeREPL/native helper or changes
+permissions. See [custom wrapper audit](../../docs/custom-cua-wrapper-audit.md)
+for exact results and remaining native-notify boundaries.
+
 `worker-handoff.mjs <owned evidence parent>` runs the actual private worker and
 bundled app-server against a harmless MCP fixture and deterministic localhost
 provider. It never starts CUA or a helper. Its effect proof reads only the scoped

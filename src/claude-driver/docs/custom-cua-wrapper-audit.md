@@ -163,3 +163,52 @@ executing it. Do not rename live servers, remove hooks, disable plugins or
 declare native safety from this recording-only gate. Consolidating lifecycle
 ownership is an in-scope candidate, not a shipped global configuration change or
 a fix for the independent-private-helper native delivery failure.
+
+## Single-endpoint candidate and actual Sky setup boundary
+
+Run1792365062060-96028a29 passes the recording-only single-endpoint gate. Only
+cua_repl is configured, using the actual packaged launcher and a custom trusted
+service map containing the recorder. The exact reviewed Stop hook is unchanged.
+Actual thread01a15148-67f2-7ac3-bb21-29a3d998f133/turn
+01a15148-67f9-72c1-bf24-e8a72b828049 match the host call, Stop arguments and one
+recorded callback. A fixture-only RPC reads callback state after Stop and before
+forwarding its original reply; this uses the real captured IDs unchanged and
+never invokes Sky. The callback receipt, not merely hook success, qualifies.
+
+One provider probe plus final response completes without inference or account
+auth. Host exit0 and independently empty owned group qualify retirement; missing
+normal proxy-close callbacks remain separately recorded. Bounded observations
+allow up to2s for normal ancillary process retirement and never signal it away.
+The candidate is a tested lifecycle shape, not a live config patch: exact browser
+bootstrap, native filtering and production desktop plugin merging are untested.
+
+Pure-JS setup contract1792365109042 then imports the actual copied Sky service
+SHA5b2fa2f0 with recording addTurnEndedHandler and denied native/network/startup
+capabilities. Two setup calls return the11 Mac methods; zero JS turn-end handler
+registrations, native connections, launches or network attempts occur. No actual
+NodeREPL or app acquisition is performed by this setup-only contract. It agrees
+with the earlier literal source review but says nothing conclusive about later
+native/Rust ownership or an acquired app's cleanup. Do not convert the recorder's
+working callback into a claim that Sky implements the same native release.
+
+Static inspection of local native client SHA4861d29e and signed helperf21c31c0
+finds ComputerUseIPCCodexTurnEndedRequest(threadID, optional turnID), a native
+receiver and an onCodexTurnEnded callback. A separate lock-screen coordinator
+also has a turn-end method. Neither binary was executed; bounded receiver
+disassembly does not establish app/filter release semantics or private-socket
+binding. Native notify remains a distinct unqualified path. Do not invoke a
+private IPC method or assume it dispatches NodeREPL's in-memory callbacks.
+
+Private wrapper-single-endpoint-evidence/manifest.json verifies10 files/47607
+bytes for the single-endpoint and Sky setup gates, including exact sources,
+configs/hook, host and MCP events. Final groups/helpers are empty without signals;
+uv508/caffeinate510 survive. Local native-turn-ended-*-symbols.json and bounded
+handler-disassembly evidence retain the static findings. No local CUA/global
+config/auth/permission/quarantine changes occurred; prior failed reports remain.
+
+Next use a harmless recording substitute for the configured native notify command
+in the isolated host. Capture its actual payload, IDs and ordering relative to
+the JS Stop callback without executing SkyComputerUseClient. Then assess the
+bridge's actual app-server/worker lifecycle against that contract. This changes
+the tested routing condition without another native input experiment, and avoids
+assuming the existing native notification compensates for a separate MCP server.
