@@ -1,3 +1,27 @@
+## October 18 production restored-pair execution adapter
+
+Added restored-pair-execute.mjs: exact root/plan hashes and durable distinct job,
+original primary route lock, fresh read-only plan, self-target refusal, retained
+account identities/old policies/settings/selection/metadata enrollment. Exclusive
+claim and private ledger precede scheduler effects. Uses exact existing prepare,
+live survivor quiesce/retire, stable activation (cold_rebind only lost role), bounded
+readiness, negative native-policy probes, deterministic durable reciprocal/family
+reads, role/settings/no-unknown verification, restored enrollment proof CAS, public
+metadata rebind and final paired verification. No import or message operation.
+Guards source/version/root/claim/enrollment, old lost PID absence, both current idle
+desktop epochs/CLI IDs/account/bypass/no-worktree/no-PR, old policies and selected
+generation around each step. Failures preserve root/child handles, retrySafe false.
+
+Source/fixture inspection corrected real selector field receiverCwd (fixtures had
+incorrectly supplied cwd). Planner and active-generation guard now normalize that
+real field before epoch equality. Focused execution/plan/proof/sequence/ledger16
+PASS; strengthened peer CLI identity then execution3 PASS. No full positive native
+adapter run or live mutation; new adapter NOT publicly exposed yet. Next add one
+bounded driver plan/execution entrypoint, exercise integrated filesystem/scheduler
+fixtures and consolidated full suite before native/client gate. Do not claim
+positive deleted-chat recovery or unattended app startup. Goal active, no live job
+or cleanup pending; Codex bridge remains parked.
+
 ## October 18 restored pair enrollment transition verification
 
 Added restored-pair-proof.mjs, exact before-enroll ordered ledger phases, immutable
