@@ -2490,3 +2490,14 @@ mode or clears trust/hot-reload cards. A restored record can still require a per
 before a new idle desktop process and reciprocal roles can be qualified. Actual
 native deleted-service recovery remains unqualified; ordinary routing does not
 automatically invoke these experimental rebuild operations.
+
+Missing-record restore/rebuild submissions require an exact `local_<UUID>`;
+mutable titles and `self` are refused. Explicit offline retirement children also
+retain that UUID when the app record is absent. Submission does not replace the
+worker's independent enrollment/account/generation checks.
+
+The October18 native deletion gate reached a retained failed `after-retire` root
+before seed/bootstrap/import. Do not rerun it or release its generation claim.
+Current recovery does not yet expose a qualified continuation for that checkpoint;
+inspect the original root and preserve its completed child receipts. Native
+reconstruction/reactivation remains an open qualification gate.

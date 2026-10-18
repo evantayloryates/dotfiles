@@ -36,9 +36,13 @@ test('delivered offline commands retain exact module/settings bytes and owned ST
  const stopped=f.run('independent-service-quiesce.mjs');assert.equal(stopped.status,0,stopped.stderr);const q=JSON.parse(stopped.stdout);assert.equal(q.quiescent,true);assert.equal(q.previousPidObservedAbsent,true)
  const retired=f.run('independent-service-retire.mjs');assert.equal(retired.status,0,retired.stderr);const r=JSON.parse(retired.stdout);assert.equal(r.filesRetired,true);assert.equal(r.processRetired,false);assert.equal(r.automaticResume,false)
  assert.equal(existsSync(f.module),false);assert.equal(sha(join(f.state,'retired-module/hooks/register.js')),registration);assert.equal(sha(join(f.cwd,'.claude/settings.json')),settings);assert.equal(existsSync(join(f.broker,'STOP')),true)
+ const status=f.run('independent-service-status.mjs');assert.equal(status.status,0,status.stderr);const observed=JSON.parse(status.stdout)
+ assert.equal(observed.verified,true);assert.equal(observed.verificationMode,'offline-retired');assert.equal(observed.sourceDisposition,'files-retired');assert.equal(observed.previousPidObservedAbsent,true);assert.equal(observed.nativeEpochAssessed,false);assert.equal(observed.stopMarkerMatchesGeneration,true);assert.equal(observed.terminalAttemptReviewComplete,true);assert.equal(observed.servingQualified,false)
  const repeat=f.run('independent-service-retire.mjs');assert.equal(repeat.status,0,repeat.stderr);assert.equal(JSON.parse(repeat.stdout).filesRetired,true)
  const settingsRetired=f.run('independent-service-retire.mjs','--settings');assert.equal(settingsRetired.status,0,settingsRetired.stderr);assert.equal(sha(join(f.state,'retired-settings.json')),settings);assert.equal(existsSync(join(f.cwd,'.claude/settings.json')),false)
  assert.equal(f.run('independent-service-retire.mjs','--settings').status,0)
+ assert.equal(JSON.parse(f.run('independent-service-status.mjs').stdout).settingsEvidence,'retained-settings')
+ const stop=join(f.broker,'STOP');writeFileSync(stop,JSON.stringify({id:'unowned-stop'}));assert.equal(JSON.parse(f.run('independent-service-status.mjs').stdout).verified,false)
 })
 test('an original unresolved offline attempt keeps STOP and prevents module retirement',t=>{
  const f=fixture(t),id='rpeer'+'c'.repeat(32),intent=join(f.broker,'.native-service-'+id+'.intent.json'),body=JSON.stringify({serviceId:service,requestId:id,brokerSession:session})

@@ -40,7 +40,17 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
     // Resolve mutable titles and "self" once at submission. An idempotent
     // reattach uses the original fingerprint and does not re-resolve aliases.
     const boundArgs = { ...args }
-    if (typeof boundArgs.session === 'string') boundArgs.session = resolveSession(boundArgs.session).sessionId
+    if (typeof boundArgs.session === 'string') {
+      // These operations prove ownership from retained generation/enrollment
+      // evidence because the saved record may have been deleted. Do not make
+      // record existence a scheduler prerequisite or resolve mutable aliases.
+      const retainedIdentity = operation === 'broker_service_restore_missing_record' || operation === 'broker_service_rebuild_missing_record' ||
+        args.offline === true && ['broker_service_quiesce', 'broker_service_retire'].includes(operation)
+      if (retainedIdentity) {
+        if (!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(boundArgs.session))
+          throw new DriverError('retained recovery requires an exact session UUID', { category: 'bad_args' })
+      } else boundArgs.session = resolveSession(boundArgs.session).sessionId
+    }
     if (Array.isArray(boundArgs.sessions)) boundArgs.sessions = boundArgs.sessions.map(s => resolveSession(s).sessionId)
     let projectArchiveSnapshot
     if(operation==='archive_project'){const plan=await runOp('archive_project',{...args,dry_run:true},{harness:ctx.harness});projectArchiveSnapshot=(await import('./project-archive-control.mjs')).freezeProjectArchivePlan(plan);boundArgs.folder=projectArchiveSnapshot.folder}

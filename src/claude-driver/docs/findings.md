@@ -1,3 +1,30 @@
+## October 18 actual native deletion: transcript reaped; durable integration fixes
+
+App2.42304.0/CLI2.1.299 native deletion of the task-owned primary removed its
+saved record, exact native process and all CLI UUID transcript/side artifacts.
+Independent bounded metadata inventory across363 project dirs; no contents read.
+Previously qualified reciprocal native pair retained exact account/role enrollment;
+no working ordinary controller or ProDevs change. Evidence private
+state/deleted-service-native-fixture-20261018.json.
+
+Actual public durable rebuild exposed scheduler record resolution before execution.
+Exact UUID recovery ops and explicit offline quiesce/retire now preserve literal
+identity at submission; their retained-evidence workers still enforce ownership.
+Aliases refuse, ordinary/live operations still require saved records. Regression
+uses real detached workers in isolated app/state/project stores, preserves terminal
+ownership refusals and idempotent same-job reattachment.
+
+Actual rootje56f3ebcd2ab46c5a80e292429c8f7df completed offline stop/retirement,
+then failedafter-retire with bootstrapfalse/importfalse because delivered status
+inspection disabled retired contexts in offline mode. Fixed both initial/repeated
+read-only context reads to allow sealed retired evidence while requiring exact
+oldPID absence/STOP/module/settings/history. Real filesystem test now exercises
+offline status after module retirement and after settings retirement; altered STOP
+refuses. Actual original retired plan qualifies after fix. Failure/root/claim and
+completed children preserved, no rebuild replay. Positive native reconstruction
+is still unqualified; safe explicit continuation from verified pre-bootstrap
+checkpoint is next work. CLI seed flag proof alone is not deleted-service recovery.
+
 ## October 18 actual headless seed CLI and fresh harness gate
 
 One actual bundled CLI2.1.299 contract, task-created UUID2043db15-e320-468b-8a8d-24079d85bd1a

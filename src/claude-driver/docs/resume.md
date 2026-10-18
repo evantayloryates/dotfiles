@@ -1,3 +1,64 @@
+## October 18 native deletion confirmed; real rebuild exposed two integration gaps
+
+Taylor manually deleted disposable primaryaf930615. Independent readback:
+saved recordabsent, peerabsent, originalPID22668absent, bounded all-project UUID
+metadata verified ALL transcripts/side-artifactsabsent (363project dirs), no
+transcript content read. This is actual reaping on app2.42304.0/CLI2.1.299, not
+archive and not merely a deletion-dialog screenshot. Standbyd0ac9a3a preserved.
+Seed plan qualified original enrollment86822ee9/current lost generatione00f74c4,
+role/account/absence/recipe proof. Sourcee9dd submission refused before job creation:
+jobs.mjs always resolved session against a record, impossible for missing-record
+recovery. No bootstrap/import effect from that failure.
+
+Fixed scheduler binding ONLY for exact local_UUID on restore/rebuild operations
+and explicit offline quiesce/retire. Aliases/malformed IDs refuse; ordinary/live
+ops still resolve saved records. New isolated missing-record-job regression runs
+real detached durable workers, verifies retained args, terminal ownership refusal,
+idempotent reattach and alias/live refusals. Eight focused checks passed incl
+seeded adapter/original restore fixtures. Actual new rebuild root
+je56f3ebcd2ab46c5a80e292429c8f7df (source06e715e4) then reachedafter-retire:
+quiescejd11bbd24cadb4b08a86bba8e463c0de2 and
+retirej8d556b32b822429e8c7a17b2739d63da both completed. BootstrapAttemptedfalse,
+importAttemptedfalse; rootFAILED/claim retained, never replayed.
+
+Second integration gap: independent-service-status script explicitly disabled
+allowRetired for offline inspection, although context supports offline-retired and
+owning-root planner requires it after retirement. Enabled exact retained-module
+verification in BOTH initial and repeat offline context reads; independent old
+PID absence, sealed module/settings/STOP/history checks remain enforced. Real
+filesystem regression now runs delivered offline status after actual fixture
+retirement (with current then retained settings), verifies offline-retired, no
+live/native/serving claim, and altered STOP refuses. Nine focused checks passed.
+Actual original retired plan now qualifies with unchanged plan hashes except
+oldGenerationRetiredtrue; no bootstrap or import attempted after correction.
+Current runtimeefbebb8e14144403bd02f2792e003e4e2e5fe2323d3df12220afed79768207b8.
+Full186 frozen-source gate PASS1/1,38.5sec/sourceChangedfalse; report
+pressure/v2-2026-10-18T17-12-16-064Z.json, private log
+pressure/deletion-entry-offline-fixes-20261018.log. No live suite handle remains.
+
+NEXT ENGINEERING STEP: explicit safe after-retire continuation, not another rebuild
+or released/reassigned generation claim. Preserve immutable FAILED root and
+completed retirement child jobs. Validate original root hash/parent/phase exactly
+after-retire/bootstrapfalse/importfalse, actual child handles/results/arguments,
+original enrollment/account/recipe/policy/selector and current all-UUID absence.
+A separately claimed continuation root must own its own one-use bootstrap/import
+intents and refer to original claim/root without overwriting or pretending original
+parent completed. Refuse unknown/missing child observation, any seed/import intent,
+record/transcript/epoch/STOP drift or competing continuation. Revalidate current
+source before effects. Extend seeded normalized proof and native reactivation
+reader to verify both parent roots/claims independently. Need production-path
+regression for this actual checkpoint, not only injected status simulations.
+
+Do not rerun rootje56... or remove its claim. Primary remains deleted/offline,
+original role files retired, stable owned settings/selector retained. Standby
+original serviceccf1... remains installed; lease may need maintenance later but no
+new source/native12/full suite per small edit. Working controller pair and ProDevs
+untouched. Private deleted-service-native-fixture-20261018.json retains failures,
+original handles and afterRetirementDiagnosis. Goal platform still blocked; use
+Play/Resume for automatic engineering continuation. No human Claude action needed
+until a recreated actual record reaches native consent/mode gate. Codex bridge
+remains parked; no live recovery worker remains.
+
 ## October 18 disposable pair qualified; native deletion setup pending
 
 Taylor completed native hot-reload prompts. Both exact original peer epochs idle,
