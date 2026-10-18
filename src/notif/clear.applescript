@@ -3,11 +3,16 @@
 -- usernoted database alone.
 
 on panelIsOpen()
-    tell application "System Events"
-        tell process "NotificationCenter"
-            return exists window "Notification Center"
+    try
+        tell application "System Events"
+            tell process "NotificationCenter"
+                return exists window "Notification Center"
+            end tell
         end tell
-    end tell
+    on error errorMessage number errorNumber
+        if errorNumber is -1728 then return false
+        error errorMessage number errorNumber
+    end try
 end panelIsOpen
 
 on togglePanel()
@@ -18,10 +23,20 @@ on togglePanel()
     end tell
 end togglePanel
 
+on ensurePanel()
+    if panelIsOpen() then return
+    togglePanel()
+    repeat 20 times
+        if panelIsOpen() then return
+        delay 0.1
+    end repeat
+    error "Notification Center did not open."
+end ensurePanel
+
 on notificationElements()
     tell application "System Events"
         tell process "NotificationCenter"
-            if not (exists window "Notification Center") then return {}
+            if not (exists window "Notification Center") then return missing value
             set panel to first window whose name is "Notification Center"
             set scroller to UI element 1 of UI element 1 of UI element 1 of panel
             if value of attribute "AXRole" of scroller is not "AXScrollArea" then error "Notification Center layout changed."
@@ -42,49 +57,70 @@ on notificationElements()
 end notificationElements
 
 on hasClosableNotification(shouldClose)
-    set candidateElements to notificationElements()
-    tell application "System Events"
-        tell process "NotificationCenter"
-            repeat with itemRef in candidateElements
-                -- Snapshot values before iterating: System Events' live action
-                -- collection can change while a notification is animating out.
-                set actionNames to (get name of every action of itemRef) as list
-                repeat with actionText in actionNames
-                    set actionName to contents of actionText as text
-                    if actionName is "AXClose" or actionName starts with "Name:Close" then
-                        if shouldClose then perform action actionName of itemRef
-                        return true
-                    end if
+    try
+        set candidateElements to notificationElements()
+        if candidateElements is missing value then return missing value
+        tell application "System Events"
+            tell process "NotificationCenter"
+                repeat with itemRef in candidateElements
+                    -- Snapshot values before iterating: System Events' live action
+                    -- collection can change while a notification is animating out.
+                    set actionNames to (get name of every action of itemRef) as list
+                    repeat with actionText in actionNames
+                        set actionName to contents of actionText as text
+                        if actionName is "AXClose" or actionName starts with "Name:Close" then
+                            if shouldClose then perform action actionName of itemRef
+                            return true
+                        end if
+                    end repeat
                 end repeat
-            end repeat
-            return false
+                return false
+            end tell
         end tell
-    end tell
+    on error errorMessage number errorNumber
+        -- A dismissal may remove the window or invalidate an AX element
+        -- between the snapshot and its next lookup. Reacquire the panel.
+        if errorNumber is -1728 or errorNumber is -1719 then return missing value
+        error errorMessage number errorNumber
+    end try
 end hasClosableNotification
 
 set openedHere to false
 set clearedCount to 0
 try
-    if not panelIsOpen() then
-        togglePanel()
-        set openedHere to true
-        repeat 20 times
-            if panelIsOpen() then exit repeat
-            delay 0.1
-        end repeat
-        if not panelIsOpen() then error "Notification Center did not open."
-    end if
+    set openedHere to not panelIsOpen()
+    ensurePanel()
 
+    set transientFailures to 0
+    set emptyChecks to 0
     repeat 500 times
-        if not hasClosableNotification(true) then
-            -- Confirm after the dismissal animation before reporting success.
+        ensurePanel()
+        set didClose to hasClosableNotification(true)
+        if didClose is missing value then
+            set transientFailures to transientFailures + 1
+            if transientFailures > 5 then error "Notification Center kept disappearing while clearing notifications."
+            delay 0.1
+        else if didClose then
+            set transientFailures to 0
+            set emptyChecks to 0
+            set clearedCount to clearedCount + 1
+            delay 0.05
+        else
+            set transientFailures to 0
+            set emptyChecks to emptyChecks + 1
+            if emptyChecks is 2 then exit repeat
             delay 0.2
-            if not hasClosableNotification(true) then exit repeat
         end if
-        set clearedCount to clearedCount + 1
-        delay 0.05
     end repeat
-    if hasClosableNotification(false) then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
+    set remaining to missing value
+    repeat 5 times
+        ensurePanel()
+        set remaining to hasClosableNotification(false)
+        if remaining is not missing value then exit repeat
+        delay 0.1
+    end repeat
+    if remaining is missing value then error "Could not verify Notification Center after clearing notifications."
+    if remaining then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
 on error errorMessage number errorNumber
     if openedHere then
         try

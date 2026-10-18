@@ -797,7 +797,7 @@ export const OPS = [
       const brokerId = brokerInfo().sessionId
       const enrollment=(await import('./session-management-controller.mjs')).readSessionManagementEnrollment()
       const standby=enrollment?(await import('./standby-enrollment.mjs')).readStandbyEnrollment(enrollment.controllerSession):null
-      const {projectArchiveSelection,requireCompleteProjectArchive}=await import('./project-archive-control.mjs')
+      const {projectArchiveSelection,requireCompleteProjectArchive,requireProjectCleanupScope}=await import('./project-archive-control.mjs')
       const {targets,excluded}=projectArchiveSelection(recs,[brokerId,callerHostSession(),enrollment?.controllerSession,standby?.standby?.sessionId])
       const gate = []
       if (!scratch && !mine) {
@@ -816,11 +816,12 @@ export const OPS = [
       const plan = { folder, excluded, class: scratch ? 'scratch' : mine ? 'driver' : 'user', sessions: targets.map((r) => ({ sessionId: r.sessionId, title: r.title })), gate }
       if (args.dry_run !== false) return { dryRun: true, ...plan, wouldProceed: !gate.length || !!args.override }
       if (gate.length && !args.override) throw new DriverError(`refused: ${gate.join('; ')}. Ask Taylor; pass override:true only with his explicit approval.`, { category: 'gate_project', detail: plan })
+      if(args.delete_folder)requireProjectCleanupScope(folder,[BROKER_DIR,enrollment?.receiverCwd,standby?.primary?.cwd,standby?.standby?.cwd,...[brokerId,callerHostSession()].filter(Boolean).map(id=>getRecord(id)?.cwd)])
       const ops = targets.map((r) => ({ op: 'archive_session', args: { session_id: r.sessionId, reason: `claude-driver archive_project ${folder}` } }))
       if (!ops.length) return { ...plan, archived: [] }
-      const b = await tierB(ctx, ops)
-      if (b.handback) return b.handback
-      await sleep(1000)
+      let archiveRoute
+      if(ctx.jobId&&args.via_broker===undefined&&enrollment){ctx.tier='independent-project-archive';archiveRoute=await (await import('./project-archive-control.mjs')).routeProjectArchiveBatch(targets,folder,ctx)}
+      else{const b = await tierB(ctx, ops);if (b.handback) return b.handback;await sleep(1000)}
       const archived = targets.filter((r) => getRecord(r.sessionId)?.isArchived).map((r) => r.sessionId)
       requireCompleteProjectArchive(targets.map(r=>r.sessionId),archived)
       let folderDeleted = false
@@ -831,7 +832,7 @@ export const OPS = [
         await updateRegistry((r) => delete r.folders[folder])
         folderDeleted = true
       }
-      return { ...plan, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
+      return { ...plan,...archiveRoute?{route:'independent-project-archive',routeFile:archiveRoute.routeFile,requests:archiveRoute.results.map(r=>({sessionId:r.sessionId,contextId:r.contextId}))}:{}, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
     },
   },
   // ---------------- bypass pool

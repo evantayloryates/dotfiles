@@ -477,7 +477,8 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         impostor.write_text('ordinary text')
         before = '''
 chafa() {
-  [[ "$1" == --probe=off && -f "$HOME/copied-path" ]] || return 1
+  [[ "$1" == --probe=off ]] || return 1
+  print -r -- 'renderer changed clipboard' > "$HOME/copied-path"
   print -r -- "PREVIEW:${2:t}"
 }
 '''
