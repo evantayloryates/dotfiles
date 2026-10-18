@@ -135,8 +135,33 @@ exact source snapshots and saved contexts. Final remote has no owned processes,
 helper/filter/stop marker; original four taps, uv508/caffeinate510 and clean old
 repo0203e604 are preserved. Local quarantine remains blocked/hash9808e860.
 
+## Active native input on the owner/watchdog path
+
+The production source remains182ed05d; only the nested remote fixture changes.
+Normal input run1792357253765 delivers64 characters exactly once and observes
+both active keyboard filters owned by helper4626, including the secondary
+frontmost target. Actual turn/archive, helper exit0 and watchdog disarm/exit0
+succeed. Input hash remains unchanged at1/5 seconds with no helper/filter.
+
+Cancellation run1792357268408 submits4096 characters once. While the native tool
+result is outstanding, the fixture independently shows97 characters matching
+the requested prefix and both filters belong to helper4739. A test-only signal
+adapter triggers the caller's actual AbortController. Cleanup returns cancelled,
+code1, no host completion/archive, normal helper exit0 and watchdog disarm0.
+The final109-character prefix remains stable at1/5 seconds; cancellation neither
+rolls it back nor authorizes replay. The test refuses to call this an in-flight
+pass if partial input/filter/pending-result admission was not observed.
+
+Actual normal thread01a150d1-4783-7c90-a7bf-3428ce163ea7/turn
+01a150d1-4b0e-7a42-9573-6ab960f7e43a; cancelled thread
+01a150d1-80af-7443-bf6f-3b3295fc975d/turn01a150d1-8430-73d3-8f2c-ffbe61b86e11.
+Exact fixture harness snapshots f6668c8c/6f38c56e remain distinct; a later logging
+title correction does not relabel them. Private input-owner-evidence contains30
+files/266665 bytes. No real inference, new hook override, permissions/auth change
+or local CUA. Final remote owns no process/helper/filter; original services/taps
+remain. Quarantine stays blocked. Reuse the unchanged full195-file68.519s proof.
+
 ## Remaining work
 
 Full computerUse focus/send behavior, actual
-loaded adoption, physical input, concurrent active input, in-flight input
-cancellation, cold startup and the completion audit remain separate gates.
+loaded adoption, physical input, concurrent active input, cold startup and the completion audit remain separate gates.

@@ -12,8 +12,11 @@ Seventy-five focused checks and the final195-file suite pass once68.519s,
 frozen source/suite/installed identity (pressure/v2-2026-10-18T20-58-45-590Z.json).
 Remote exact read-only normal completion and double-owner loss pass on this
 source; successor mutex acquisition succeeds after audited retirement. Original
-interrupted work and normal native exit remain unverified. All-three-controller
-loss remains fenced. Local quarantine, physical/active-input/full-scope and
+interrupted work and normal native exit remain unverified. Active input and outstanding native-input cancellation also pass remotely on
+this source (1792357253765/1792357268408): exact64-character delivery and retained
+109-character prefix after cancellation, normal helper/watchdog cleanup and
+stable1/5-second independent state. Cancellation is not rollback or replay.
+All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
 loaded-adoption gates remain. Earlier e3c3937e cleanup/native/ancillary proof
 retains its separately recorded source and limits.
 

@@ -1,3 +1,47 @@
+## October 18 active native input and partial-input cancellation pass
+
+PROGRESS on unchanged production source182ed05d. Extended existing remote owner
+fixture; no production/helper/shared Codex change and no full-suite repetition.
+Normal owner-native-1792357253765 delivers64 characters exactly once, verifies
+two options0/mask7168 filters owned by helper4626 (fixture4614 and secondary
+frontmost target431), then actual turn/archive, helper exit0 and watchdog4623
+disarm/exit0. Exact text hash stays unchanged through1/5 seconds after close.
+Thread01a150d1-4783-7c90-a7bf-3428ce163ea7,
+turn01a150d1-4b0e-7a42-9573-6ab960f7e43a.
+
+Cancellation owner-native-1792357268408 submits4096 synthetic characters once.
+With tool result outstanding, an independent current fixture read verifies97
+characters matching the submitted prefix and two filters owned by helper4739.
+SIGUSR1 reaches only caller4731's test adapter/AbortController; production lease
+cancellation runs normally. Final fixture retains109 prefix characters; original
+caller returns cancelled/code1 and host/archive remain false. Helper4739 exits
+normally0, watchdog4736 disarms/exits0, group/socket/filter cleanup is verified.
+Prefix/hash stays unchanged through1/5 seconds. No rollback or replay is claimed.
+Thread01a150d1-80af-7443-bf6f-3b3295fc975d,
+turn01a150d1-8430-73d3-8f2c-ffbe61b86e11. The monitor refuses cancellation without
+pending partial-effect/filter evidence; a too-fast operation would stay failed
+as an unqualified in-flight gate. These tests are not physical-key proof.
+
+Exact remote harness snapshots differ by cancellation-proof strengthening:
+normal f6668c8c; cancellation6f38c56e. A later test-only tool title correction
+makes future input logs accurate; it does not relabel the retained run sources.
+Private input-owner-evidence mirror30 files/266665 bytes retains hashes, actual
+contexts/timelines, intents, source snapshots, audits and final readback.
+Final remote no owned process/helper/filter/stop marker; original four taps,
+uv508/caffeinate510 and clean old repo0203e604 preserved. Both fixtures stop
+normally0. Existing exact fixture grant; no hook override/auth/permission change
+or local CUA. Local quarantine remains blocked/hash9808e860. Source/sibling hashes
+unchanged; reuse frozen full195-file68.519s proof. All handles terminal.
+
+NEXT changed condition: two concurrent caller requests sharing the actual UI
+mutex, with separate operation/evidence directories. Verify serialization at
+native input boundaries, each exact effect once, and that first teardown does
+not poison the successor. Reuse this deterministic owner/native fixture; do not
+create a parallel bridge or repeat the full suite for nested fixture-only edits.
+This covers driver callers; simultaneous external/physical input, full Claude
+focus/send, local quarantine release, loaded adoption, cold startup and remaining
+completion-audit requirements are still open. Goal ACTIVE.
+
 ## October 18 checked watchdog recovers caller/owner loss
 
 PROGRESS: source182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6.

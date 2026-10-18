@@ -444,7 +444,9 @@ cleanup now uses a [private lease owner](docs/ui-lease-owner.md) with an IPC
 lifetime channel and reciprocal group cleanup. A checked live watchdog also
 retains the mutex and retires its own verified group after caller/owner loss;
 the interrupted request remains failed. Native read-only double-loss recovery
-and successor acquisition pass. Physical/input and full focus/send gates remain.
+and successor acquisition pass. Native input and outstanding-input cancellation
+also pass with exact effect/prefix and normal cleanup. Physical/concurrent input
+and full focus/send gates remain.
 
 ## Focus policy
 

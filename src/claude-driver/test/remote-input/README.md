@@ -35,12 +35,23 @@ must exit normally without a signal. Each new run preserves its harness source;
 earlier pre-snapshot source hashes are recovered from owned orchestration assets.
 Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
 
-`owner-native.mjs normal|caller-loss` exercises the new lease owner, actual
+`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input` exercises the new lease owner, actual
 worker/backend/MCP/helper, inherited lock receipt and owner-side native audit.
 The provider/fixture outlive the caller-loss test. It validates exact fresh AX
 state before killing only the caller, then observes owner/group/helper exit.
 The test owner entry explicitly selects the already staged signed runtime and
 owned helper home; no user config/auth copy or native hook override is used.
+Double-loss verifies live group/watchdog identity, kills the caller and owner,
+then requires audited watchdog retirement and successor mutex acquisition.
+`type-normal` submits one64-character fixture input and verifies exact effect,
+owned active filters, normal helper/watchdog close and stable1/5-second state.
+`cancel-input` submits one4096-character synthetic input and signals the caller's
+AbortController only after observing a pending tool result, a partial prefix
+and two filters owned by the private helper. It does not retry. Cleanup requires
+a normal helper exit, normal watchdog disarm, no residual resources, and stable
+prefix/hash after1/5 seconds. A result arriving before partial-effect admission
+is inconclusive/failed, never reclassified as in-flight cancellation. This is
+cancellation of outstanding native input, not rollback or physical-key proof.
 
 `owner-ancillary.mjs cooperative|escalated` is non-UI: real kernel/owner/worker/Git
 with a synthetic socket/backend. Git hash-object waits on an empty private FIFO,

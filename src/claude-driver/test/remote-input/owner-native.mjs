@@ -16,7 +16,7 @@ import {audit} from './native-audit.mjs'
 const root='/Users/theo/.local/state/claude-driver/input-teardown-20261018'
 if(process.platform!=='darwin'||hostname().split('.')[0]!=='theo-air'||homedir()!=='/Users/theo'||!process.env.SSH_CONNECTION||JSON.parse(readFileSync(join(root,'owner.json'))).threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('remote owner refused')
 const mode=process.argv[2]||'normal'
-if(!['normal','caller-loss','double-owner-loss'].includes(mode))throw Error('unknown native gate mode')
+if(!['normal','caller-loss','double-owner-loss','type-normal','cancel-input'].includes(mode))throw Error('unknown native gate mode')
 const run=join(root,'evidence','owner-native-'+Date.now()),home=join(run,'home'),backend=join(run,'backend'),state=join(run,'state')
 for(const p of [run,home,backend,state])mkdirSync(p,{recursive:true,mode:0o700})
 process.env.CLAUDE_DRIVER_STATE_DIR=state
@@ -32,9 +32,12 @@ const policy=join(run,'fixture-policy.json')
 writeFileSync(policy,JSON.stringify({apps:{session:['dev.taylor.claudedriver.inputfixture'],unknown:'deny'},commands:'deny',fileChanges:'deny',sandbox:'read-only',mcpRoster:'trim'}),{flag:'wx',mode:0o600})
 const runtimeRoot=join(root,'tools/cua_node'),cli=join(root,'tools/CodexCLI.app/Contents/MacOS/codex'),helperApp=join(root,'codex-home/computer-use/Codex Computer Use.app')
 const worker=fileURLToPath(new URL('../../scripts/tierc-worker.mjs',import.meta.url))
-const report={run,mode,scope:'remote-ui-owner-native-readonly',startedAt:new Date().toISOString(),inputEventsRequested:0,realModelCallsRequested:0,hookTrustOverrideRequested:false,fixtureGrantReceipt:receiptPath,workerSha256:hash(readFileSync(worker)),harnessSha256:hash(readFileSync(new URL(import.meta.url))),providerRequests:[]}
+const inputMode=['type-normal','cancel-input'].includes(mode),payload=('REMOTE_OWNED_INPUT_'+Date.now()+'_').padEnd(mode==='cancel-input'?4096:64,'x')
+const intent={characters:payload.length,utf8Bytes:Buffer.byteLength(payload),sha256:hash(payload),attempts:1}
+if(inputMode)writeFileSync(join(run,'input-intent.json'),JSON.stringify(intent),{flag:'wx',mode:0o600})
+const report={run,mode,scope:'remote-ui-owner-native-readonly',startedAt:new Date().toISOString(),inputEventsRequested:inputMode?1:0,realModelCallsRequested:0,hookTrustOverrideRequested:false,fixtureGrantReceipt:receiptPath,workerSha256:hash(readFileSync(worker)),harnessSha256:hash(readFileSync(new URL(import.meta.url))),providerRequests:[]}
 writeFileSync(join(run,'owner-native-source.mjs'),readFileSync(new URL(import.meta.url)),{flag:'wx',mode:0o600})
-let fixture,child,exit,stdout='',stderr='',http,timer,acquisitionVerified=false
+let fixture,child,exit,stdout='',stderr='',http,timer,inputMonitor,acquisitionVerified=false
 const stop=join(root,'fixture/stop'),sleep=ms=>new Promise(r=>setTimeout(r,ms))
 try{
  report.before=audit(root)
@@ -49,7 +52,7 @@ try{
  writeFileSync(ownerScript,`import{serveUiLeaseOwner}from${JSON.stringify(moduleUrl('ui-lease-owner.mjs'))};import{openPrivateInputService,inspectPrivateInputRuntime}from${JSON.stringify(moduleUrl('private-input-service.mjs'))};
  await serveUiLeaseOwner({openService:options=>openPrivateInputService(options,{inspect:async()=>({...await inspectPrivateInputRuntime(${JSON.stringify({resourceRoot:runtimeRoot,helperApp,cli})}),codexHome:${JSON.stringify(join(root,'codex-home'))}})})});`,{flag:'wx',mode:0o600})
  writeFileSync(callerScript,`import{withLock}from${JSON.stringify(moduleUrl('state.mjs'))};import{runOwnedUiLease}from${JSON.stringify(moduleUrl('ui-lease-owner.mjs'))};
- await withLock('ui-automation',async lockFd=>{try{const value=await runOwnedUiLease({payload:{task:'Authorized isolated read-only fixture acquisition.',timeoutSec:30},dir:${JSON.stringify(backend)},lockFd},{ownerScript:${JSON.stringify(ownerScript)}});console.log(JSON.stringify({ok:true,value}))}catch(e){console.log(JSON.stringify({ok:false,error:{category:e.category,message:e.message,detail:e.detail}}));process.exitCode=1}},{passKernelLock:true});`,{flag:'wx',mode:0o600})
+ const controller=new AbortController();process.once('SIGUSR1',()=>controller.abort());await withLock('ui-automation',async lockFd=>{try{const value=await runOwnedUiLease({payload:{task:${JSON.stringify(inputMode?'Authorized isolated fixture test. Acquire only Claude Driver Input Fixture, verify the fresh empty editor, then call typeText exactly once with '+JSON.stringify(payload)+'. No other input or apps.':'Authorized isolated read-only fixture acquisition.')},timeoutSec:30},dir:${JSON.stringify(backend)},lockFd,signal:controller.signal},{ownerScript:${JSON.stringify(ownerScript)}});console.log(JSON.stringify({ok:true,value}))}catch(e){console.log(JSON.stringify({ok:false,error:{category:e.category,message:e.message,detail:e.detail}}));process.exitCode=1}},{passKernelLock:true});`,{flag:'wx',mode:0o600})
  http=createServer(async(req,res)=>{
   try{
    let bytes=0;const chunks=[];for await(const b of req){bytes+=b.length;if(bytes>2*1024*1024)throw Error('provider request exceeds bound');chunks.push(b)}
@@ -57,12 +60,27 @@ try{
    const input=JSON.parse(data),step=report.providerRequests.length+1
    const outputs=(input.input??[]).filter(x=>x.type==='function_call_output').map(x=>typeof x.output==='string'?x.output:JSON.stringify(x.output))
    report.providerRequests.push({step,authorizationPresent:!!req.headers.authorization,toolOutputs:outputs.map(text=>({bytes:Buffer.byteLength(text),sha256:hash(text),initialStateOmitted:text.includes('[omitted 1 text items'),exactFixtureObserved:text.includes('Claude Driver Input Teardown Fixture')&&text.includes('claude-driver-test-editor')})),tools:(input.tools??[]).map(t=>({type:t.type,name:t.name,tools:t.tools?.map(v=>v.name)}))})
-   if(req.method!=='POST'||req.url!=='/v1/responses'||step>3){res.writeHead(404).end();return}
+   if(req.method!=='POST'||req.url!=='/v1/responses'||step>(inputMode?4:3)){res.writeHead(404).end();return}
    if(step===3){
     report.afterAcquisition=audit(root)
     report.ownerIdentity=JSON.parse(readFileSync(join(backend,'ui-owner.json')))
     acquisitionVerified=outputs.length===2&&report.providerRequests[2].toolOutputs.at(-1).exactFixtureObserved&&report.afterAcquisition.helperProcesses.length===1&&report.afterAcquisition.helperProcesses[0].pid===report.ownerIdentity.helperPid&&report.afterAcquisition.fixtureProcessCurrent&&report.afterAcquisition.fixtureState.pid===fixture.pid&&report.afterAcquisition.fixtureState.characters===0
     if(!acquisitionVerified){report.acquisitionFailure='exact native result/owned helper/empty fixture not verified';res.writeHead(503).end();return}
+    if(inputMode){
+     report.inputIntent=intent
+     if(mode==='cancel-input')inputMonitor=setInterval(()=>{
+      try{
+       const observed=JSON.parse(readFileSync(join(root,'fixture/state.json')))
+       if(observed.pid!==fixture.pid||observed.characters<=0||observed.characters>=intent.characters||report.providerRequests.length!==3)return
+       if(observed.sha256!==hash(payload.slice(0,observed.characters)))throw Error('partial input is not the submitted prefix')
+       const snap=audit(root),current=JSON.parse(readFileSync(join(root,'fixture/state.json')))
+       if(current.characters<=0||current.characters>=intent.characters||current.sha256!==hash(payload.slice(0,current.characters))||snap.helperKeyboardFilters.length!==2||!snap.helperKeyboardFilters.every(t=>t.ownerPid===report.ownerIdentity.helperPid))return
+       report.beforeInputCancellation={snapshot:snap,current,pendingNativeToolResult:true,providerRequests:report.providerRequests.length}
+       report.inputCancellation={signal:'SIGUSR1',callerPid:child.pid,at:new Date().toISOString()}
+       clearInterval(inputMonitor);child.kill('SIGUSR1')
+      }catch(error){report.inputMonitorError=error.message;clearInterval(inputMonitor)}
+     },10)
+    }
     if(mode==='double-owner-loss'){
      const id=report.ownerIdentity,members=await ownedGroupMembers(id.ownerPid)
      if(!id.watchReady||![id.watcherPid,id.helperPid,id.workerPid].every(pid=>members.includes(pid))||members.includes(child.pid))throw Error('live owned group/watch readiness not verified')
@@ -74,13 +92,19 @@ try{
      child.kill('SIGKILL');res.destroy();return
     }
    }
+   if(inputMode&&step===4){
+    clearInterval(inputMonitor);report.afterInput=audit(root)
+    report.inputVerified=report.afterInput.fixtureProcessCurrent&&report.afterInput.fixtureState.characters===intent.characters&&report.afterInput.fixtureState.utf8Bytes===intent.utf8Bytes&&report.afterInput.fixtureState.sha256===intent.sha256
+    if(mode==='cancel-input'&&!report.inputCancellation)report.inputCancellationNotQualified='native input result arrived before a pending partial effect with owned filters could be verified'
+   }
    const id='resp_native_'+step,itemId='msg_native_'+step,text='COMBINED_NATIVE_READONLY_OK'
-   const item=step<=2?{id:'fc_native_'+step,type:'function_call',call_id:'call_native_'+step,name:'js',namespace:'mcp__cua_repl',arguments:JSON.stringify({code:step===1?'var fixture = await cua.getApp('+JSON.stringify(join(root,'fixture/ClaudeDriverInputFixture.app'))+');':'nodeRepl.write(await fixture.getAXState());',title:step===1?'Acquire isolated input fixture':'Read fresh isolated fixture state',timeout_ms:20000}),status:'completed'}:{id:itemId,type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text,annotations:[]}]}
+   const toolStep=step<=2||(inputMode&&step===3)
+   const item=toolStep?{id:'fc_native_'+step,type:'function_call',call_id:'call_native_'+step,name:'js',namespace:'mcp__cua_repl',arguments:JSON.stringify({code:step===1?'var fixture = await cua.getApp('+JSON.stringify(join(root,'fixture/ClaudeDriverInputFixture.app'))+');':step===2?'nodeRepl.write(await fixture.getAXState());':'await fixture.typeText('+JSON.stringify(payload)+');',title:step===1?'Acquire isolated input fixture':step===2?'Read fresh isolated fixture state':'Type once in isolated fixture',timeout_ms:20000}),status:'completed'}:{id:itemId,type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text,annotations:[]}]}
    const response={id,object:'response',created_at:Math.floor(Date.now()/1000),model:'native-fixture',status:'completed',output:[item],usage:{input_tokens:1,output_tokens:1,total_tokens:2,input_tokens_details:{cached_tokens:0},output_tokens_details:{reasoning_tokens:0}}}
    res.writeHead(200,{'content-type':'text/event-stream','cache-control':'no-cache'})
    const event=(type,value)=>res.write('event: '+type+'\ndata: '+JSON.stringify({type,...value})+'\n\n')
    event('response.created',{response:{...response,status:'in_progress',output:[]}});event('response.output_item.added',{output_index:0,item:{...item,status:'in_progress',content:[]}})
-   if(step<=2)event('response.function_call_arguments.done',{item_id:item.id,output_index:0,arguments:item.arguments})
+   if(toolStep)event('response.function_call_arguments.done',{item_id:item.id,output_index:0,arguments:item.arguments})
    else{event('response.content_part.added',{item_id:itemId,output_index:0,content_index:0,part:{type:'output_text',text:'',annotations:[]}});event('response.output_text.delta',{item_id:itemId,output_index:0,content_index:0,delta:text});event('response.output_text.done',{item_id:itemId,output_index:0,content_index:0,text})}
    event('response.output_item.done',{output_index:0,item});event('response.completed',{response});res.end()
   }catch(error){report.providerError=error.message;res.writeHead(500).end()}
@@ -93,6 +117,7 @@ try{
  child.stdin.end()
  timer=setTimeout(()=>{report.timeout=true;try{process.kill(-child.pid,'SIGKILL')}catch{}},60000)
  const [code,signal]=await once(child,'close');exit={code,signal};clearTimeout(timer)
+ clearInterval(inputMonitor)
  report.workerExit=exit
  if(stdout.trim())try{report.caller=JSON.parse(stdout);report.worker=report.caller.value?.worker}catch{report.invalidWorkerOutput=true}
  const ownerPath=join(backend,'ui-owner.json'),deadline=Date.now()+25000
@@ -108,15 +133,24 @@ try{
   await withLock('ui-automation',async()=>{report.successorLockAcquired=true},{timeoutMs:2000})
  }
  report.afterClose=audit(root)
+ if(inputMode)report.inputAfterClose=report.afterClose.fixtureState
+ if(inputMode){
+  report.inputSettled=[]
+  const boundary=Date.now()
+  for(const elapsed of [1000,5000]){await sleep(Math.max(0,boundary+elapsed-Date.now()));report.inputSettled.push({elapsedMs:Date.now()-boundary,snapshot:audit(root)})}
+  report.inputStableAfterClose=report.inputSettled.every(x=>x.snapshot.fixtureProcessCurrent&&x.snapshot.fixtureState.sha256===report.inputAfterClose.sha256&&x.snapshot.fixtureState.characters===report.inputAfterClose.characters&&x.snapshot.helperProcesses.length===0&&x.snapshot.helperKeyboardFilters.length===0)
+  report.finalInputIsSubmittedPrefix=report.inputAfterClose.characters<=intent.characters&&report.inputAfterClose.sha256===hash(payload.slice(0,report.inputAfterClose.characters))
+ }
  report.hostTurnCompleted=report.worker?.result?.status==='completed'
  report.archiveAcknowledged=report.worker?.cleanup?.receipt?.archiveAcknowledged===true
- const closed=report.closeReceipt?.nativeHelperExited&&!report.closeReceipt.forcedTermination&&report.closeReceipt.helperExit.code===0&&report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureProcessCurrent&&report.afterClose.fixtureState.characters===0
- const expectedOutcome=mode==='normal'?code===0&&report.hostTurnCompleted&&report.archiveAcknowledged&&report.caller?.ok===true:signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&report.ownerFinal.cancelled===true
+ const fixtureStateValid=inputMode?report.afterClose.fixtureState.characters===intent.characters&&report.afterClose.fixtureState.sha256===intent.sha256:report.afterClose.fixtureState.characters===0
+ const closed=report.closeReceipt?.nativeHelperExited&&!report.closeReceipt.forcedTermination&&report.closeReceipt.helperExit.code===0&&report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureProcessCurrent&&fixtureStateValid
+ const expectedOutcome=['normal','type-normal'].includes(mode)?code===0&&report.hostTurnCompleted&&report.archiveAcknowledged&&report.caller?.ok===true:signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&report.ownerFinal.cancelled===true
  const resourcesEmpty=report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureProcessCurrent&&report.afterClose.fixtureState.characters===0&&report.remainingOwnerMembers.length===0
- report.ok=mode==='double-owner-loss'?acquisitionVerified&&signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&resourcesEmpty&&report.orphan?.phase==='retired'&&report.orphan.inputAuditPassed===true&&report.orphan.originalWorkCompleted===false&&report.orphan.normalNativeExitVerified===false&&report.successorLockAcquired===true:acquisitionVerified&&closed&&expectedOutcome&&report.ownerFinal.closed===true&&report.ownerFinal.watchDisarmed===true&&report.ownerFinal.watchExit?.code===0&&report.remainingOwnerMembers.length===0
+ report.ok=mode==='cancel-input'?acquisitionVerified&&!!report.inputCancellation&&code===1&&report.caller?.ok===false&&report.caller?.error?.category==='cancelled'&&!report.hostTurnCompleted&&report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.remainingOwnerMembers.length===0&&report.inputStableAfterClose&&report.finalInputIsSubmittedPrefix&&report.closeReceipt?.nativeHelperExited===true&&report.closeReceipt.helperExit.code===0&&!report.closeReceipt.forcedTermination&&report.ownerFinal.closed===true&&report.ownerFinal.watchDisarmed===true&&report.ownerFinal.watchExit?.code===0:mode==='double-owner-loss'?acquisitionVerified&&signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&resourcesEmpty&&report.orphan?.phase==='retired'&&report.orphan.inputAuditPassed===true&&report.orphan.originalWorkCompleted===false&&report.orphan.normalNativeExitVerified===false&&report.successorLockAcquired===true:acquisitionVerified&&closed&&expectedOutcome&&report.ownerFinal.closed===true&&report.ownerFinal.watchDisarmed===true&&report.ownerFinal.watchExit?.code===0&&report.remainingOwnerMembers.length===0&&(!inputMode||(report.inputVerified===true&&report.inputStableAfterClose&&report.afterInput.helperKeyboardFilters.length===2&&report.afterInput.helperKeyboardFilters.every(t=>t.ownerPid===report.ownerIdentity.helperPid)))
 }catch(error){report.error={category:error.category,message:error.message};report.ok=false}
 finally{
- clearTimeout(timer)
+ clearTimeout(timer);clearInterval(inputMonitor)
  if(child&&!exit){try{process.kill(-child.pid,'SIGTERM')}catch{};await sleep(1000)}
  http?.closeAllConnections();http?.close()
  if(fixture&&fixture.exitCode===null&&fixture.signalCode===null){
@@ -127,6 +161,6 @@ finally{
  report.final=audit(root);report.stderr=stderr;report.finishedAt=new Date().toISOString()
  if(report.final.helperProcesses.length||report.final.helperKeyboardFilters.length||report.final.fixtureProcessCurrent||report.fixtureExit?.code!==0)report.ok=false
  writeFileSync(join(run,'report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx',mode:0o600})
- console.log(JSON.stringify({run,mode,ok:report.ok,error:report.error,cleanupError:report.cleanupError,acquisitionVerified,workerExit:report.workerExit,workerError:report.worker?.error,hostTurnCompleted:report.hostTurnCompleted,archiveAcknowledged:report.archiveAcknowledged,closeReceipt:report.closeReceipt,orphan:report.orphan,successorLockAcquired:report.successorLockAcquired,remainingHelpers:report.final.helperProcesses.length,remainingFilters:report.final.helperKeyboardFilters.length,fixtureExit:report.fixtureExit}))
+ console.log(JSON.stringify({run,mode,ok:report.ok,error:report.error,cleanupError:report.cleanupError,acquisitionVerified,workerExit:report.workerExit,workerError:report.worker?.error,hostTurnCompleted:report.hostTurnCompleted,archiveAcknowledged:report.archiveAcknowledged,closeReceipt:report.closeReceipt,orphan:report.orphan,successorLockAcquired:report.successorLockAcquired,inputVerified:report.inputVerified,inputCancellation:report.inputCancellation,inputCancellationNotQualified:report.inputCancellationNotQualified,inputAfterClose:report.inputAfterClose,remainingHelpers:report.final.helperProcesses.length,remainingFilters:report.final.helperKeyboardFilters.length,fixtureExit:report.fixtureExit}))
 }
 process.exitCode=report.ok?0:1
