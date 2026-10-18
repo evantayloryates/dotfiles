@@ -1,3 +1,43 @@
+## October 18 disposable pair qualified; native deletion setup pending
+
+Taylor completed native hot-reload prompts. Both exact original peer epochs idle,
+loaderOutcome loaded/readinessObservedtrue/nativeInputRequiredfalse, bypass saved.
+Caught setup role mismatch before deletion: initial primary archive-only binding
+cannot satisfy restored-pair primary metadata-role contract. Preserved all original
+jobs/generation; prepared corrected metadata-target primarye00f74c428c9419dbcba259a6dedcdd7
+(jobje00...), quiesced originalb24bac47 and retired its files with zero attempts.
+Fixture turnover accidentally requested retire_settings; exclusively restored only
+its exact retained owned stable-settings bytes after hash/policy/epoch/absence
+checks, retaining original copy and repair ledger. No app-record edit or consent
+change. Corrected activationjfb41ca4086724cedb4fcd1acabbc210e completed on same
+stable anchor, sourcee9dd31e4. Standbyccf1bd1f unchanged. Do not retire stable
+settings during normal generation turnover; preserve retire_settingsfalse.
+
+Negative policy jobsj7a4f4ef3505f4e07b39ec8cd048dd240 and
+j9c69926747664386a8dbf89cf335072c both completed terminal refusal/policy invocation.
+Reciprocal native metadata readsj5505ca268767465fa306f911755dd503 and
+j41f26910a5ba4d72a58eb04aa54ec4c9 completed with native tool/result receipts.
+Primary familyjc8389772dff04d9eb519cafffea3c99a completed; enrollment independently
+verified empty family and exact roles/epochs. Separate fixture automatic enrollment
+hash86822ee9638de133aa2ab3a5ee8ffc164d41f3cf9554b8ca86f87af277fb2012.
+Primaryaf930615/PID22668/servicee00f74c4, standbyd0ac9a3a/PID23690/serviceccf1bd1f.
+Each original lease3600/capacity128; working pair/global ordinary mapping and
+ProDevs untouched. Private deleted-service-native-fixture-20261018.json retains
+all actual jobs and corrected currentServices. No full suite rerun: no source
+change; this is focused native fixture qualification, not deletion recovery proof.
+
+Async person action: In Claude Code DELETE only
+claude-driver-deletion-primary-2026-10-18; leave deletion-standby open. Native
+approval belongs to person. No agent delete/card click or app-file/transcript
+removal. After reply verify record/process absence and transcript UUID metadata,
+then choose exact missing-record surviving-transcript vs seeded-rebuild plan;
+retain original enrollment/hash/generations and no unknown replay. Do not call
+the surviving-transcript path if native deletion reaped it. Actual deleted-record
+restoration/native reactivation and all-processes-absent startup remain unproven.
+Platform goal still blocked; Play/Resume needed for automatic continuation after
+human gate. Current human-triggered turn made native qualification progress;
+no live shell observers or cleanup pending. Codex bridge remains parked.
+
 ## October 18 disposable pair installed; separate native loader input pending
 
 Taylor supplied both native Bypass permissions confirmations and ready turns.
