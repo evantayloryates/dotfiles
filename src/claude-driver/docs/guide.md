@@ -1926,3 +1926,35 @@ barrier, without automatic permission changes or duplicate creation. Keep final
 loaded-MCP refresh and outage/pressure/window gates separate. Goal active.
 
 Focused gate on source673aae502955f073ac7215f524417010cd65f57e5cf4c5cc01ed28f78331fa2d: 87/87 PASS in12.7sec (import/focus/creation followups/v2/MCP). Private log tiera-import-focused-20261017.log. No full-suite or native repeat for this interim gate.
+
+## October 17 current-source native approved pool lifecycle passed
+
+Used one existing ready bypass pool member (2cb5bbbe...) in canonical dotfiles;
+no new chat/import/fork, no message, no permission/auth change or UI automation.
+Public durable create_session require_pool:true on source
+673aae502955f073ac7215f524417010cd65f57e5cf4c5cc01ed28f78331fa2d:
+job j1ba6ae5c4913451d8d3ead7aa4134212 completed, via pool, verifiedtrue.
+Native unarchive child7d7fa... then config childc542... produced distinct exact
+receipts for title/model/effort. Independent saved read confirmed title qualification,
+Haiku5.5/high/bypass/unarchived; no CLI identity materialized. Focus endpoints
+remained Codex plus original control-target main view throughout native results.
+
+Automatic required-source primary renewal produced service842d0a3dc8884e908bb1b75de570e4d4;
+final independent standby plan wait/primary-live, automaticRecoveryEnabledtrue,
+standby1da3f53b10404658b6fe65ed48314b46. No duplicated family/wake/replay.
+Restore config j7044bb56fe3346f09642b1654f632477 and archive
+j37832b970a61424da5d66ab976b877bb both verified exact native receipts.
+Independent saved baseline title/titleSource/Opus5.5/high/bypass/archive/pin and
+empty CLI identity restored; public pool_release took its no-effects already-clean
+branch and marked ready. Final pool health ready. No member was left consumed.
+Evidence .runtime/state/pool-native-lifecycle-20261017.json plus original durable
+jobs/route receipts. This is metadata-only approved pool creation qualification,
+not first-message, fresh import/no-folder/fork, trust, grouped creation or sustained
+pressure qualification. No repeated full suite: source unchanged since87-test gate.
+
+Next changed-condition step: qualify fresh import/fork permission and focus paths
+using one bounded owned lifecycle trial, preserving mismatch identities and human
+permission gates; final loaded MCP remains stale. Pool service-actor protection
+also needs audit: poolGate currently explicitly excludes caller/legacy broker but
+not the independent pair, unlike project archive. Do not recycle service actors
+or use a live recycle experiment to investigate this boundary. Goal active.
