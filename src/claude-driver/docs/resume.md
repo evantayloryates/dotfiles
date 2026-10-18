@@ -1,3 +1,36 @@
+## October 18 keeper lifetime contract passes eight synthetic process gates
+
+New isolated candidates/input-keeper/lifetime.mjs is not wired into shipped
+server/CLI/Tier C. A separate kernel guard serializes generations; exact runtime
+epoch/resource/socket identity and live UI-lock owner/registered guardians gate
+client admission. Client EOF/worker-peer retirement precedes independent target
+settlement with a verified registered lock holder. Normal release retains helper;
+drift, partial admission or uncertain cleanup durably fences later admissions.
+Saved PID records cannot authorize adoption/replay. Journal bounds recent leases
+to32 with a total count. No native runtime or input is loaded by this candidate.
+
+Eight real subprocess/socket/IPC/flock checks pass7.798s: helper reuse, concurrent
+constructor refusal, cancellation through delayed settlement, owner SIGKILL,
+runtime drift, partial startup/retirement failure, helper loss, admission-time
+cancellation and loss of all registered lock holders. Original six-check log
+predates stricter guardian verification and has no frozen source; only the final
+eight-check manifest qualifies current candidate. Negative test cleanup retires
+only owned synthetic processes and is not a graceful native receipt. Production
+182ed05d, shipped suite and local config/quarantine are unchanged. Goal incomplete.
+
+NEXT: bounded native adapter plus selection of one resident driver owner/control
+channel for all harnesses. First qualify minimal read-only keeper connection,
+idle gap and client retirement on Theo Air; do not run input or change shipped
+routing until that changed topology qualifies. Reuse current reviewed runtime,
+public MCP, mutex and checked owner/watchdog. Broader Codex fixes remain parked.
+See [keeper candidate](input-keeper-candidate.md). No synthetic test handle remains.
+Final candidate SHA87a39d5f and six source/dependency hashes are frozen with the
+eight-check log in keeper-lifetime-contract-evidence.json; independent process
+inspection finds no synthetic fixture PID. Complete top-level195-suite/199-file
+sets, all hashes, installed identity and production fingerprint still match the
+frozen pass, reused without rerunning it. Candidate service memory47cee202 is
+independently queried back. This evidence never relabels native or physical gates.
+
 ## October 18 shared-helper client handoff candidate passes
 
 Remote owner-native-shared-1792367275539-1f12122c keeps one default helper8350

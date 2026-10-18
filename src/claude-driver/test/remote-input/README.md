@@ -4,6 +4,14 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`keeper-lifetime.test.mjs` and `keeper-fixture.mjs` exercise the isolated
+`candidates/input-keeper/lifetime.mjs` contract with actual owned subprocesses,
+Unix sockets and kernel locks only. No CUA, native helper, app or input is used.
+See [candidate contract](../../candidates/input-keeper/README.md) for the eight
+gates and unimplemented native/resident integration. Negative cases preserve
+durable failure fences and clean up only their own synthetic children; those
+signals never count as a passing native close.
+
 `shared-helper-candidate.mjs` is restricted to the existing Theo Air fixture
 owner and reviewed runtime/human grants. It requires an absent default socket
 and empty native baseline, starts one exact owned helper, and retains two public

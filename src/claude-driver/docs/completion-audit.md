@@ -33,6 +33,13 @@ one long-lived shared-helper candidate to avoid per-lease helper teardown. That
 candidate now passes the narrow remote handoff gate below; production adoption
 and physical-input safety remain incomplete.
 
+The isolated [keeper lifetime candidate](input-keeper-candidate.md) now passes
+eight actual-process synthetic gates, including registered lock-holder loss and
+durable drift/cleanup fences. No shipped call site imports it and it has no
+native adapter yet. This is ownership-contract evidence, not production
+integration, native cleanup or a completion claim. Cross-harness resident
+ownership, bounded native adapters and strategic native qualification remain.
+
 Shared-helper1792367275539-1f12122c retains helper8350 across an idle lease gap
 and normal first-client EOF during the second pending input, at95 received
 characters. Exactly one64-character and one4096-character action produce4160
