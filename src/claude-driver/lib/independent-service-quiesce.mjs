@@ -6,11 +6,11 @@ import {independentServiceState} from './independent-service-result.mjs'
 import {DriverError} from './paths.mjs'
 import {readIndependentGenerationLocator} from './independent-service-index.mjs'
 const exec=promisify(execFile)
-export async function quiesceIndependentService(session,serviceId,{signal,offline=false}={}){
- if(typeof offline!=='boolean')throw new DriverError('invalid offline mode',{category:'bad_args'})
+export async function quiesceIndependentService(session,serviceId,{signal,offline=false,requireNewStop=false}={}){
+ if(typeof offline!=='boolean'||typeof requireNewStop!=='boolean'||requireNewStop&&!offline)throw new DriverError('invalid offline mode',{category:'bad_args'})
  const located=offline?readIndependentGenerationLocator(session,serviceId):null
  const state=independentServiceState(session,serviceId,located?.record??getRecord(session))
- try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-quiesce.mjs',import.meta.url)),session,serviceId,...offline?['--offline',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state},signal,timeout:65000,maxBuffer:65536});return JSON.parse(stdout)}
+ try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-quiesce.mjs',import.meta.url)),session,serviceId,...offline?['--offline',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state,CLAUDE_DRIVER_REQUIRE_NEW_QUIESCENCE:requireNewStop?'1':''},signal,timeout:65000,maxBuffer:65536});return JSON.parse(stdout)}
  catch{throw new DriverError('independent quiescence refused or interrupted; inspect original STOP and quiescence record, never clear automatically',{category:'independent_service_quiesce_unresolved',detail:{serviceId,retrySafe:false}})}
 }
 export function independentStopMatches(marker,{serviceId,pointer}){

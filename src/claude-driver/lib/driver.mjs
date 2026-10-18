@@ -946,8 +946,8 @@ export const OPS = [
   {
     name:'broker_service_quiesce',title:'Stop independent receiver admission',readOnly:false,
     description:'Experimental scoped admission stop under the native-read lifecycle lock. Waits for existing read transaction, verifies exact installed epoch, preserves owned STOP and reviews terminal attempts. Never clears STOP, dispatches, cancels effects, moves modules, changes permissions or claims native unload/process retirement. Interrupted work requires inspection.',
-    schema:{required:['session','service_id','experimental'],properties:{offline:{type:'boolean',description:'Explicit absent-process admission stop; no live peer may exist. Does not settle unknowns.'},session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent quiescence requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-quiesce.mjs')).quiesceIndependentService(args.session,args.service_id,{signal:ctx.signal,offline:args.offline===true})},
+    schema:{required:['session','service_id','experimental'],properties:{require_new_stop:{type:'boolean',description:'Offline bootstrap only: refuse an existing quiescence intent or STOP.'},offline:{type:'boolean',description:'Explicit absent-process admission stop; no live peer may exist. Does not settle unknowns.'},session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent quiescence requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-quiesce.mjs')).quiesceIndependentService(args.session,args.service_id,{signal:ctx.signal,offline:args.offline===true,requireNewStop:args.require_new_stop===true})},
   },
   {
     name:'broker_service_activate',title:'Activate a prepared independent receiver',readOnly:false,
@@ -1039,6 +1039,12 @@ export const OPS = [
     description:'Explicit durable continuation of an exact failed enrolled recovery whose original import started a new epoch and whose wake failed before publication. Preserves original failures and skips retirement, import and wake. Still requires current ownership, role restoration, readiness, policy and native read; standby rebind remains pending.',
     schema:{required:['session','original_recovery_parent_job_id','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},original_recovery_parent_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw Error('explicit durable import continuation required');return (await import('./enrolled-import-continuation.mjs')).continueEnrolledImport(args.session,args.original_recovery_parent_job_id,args.expected_enrollment_sha256,ctx)},
+  },
+  {
+    name:'broker_service_bootstrap_pair',title:'Bootstrap an independently absent owned controller pair',readOnly:false,
+    description:'Experimental durable root for an exact enrolled automatic pair after BOTH old epochs and all same-host peers are independently absent. Retains original histories and account identity, quiesces/retires old generations, imports each existing actor once, independently observes new epochs, restores exact pair roles, qualifies native readiness/policy/reads and CAS rebinds. Live peers, STOP, unknown effects, trust/input gates or uncertainty stop the original root without retries. Never kills processes, creates chats, changes permissions or treats import success as startup. Native outage qualification remains pending.',
+    schema:{required:['session','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('pair bootstrap requires explicit experimental durable submission',{category:'bad_args'});return (await import('./pair-bootstrap.mjs')).bootstrapIndependentPair(args.session,args.expected_enrollment_sha256,ctx)},
   },
   {
     name:'broker_service_pair_bootstrap_plan',title:'Inspect exact absent-controller pair bootstrap prerequisites',readOnly:true,

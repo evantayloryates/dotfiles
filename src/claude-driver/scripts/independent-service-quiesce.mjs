@@ -10,12 +10,14 @@ import {reviewIndependentAttempts} from '../lib/independent-service-attempts.mjs
 import {requireIndependentOfflineMutation} from '../lib/independent-offline-review.mjs'
 const [session,serviceId,mode,receiverCwd]=process.argv.slice(2),offline=mode==='--offline',file=join(STATE_DIR,'quiescence.json'),stop=join(BROKER_DIR,'STOP'),hash=b=>createHash('sha256').update(b).digest('hex')
 try{
+ if(!['','1'].includes(process.env.CLAUDE_DRIVER_REQUIRE_NEW_QUIESCENCE??'')||process.env.CLAUDE_DRIVER_REQUIRE_NEW_QUIESCENCE==='1'&&!offline)throw Error('fresh quiescence mode')
  if(mode!==undefined&&!offline||receiverCwd!==undefined&&!offline||process.argv.slice(2).length>4)throw Error('quiescence mode')
  const context=async()=>{const c=await loadIndependentServiceContext(session,serviceId,offline?{offlineOnly:true,...receiverCwd?{historicalRecord:{sessionId:session,cwd:receiverCwd}}:{}}:{requireIdle:true});if(offline)requireIndependentOfflineMutation(c.pointer,session);return c}
  const result=await runIndependentQuiescence({lock:fn=>withLock('broker',fn,{timeoutMs:60000}),context,
  installStop:async c=>{
   if(offline)requireIndependentOfflineMutation(c.pointer,session)
   let prior;try{prior=json(file)}catch(e){if(e.code!=='ENOENT')throw e}
+  if(prior&&process.env.CLAUDE_DRIVER_REQUIRE_NEW_QUIESCENCE==='1')throw Error('fresh quiescence refuses existing intent')
   if(prior){const marker=json(stop);if(prior.schemaVersion!==1||prior.serviceId!==serviceId||prior.sessionId!==session||!independentStopMatches(marker,{serviceId,pointer:c.pointer})||prior.stopSha256!==hash(bytes(stop)))throw Error('foreign stop');return}
   // Existing STOP without our durable intent is preserved and refused.
   try{bytes(stop);throw Error('existing stop')}catch(e){if(e.code!=='ENOENT')throw e}

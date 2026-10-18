@@ -1675,7 +1675,18 @@ Only one exact enrolled controller is selected; this is not arbitrary discovery.
 `expected_enrollment_sha256`. It checks only that retained pair and returns wait
 if either controller survives. A `bootstrapPreparationEligible:true` result is
 not startup, import, serving or replay permission; it only qualifies prerequisites
-for a later durable transaction. It performs no recovery effects. Missing records,
+for the experimental durable transaction below. It performs no recovery effects. Missing records,
 changed versions/roles/selection, reused PIDs, unknown effects and intentional STOP
 refuse. See `docs/pair-bootstrap.md` for the mechanism evidence and remaining
 executor requirements. Do not stop a live controller to satisfy this planner.
+
+
+`broker_service_bootstrap_pair` is the experimental durable executor for the exact
+pair plan. Submit it with driver_submit, `session`, `expected_enrollment_sha256`,
+`experimental:true` and an adequate whole-job timeout (for example360seconds).
+It refuses before effects if any actor survives. It does not yet run automatically
+on public operations. This path has synthetic transaction and live refusal proof;
+native outage qualification remains pending. If an import does not produce a
+verified native epoch, inspect the original root/children. Do not submit a new root
+or replay the import; changed-condition continuation is still an implementation
+frontier. Human trust and hot-reload gates remain intact.

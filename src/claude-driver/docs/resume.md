@@ -1,3 +1,55 @@
+## October 17 continuation: durable absent-pair executor implemented, native outage still pending
+
+Previous turn = progress (absent-pair plan + installed-source contract). Implemented
+lib/pair-bootstrap.mjs, pair-bootstrap-proof.mjs and experimental durable public
+broker_service_bootstrap_pair. NOT auto-invoked by ordinary routes. Exact original
+binding/plan before effects; root captures current account identities, policies,
+roles, full selectors, host source/version; checks them and old OS absence before
+every effect. Existing offline quiesce/retire reused. New require_new_stop flag
+ensures bootstrap does not adopt a racing pre-existing quiescence/STOP. Explicit
+fresh mode is offline-only; defaults preserve other existing callers' behavior.
+
+Root attempts each original import once with durable publication intent, observes
+new exact native idle PID/start inside bounded import window independently of
+saved unarchive, then prepares/activates both roles against verified new counterpart
+epochs. No role dropping/grant expansion. Stable settings/anchor, readiness/policy,
+causal native reads, fresh empty-family and pair CAS proof required. New pair CAS
+proof binds original root/digest, actual completed prepare/retire/activate child
+observations, new roles/epochs and fresh family; old bytes retained. Existing fixed
+metadata enrollment is captured/rebound via original CAS digest and checked at end;
+ordinary controller identity remains same and resolves new service. Imports never
+kill processes, create chats, raise permissions or bypass person gates. Native
+outage not yet tested; completed result leaves unattendedBootstrapQualifiedfalse.
+
+Focused15 transaction/quiescence/enrollment tests PASS (including each effect,
+before/after checkpoint and invalid result, guards, exact startup window, pair proof
+rejections). Full synthetic1/1 PASS31.3sec report
+pressure/v2-2026-10-18T02-32-03-621Z.json BEFORE final selector comparison/metadata
+index rebind/proof-strengthening edits; focused checks after these changes pass.
+Do not label that older full report final-source qualification. One local tool call
+used service cwd with repo-relative paths; those edits/checks failed before source
+changes; corrected cwd afterward, no native effects. Original outputs retained.
+
+Actual current entrypoint guard via durable jobj663459bd30114ad3b447992df307d70b
+FAILED as EXPECTED: pair_bootstrap_unqualified, surviving-controller-present,
+dispatchedfalse/retrySafetrue. No bootstrap root ledger created. Independent
+read-only aftercheck: primary29b4ba... PID96436 still native admitted, unknown0;
+standby plannerwait/primary-live; binding056e78... unchanged/no effects. Evidence
+.runtime/state/pair-bootstrap-live-guard-20261017.json. No live outage, app restart,
+new chats, actor messages, permission/input/CUA changes. Failed job retained.
+
+NEXT: implement proof-bound changed-condition continuation for failed import with
+no native startup / person trust gate, preserving completed effects and NEVER
+replaying import. A new full root cannot substitute (old generations retired, or
+new peer present => refuse). Need guard/account/source/history/STOP proof for
+original root and exact unattempted phases; reconcile original child jobs, never
+reset failed job. Then one integrated authorized outage test at final source gate;
+not per-edit cycles. Automatic public-route fallback to this executor remains
+unenabled pending native qualification. Original full brief still open (wider
+ordinary controls, create/fork/no-folder/windows/deletion/person gates and natural
+pressure). Loaded MCP remains old; final refresh at final batch, not each edit.
+No jobs running at checkpoint. Goal active; Codex-driver/1Password parked.
+
 ## October 17 continuation: absent-pair admission and installed import contract
 
 Previous goal turn = progress (focus evidence + bounded route health), not a wait.

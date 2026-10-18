@@ -2,7 +2,7 @@
 
 The surviving-standby recovery route does not cover app quit or simultaneous loss
 of both actors. `broker_service_pair_bootstrap_plan` is the read-only admission
-boundary for that case. It is not yet a bootstrap executor.
+boundary for that case. The experimental executor is implemented below; native outage qualification remains pending.
 
 The caller supplies the exact primary session and current standby enrollment
 SHA256. The planner reads only that retained pair. A live peer for either actor
@@ -41,14 +41,23 @@ whole bundle or contacts the app. Exact source hash guards drift. The source
 reader defaults to2MiB; this named member uses an explicit3MiB bound, with an8MiB
 hard ceiling. See runtime pressure reports for exact results and limitations.
 
-## Executor still required
+## Experimental durable executor
 
-Implement one durable root with stable child IDs and before/after checkpoints:
+`broker_service_bootstrap_pair` requires `driver_submit`, exact primary `session`,
+`expected_enrollment_sha256` and `experimental:true`. Use a whole-operation job
+budget (for example timeout_sec360), then reattach the original job. It is not
+automatically invoked by ordinary routing. Its completed result deliberately
+leaves unattendedBootstrapQualified=false until native outage qualification.
+
+The implemented transaction has stable child submission keys, retained actual
+scheduler IDs, and before/after checkpoints:
 
 1. Capture exact plan, enrollment digest, record/account identities, source,
    versions, grants and stable-settings baseline. Recheck before every effect.
 2. Quiesce/retire only the two independently absent old generations using existing
-   offline operations. Never clear a prior unrelated STOP or uncertain history.
+   offline operations. Bootstrap uses require_new_stop:true: any existing
+   quiescence intent/STOP refuses, even if it belongs to this generation. Never
+   clear a prior unrelated STOP or uncertain history.
 3. Attempt each exact existing import at most once. Record publication before
    dispatch and reconcile uncertainty. No generic wake, keyboard injection,
    permission/auth changes, new session or retries to bypass a native trust gate.
@@ -61,11 +70,28 @@ Implement one durable root with stable child IDs and before/after checkpoints:
 6. Prepare/activate through existing stable-hook operations. Independently verify
    current settings/anchor, native readiness, policy and one causal native read.
 7. Obtain a fresh empty-family receipt and CAS-rebind the pair, retaining old
-   binding bytes. Qualification is incomplete until public ordinary routing uses
-   the new generation, and no unknown effects remain.
+   binding bytes. Rebind the existing fixed scratch metadata index when enrolled
+   and independently verify it against the new counterpart epoch. Ordinary
+   management enrollment retains the same controller identity and selects the
+   current generation. Qualification is incomplete until public routing and all
+   bindings are current and no unknown effects remain.
 
 Test the transaction synthetically before any disruptive native test. Later use a
 single representative authorized outage at an integrated gate. Repeated scratch
 cycles and historical surviving-standby passes do not prove this case. Workspace
 trust/hot-reload/person-only consent remains a real platform gate; preserve it and
 record human-assisted recovery separately from unattended proof.
+
+
+Failed import/startup is intentionally not retried. The original root, import
+intent and any completed children are retained. A proof-bound changed-condition
+continuation is still required before the integrated native outage test; rerunning
+the root with a new ID is not that continuation. A full root refuses when a peer
+is present or old generations have already retired. Successful-import metadata
+and bounded startup-window observation are recorded separately from serving.
+
+Synthetic transaction failure coverage exercises every before/after boundary,
+failed effect, unqualified result and changed guard. Pair CAS additionally requires
+original completed prepare/retire/activate child observations and exact new roles,
+epochs and family. Current live entrypoint refusal was verified without creating a
+bootstrap ledger or altering the live pair; see docs/resume.md for evidence.
