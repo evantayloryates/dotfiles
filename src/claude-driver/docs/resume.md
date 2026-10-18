@@ -1,3 +1,29 @@
+## October 18 seeded-record sequence and exclusive filesystem journal
+
+Added seeded-record-restoration.mjs orchestration: exact initial seed/recipe/identity
+hash, claim, one offline quiesce/retire, owning-root retired plan with unchanged
+role/account/absence identity, minimal bootstrap, bound newly verified transcript,
+one import, exact recreated account/UUID/mode verification. Bootstrap/import each
+have separate durable intent checkpoints; no generic surviving-transcript plan is
+forged, retirement is not repeated and old history is never replayed. Restored
+Accept edits remains humanPermissionRequired; service/native readiness still false.
+
+Added seeded-restoration-ledger.mjs private owned directory/root/claim keyed to old
+service generation. Claim persists on every failure and reports originalJobId to
+all repeat/competing roots. Real filesystem tests retain bootstrapAttemptedtrue
+before bootstrap, importAttempted independently, exact original bytes and all phase
+observations; simulated checkpoint loss after bootstrap leaves original intent and
+prevents a second root. No public operation or default native adapter calls yet.
+
+Focused seeded sequence/ledger+plan+recipe+absence16 PASS; earlier minimalsequence/
+plan/recipe11 PASS overlapped. All checkpoint failures, changed retired role/seed
+fingerprint/record-presence stop later import. No live CLI/auth/import/deletion or
+permission changes. Next production adapter with child retirement handles, snapshot
+proof, actual bounded CLI/bootstrap JSON and new exact transcript locator, followed
+by explicitly anchored seeded-root proof into existing pair reactivation. Do not
+pretend original-root proof covers a reconstructed transcript without new fields.
+Goal active; no live jobs or cleanup pending. Codex bridge remains parked.
+
 ## October 18 retained-role/account service seed plan
 
 Extracted validateMissingServiceOwnerEvidence from existing missing-record import
