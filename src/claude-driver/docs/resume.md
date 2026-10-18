@@ -1,3 +1,20 @@
+## October 17 fresh one-shot import recovery setup pending
+
+Previousbatch4a98949. Fresh single-request cold test needed after native continuation
+success; avoid treating reconciliation success as original one-shot success. Asked
+Taylor minimally to archive exact existing transport scratch. Native status still
+wait/primary-live, noeffects/no recovery. Private metadataControlTrial.
+importStartedOneShotTrial retains CURRENTaa9d02 binding/7189primary/61ca7standby,
+both settings baseline and schema-correct planned request. Key
+import-started-one-shot-cold-recovery-20261017,timeout360,submissionPerformed:false.
+No job exists yet. On actual archive verify exact current binding/oldPID58199absent/
+nopeer/qualifiedstandby/retained family/0unknown, then submit once and persist root.
+Require whole completed default recovery, exact standard standby rebind using new
+root, then fresh actual MCP receipt/reply and baseline checks before considering
+any automatic recovery opt-in. Original failed/continued jobs remain historical.
+No native process to poll; human archive is test setup, not permission. Goal active;
+watcher paused; no new native send/wake/archive/restart/permissions/CUA in this turn.
+
 ## October 17 imported-epoch continuation and exact standby rebind native qualified
 
 Previousbatch50332b1. Added explicit broker_service_continue_imported operation,
