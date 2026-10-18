@@ -28,17 +28,21 @@ export async function runIndependentRecovery(d,{cycle=false,familyRequestId}={})
  }
  if(cycle){const archive=await step('archive',()=>d.archive(familyRequestId));requireResult(archive,['receiptVerified','archiveVerified','previousPidObservedAbsent']);if(archive.state!=='completed')throw Error('archive failed')}
  if(cycle||results.preflight.archived)requireResult(await step('unarchive',d.unarchive),['unarchived'])
+ const imported=results.unarchive&&d.importedEpoch?await step('importedEpoch',d.importedEpoch):null
+ if(imported?.started===true){requireResult(imported,['verified','oldPidAbsent']);if(!Number.isSafeInteger(imported.pid)||typeof imported.procStart!=='string')throw Error('imported epoch evidence unqualified')}
+ else {
  await step('observeBeforeWake',d.observeBeforeWake)
  const wake=await step('wake',()=>d.wake(familyRequestId));requireResult(wake,['receiptVerified','wakeNativeReceiptVerified']);if(wake.state!=='completed')throw new DriverError('native wake failed; preserve native trust/refusal',{category:wake.nativeFailure?.category==='workspace_trust_required'?'native_workspace_trust_required':'independent_native_wake_failed',detail:{requestId:wake.requestId,nativeFailure:wake.nativeFailure,retrySafe:false}})
+ }
  await step('newEpoch',d.newEpoch)
- await step('reply',d.reply)
+ if(imported?.started!==true)await step('reply',d.reply)
  const prepared=requireResult(await step('prepare',d.prepare),['prepared','verified']);if(!hex.test(prepared.serviceId||''))throw Error('preparation identity')
  requireResult(await step('activate',()=>d.activate(prepared.serviceId)),['installed'])
  requireResult(await step('readiness',()=>d.readiness(prepared.serviceId)),['verified','readinessObserved'])
  requireResult(await step('policy',()=>d.policy(prepared.serviceId)),['terminalRefusalVerified','policyInvocationObserved','scopedNoNativeMcpQualified'])
  const read=await step('read',()=>d.read(prepared.serviceId));requireResult(read,['receiptVerified']);if(read.state!=='completed')throw Error('native read failed')
  requireResult(await step('verify',()=>d.verify(prepared.serviceId)),['settingsPreserved','anchorPreserved','noUnresolvedAttempts','rolePreserved'])
- return {serviceId:prepared.serviceId,results,nativeColdRecoveryQualified:true,unattendedSupervisionQualified:false}
+ return {serviceId:prepared.serviceId,recoveryPath:imported?.started===true?'verified-import-started-epoch':'fixed-native-wake',results,nativeColdRecoveryQualified:true,unattendedSupervisionQualified:false}
 }
 export function recoveryReplyObserved(events){
  if(!Array.isArray(events)||events.some(e=>e.type==='assistant'&&(!Array.isArray(e.tools)||e.tools.length))||events.filter(e=>e.type==='user'&&!e.sidechain).length!==1)return false
@@ -57,7 +61,7 @@ export async function recoverIndependentTarget(session,serviceId,target,targetSe
   const file=join(ensureDir(join(STATE_DIR,'independent-service-recoveries')),jobId+'.json'),ledger={schemaVersion:1,kind:'independent-service-recovery',jobId,session,target,serviceId,targetServiceId,cycle,phase:'created',children:{},steps:[],retrySafe:false,at:Date.now()}
   writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600})
   const save=()=>{ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)}
-  const controller=peerRecord(session),record=getRecord(target);let sealed,cursor,newPeer,baseline,restoredRole
+  const controller=peerRecord(session),record=getRecord(target);let sealed,cursor,newPeer,baseline,restoredRole,importedPeer
   const admitRoleTarget=t=>{const r=getRecord(t.sessionId);return metadataTargetPreflightMatches({target:t,record:r,peer:peerRecord(t.sessionId),registered:metadataTargetRegistered(t,{controlStateDir:STATE_DIR}),openPrCount:r?openPrs(r).length:null})}
   const policy=id=>JSON.parse(readReceiverFile(join(record.cwd,'.claude-driver-services',id,'broker','stop-rescue-policy.json'),65536))
   const guard=async()=>{if(signal?.aborted)throw Error('recovery cancelled; child may continue');const p=peerRecord(session);if(!controller||!p||p.pid!==controller.pid||p.procStart!==controller.procStart||p.status!=='idle'||getRecord(target)?.cwd!==record?.cwd)throw Error('recovery controller or target changed')}
@@ -84,8 +88,10 @@ export async function recoverIndependentTarget(session,serviceId,target,targetSe
      baseline=policy(targetServiceId);restoredRole=recoveryRoleFromHistory(t,baseline,{sessionId:target,receiverCwd:record.cwd,admitTarget:admitRoleTarget});ledger.restoredRole=restoredRole;save();if(!/^[a-f0-9]{64}$/.test(baseline.settingsHash||'')||!/^[a-f0-9]{64}$/.test(baseline.receiverHook?.anchorSha256||''))throw Error('stable settings evidence missing');return {retired:t.sourceDisposition==='files-retired'&&t.admissionStopped===true&&t.stopMarkerMatchesGeneration===true,archived:record.isArchived,oldEpoch:{pid:sealed.pid,procStart:sealed.procStart},settingsHash:baseline.settingsHash,anchorSha256:baseline.receiverHook?.anchorSha256}
     },
     family:async()=>{const r=await child('family','broker_service_family',targetArgs);familyReceipt(r.requestId);return r},quiesce:offline=>child('quiesce','broker_service_quiesce',{...targetArgs,...offline?{offline:true}:{}}),retire:offline=>child('retire','broker_service_retire',{...targetArgs,...offline?{offline:true}:{}}),archive:ref=>child('archive','broker_service_archive',controlArgs(ref)),unarchive:()=>child('unarchive','unarchive_session',{session:target,import_only:true}),
+    importedEpoch:async()=>{const p=peerRecord(target);if(!p)return {started:false};const observed=ledger.children.unarchive?.observation;
+     if(!importStartedEpochQualified({peer:p,record:getRecord(target),oldEpoch:sealed,oldPidAbsent:inspectNativeResourcePid(sealed.pid)===null,unarchive:observed,target}))throw Error('import-started native epoch unqualified');importedPeer=p;return {started:true,verified:true,oldPidAbsent:true,pid:p.pid,procStart:p.procStart,unarchiveJobId:observed.jobId}},
     observeBeforeWake:async()=>{const {runOp}=await import('./driver.mjs');const r=await runOp('session_events',{session:target,include_causality:true});cursor=r.cursor;return r},wake:ref=>child('wake','broker_service_wake_target',controlArgs(ref)),
-    newEpoch:async()=>{const end=Date.now()+30000;for(;;){await guard();if(inspectNativeResourcePid(sealed.pid)!==null)throw Error('original PID present');const p=peerRecord(target);if(p){if(p.cwd!==record.cwd||p.hostSessionId!==target||p.version!=='2.1.299'||p.entrypoint!=='claude-desktop'||p.pid===sealed.pid||p.procStart===sealed.procStart)throw Error('new native epoch unqualified');if(p.status==='idle'){newPeer=p;return {pid:p.pid,procStart:p.procStart,cwd:p.cwd}}}if(Date.now()>end)throw Error('new native epoch deadline');await sleep(100)}},
+    newEpoch:async()=>{const end=Date.now()+30000;for(;;){await guard();if(inspectNativeResourcePid(sealed.pid)!==null)throw Error('original PID present');const p=peerRecord(target);if(p){if(importedPeer&&(p.pid!==importedPeer.pid||p.procStart!==importedPeer.procStart))throw Error('import-started epoch changed');if(p.cwd!==record.cwd||p.hostSessionId!==target||p.version!=='2.1.299'||p.entrypoint!=='claude-desktop'||p.pid===sealed.pid||p.procStart===sealed.procStart)throw Error('new native epoch unqualified');if(p.status==='idle'){newPeer=p;return {pid:p.pid,procStart:p.procStart,cwd:p.cwd}}}if(Date.now()>end)throw Error('new native epoch deadline');await sleep(100)}},
     reply:async()=>{const {runOp}=await import('./driver.mjs');const r=await runOp('session_wait',{session:target,cursor,include_causality:true,include_text:true,limit:100,timeout_sec:20});ledger.replyObservation=r;save();if(r.hasMore||!recoveryReplyObserved(r.events))throw Error('fixed wake reply not independently observed');return r},
     prepare:()=>{if(!restoredRole||Object.values(restoredRole.bindings).some(t=>!admitRoleTarget(t)))throw Error('recovery role target changed before preparation');return child('prepare','broker_service_prepare',{session:target,experimental:true,lifetime_sec:3600,max_requests:32,...restoredRole.prepareArguments})},activate:id=>child('activate','broker_service_activate',{session:target,service_id:id,experimental:true,stable_hook:true,cold_rebind:true}),
     readiness:id=>waitIndependentReadiness({signal},{guard,inspect:()=>inspectIndependentService(target,id,{signal}),now:Date.now,wait:()=>sleep(100)}),policy:id=>child('policy','broker_service_policy_probe',{session:target,service_id:id,experimental:true,timeout_sec:20}),read:id=>child('read','broker_service_read',{session:target,service_id:id,session_id:session,experimental:true,timeout_sec:20}),
@@ -94,4 +100,10 @@ export async function recoverIndependentTarget(session,serviceId,target,targetSe
    ledger.phase='completed';save();return {...result,recoveryFile:file,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId])),retrySafe:false}
   }catch(error){ledger.failure={category:error.category??'recovery_step_failed',nativeFailure:error.detail?.nativeFailure,at:Date.now()};save();throw new DriverError('recovery stopped; inspect retained parent/children, never replay unknown effects',{category:'independent_service_recovery_unresolved',detail:{jobId,phase:ledger.phase,failureCategory:error.category??'recovery_step_failed',nativeFailure:error.detail?.nativeFailure,recoveryFile:file,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId??null])),retrySafe:false}})}
  },{timeoutMs:5000,signal})
+}
+
+// Only the completed, original import may account for a newly live process.
+// This grants no wake authority and does not establish service readiness.
+export function importStartedEpochQualified({peer,record,oldEpoch,oldPidAbsent,unarchive,target}={}){
+ return !!(sid.test(target||'')&&oldEpoch&&oldPidAbsent===true&&record?.sessionId===target&&record.cwd===oldEpoch.cwd&&record.isArchived===false&&record.permissionMode==='bypassPermissions'&&!record.worktreePath&&peer?.hostSessionId===target&&peer.cwd===record.cwd&&peer.version==='2.1.299'&&peer.entrypoint==='claude-desktop'&&peer.status==='idle'&&Number.isSafeInteger(peer.pid)&&peer.pid!==oldEpoch.pid&&typeof peer.procStart==='string'&&peer.procStart!==oldEpoch.procStart&&/^j[a-f0-9]{32}$/.test(unarchive?.jobId||'')&&unarchive.operation==='unarchive_session'&&unarchive.state==='completed'&&unarchive.args?.session===target&&unarchive.args.import_only===true&&unarchive.result?.sessionId===target&&unarchive.result.unarchived===true&&Number.isSafeInteger(unarchive.startedAt)&&Number.isSafeInteger(unarchive.finishedAt)&&unarchive.finishedAt>=unarchive.startedAt&&Number.isSafeInteger(peer.startedAt)&&peer.startedAt>=unarchive.startedAt&&peer.startedAt<=unarchive.finishedAt)
 }

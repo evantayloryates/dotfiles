@@ -1601,3 +1601,12 @@ If the old standby was retired, the receipt is checked against its verified
 terminal historical generation and original native tool ID. Uncertain or unrelated
 failures never qualify. This path reports human-assisted restoration only and
 retains the original failure; automatic cold recovery never selects it.
+
+### Import-started cold recovery
+
+A trusted deep-link unarchive can start the target process itself. Recovery now
+checks that new owned idle epoch against the original completed import-only child
+and its timing, with the old PID absent. That path skips redundant wake/reply but
+still requires the restored service readiness, policy and native-read contract.
+The normal wake path retains its absence guard. A failed historical attempt is
+never replayed or rewritten as successful; explicit continuation remains pending.

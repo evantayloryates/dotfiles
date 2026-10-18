@@ -1,3 +1,32 @@
+## October 17 import-started recovery path implemented; original continuation pending
+
+Previousbatch5615e7d. Goal actual active on continuation. Added a distinct
+verified-import-started-epoch branch to existing runIndependentRecovery. ONLY after
+its original completed import-only unarchive child: independently verify oldPID
+absent, exact same target/cwd/unarchived/bypass/no worktree, new idle native desktop
+CLI2.1.299 peer, distinct PID/start, and peer.startedAt inside the original durable
+unarchive job's startedAt..finishedAt. Changed/foreign/old/busy/undated evidence
+refuses. If no peer exists, existing single fixed-wake and causal reply path stays.
+Generic wakeTargetPreflightMatches absence guard unchanged. Import branch records
+its evidence, skips redundant wake/reply, rechecks same new epoch and still requires
+role preparation, stable activation, readiness, native policy, actual native read,
+settings/anchor/role/0unknown verification. Reports explicit recoveryPath; no claim
+that an import result alone proves readiness. Ten focused tests pass. Full isolated v2-2026-10-18T00-35-03-320Z
+PASS1/1/sourceunchanged; filtered Claude00-34-39-358Z and Codex00-34-40-467Z
+PASS10checks each.
+
+Read-only actual original job/peer validation now PASS for original unarchive
+j681e0d0e29b946e79367ff8534d08c84 and PID58199/start00:23:22UTC. Original root
+j3d706293f27c4f3e953779a2fe88202a and childjb866000fa10e4737b0a75ed20a753079
+remain FAILED, no replay. Primary service9d62 remains retired/nonserving; current
+live peer unchanged. This new orchestration has NOT completed a whole native run.
+Need explicit proof-bound continuation tied to exact original failed root/import
+and wake-prepare/no-publication evidence, restoring ONLY remaining phases with new
+continuation identity, not rewriting old success or redoing import/retire/wake.
+Then exact proof-bound standby rebind and current actual MCP contract. Standby lease
+may need renewal after elapsed time; independently inspect before any native work.
+Automatic binding disabled. No user action needed; engineering next step available.
+
 ## October 17 post-trust native retry exposes import-started epoch boundary
 
 Taylor manually archived transport scratch; independently archived:true,oldPID82655
