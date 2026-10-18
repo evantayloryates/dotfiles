@@ -2432,3 +2432,8 @@ Pair bootstrap import observations retain a bounded first/changed/final native
 startup snapshot. `native-peer-unobserved` does not establish a trust gate or
 crash. `native-input-required` means an observed waiting peer; native consent
 remains human. Successful import alone never qualifies startup or serving.
+
+`driver_status.sessionManagement.health` describes local native evidence;
+`routeReadiness` separately reports source maintenance or retained-pair
+reconciliation needed before ordinary dispatch. Even `observed` does not assess
+a target or authorize an operation. Reading status performs no recovery.

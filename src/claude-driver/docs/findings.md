@@ -1,3 +1,20 @@
+## October 18 status route readiness separated from process health
+
+Existing driver_status already exposed sessionManagement; extended its read-only
+inspection with routeReadiness: exact retained pair snapshot before/after,
+currentSourceMatches/pairGenerationMatches and observed vs source-maintenance-
+required vs pair-reconciliation-required. Local native health remains separate.
+No target assessed or operation authorized; status never renews/wakes/reconciles.
+Unreadable/changing enrollment fails closed; standalone/no pair retains behavior.
+Focused controller/health7 PASS. Actual CLI status verified legacy residentfalse,
+ordinary native readiness/policytrue/unresolved0, pairGenerationMatchestrue,
+source-maintenance-required (installed1f21629 vs new host). No new native effects.
+
+Next substantial gate: actual loaded Codex MCP still awaits earlier requested
+app restart; do not repeat toggle instructions. Unattended fresh-app startup and
+deleted-service controlled replacement remain unsatisfied native/platform scope;
+no unsupported context spoofing or keyboard/quarantine changes. Goal active.
+
 ## October 18 machine-ingress boundary audit
 
 Installed-source static contract4 PASS, zero native effects:
