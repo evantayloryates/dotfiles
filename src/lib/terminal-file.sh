@@ -31,30 +31,14 @@ __terminal_preview() {
       command -v chafa >/dev/null 2>&1 || return 1
       chafa --probe=off --size=50x24 "$1" ;;
     pdf)
-      command -v pdfinfo >/dev/null 2>&1 && command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 || return 1
-      local pages page previous=0 display_scale=1 raster_size detected_scale
-      local -a selected=()
-      pages="$(pdfinfo "$1" 2>/dev/null | /usr/bin/awk '/^Pages:/ { print $2; exit }')"
-      [[ "$pages" =~ '^[0-9]+$' ]] && (( pages > 0 )) || return 1
+      command -v pdfinfo >/dev/null 2>&1 && command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1 || return 1
+      local display_scale=1 detected_scale columns
       if detected_scale="$(__terminal_pdf_display_scale)" && [[ "$detected_scale" =~ '^[1-3]$' ]]; then
         display_scale="$detected_scale"
       fi
-      raster_size="$((380 * display_scale))"
-      if (( pages <= 6 )); then
-        for (( page = 1; page <= pages; page++ )); do selected+=("$page"); done
-      else
-        selected=(1 2 3 "$((pages - 1))" "$pages")
-      fi
-      for page in "${selected[@]}"; do
-        if (( pages > 6 && page == pages - 1 )); then
-          printf '\n\033[90m%s\033[0m\n\n' "────────  ... pages 4-$((pages - 2)) omitted ...  ────────"
-        elif (( previous > 0 )); then
-          print -r -- ''
-        fi
-        # One page at a time streams PNG bytes; no temporary images are saved.
-        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to "$raster_size" -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
-        previous="$page"
-      done ;;
+      columns="$(/usr/bin/tput cols 2>/dev/null)"
+      [[ "$columns" =~ '^[0-9]+$' ]] && (( columns > 0 )) || columns="${COLUMNS:-80}"
+      ( setopt pipefail; python3 "$DOTFILES_DIR/src/python/terminal_pdf_preview.py" "$1" "$display_scale" "$columns" | chafa --probe=off --size="$((columns - 2))x" - ) || return 1 ;;
     markdown)
       command -v mdcat >/dev/null 2>&1 || return 1
       mdcat --local --no-pager "$1" ;;

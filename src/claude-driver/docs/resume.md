@@ -1,3 +1,33 @@
+## October 18 missing-service same-identity preparation plan implemented
+
+Added missing-service-plan.mjs + explicit CLI scripts/missing-service-plan-v2.mjs
+<exact primary ID> <primary|standby> <exact pair digest>. No MCP schema/config
+changes. Read-only inspector binds automatic pair role, immutable per-generation
+recovery identity, current account store hash, independently absent old PID/all
+same-host processes, verified offline installed selected generation with no STOP/
+unknowns, original reciprocal role, exact CLI transcript metadata fingerprint,
+installed version, and repeated binding/selection/identity/transcript/absence checks.
+No transcript content read; no candidate scans, imports, grants or replacement.
+Positive result only importPreparationEligible, all execution authorities false.
+Requires future observed actual bypass/native epoch; flags possible human gate.
+
+Focused plan+identity7 PASS, including both roles, STOP/unknown/account/version/
+PID/generation/transcript refusals and after-inspection races. Initial unit fixture
+had computed-property syntax typo, failed before execution; corrected and rerun
+passed, no native effects. Actual new CLI entrypoint against existing primary
+returned wait/saved-service-record-present/effectsPerformedfalse. Did not delete
+or simulate loss of live app record; current actors lack new capture until future
+qualified preparation (no silent backfill).
+
+NEXT: durable same-identity restoration root consuming exact plan digest,
+checkpointing one import attempt with rechecks and preserving uncertainty. Native
+import can lower bypass to Accept edits; stop/report person gate, never silently
+restore authority. Then reuse qualified human-assisted/cold service recovery after
+verified recreated record/epoch/mode; no need invent replacement controller identity.
+Host code changed, actual MCP/native qualification remains earlier18ef until final
+adoption; do not request repeated restart per edit. Goal active; no live jobs or
+cleanup pending. Deleted-service restoration remains incomplete.
+
 ## October 18 retain same-identity recovery evidence before preparation
 
 Generation locator already supports offline inspection after app record loss, but

@@ -2437,3 +2437,9 @@ remains human. Successful import alone never qualifies startup or serving.
 `routeReadiness` separately reports source maintenance or retained-pair
 reconciliation needed before ordinary dispatch. Even `observed` does not assess
 a target or authorize an operation. Reading status performs no recovery.
+
+Missing-service planning is available through
+`scripts/missing-service-plan-v2.mjs <primary-id> <primary|standby> <pair-sha256>`.
+It reads exact retained identity/history and transcript metadata only. A positive
+preparation result authorizes no import, permission raise, role transfer or replay.
+Present saved records return wait; unreadable/racing/unknown/STOP evidence refuses.
