@@ -509,8 +509,9 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         before = '''
 chafa() {
   [[ "$1" == --probe=off ]] || return 1
+  [[ "$2" == --size=50x24 ]] || return 1
   print -r -- 'renderer changed clipboard' > "$HOME/copied-path"
-  print -r -- "PREVIEW:${2:t}"
+  print -r -- "PREVIEW:${3:t}"
 }
 '''
         result = self.run_cs(kind='files', sources=[image, impostor], before=before)
@@ -547,7 +548,7 @@ __clipsend_pasteboard() { cp "$CLIP_PAYLOAD" "$2"; print -r -- image; }
 source "$DOTFILES_DIR/src/functions/img.sh"
 source "$DOTFILES_DIR/src/functions/aliases.sh"
 open() { print -r -- "OPEN:$*"; }
-chafa() { print -r -- "PREVIEW:${2:t}"; }
+chafa() { print -r -- "PREVIEW:${3:t}"; }
 __terminal_copy_file() { return 0; }
 o "$IMAGE"
 o "$IMPOSTOR"
@@ -584,7 +585,7 @@ open() { print -r -- "OPEN:${1:t}"; }
 pdfinfo() { print -r -- 'Pages:          2'; }
 pdftoppm() { print -rn -- 'fake png'; }
 pdftotext() { print -u2 -- 'unexpected text extraction'; return 1; }
-chafa() { [[ "$1" == --probe=off ]] || return 1; [[ "$2" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${2:t}"; }
+chafa() { [[ "$1" == --probe=off ]] || return 1; local path="${@[-1]}"; [[ "$path" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${path:t}"; }
 mdcat() { print -r -- "PREVIEW:${3:t}"; }
 __terminal_copy_file() { print -r -- "file:${1:t}" >> "$HOME/copy-log"; print -u2 -- 'file unavailable'; return 1; }
 __terminal_copy_png() { print -r -- "png:${1:t}" >> "$HOME/copy-log"; return 0; }

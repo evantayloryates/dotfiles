@@ -25,7 +25,7 @@ __terminal_preview() {
   case "$kind" in
     image)
       command -v chafa >/dev/null 2>&1 || return 1
-      chafa --probe=off "$1" ;;
+      chafa --probe=off --size=50x24 "$1" ;;
     pdf)
       command -v pdfinfo >/dev/null 2>&1 && command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 || return 1
       local pages page previous=0
