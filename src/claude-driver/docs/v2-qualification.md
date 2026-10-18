@@ -1,4 +1,4 @@
-## Current frontier — October 17, ordinary archive and busy-stop native qualified
+## Current frontier — October 17, ordinary interrupt sequence native qualified
 
 See [resume.md](resume.md) for exact current services, binding, jobs and reports.
 Fresh one-shot cold recovery now passes after manual accidental archive with
@@ -10,7 +10,8 @@ Original failures and explicit continuation evidence remain separate from these 
 
 Ordinary independent send, model configuration, archive and already-idle stop now
 have exact native evidence on named sources; ProDevs unarchive/pin also passed.
-Ordinary busy stop passed after person-approved startup; unattended dormant
+Ordinary busy stop and full ordinary stop/replacement sequence passed on named
+sources; unattended dormant
 startup remains unqualified.
 Healthy fixed-target send/stop/steer and scoped control have prior native proof. App quit or both
 controllers lost, natural-pressure survival and wider creation/fork/project-archive/window/
@@ -2420,3 +2421,48 @@ controlled busy owned target, stop+replacement distinct receipts, original epoch
 and reply observation), then review remaining lifecycle/group/window/person and
 both-absent/pressure/loaded-MCP requirements. Don't repeat standalone native stop
 or replay old requests. Goal ACTIVE; all three test handles terminal, no live job.
+
+## October 17 ordinary interrupt native sequence qualified
+
+Previous turn = progress (distinct ordinary interrupt contexts + native replacement
+same-epoch admission). One integrated native gate on source
+982ab2f6469736c3243db4ebdab39a2d2a6dcd63ea1dad4015613b89b59f5613 passed.
+Renewjc5fbfd1706384ac68e8b07dd5538682a: CURRENT PRIMARY service
+c5fbfd1706384ac68e8b07dd5538682a, samePID96436/startSunOct18 00:42:30.
+All grants retained; native readiness/policy/read and automatic standby refresh
+qualified. Fresh familyrpeerc53922c8cabb94b6d1a16f65f45baba3; enrollment digest
+9e08ec9e2052328d34bef9eb0303c708caf035782743bbba7c8594835977d94c.
+
+Owned controltarget local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd:
+controlled text sendj43d0a3a7b9ce4d4db7402381e7fed033 delivered; recipient busy
+PID19357/startSunOct18 03:05:05 independently recorded. Public steer_session
+interruptj5f50154185314ac29b6378f84bfd01fa completed native stopped then delivered
+replacement with DISTINCT request IDs:
+rpeer67bd3a967d52433b945b2345d4fa7b32 and
+rpeer0dc8442f8c26036a3bb09a07a4717ac8. Send admission retained original idle
+recipient epoch. Exact replacement reply observed, no tools, same recipient epoch
+then idle. Saved baseline and focus endpoints unchanged. Controller independently
+idle, all current requests settled, unresolved IDs empty. No ProDevs effects,
+new chats, app restart, keyboard/CUA/auth/permission changes.
+
+Existing qualification.recipientReplyEvidence verified native sender/body/cursor/
+ancestry and unique exact terminal reply. returnedMessageIdLinked:false retained.
+The lower single-peer nativeSendUserReceipt helper rejects this MULTI-request
+observation window (busy setup + replacement); its false result remains recorded.
+Use the existing multi-request verifier, not a parser weakening or another send.
+No SDK-only correlation needed. Evidence
+.runtime/state/ordinary-interrupt-native-20261017.json, qualificationtrue.
+One integrated synthetic1/1 PASS38.9sec on SAME982 source, sourceUnchanged:
+pressure/v2-2026-10-18T03-18-27-433Z.json. No source changes during jobs.
+
+Actual THIS-CHAT MCP driver_status responds, APIv2/app2.42304/CLI2.1.299, but loaded
+source78678a25... vs current982ab2f... and restartRequiredtrue; it lacks newer route
+health fields. Connection exists; current feature adoption is NOT established.
+Keep one final client refresh gate rather than requesting mid-development restarts.
+Claude/Codex filtered fixture contracts last passed on pre-fix3e6c source, not982.
+
+NEXT: reassess remaining ordinary grouped/lifecycle/window/person paths and the
+both-absent bootstrap/natural-pressure/final MCP gates. Current ordinary interrupt
+is now qualified; do not repeat its messages or old standalone stop/archive tests.
+Goal ACTIVE. Native and synthetic handles terminal, target/controller live idle.
+Codex-driver work stays parked and 1Password separate.

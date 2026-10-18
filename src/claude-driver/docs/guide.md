@@ -1807,5 +1807,6 @@ grants, whole-operation budget and the original recipient epoch. Replacement is
 allowed only after native stop receipt and same-epoch idle, and that idle epoch is
 checked again at actual native send admission. Old receiver source is renewed once
 before effects to support the new epoch binding. Pending/unknown outcomes stop the
-sequence without replay. Queue mode remains a normal queued send. This new sequence
-has focused synthetic evidence; native integrated qualification is pending.
+sequence without replay. Queue mode remains a normal queued send. This sequence passed native stop/replacement receipts, original-epoch admission
+and native sender/body/cursor/ancestry reply qualification on source982ab2f. The
+returned message ID is not linked to the recipient journal.
