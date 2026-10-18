@@ -1,3 +1,23 @@
+## October 18 deep-link bootstrap candidate ruled out
+
+Installed deep-link handler static contract4 PASS, zero native effects:
+pressure/native-deeplink-contract-2026-10-18T05-30-48-264Z.json. New reusable
+scripts/native-deeplink-contract-v2.mjs binds main chunkmuI2IV6k exactSHA4a8f1c07e69231e47127d3c55fcdda84eddb089ce06d347ad29591e25b6fb5f5
+and fragment hashes. Resume imports CLI identity then navigates, no prompt/send/
+start call in branch. code/continue checks entrypoint gate and resolves route of
+saved unarchived session; it navigates only. Prompt parsing seen on code/new branch,
+not an existing-session bootstrap. Renderer warm downstream remains possible;
+static routing does not prove every possible ingress absent. No URL dispatched.
+
+This removes another concrete all-process-absent startup candidate, not a live
+recovery improvement. Current MCP adoption and expired-pair renewal remain proven
+18ef source. No native test, message, new chat, permissions/UI or source renewal.
+Next independent work: deleted actor replacement needs retained role/history and
+already-approved reserve identity; generic pool must not silently inherit roles.
+Do not repeat appquit/import-only experiment without a changed supported startup
+condition. Unattended fresh-app bootstrap remains unresolved native boundary;
+goal active and full scope intact. No live jobs/cleanup pending.
+
 ## October 18 actual restarted Codex MCP adopted; expired pair renewed
 
 Taylor restarted Codex and resumed work. Actual this-chat driver_status reports
