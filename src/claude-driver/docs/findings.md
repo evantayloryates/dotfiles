@@ -1,3 +1,50 @@
+## October 18 checked watchdog recovers caller/owner loss
+
+PROGRESS: source182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6.
+A live watchdog starts before the native helper, in the same private group with
+another copy of the inherited mutex. It verifies current creator/group/fd
+identity before readiness. Creator IPC EOF triggers peer/socket retirement and
+an independent input audit while retaining the mutex. It never uses old PID
+records to authorize a reap. Original interrupted work remains failed/unknown;
+normal native exit is explicitly unverified. Normal disarm waits for peers.
+
+Seventy-five focused checks pass: single controller failures, all pairwise
+losses, invalid watchdog identity, startup/cancel/refusal, unknown residue,
+unrelated sentinel and distinct successor lease. First assertion failure is
+retained in watchdog-first.log: a killed caller could not create its expected
+result file; actual double-owner retirement/successor had passed already.
+Corrected watchdog-focused.log passes. Final full195-file suite passes once
+68.519s with source/suite/installed identity frozen:
+pressure/v2-2026-10-18T20-58-45-590Z.json.
+
+Remote normal owner-native-1792357050383 passes fresh exact read-only fixture,
+actual turn/archive, helper4375 normal exit0 and watchdog4372 disarm/exit0.
+Thread01a150ce-2d15-77f3-8959-1e19fd7a67b1,
+turn01a150ce-309c-7953-9ded-2203a5f82c83. Remote double-loss1792357057583 verifies
+live group/watch readiness, stops caller4471, kills owner4473 then caller4471.
+Watchdog4476 automatically retires peers/socket, audits input and exits; an
+independent same-mutex acquisition succeeds. Original host/archive=false,
+normal native exit unverified. Thread01a150ce-4920-7201-8253-267ec42bc19a,
+turn01a150ce-4cbf-7b12-88ac-3306fb9ee554. Both use final source182ed05d.
+
+Mirror watchdog-evidence:26 files/226292 bytes, hashes/exact sources/contexts.
+Final remote no owned process/helper/filter/stop marker; original four taps,
+uv508/caffeinate510 and clean old repo0203e604 preserved. Local quarantine still
+blocked/hash9808e860. No typing/model inference/hook override/auth/permission
+change/local CUA. Shared Codex and 1Password remain parked. All handles terminal.
+
+NEXT changed condition: qualify this complete owner/watchdog composition with
+one bounded real input operation in the existing remote disposable fixture,
+then cancellation while native input is active using deterministic provider
+control and independent input-state/tap evidence. Reuse existing remote-input
+harnesses and exact grant, preserve failures/uncertain request without replay;
+no new typing or full suite per small edit. Read existing input qualification
+before implementation. All-three-controller loss remains fenced; do not chase
+an unbounded controller chain or claim universal recovery. Full computerUse
+focus/send/real Claude, physical-input, concurrent input, local quarantine
+release, loaded adoption, cold startup and the full goal audit remain open.
+Goal ACTIVE; no human action or app restart requested at this checkpoint.
+
 ## October 18: input investigation reproduces a false cleanup success
 
 Taylor authorized investigating the input defect with UI disabled. Current

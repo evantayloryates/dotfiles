@@ -4,15 +4,18 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current source: `e3c3937e92f337ccf3da71d68aa9550b8ca3120f76c4521dfa85b07e6240b284`.
-The [private lease owner](ui-lease-owner.md) adds bounded caller/owner lifetime
-cleanup while retaining the kernel fence. Seventy-one focused checks and the
-full195-file suite pass once76.621s, frozen source/suite/installed identity
-(pressure/v2-2026-10-18T20-47-53-653Z.json). Native read-only normal completion and
-caller SIGKILL cleanup pass on6c74bb46, before a final Git-path-only extension;
-actual-Git cooperative/escalation controls qualify that extension on final source.
-Double-owner loss remains fenced, with automatic orphan recovery unfinished.
-Local quarantine, physical/input/full-scope and loaded-adoption gates remain.
+Current source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
+The [private lease owner](ui-lease-owner.md) now establishes a checked live
+watchdog before native startup. Current group/creator/fd identity, inherited
+mutex and creator IPC permit bounded orphan retirement after caller/owner loss.
+Seventy-five focused checks and the final195-file suite pass once68.519s,
+frozen source/suite/installed identity (pressure/v2-2026-10-18T20-58-45-590Z.json).
+Remote exact read-only normal completion and double-owner loss pass on this
+source; successor mutex acquisition succeeds after audited retirement. Original
+interrupted work and normal native exit remain unverified. All-three-controller
+loss remains fenced. Local quarantine, physical/active-input/full-scope and
+loaded-adoption gates remain. Earlier e3c3937e cleanup/native/ancillary proof
+retains its separately recorded source and limits.
 
 Earlier source8dfd7c77:
 The [supervisor lock correction](ui-supervisor-lock.md) now fences overlapping
@@ -72,7 +75,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source e3c3937e has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source182ed05d has isolated and remote read-only proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 
@@ -140,8 +143,8 @@ No supported owner-scoped release endpoint was found in the reviewed API. The
 not sent. A later [private-helper prototype](native-helper-isolation.md) passed
 real host typing and cleanup while the default client stayed live, on the same
 runtime. Abrupt-owner cleanup then passed with the default client retained; the
-actual worker's backend group was corrected and isolated-tested. Next qualify
-supervisor-loss ownership. The later factory/native and actual worker/MCP handoff
+actual worker's backend group was corrected and isolated-tested. Supervisor-loss ownership and checked watchdog recovery now have the current
+read-only qualification above; next qualify active input on that composition. The later factory/native and actual worker/MCP handoff
 gates were followed by combined read-only completion, worker-group loss and
 normal pending-provider timeout. See the current private-service checkpoint above.
 These are implementation-specific preparation,

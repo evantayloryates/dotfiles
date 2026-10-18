@@ -521,9 +521,12 @@ A private lease owner now watches the caller's IPC lifetime before helper
 startup and retains the kernel UI mutex through helper/worker/group cleanup and
 an input audit. Caller loss and cleanup-owner failure return failed/unknown work,
 not a replay authorization. Inspect ui-owner.json, ui-owner-client.json and the
-original job before another send. If both owners die, retained descriptors still
-fence live resources; automatic recovery of that case remains unfinished. Never
-remove the persistent mutex to bypass it. See ui-lease-owner.md for exact evidence.
+original job before another send. If both owners die, a checked live watchdog
+retains the mutex while retiring peers in its own verified group and auditing
+input resources. Inspect ui-owner-orphan.json; retired resources do not mean the
+original request completed or permit replay. All-three-controller loss remains
+fenced rather than universally recovered. Never remove the persistent mutex to
+bypass it. See ui-lease-owner.md for exact evidence.
 UI wake recovery requires an empty composer, native text paste (never
 setValue or per-character input), exact readback before one Return, and
 independent broker liveness after the structured send outcome. Never overwrite a user's draft or retry a send

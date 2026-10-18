@@ -12,6 +12,7 @@ import {openPrivateInputService} from './private-input-service.mjs'
 const sleep=ms=>new Promise(r=>setTimeout(r,ms))
 const OWNER=fileURLToPath(new URL('../scripts/tierc-owner.mjs',import.meta.url))
 const WORKER=fileURLToPath(new URL('../scripts/tierc-worker.mjs',import.meta.url))
+const WATCH=fileURLToPath(new URL('../scripts/tierc-watch.mjs',import.meta.url))
 const failed=(message,detail)=>new DriverError(message,{category:'ui_owner_failed',detail})
 async function groupSnapshot(group){
  const {stdout,inspectorPid}=await new Promise((resolve,reject)=>{
@@ -52,6 +53,14 @@ function retireAbandonedSocket(dir,group){
  }
  writeJsonAtomic(file,{...row,ownerFailureCleanup:{at:new Date().toISOString(),group,ownedSocketRemoved:removed,normalExitVerified:false}})
  return removed
+}
+export async function retireOrphanUiPeers({group,dir,lock},{audit=assertInputHealthy}={}){
+ const s=fstatSync(3)
+ if(!s.isFile()||s.dev!==lock?.dev||s.ino!==lock?.ino||!(await ownedGroupMembers(group)).includes(process.pid))throw failed('Orphan retirement requires live group/lock identity')
+ const groupCleanup=await reapGroup(group,{excludeSelf:true})
+ const ownedSocketRemoved=retireAbandonedSocket(dir,group)
+ await audit({phase:'after-orphan-retirement',evidence:join(dir,'input-taps-orphan-after.json')})
+ return {groupCleanup,ownedSocketRemoved,inputAuditPassed:true,normalNativeExitVerified:false}
 }
 
 // Trusted dependency injection is only for isolated process tests. Production
@@ -97,19 +106,30 @@ export async function runOwnedUiLease({payload,dir,lockFd,signal,progress=()=>{}
  }
 }
 
-async function executeLease({payload,dir,ownerLock},signal,{openService,audit}){
+async function executeLease({payload,dir,ownerLock},signal,{openService,audit,abortOwner,watcherScript}){
  assertUiAvailable()
  if(dir!==process.env.CODEX_BRIDGE_STATE_DIR||typeof payload?.task!=='string'||!Number.isFinite(payload.timeoutSec)||Buffer.byteLength(JSON.stringify(payload))>64*1024)throw failed('Invalid private UI owner input')
  const s=fstatSync(3)
  if(ownerLock?.fd!==3||!s.isFile()||s.dev!==ownerLock.dev||s.ino!==ownerLock.ino)throw failed('UI owner inherited lock identity mismatch')
  const group=(await ownedGroupMembers(process.pid))
  if(!group.includes(process.pid))throw failed('UI owner is not its resource group leader')
- let service,worker,workerExit,output='',stderr='',overflow=false,timedOut=false,spawnError,workerResult,response
+ let service,worker,workerExit,watcher,watchExit,watchDisarmed=false,output='',stderr='',overflow=false,timedOut=false,spawnError,workerResult,response
  let timer,abort
  const row={version:1,ownerPid:process.pid,group:process.pid,parentPid:process.ppid,lock:ownerLock,startedAt:new Date().toISOString()}
  const path=join(dir,'ui-owner.json'),save=()=>writeJsonAtomic(path,row)
  save()
  try{
+  watcher=spawn(process.execPath,[watcherScript],{env:{...process.env,CLAUDE_DRIVER_UI_WATCH:JSON.stringify({group:process.pid,dir,lock:ownerLock})},detached:false,stdio:['ignore','ignore','pipe',3,'ipc']})
+  row.watcherPid=watcher.pid;save()
+  row.watchStderrBytes=0;watcher.stderr.on('data',b=>row.watchStderrBytes+=b.length)
+  watcher.once('exit',(code,signal)=>{watchExit={code,signal};if(!watchDisarmed){row.watchFailure=watchExit;abortOwner()}})
+  await new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(failed('UI watchdog readiness timed out')),10000)
+   watcher.once('error',e=>{clearTimeout(timer);reject(e)})
+   watcher.once('exit',()=>{clearTimeout(timer);reject(failed('UI watchdog exited before readiness'))})
+   watcher.once('message',m=>{clearTimeout(timer);if(m?.type!=='watch-ready'||m.pid!==watcher.pid||m.group!==process.pid||JSON.stringify(m.lock)!==JSON.stringify(ownerLock))reject(failed('UI watchdog identity receipt mismatch'));else resolve()})
+  })
+  row.watchReady=true;save()
   if(signal.aborted)throw failed('UI owner cancelled before helper startup')
   service=await openService({evidenceDir:dir,signal,lockFd:3});row.helperPid=service.pid;save()
   if(signal.aborted)throw failed('UI owner cancelled before worker startup')
@@ -141,21 +161,31 @@ async function executeLease({payload,dir,ownerLock},signal,{openService,audit}){
   let cleanupError
   // A normally closed worker lets the native helper and its own internal
   // descendants drain first. Failed/cancelled workers must lose their clients.
-  row.workerGroupCleanup=!signal.aborted&&workerExit?.code===0&&!workerResult?.error?{group:process.pid,forced:false,remaining:[],deferredUntilHelperExit:true}:await reapGroup(process.pid,{excludeSelf:true,excludePids:service?[service.pid]:[]})
+  row.workerGroupCleanup=!signal.aborted&&workerExit?.code===0&&!workerResult?.error?{group:process.pid,forced:false,remaining:[],deferredUntilHelperExit:true}:await reapGroup(process.pid,{excludeSelf:true,excludePids:[service?.pid,watcher?.pid].filter(Boolean)})
   try{if(service){const receipt=await service.close();if(response)response.nativeInputService=receipt;row.nativeInputService=receipt}}catch(e){cleanupError=e.message}
-  row.groupCleanup=await reapGroup(process.pid,{excludeSelf:true})
+  row.groupCleanup=await reapGroup(process.pid,{excludeSelf:true,excludePids:watcher?.pid?[watcher.pid]:[]})
   // Current bundled backends can leave their own Git children after a normal
   // worker/native exit. Cooperative retirement is separate from native cleanup.
   // Unknown commands, escalation and every native-helper termination still fail.
   row.ancillaryGitRetired=!!response&&!!row.nativeInputService?.nativeHelperExited&&row.nativeInputService.helperExit?.code===0&&row.groupCleanup.forced&&!row.groupCleanup.escalated&&row.groupCleanup.terminated.length>0&&row.groupCleanup.terminated.every(p=>ancillaryGit(p.path))
   if(response)response.ancillaryCleanup=row.groupCleanup
   try{await audit({phase:'after-owner-lease',evidence:join(dir,'input-taps-owner-after.json')})}catch(e){cleanupError??=e.message}
+  if(watcher&&!watchExit){
+   watchDisarmed=true
+   if(watcher.connected)watcher.send({type:'disarm'},()=>{})
+   const end=Date.now()+4000
+   while(!watchExit&&Date.now()<end)await sleep(50)
+   if(!watchExit){watcher.kill('SIGKILL');cleanupError??='UI watchdog disarm timed out';for(let i=0;i<60&&!watchExit;i++)await sleep(25)}
+  }
+  row.watchExit=watchExit;row.watchDisarmed=watchDisarmed
+  if(watchExit?.code!==0||!watchDisarmed)cleanupError??='UI watchdog did not disarm normally'
+  if(response)response.owner.watcher={pid:watcher?.pid,exit:watchExit,disarmed:watchDisarmed}
   row.finishedAt=new Date().toISOString();row.workerExit=workerExit;row.cancelled=signal.aborted;row.closed=true;row.cleanupError=cleanupError;save()
   if(cleanupError||(row.groupCleanup.forced&&!row.ancillaryGitRetired)||row.workerGroupCleanup.forced)throw failed(cleanupError||'UI owner required forced resource cleanup',{evidence:path})
  }
 }
 
-export async function serveUiLeaseOwner({openService=openPrivateInputService,audit=assertInputHealthy}={}){
+export async function serveUiLeaseOwner({openService=openPrivateInputService,audit=assertInputHealthy,watcherScript=WATCH}={}){
  if(!process.send||!process.connected)throw failed('UI owner requires its caller lifetime channel')
  let groupVerified=false
  const groupReady=ownedGroupMembers(process.pid).then(pids=>groupVerified=pids.includes(process.pid)).catch(()=>false)
@@ -177,7 +207,7 @@ export async function serveUiLeaseOwner({openService=openPrivateInputService,aud
   if(m?.type!=='run'||started)return
   started=true;clearTimeout(startup)
   let value
-  try{if(!await groupReady)throw failed('UI owner must lead its private resource group');value=await executeLease(m,controller.signal,{openService,audit})}
+  try{if(!await groupReady)throw failed('UI owner must lead its private resource group');value=await executeLease(m,controller.signal,{openService,audit,abortOwner:abort,watcherScript})}
   catch(e){
    process.exitCode=1;value={error:{category:e.category||'ui_owner_failed',message:e.message,detail:e.detail}}
    // A failure inside teardown must not leave the owner alive with children.

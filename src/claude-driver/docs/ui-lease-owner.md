@@ -23,10 +23,24 @@ native exit fields remain unverified; emergency cleanup is a separate record.
 An owner-side cleanup deadline can kill its own group after20 seconds, preserving
 an emergency record. It cannot emit a successful receipt from that path.
 
-If caller and owner both die, inherited descriptors still fence live resources.
-The current test explicitly verifies refusal of a second lease, then cleans its
-own fixtures. Automatic recovery of that double-loss case is still unfinished.
-No universal always-on or physical-input clearance is claimed.
+Before native startup, the owner also establishes a checked live watchdog in
+that same group, with another copy of the inherited mutex and a separate Node
+IPC channel. It verifies its current process group, creator relationship and
+lock device/inode before acknowledging readiness. A refused or dead watchdog
+prevents startup or aborts the lease. No saved PID list authorizes recovery.
+
+If caller and owner both die, creator-channel EOF makes the surviving watchdog
+retire only peers in its own verified group, remove the validated abandoned
+socket and independently audit input resources. It retains the mutex through
+that work and writes ui-owner-orphan.json before exiting. The original operation
+stays failed/unknown, with normal native exit explicitly unverified; it is never
+replayed. Normal disarm requires all peers except the owner to have left.
+
+The synthetic rig covers individual controller loss, all three pairwise losses,
+invalid watchdog identity, ordinary cancellation and startup failure. A distinct
+successor lease executes only after orphan retirement, preserving the original
+failed evidence. Loss of all three control processes is still only fenced by
+surviving resources. No universal always-on or physical-input clearance is claimed.
 
 The owner allows a brief normal drain before sending signals. Process snapshots
 record only pid/ppid/group/state/executable path, not arguments or environments.
@@ -92,14 +106,37 @@ original four non-helper taps, old repo0203e604 clean, uv/caffeinate508/510
 unchanged, no auth copy or fixture stop marker. No typing, model inference,
 hook override or local CUA occurred. Quarantine stays blocked/hash9808e860.
 
+## Checked watchdog qualification
+
+Source182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6
+adds the watchdog above. Seventy-five focused checks and the final195-file
+isolated suite pass once68.519s, source/suite/installed identity frozen:
+pressure/v2-2026-10-18T20-58-45-590Z.json. The first focused
+run retained a test assertion failure: a killed caller cannot write a result
+file. Its actual double-owner cleanup and successor had already passed; the
+corrected assertion and additional invalid-identity case pass independently.
+
+Remote normal owner-native-1792357050383 passes fresh exact fixture acquisition,
+real turn/archive, helper4375 normal exit0, watchdog4372 disarm/exit0 and empty
+group4369. Thread01a150ce-2d15-77f3-8959-1e19fd7a67b1,
+turn01a150ce-309c-7953-9ded-2203a5f82c83.
+
+Remote double-loss owner-native-1792357057583 first verifies the current group
+and watchdog readiness after fresh read-only acquisition. Caller4471 is stopped,
+owner4473 killed, then caller4471 killed so its reciprocal cleanup cannot win.
+Watchdog4476 automatically retires remaining peers, removes the owned socket,
+passes the input audit and exits. A separate process acquires the same mutex.
+Host completion/archive remain false and native exit remains unverified.
+Thread01a150ce-4920-7201-8253-267ec42bc19a,
+turn01a150ce-4cbf-7b12-88ac-3306fb9ee554. No typing/model inference, hook override,
+permission/auth change or local CUA. Both fixtures stay empty and stop normally.
+Private watchdog-evidence mirror contains26 files/226292 bytes with hashes,
+exact source snapshots and saved contexts. Final remote has no owned processes,
+helper/filter/stop marker; original four taps, uv508/caffeinate510 and clean old
+repo0203e604 are preserved. Local quarantine remains blocked/hash9808e860.
+
 ## Remaining work
 
-Next address double-owner orphan recovery without bypassing the kernel fence.
-Qualify exact resource identity before signalling anything: group ownership,
-private socket/lease identity, process lifetime and descriptor identity. Stale
-PIDs or old metadata alone must not authorize reaping. Include a successor lease
-and unrelated processes in the tests; do not release the mutex by deleting it.
-Native owner-crash recovery is currently synthetic-tested, while native caller
-loss has the read-only proof above. Full computerUse focus/send behavior, actual
+Full computerUse focus/send behavior, actual
 loaded adoption, physical input, concurrent active input, in-flight input
 cancellation, cold startup and the completion audit remain separate gates.

@@ -16,12 +16,13 @@ import {audit} from './native-audit.mjs'
 const root='/Users/theo/.local/state/claude-driver/input-teardown-20261018'
 if(process.platform!=='darwin'||hostname().split('.')[0]!=='theo-air'||homedir()!=='/Users/theo'||!process.env.SSH_CONNECTION||JSON.parse(readFileSync(join(root,'owner.json'))).threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('remote owner refused')
 const mode=process.argv[2]||'normal'
-if(!['normal','caller-loss'].includes(mode))throw Error('unknown native gate mode')
+if(!['normal','caller-loss','double-owner-loss'].includes(mode))throw Error('unknown native gate mode')
 const run=join(root,'evidence','owner-native-'+Date.now()),home=join(run,'home'),backend=join(run,'backend'),state=join(run,'state')
 for(const p of [run,home,backend,state])mkdirSync(p,{recursive:true,mode:0o700})
 process.env.CLAUDE_DRIVER_STATE_DIR=state
 writeFileSync(join(state,'ui-quarantine.json'),JSON.stringify({blocked:false,scope:'authorized remote combined worker test'}))
 const {ownedGroupMembers}=await import('../../lib/ui-lease-owner.mjs')
+const {withLock}=await import('../../lib/state.mjs')
 const moduleUrl=name=>new URL('../../lib/'+name,import.meta.url).href
 const hash=b=>createHash('sha256').update(b).digest('hex')
 const receiptPath=join(root,'evidence/acquire-1792351052633.request-1.response.json'),receipt=JSON.parse(readFileSync(receiptPath)),original=JSON.parse(readFileSync(receiptPath.replace('.response.json','.pending.json')))
@@ -62,6 +63,12 @@ try{
     report.ownerIdentity=JSON.parse(readFileSync(join(backend,'ui-owner.json')))
     acquisitionVerified=outputs.length===2&&report.providerRequests[2].toolOutputs.at(-1).exactFixtureObserved&&report.afterAcquisition.helperProcesses.length===1&&report.afterAcquisition.helperProcesses[0].pid===report.ownerIdentity.helperPid&&report.afterAcquisition.fixtureProcessCurrent&&report.afterAcquisition.fixtureState.pid===fixture.pid&&report.afterAcquisition.fixtureState.characters===0
     if(!acquisitionVerified){report.acquisitionFailure='exact native result/owned helper/empty fixture not verified';res.writeHead(503).end();return}
+    if(mode==='double-owner-loss'){
+     const id=report.ownerIdentity,members=await ownedGroupMembers(id.ownerPid)
+     if(!id.watchReady||![id.watcherPid,id.helperPid,id.workerPid].every(pid=>members.includes(pid))||members.includes(child.pid))throw Error('live owned group/watch readiness not verified')
+     report.intentionalDoubleLoss={callerPid:child.pid,ownerPid:id.ownerPid,watcherPid:id.watcherPid,members,afterReadOnlyAcquisition:true}
+     child.kill('SIGSTOP');process.kill(id.ownerPid,'SIGKILL');child.kill('SIGKILL');res.destroy();return
+    }
     if(mode==='caller-loss'){
      report.intentionalCallerLoss={signal:'SIGKILL',callerPid:child.pid,ownerPid:report.ownerIdentity.ownerPid,afterReadOnlyAcquisition:true}
      child.kill('SIGKILL');res.destroy();return
@@ -95,12 +102,18 @@ try{
   report.ownerFinal=JSON.parse(readFileSync(ownerPath));report.remainingOwnerMembers=await ownedGroupMembers(id)
   report.closeReceipt=report.ownerFinal.nativeInputService
  }
+ const orphanPath=join(backend,'ui-owner-orphan.json')
+ if(existsSync(orphanPath))report.orphan=JSON.parse(readFileSync(orphanPath))
+ if(mode==='double-owner-loss'&&report.remainingOwnerMembers?.length===0){
+  await withLock('ui-automation',async()=>{report.successorLockAcquired=true},{timeoutMs:2000})
+ }
  report.afterClose=audit(root)
  report.hostTurnCompleted=report.worker?.result?.status==='completed'
  report.archiveAcknowledged=report.worker?.cleanup?.receipt?.archiveAcknowledged===true
  const closed=report.closeReceipt?.nativeHelperExited&&!report.closeReceipt.forcedTermination&&report.closeReceipt.helperExit.code===0&&report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureProcessCurrent&&report.afterClose.fixtureState.characters===0
  const expectedOutcome=mode==='normal'?code===0&&report.hostTurnCompleted&&report.archiveAcknowledged&&report.caller?.ok===true:signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&report.ownerFinal.cancelled===true
- report.ok=acquisitionVerified&&closed&&expectedOutcome&&report.ownerFinal.closed===true&&report.remainingOwnerMembers.length===0
+ const resourcesEmpty=report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureProcessCurrent&&report.afterClose.fixtureState.characters===0&&report.remainingOwnerMembers.length===0
+ report.ok=mode==='double-owner-loss'?acquisitionVerified&&signal==='SIGKILL'&&!report.hostTurnCompleted&&!report.archiveAcknowledged&&resourcesEmpty&&report.orphan?.phase==='retired'&&report.orphan.inputAuditPassed===true&&report.orphan.originalWorkCompleted===false&&report.orphan.normalNativeExitVerified===false&&report.successorLockAcquired===true:acquisitionVerified&&closed&&expectedOutcome&&report.ownerFinal.closed===true&&report.ownerFinal.watchDisarmed===true&&report.ownerFinal.watchExit?.code===0&&report.remainingOwnerMembers.length===0
 }catch(error){report.error={category:error.category,message:error.message};report.ok=false}
 finally{
  clearTimeout(timer)
@@ -114,6 +127,6 @@ finally{
  report.final=audit(root);report.stderr=stderr;report.finishedAt=new Date().toISOString()
  if(report.final.helperProcesses.length||report.final.helperKeyboardFilters.length||report.final.fixtureProcessCurrent||report.fixtureExit?.code!==0)report.ok=false
  writeFileSync(join(run,'report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx',mode:0o600})
- console.log(JSON.stringify({run,mode,ok:report.ok,error:report.error,cleanupError:report.cleanupError,acquisitionVerified,workerExit:report.workerExit,workerError:report.worker?.error,hostTurnCompleted:report.hostTurnCompleted,archiveAcknowledged:report.archiveAcknowledged,closeReceipt:report.closeReceipt,remainingHelpers:report.final.helperProcesses.length,remainingFilters:report.final.helperKeyboardFilters.length,fixtureExit:report.fixtureExit}))
+ console.log(JSON.stringify({run,mode,ok:report.ok,error:report.error,cleanupError:report.cleanupError,acquisitionVerified,workerExit:report.workerExit,workerError:report.worker?.error,hostTurnCompleted:report.hostTurnCompleted,archiveAcknowledged:report.archiveAcknowledged,closeReceipt:report.closeReceipt,orphan:report.orphan,successorLockAcquired:report.successorLockAcquired,remainingHelpers:report.final.helperProcesses.length,remainingFilters:report.final.helperKeyboardFilters.length,fixtureExit:report.fixtureExit}))
 }
 process.exitCode=report.ok?0:1
