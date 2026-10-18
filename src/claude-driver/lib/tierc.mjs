@@ -10,6 +10,7 @@ import {fileURLToPath} from 'node:url'
 import {DriverError} from './paths.mjs'
 import {assertUiAvailable} from './ui-policy.mjs'
 import {assertInputHealthy} from './input-health.mjs'
+import {openPrivateInputService} from './private-input-service.mjs'
 import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
 const WORKER=fileURLToPath(new URL('../scripts/tierc-worker.mjs',import.meta.url))
 
@@ -29,38 +30,50 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
     await assertInputHealthy({phase:'before-lease',evidence:join(dir,'input-taps-before.json')})
     assertUiAvailable()
     if(signal?.aborted)throw new DriverError('UI lease cancelled before startup',{category:'cancelled'})
-    const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe'],detached:true})
-    let output='',stderr='',stopped=false,timedOut=false,overflow=false,spawnError
-    const stop=()=>{stopped=true;try{process.kill(-child.pid,'SIGTERM')}catch{}}
-    const timer=setTimeout(()=>{timedOut=true;stop()},(Math.max(30,timeoutSec)+10)*1000)
-    const hard=setTimeout(()=>{try{process.kill(-child.pid,'SIGKILL')}catch{}},(Math.max(30,timeoutSec)+15)*1000)
-    const abort=()=>stop()
-    signal?.addEventListener('abort',abort,{once:true})
-    if(signal?.aborted)abort()
-    child.stdout.on('data',x=>{output+=x;if(Buffer.byteLength(output)>1024*1024){overflow=true;stop()}})
-    child.stderr.on('data',x=>{stderr=(stderr+x).slice(-64*1024);for(const line of x.toString().split('\n')){try{const r=JSON.parse(line);if(typeof r.progress==='string')progress(r.progress)}catch{}}})
-    child.stdin.on('error',()=>{})
-    child.stdin.end(payload)
-    const code=await new Promise(resolve=>{child.once('exit',resolve);child.once('error',e=>{spawnError=e.message;resolve(-1)})})
-    clearTimeout(timer);clearTimeout(hard);signal?.removeEventListener('abort',abort)
-    // A terminated worker may leave backend/MCP descendants. Its detached
-    // process group contains only this lease, never the shared daemon/app.
-    if(child.pid){try{process.kill(-child.pid,'SIGTERM')}catch{}}
-    let result
-    try{result=JSON.parse(output)}catch{}
-    const evidence=join(dir,'result.json')
-    writeJsonAtomic(evidence,{session,code,timedOut,stopped,overflow,spawnError,result,stderr})
-    // Backend exit is insufficient: the macOS helper can outlive its client.
-    // Audit even failed/cancelled leases; quarantine before another can start.
-    await assertInputHealthy({phase:'after-lease',evidence:join(dir,'input-taps-after.json')})
-    if(signal?.aborted)throw new DriverError('UI lease cancelled; inspect state before another send',{category:'cancelled',detail:{evidence}})
-    if(code!==0||result?.error||!result?.result||overflow||timedOut)throw new DriverError(`Tier C private worker failed: ${result?.error?.message||spawnError||(timedOut?'timeout':'invalid result')}`,{category:'tier_c_failed',detail:{evidence}})
-    if(result.execution?.transport!=='stdio'||result.execution?.privateStateDir!==dir)throw new DriverError('Tier C worker isolation could not be verified',{category:'tier_c_failed',detail:{evidence}})
-    let structured
-    if(outputSchema&&result.result.status==='completed'){
-      try{structured=JSON.parse(result.result.finalText)}catch{throw new DriverError('Tier C worker returned an invalid structured outcome',{category:'tier_c_failed',detail:{evidence}})}
+    let inputService
+    try{
+      inputService=await openPrivateInputService({evidenceDir:dir,signal})
+      const boundPayload=JSON.stringify({...JSON.parse(payload),inputService:inputService.binding})
+      if(Buffer.byteLength(boundPayload)>64*1024)throw new DriverError('UI task and input binding exceed worker bound',{category:'bad_args'})
+      const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe'],detached:true})
+      let output='',stderr='',stopped=false,timedOut=false,overflow=false,spawnError
+      const stop=()=>{stopped=true;try{process.kill(-child.pid,'SIGTERM')}catch{}}
+      const timer=setTimeout(()=>{timedOut=true;stop()},(Math.max(30,timeoutSec)+10)*1000)
+      const hard=setTimeout(()=>{try{process.kill(-child.pid,'SIGKILL')}catch{}},(Math.max(30,timeoutSec)+15)*1000)
+      const abort=()=>stop()
+      signal?.addEventListener('abort',abort,{once:true})
+      if(signal?.aborted)abort()
+      child.stdout.on('data',x=>{output+=x;if(Buffer.byteLength(output)>1024*1024){overflow=true;stop()}})
+      child.stderr.on('data',x=>{stderr=(stderr+x).slice(-64*1024);for(const line of x.toString().split('\n')){try{const r=JSON.parse(line);if(typeof r.progress==='string')progress(r.progress)}catch{}}})
+      child.stdin.on('error',()=>{})
+      child.stdin.end(boundPayload)
+      const code=await new Promise(resolve=>{child.once('exit',resolve);child.once('error',e=>{spawnError=e.message;resolve(-1)})})
+      clearTimeout(timer);clearTimeout(hard);signal?.removeEventListener('abort',abort)
+      // A terminated worker may leave backend/MCP descendants. Its detached
+      // process group contains only this lease, never the shared daemon/app.
+      if(child.pid){try{process.kill(-child.pid,'SIGTERM')}catch{}}
+      let result
+      try{result=JSON.parse(output)}catch{}
+      const evidence=join(dir,'result.json')
+      writeJsonAtomic(evidence,{session,code,timedOut,stopped,overflow,spawnError,result,stderr})
+      // Observe this exact owned helper's exit before returning any UI receipt.
+      const nativeInputService=await inputService.close()
+      if(signal?.aborted)throw new DriverError('UI lease cancelled; inspect state before another send',{category:'cancelled',detail:{evidence}})
+      if(code!==0||result?.error||!result?.result||overflow||timedOut)throw new DriverError(`Tier C private worker failed: ${result?.error?.message||spawnError||(timedOut?'timeout':'invalid result')}`,{category:'tier_c_failed',detail:{evidence}})
+      if(result.execution?.transport!=='stdio'||result.execution?.privateStateDir!==dir||result.execution?.inputServiceSocket!==inputService.binding.socketPath||result.execution?.mcpAdmission?.serverName!=='cua_repl')throw new DriverError('Tier C worker isolation could not be verified',{category:'tier_c_failed',detail:{evidence}})
+      let structured
+      if(outputSchema&&result.result.status==='completed'){
+        try{structured=JSON.parse(result.result.finalText)}catch{throw new DriverError('Tier C worker returned an invalid structured outcome',{category:'tier_c_failed',detail:{evidence}})}
+      }
+      return {status:result.result.status,text:result.text,evidence,metrics:result.result.metrics,execution:{...result.execution,nativeInputService},structured}
+    }finally{
+      try{if(inputService)await inputService.close()}
+      finally{
+        // Audit failures/cancellation/startup refusal too, without retiring a
+        // different caller's helper or clearing a human quarantine.
+        await assertInputHealthy({phase:'after-lease',evidence:join(dir,'input-taps-after.json')})
+      }
     }
-    return {status:result.result.status,text:result.text,evidence,metrics:result.result.metrics,execution:result.execution,structured}
   },{signal})
 }
 

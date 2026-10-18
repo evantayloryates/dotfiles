@@ -4,6 +4,20 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`worker-handoff.mjs <owned evidence parent>` runs the actual private worker and
+bundled app-server against a harmless MCP fixture and deterministic localhost
+provider. It never starts CUA or a helper. Its effect proof reads only the scoped
+socket/startup/home/surface environment; a completed turn without that effect
+fails. Each run keeps its own failure report. No hook review override is used.
+
+`service-lifecycle.mjs` is restricted to the exact Theo Air test owner. It runs
+the production helper factory with the signed copied runtime, then performs one
+public read-only fixture acquisition using the existing exact human app grant.
+It observes normal client/helper exit and independent tap inventories. The
+orchestrator removes its own fixture stop marker only after fixture exit. This
+is a factory/native seam gate, not an actual worker or typing test. See
+[production preparation](../../docs/private-ui-service.md) for boundaries.
+
 `host-context.mjs` adds actual ephemeral Codex host turns through a deterministic
 localhost Responses fixture, without inference or account credentials. Default
 app-server mode preserves normal hook trust. `--exec-entry --review-receipt`
@@ -101,6 +115,11 @@ helper may remain. See [isolation evidence](../../docs/native-helper-isolation.m
 for retained failures and remaining gates. The actual typing run uses the final
 guarded source preserved in its report; earlier standalone read-only runs retain
 their own pre-hardening source hashes.
+
+`--no-shared-startup` requires that isolated socket and a missing owned sentinel
+app. The intentionally unavailable-socket probe verifies acquisition refuses
+without launching any helper. It does not turn the failed acquisition into a
+successful operation.
 
 `host-context.mjs --abort-after-typing` requires the reviewed native/private-pipe
 case. After independent typed-effect and active-filter verification, it kills

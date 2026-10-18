@@ -1,3 +1,52 @@
+## October 18 private input service integrated; worker/config and native seams pass
+
+PROGRESS: source5fea88597ffafba529d1c2ea089252e1629b5cfe3603220eef73d4f8af75a359
+adds exact helper child/socket ownership to the existing Tier C supervisor. Six
+reviewed critical file hashes plus signature, private parent/socket uid/type and
+lsof exact PID are verified before handoff. Worker uses scoped public thread/start
+config with one explicit CUA MCP, both duplicate plugins disabled and exclusive
+roster admission before the model turn. Socket plus deliberately absent startup
+app are explicit MCP env; plugin inheritance is not assumed. Owned helper normal
+exit and post-audit precede success; forced child cleanup remains failed. No
+global settings, hook trust, native permissions or local quarantine changed.
+
+Missing-private-socket remote probe disabled-startup-1792354150573 passed the
+refusal boundary: acquisition failed/client1 as expected, no helper appeared and
+fixture stayed empty. Actual worker/bundled backend harmless MCP gate
+worker-handoff-qUPVwK independently read exact private env, completed one tool
+and actual turn/archive. Earlier failed fixture JSON-RPC envelope and outer
+MCP approval runs stay failed. Scoped default tool approve now admits only the
+three enabled entrypoints; native per-app/person and bridge policy gates remain.
+Official docs setting checked; no production hook-review override added.
+
+Remote service-lifecycle-1792354767849 passed actual production factory + public
+CUA read-only acquisition. Signed helper3236 bound its verified private socket,
+client exit0 preceded normal helper exit0, and no helper/filter remained while
+fixture stayed alive and empty. Fixture then stopped normally0. No typing,
+helper signal or target quit was used to obtain passing cleanup. This is a
+factory/native seam; actual worker/config proof is the separate harmless gate.
+Detailed behavior, failed runs and limits: docs/private-ui-service.md.
+
+Fifteen focused checks pass. Full193-file isolated suite passes once in68.023s
+on frozen source/suite/installed identity: pressure/v2-2026-10-18T20-21-08-552Z.json.
+Sibling/source hashes: native-owner-20261018/private-service-source.json.
+Service candidate memoryaa8d065c records the bounded result and remaining gates.
+Nine remote files/76326 bytes mirrored/hash-verified in production-service-evidence.
+Final remote state: no owned native process/filter, original four non-helper taps,
+old repo0203e604 clean and original uv/caffeinate508/510 unchanged. Guessed
+launchctl label checks returned113/unavailable, not service-state proof. No auth
+file copy. Local quarantine still blocked/hash9808e860. All owned handles/cleanup
+terminal. Loaded actual-MCP source adoption remains a future gate.
+
+NEXT changed condition: combine the actual worker and owned helper in one remote
+read-only fixture run, with the existing exact human fixture authorization and
+explicit isolated test app policy. Do not broaden production Claude targets or
+fake app identity/consent. Then native timeout/cancellation ownership. Physical
+keyboard behavior, simultaneous active input, supervisor SIGKILL, real Claude,
+local quarantine release, cold startup and full audit remain open. Keep goal
+ACTIVE. Broad Codex bridge fixes/1Password remain parked. No interim typing or
+full-suite repetition without a relevant change; no restart requested now.
+
 ## October 18 abrupt private-owner cleanup passes; worker process group corrected
 
 PROGRESS: changed-condition abrupt native test1792353698562 passed cleanup.

@@ -15,6 +15,7 @@ const expectedHost=option('--expected-host'),workspace=option('--workspace'),pha
 const relayApproval=args.includes('--relay-approval')
 const humanApproval=option('--human-approval')
 const isolatedPipe=option('--isolated-pipe')
+const noSharedStartup=args.includes('--no-shared-startup')
 if(process.platform!=='darwin'||expectedHost!=='theo-air'||hostname().split('.')[0]!==expectedHost||
    homedir()!=='/Users/theo'||!process.env.SSH_CONNECTION||
    workspace!=='/Users/theo/.local/state/claude-driver/input-teardown-20261018'||
@@ -27,6 +28,7 @@ if(isolatedPipe){
     if(!parent.isDirectory()||parent.isSymbolicLink()||parent.uid!==process.getuid()||(parent.mode&0o077)!==0||
        !socket.isSocket()||socket.isSymbolicLink()||socket.uid!==process.getuid())throw Error('isolated pipe ownership refused')
 }
+if(noSharedStartup&&(!isolatedPipe||existsSync(join(workspace,'isolate','startup-disabled.app'))))throw Error('disabled startup sentinel refused')
 if(humanApproval&&(!humanApproval.startsWith(join(workspace,'evidence')+'/')||
    !humanApproval.endsWith('.response.json')||humanApproval.includes('/../')))throw Error('human approval path refused')
 const target=join(workspace,'fixture','ClaudeDriverInputFixture.app')
@@ -39,6 +41,7 @@ if(!existsSync(sourceEvidence))writeFileSync(sourceEvidence,source,{flag:'wx',mo
 const lifecycle=['teardown','typing','hold'].includes(phase)
 const report={scope:'remote-input-teardown',phase,host:expectedHost,workspace,target,
     isolatedPipe,
+    noSharedStartup,
     harnessSha256,sourceEvidence,
     startedAt:new Date().toISOString(),modelCallsRequested:0,localDesktopAccessed:false,
     consentAnswered:false,nativeInputReleaseAssessed:false,ok:false}
@@ -75,7 +78,8 @@ const child=spawn(join(runtime,'bin','node'),[join(runtime,'lib','node_modules',
         NODE_REPL_NODE_MODULE_DIRS:join(runtime,'lib','node_modules'),
         NODE_REPL_TRUSTED_CODE_PATHS:join(runtime,'lib','node_modules'),
         NODE_PATH:join(runtime,'lib','node_modules'),
-        ...(isolatedPipe?{SKY_CUA_SERVICE_NATIVE_PIPE_PATH:isolatedPipe}:{})
+        ...(isolatedPipe?{SKY_CUA_SERVICE_NATIVE_PIPE_PATH:isolatedPipe}:{}),
+        ...(noSharedStartup?{SKY_CUA_SERVICE_PATH:join(workspace,'isolate','startup-disabled.app')}:{})
     }})
 let stderr='',exit
 child.stderr.on('data',b=>{stderr=(stderr+b).slice(-65536)})
@@ -154,6 +158,7 @@ try{
         const timeout=relayApproval&&!humanApproval?320000:20000
         report.acquisition=await peer.request('tools/call',{name:'js',arguments:{code:'var fixture = await cua.getApp('+JSON.stringify(target)+');',title:'Inspect isolated input fixture',timeout_ms:timeout}},{timeoutMs:timeout+5000})
         report.ok=report.acquisition?.isError!==true
+        if(lifecycle)report.afterAcquisition=audit()
         if(lifecycle&&report.ok){
             const text=report.acquisition.content?.filter(c=>c.type==='text').map(c=>c.text).join('\n')??''
             if(!text.includes('Claude Driver Input Teardown Fixture')||!text.includes('claude-driver-test-editor'))throw Error('exact fixture AX state not verified')

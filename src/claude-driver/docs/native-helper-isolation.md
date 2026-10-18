@@ -69,20 +69,16 @@ Private mirror:
 The manifest verifies31 files/346560 bytes, including failures, source snapshots,
 real context, intent/hash, socket ownership, tap inventories and final readback.
 
-## Next production boundary
+## Production preparation checkpoint
 
-The [abrupt-owner test](ui-worker-process-ownership.md) now qualifies forced CLI
-loss with the default client and fixture retained. The worker's separate backend
-group was also corrected and isolated-tested. Next integrate ownership into the existing
-private Tier C worker: exact private helper/socket binding, observed child exit
-before acknowledgement, independent tap audit, and no shared-helper fallback.
-Reuse the existing bridge and leave unrelated Codex work parked. Do not enable
-local UI or clear the human quarantine during preparation.
-
-The production worker currently uses the bundled plugin's normal server config.
-The diagnostic's explicit MCP environment does not prove plugin workers inherit
-this override. Qualify that handoff through the actual worker/configuration path;
-do not assume process environment inheritance or add a parallel bridge.
+The [abrupt-owner test](ui-worker-process-ownership.md) qualifies forced CLI loss
+with the default client and fixture retained. The worker's separate backend group
+was corrected and isolated-tested. The later [private UI service](private-ui-service.md)
+integrates exact helper/socket ownership and explicit public thread configuration.
+Actual worker/MCP fixture handoff and actual factory/native read-only lifecycle
+pass as separate gates; their combined native worker path remains unqualified.
+The missing startup sentinel now has a passing remote refusal test. Existing
+plugin environment inheritance is not assumed. No local quarantine was cleared.
 
 Physical typing, simultaneous active input by another caller, real Claude,
 production-worker timeout teardown and unattended cold startup remain unqualified.

@@ -431,8 +431,13 @@ exact readback before one Return. Structured send claims still require
 verified broker liveness. Each lease records transport/version, metrics and
 private evidence; the worker explicitly archives its temporary backend thread before closing
 the process connection. Backend exit or JS reset alone did not prove removal
-of the shared native helper's keyboard filters. UI fallback remains quarantined
-until that lifecycle is qualified.
+of the shared native helper's keyboard filters. The prepared
+[private input service](docs/private-ui-service.md) now owns one signed helper
+and verified private socket per lease, explicitly binds the worker's sole CUA
+MCP to it, refuses shared startup, and requires normal helper exit plus a native
+audit before success. Actual worker/config and factory/native read-only gates
+pass separately. Their combined native worker path, physical input and timeout
+qualification remain open; UI fallback stays quarantined.
 
 ## Focus policy
 

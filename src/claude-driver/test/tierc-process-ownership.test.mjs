@@ -6,6 +6,7 @@ import {join} from 'node:path'
 import {spawn,execFileSync} from 'node:child_process'
 import {once} from 'node:events'
 import {spawnStdioTransport} from '../../codex-bridge/lib/transport.mjs'
+import {syntheticInputBinding,syntheticInputRoster} from './private-input-fixture.mjs'
 
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
 const group=pid=>Number(execFileSync('/bin/ps',['-p',String(pid),'-o','pgid='],{encoding:'utf8'}).trim())
@@ -24,14 +25,14 @@ if(process.argv.includes('--version')){console.log('codex-cli 0.160.0-fixture');
 const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});
 const pg=pid=>Number(execFileSync('/bin/ps',['-p',String(pid),'-o','pgid='],{encoding:'utf8'}).trim());
 createInterface({input:process.stdin}).on('line',line=>{const r=JSON.parse(line);if(r.id===undefined)return;
-const result=r.method==='thread/start'?{thread:{id:'owned-thread'},model:'synthetic'}:r.method==='turn/start'?{turn:{id:'owned-turn'}}:{};
+const result=r.method==='thread/start'?{thread:{id:'owned-thread'},model:'synthetic'}:r.method==='turn/start'?{turn:{id:'owned-turn'}}:r.method==='mcpServerStatus/list'?${JSON.stringify(syntheticInputRoster())}:{};
 console.log(JSON.stringify({id:r.id,result}));
 if(r.method==='turn/start')writeFileSync(${JSON.stringify(ready)},JSON.stringify({workerPid:process.ppid,backendPid:process.pid,descendantPid:child.pid,workerGroup:pg(process.ppid),backendGroup:pg(process.pid),descendantGroup:pg(child.pid)}));
 });
 `,{mode:0o700})
  const sentinel=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'})
  const worker=spawn(process.execPath,['src/claude-driver/scripts/tierc-worker.mjs'],{detached:true,stdio:['pipe','ignore','ignore'],env:{...process.env,CODEX_HOME:root,CODEX_BRIDGE_CODEX_PATH:bin,CODEX_BRIDGE_STATE_DIR:join(root,'backend-state'),CLAUDE_DRIVER_STATE_DIR:state}})
- worker.stdin.end(JSON.stringify({task:'synthetic pending turn',timeoutSec:30}))
+ worker.stdin.end(JSON.stringify({task:'synthetic pending turn',timeoutSec:30,inputService:syntheticInputBinding(root)}))
  let identity
  try{
   await waitFor(()=>existsSync(ready));identity=JSON.parse(readFileSync(ready,'utf8'))
