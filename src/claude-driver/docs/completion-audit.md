@@ -82,9 +82,13 @@ retained. Codex-driver and 1Password work remain separate.
 
 ## Next changed condition
 
-Loaded-client adoption is now closed. Taylor resumed the goal and its actual
-status is ACTIVE; the previous blocked audit does not carry over. There is no
-remaining Codex restart request and no test process or fixture cleanup pending.
+Loaded-client adoption is now closed. After the user resume, the same native
+startup blocker persisted through three consecutive goal turns, independently
+revalidated against unchanged installed handlers and the actual saved app-quit
+readback. The resumed blocked audit is satisfied; the goal is BLOCKED, not
+complete. There is no remaining Codex restart request, live test process or
+fixture cleanup pending. Taylor's direction is requested on whether to unpark
+the separate input-defect investigation; UI stays disabled during investigation.
 
 The remaining always-on startup, natural-pressure and person-gate requirements
 need a changed supported platform ingress or an independently resolved quarantine;

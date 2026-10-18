@@ -1,3 +1,27 @@
+## October 18 resumed audit 3: blocked on unattended native startup
+
+Same startup barrier persists in three consecutive resumed goal turns, including
+the adoption turn and the prior no-progress continuation. Previous turn was NO
+PROGRESS, not a verified wait. Revalidated current sourcefcf484e3, installed
+app2.42304.0/CLI2.1.299 and exact resume/machine-tool handler hashes unchanged;
+actual appquit readback still automaticAppRestartQualifiedfalse,
+humanStartupRequiredtrue, originalTargetReplayedfalse. No owned test process or
+unknown live request is being treated as an active wait. Full goal NOT complete.
+
+Blocked audit satisfied; mark actual goal BLOCKED after publishing this
+checkpoint. Await supported Claude all-processes-absent startup ingress or
+Taylor's explicit architecture/scope direction. A concise question now asks
+whether to investigate the separate duplicate-typing defect while keeping UI
+disabled. Current objective leaves Codex bridge fixes parked, so do not start
+that work without Taylor's answer. Neither investigation nor a reply alone
+authorizes disabling quarantine or injecting input. No new restart request.
+
+No source code, native effects, tests, permission/auth changes, app wakes,
+process termination or fixture cleanup performed. Working/recovered actors and
+observer broker retained. completion-audit.md preserves every unproven gate.
+Only a changed condition or explicit user resumption should restart goal work;
+never treat this saved checkpoint as a running/scheduled continuation.
+
 ## October 18 resumed audit 2: unchanged startup boundary, no progress
 
 Previous turn was progress: closed actual loaded-MCP adoption, published3017348.
