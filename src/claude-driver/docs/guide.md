@@ -2427,3 +2427,8 @@ Recovery planning distinguishes `saved-service-session-missing` with a fixed act
 role from `offline-pair-evidence-unqualified` with a fixed inspection phase.
 Missing records do not prove deletion. Neither diagnosis authorizes replacement,
 replay or startup; automatic refusal is durably checkpointed before dispatch.
+
+Pair bootstrap import observations retain a bounded first/changed/final native
+startup snapshot. `native-peer-unobserved` does not establish a trust gate or
+crash. `native-input-required` means an observed waiting peer; native consent
+remains human. Successful import alone never qualifies startup or serving.

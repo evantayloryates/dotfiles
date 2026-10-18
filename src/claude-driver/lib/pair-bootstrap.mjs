@@ -1,3 +1,4 @@
+import {waitPairImportEpoch} from './pair-import-observation.mjs'
 import {pairBootstrapSourceActors} from './interrupted-renewal-lineage.mjs'
 import {claimPairBootstrapContinuation} from './pair-bootstrap-claim.mjs'
 import {inspectPairImportContinuation,pairBootstrapRootDigest} from './pair-bootstrap-continuation.mjs'
@@ -16,7 +17,7 @@ import {loadReceiverSelection,readReceiverFile} from './receiver-runtime-selecti
 import {inspectIndependentService,readIndependentService} from './independent-service-result.mjs'
 import {recoveryRoleFromHistory,recoveredRoleMatches} from './recovery-role.mjs'
 import {waitIndependentReadiness} from './independent-service-renew.mjs'
-import {pairImportEpochQualified,readPairBootstrapRoot,pairMetadataEnrollmentMatches} from './pair-bootstrap-proof.mjs'
+import {readPairBootstrapRoot,pairMetadataEnrollmentMatches} from './pair-bootstrap-proof.mjs'
 import {unarchiveViaLink} from './tiera.mjs'
 import {withFocus} from './focus.mjs'
 import {DriverError,versions,sleep} from './paths.mjs'
@@ -78,7 +79,7 @@ export async function bootstrapIndependentPair(primary,expectedSha256,{jobId,sig
     retire:role=>child('retire-'+role,'broker_service_retire',{session:binding[role].sessionId,service_id:sources[role].serviceId,experimental:true,offline:true}),
     importActor:async role=>{
      const e=binding[role],startedAt=Date.now();ledger.newEffectsStarted=true;save();ledger.importIntents??={};if(ledger.importIntents[role])throw Error('import already attempted');ledger.importIntents[role]={startedAt,sessionId:e.sessionId,cliSessionId:e.sessionId.slice(6),dispatchMayOccur:true};save()
-     const {result,focus}=await withFocus('restore',async()=>{const imported=await unarchiveViaLink(getRecord(e.sessionId));if(!imported.ok)throw Error('pair import did not verify saved unarchive');const end=Date.now()+30000;for(;;){if(signal?.aborted)throw Error('import observation cancelled');const peer=peerRecord(e.sessionId),record=getRecord(e.sessionId);if(pairImportEpochQualified({old:e,record,peer,oldPidAbsent:inspectNativeResourcePid(e.pid)===null,startedAt,observedAt:Date.now()})){epochs[role]={sessionId:e.sessionId,cwd:e.cwd,pid:peer.pid,procStart:peer.procStart};return {...imported,newEpochVerified:true,epoch:epochs[role],startedAt,observedAt:Date.now(),processStartAttribution:'bounded-import-window',servingQualified:false}}if(peer?.status==='waiting')throw Error('native person input required');if(Date.now()>=end)throw Error('import completed without qualified native startup');await sleep(100)}} ,{target:e.sessionId});delete result.navigatedTo;return {...result,focus}
+     const {result,focus}=await withFocus('restore',async()=>{const imported=await unarchiveViaLink(getRecord(e.sessionId));if(!imported.ok)throw Error('pair import did not verify saved unarchive');const observed=await waitPairImportEpoch({old:e,startedAt,signal},{now:Date.now,record:()=>getRecord(e.sessionId),peer:()=>peerRecord(e.sessionId),oldPidAbsent:()=>inspectNativeResourcePid(e.pid)===null,wait:()=>sleep(100),checkpoint:async observation=>{ledger.importObservations??={};ledger.importObservations[role]=observation;save()}});epochs[role]=observed.epoch;return {...imported,newEpochVerified:true,...observed,processStartAttribution:'bounded-import-window',servingQualified:false}} ,{target:e.sessionId});delete result.navigatedTo;return {...result,focus}
     },
     prepare:async role=>{const r=await child('prepare-'+role,'broker_service_prepare',{session:binding[role].sessionId,experimental:true,lifetime_sec:3600,max_requests:32,...ledger.snapshots[role].role.prepareArguments});prepared[role]=r.serviceId;return r},
     activate:async(role,id)=>{const r=await child('activate-'+role,'broker_service_activate',{session:binding[role].sessionId,service_id:id,experimental:true,stable_hook:true,cold_rebind:true});activated[role]=id;return r},

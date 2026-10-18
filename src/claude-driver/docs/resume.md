@@ -1,3 +1,27 @@
+## October 18 native import observation logging
+
+Primary/standby peers independently rechecked: both absent; requested person ready
+has not yet produced native startup. Original appquit failure/root remain intact.
+Added pair-import-observation helper to existing bootstrap import wait: records
+fixed saved identity/archive/bypass/old PID absence, peer presence/status/epoch,
+observation time and qualification reason. Checkpoints first/changed/final sample,
+not every100ms poll. No transcript, arbitrary error string, inferred trust/crash,
+new import attempt or serving claim. Checkpoint failure stops acceptance. Same
+exact pairImportEpochQualified gate and30sec startup window retained.
+
+Focused observation/bootstrap/continuation14 PASS (absent timeout, waiting person
+input, exact idle epoch vs reused PID, persistence failure/cancellation, preserved
+ordered effect and continuation guards). Prior consolidated suite is earlier
+source; no new native test or full suite repeat. No original failed-root rewrite.
+
+Next remains human ready in Claude Code transport scratch; then observe new idle
+primary epoch and inspect exact failed-root continuation for jfebd09b9631e4da5bceea4ece86b0b98,
+rootSha83f86cb0b39ff49d9d55fcb6a64557c4900e7b06ac9cbdb545c429ee576e6150,
+enrollment9aebc5d47bc7c30046197611decc5c8f206a04c7d313fc3db6f0881472bcc0e2.
+Do not replay primary import or parent pin. Both old services retired, bridge
+serving still DOWN; no live jobs. Deleted-service authority rebind and actual
+loaded-MCP adoption remain separate open requirements. Goal active.
+
 ## October 18 actual app-quit gate failed at native startup
 
 Strategic test after independent pair preconditions: both exact peers idle,
