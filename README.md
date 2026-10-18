@@ -297,7 +297,10 @@ Reload an existing shell with `reload`, or open a new shell.
 ### Save the clipboard with `cs`
 
 `cs [name]` (or `clipsend [name]`) saves clipboard content to `~/Desktop`,
-prints the saved path, and copies that path back to the clipboard.
+prints the saved path, and copies that absolute path back to the clipboard. If
+the saved file passes the same content-based image check used by `o`, `cs` also
+renders it with Chafa in the terminal. The preview does not change the path on
+the clipboard; directories and other file types are saved without a preview.
 
 ```zsh
 cs my-json-results  # Valid JSON -> ~/Desktop/my-json-results.json

@@ -795,7 +795,10 @@ export const OPS = [
       const mine = !!reg.folders[folder] || underFolder(folder, stateDir)
       const recs = allRecords({ includeArchived: false }).filter((r) => underFolder(r.cwd, folder) || underFolder(r.originCwd, folder))
       const brokerId = brokerInfo().sessionId
-      const targets = recs.filter((r) => r.sessionId !== brokerId && r.sessionId !== callerHostSession())
+      const enrollment=(await import('./session-management-controller.mjs')).readSessionManagementEnrollment()
+      const standby=enrollment?(await import('./standby-enrollment.mjs')).readStandbyEnrollment(enrollment.controllerSession):null
+      const {projectArchiveSelection,requireCompleteProjectArchive}=await import('./project-archive-control.mjs')
+      const {targets,excluded}=projectArchiveSelection(recs,[brokerId,callerHostSession(),enrollment?.controllerSession,standby?.standby?.sessionId])
       const gate = []
       if (!scratch && !mine) {
         if (existsSync(join(folder, '.git'))) {
@@ -810,7 +813,7 @@ export const OPS = [
         if (withPr.length) gate.push(`${withPr.length} sessions with open PRs`)
         gate.push('not a scratch, driver-state or driver-created folder')
       }
-      const plan = { folder, class: scratch ? 'scratch' : mine ? 'driver' : 'user', sessions: targets.map((r) => ({ sessionId: r.sessionId, title: r.title })), gate }
+      const plan = { folder, excluded, class: scratch ? 'scratch' : mine ? 'driver' : 'user', sessions: targets.map((r) => ({ sessionId: r.sessionId, title: r.title })), gate }
       if (args.dry_run !== false) return { dryRun: true, ...plan, wouldProceed: !gate.length || !!args.override }
       if (gate.length && !args.override) throw new DriverError(`refused: ${gate.join('; ')}. Ask Taylor; pass override:true only with his explicit approval.`, { category: 'gate_project', detail: plan })
       const ops = targets.map((r) => ({ op: 'archive_session', args: { session_id: r.sessionId, reason: `claude-driver archive_project ${folder}` } }))
@@ -819,6 +822,7 @@ export const OPS = [
       if (b.handback) return b.handback
       await sleep(1000)
       const archived = targets.filter((r) => getRecord(r.sessionId)?.isArchived).map((r) => r.sessionId)
+      requireCompleteProjectArchive(targets.map(r=>r.sessionId),archived)
       let folderDeleted = false
       if (args.delete_folder) {
         if (!(reg.folders[folder]?.kind === 'temp' || reg.folders[folder]?.kind === 'probe')) throw new DriverError('delete_folder only applies to driver-created temporary folders', { category: 'gate_project' })

@@ -1,4 +1,5 @@
 #!/bin/zsh
+source "$DOTFILES_DIR/src/lib/terminal-image.sh"
 
 # Echo a path in $1 for name $2 that does not exist yet, adding -1, -2, ...
 # before the extension until it is free.
@@ -201,6 +202,10 @@ clipsend() {
     echo '❌ Files saved, but their paths could not be copied to the clipboard' >&2
     return 1
   fi
+  # Preview saved images without changing the absolute paths now on the clipboard.
+  for out in "${outs[@]}"; do
+    __terminal_image_preview "$out" || :
+  done
   printf '%s\n' "${outs[@]}"
   if (( ${#outs} > 1 )); then
     echo '✅ File paths copied to clipboard'

@@ -170,7 +170,7 @@ async function main(){
    let metadataTarget,sessionTarget
    if(ordinarySessionBindingRequired(request,pointer,index)){
     if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
-    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId),peer:request.ops[index].op==='stop_session'||request.nativeSessionSendEpoch?peerRecord(request.nativeSessionTargetBinding?.sessionId):undefined})
+    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId),controllerRecord:getRecord(pointer.sessionId),peer:request.ops[index].op==='stop_session'||request.nativeSessionSendEpoch?peerRecord(request.nativeSessionTargetBinding?.sessionId):undefined})
     if(!sessionTarget)throw Error('ordinary session target identity or grant')
    }else if(isMetadataOperation(request.ops[index].op)||Object.hasOwn(request,'nativeMetadataTargetBinding')){
     if(manifest?.nativeMetadataTargetVersion!==1||pointer.nativeMetadataTargetVersion!==1)throw Error('metadata target capability')

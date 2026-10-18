@@ -1684,3 +1684,46 @@ both-absent bootstrap/natural-pressure/final MCP gates. Current ordinary interru
 is now qualified; do not repeat its messages or old standalone stop/archive tests.
 Goal ACTIVE. Native and synthetic handles terminal, target/controller live idle.
 Codex-driver work stays parked and 1Password separate.
+
+## October 17 account-store admission and project cleanup safeguards
+
+Previous turn = progress (ordinary interrupt native982 + same-source integration).
+Project archive audit found its batch still legacy-dependent and two safety gaps:
+generic selection could include independent service actors, and folder cleanup
+could follow partial saved archive success. Added project-archive-control:
+exclude configured legacy/caller/management-primary/retained-standby identities in
+dry-run and actual selection, report excluded identities, require EXACT complete
+unique archived target set before cleanup. Partial saved success now yields
+outcome_unknown with archived/notArchived/folderDeletedfalse; no folder removal.
+Dry-run/scratch/user override/delete_folder gates remain intact. No new deletion,
+archive or sidebar authority. Native project batch routing remains NEXT work.
+
+Audit also found ordinary binding hashed target account/org store but never
+compared it with controller store. Added ordinarySessionsSameStore: exact controller
+identity and app record store must match. Check before maintenance, repeat while
+maintaining, and independently check actual target/controller records at native
+PreToolUse. New requests retain nativeSessionControllerStoreHash; admission retains
+controllerStoreHash and receipt review requires agreement with exact target binding.
+Historical requests lacking the new field retain their original exact shape; no
+retroactive proof invented and old settled histories remain reviewable.
+
+All ordinary maintenance now requires current source before this new account-proof
+request shape. Direct ordinary native read preflight refuses mismatched source.
+Old loaded hooks cannot silently dispatch then omit the account proof. Renewal
+retains existing roles/grants/epoch; foreign/unverified accounts refuse BEFORE
+maintenance/native effects. Installed native982 remains historical this turn;
+no native source update or message required for this interim source gate.
+
+Focused33 PASS (project/account + actual isolated MCP regression), ~12.8sec. The
+actual archive_project fixture returns native success but leaves one target saved
+unarchived: cleanup refused and work canary remained. Focused26 receipt/history/
+maintenance PASS; changed JS syntax/diff pass. Old native same-account results are
+not negative cross-account gate proof; that new boundary is currently synthetic.
+No real project archived, folder deleted, app restarted, CUA/permissions changed,
+new chat/message or full suite repeated. Goal ACTIVE; all test handles terminal.
+
+NEXT concrete step: durable project batches via independent archive per exact
+preselected target with distinct retained IDs, sequential failure-stop and no
+cleanup until every saved postcondition is proven. Keep current service actors
+excluded. Group/window/person/both-absent/pressure/final loaded-MCP gates remain.
+Codex-driver stays parked; 1Password separate.

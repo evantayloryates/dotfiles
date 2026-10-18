@@ -1810,3 +1810,16 @@ before effects to support the new epoch binding. Pending/unknown outcomes stop t
 sequence without replay. Queue mode remains a normal queued send. This sequence passed native stop/replacement receipts, original-epoch admission
 and native sender/body/cursor/ancestry reply qualification on source982ab2f. The
 returned message ID is not linked to the recipient journal.
+
+### Account scope and project cleanup
+
+Ordinary native actions require target and controller records from the same
+account/org store, checked before maintenance and again at native admission. New
+receipts retain controller-store proof; historical receipts keep their old format.
+The controller renews to current source before using that proof.
+
+archive_project excludes the caller and configured legacy/independent service
+actors. Its dry run lists those exclusions. Folder cleanup is refused unless the
+exact selected target set is independently saved archived; a partial outcome
+returns archived/notArchived with folderDeleted:false and no replay permission.
+This safeguard does not yet replace the legacy project batch transport.

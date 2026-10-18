@@ -2,25 +2,20 @@
 # `kitten` binary rather than the `kitty +kitten` launcher: kitten negotiates
 # the Kitty graphics protocol with whatever terminal it is running under, and
 # Ghostty implements that protocol, so this works in both.
+source "$DOTFILES_DIR/src/lib/terminal-image.sh"
+
 _term_image() {
   /Applications/kitty.app/Contents/MacOS/kitten icat "$@"
 }
 
-__o_is_chafa_image() {
-  [[ -f "$1" ]] && command -v chafa >/dev/null 2>&1 || return 1
-
-  # Inspect the target of a symlink and its contents, not the path suffix.
-  local mime
-  mime=$(/usr/bin/file -L -b --mime-type -- "$1") || return 1
-  case "$mime" in
-    image/avif|image/bmp|image/gif|image/heic|image/heif|image/jpeg|image/jxl|image/png|image/qoi|image/svg+xml|image/tiff|image/vnd.microsoft.icon|image/webp|image/x-qoi|image/x-xwindowdump)
-      return 0 ;;
-  esac
-  return 1
-}
-
 __o_preview_and_copy() {
-  chafa --probe=off "$1" || return
+  __terminal_image_preview "$1"
+  local preview_status=$?
+  if (( preview_status == 2 )); then
+    open "$1"
+    return
+  fi
+  (( preview_status == 0 )) || return "$preview_status"
 
   local error
   if error="$(__o_copy_file "$1" 2>&1)"; then

@@ -465,6 +465,72 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertRegex(result.stdout.splitlines()[0], r'-image\.png$')
 
+    def test_shared_image_preview_uses_contents_and_keeps_copied_path(self):
+        def chunk(kind, data):
+            return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+        png = b'\x89PNG\r\n\x1a\n'
+        png += chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
+        png += chunk(b'IDAT', zlib.compress(b'\0\xff\0\0')) + chunk(b'IEND', b'')
+        image = self.root / 'image.dat'  # The image contents, not the suffix, decide.
+        image.write_bytes(png)
+        impostor = self.root / 'impostor.png'
+        impostor.write_text('ordinary text')
+        before = '''
+chafa() {
+  [[ "$1" == --probe=off && -f "$HOME/copied-path" ]] || return 1
+  print -r -- "PREVIEW:${2:t}"
+}
+'''
+        result = self.run_cs(kind='files', sources=[image, impostor], before=before)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.count('PREVIEW:'), 1)
+        self.assertIn('PREVIEW:image.dat', result.stdout)
+        self.assertEqual((self.root / 'copied-path').read_text().splitlines(),
+                         [str(self.desktop / image.name), str(self.desktop / impostor.name)])
+
+        self.payload.write_bytes(png)
+        capture = '''
+__clipsend_pasteboard() { cp "$CLIP_PAYLOAD" "$2"; print -r -- image; }
+''' + before
+        result = self.run_cs('clipboard.png', kind='image', before=capture)
+        self.assert_saved(result, 'clipboard.png')
+        self.assertIn('PREVIEW:clipboard.png', result.stdout)
+
+        failure = self.run_cs(arguments=['--from', str(image)],
+                              before='chafa() { print -u2 "preview unavailable"; return 1; }')
+        self.assert_saved(failure, 'image-1.dat')
+        self.assertIn('preview unavailable', failure.stderr)
+
+    def test_o_uses_shared_preview_gate_and_keeps_open_pass_through(self):
+        image = self.root / 'image-without-suffix'
+        def chunk(kind, data):
+            return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+        png = b'\x89PNG\r\n\x1a\n'
+        png += chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
+        png += chunk(b'IDAT', zlib.compress(b'\0\xff\0\0')) + chunk(b'IEND', b'')
+        image.write_bytes(png)
+        impostor = self.root / 'impostor.png'
+        impostor.write_text('ordinary text')
+        script = '''
+source "$DOTFILES_DIR/src/functions/img.sh"
+source "$DOTFILES_DIR/src/functions/aliases.sh"
+open() { print -r -- "OPEN:$*"; }
+chafa() { print -r -- "PREVIEW:${2:t}"; }
+__o_copy_file() { return 0; }
+o "$IMAGE"
+o "$IMPOSTOR"
+o -a Preview "$IMAGE"
+o "$HOME/Desktop"
+'''
+        env = dict(os.environ, HOME=self.temp, DOTFILES_DIR=str(REPO),
+                   IMAGE=str(image), IMPOSTOR=str(impostor))
+        result = subprocess.run(['zsh', '-f', '-c', script], env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [
+            'PREVIEW:image-without-suffix', '✅ File contents copied to clipboard',
+            f'OPEN:{impostor}', f'OPEN:-a Preview {image}', f'OPEN:{self.desktop}',
+        ])
+
     def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
         self.payload.write_bytes(b'\xff\0binary\x80')
         saved = self.assert_saved(self.run_cs('payload', 'data'), 'payload.bin')

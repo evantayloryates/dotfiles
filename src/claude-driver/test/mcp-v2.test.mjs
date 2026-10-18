@@ -4,7 +4,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, symlinkSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, symlinkSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 const root=mkdtempSync(join(tmpdir(),'claude-mcp-v2-'))
@@ -325,3 +325,5 @@ test('pending reconnect stop cannot be settled by idle or followed by replacemen
  peer('busy');actions.length=0;stopOutput=`Asked session ${sid} to stop; its host is reconnecting (or it runs in the cloud), so the interrupt lands when the link is back. Check get_session before assuming it stopped.`;
  try{await assert.rejects(runOp('steer_session',{session:sid,mode:'interrupt',message:'MUST_NOT_SEND'}),e=>e.category==='outcome_unknown'&&e.detail.retrySafe===false);assert.deepEqual(actions.map(x=>x.op),['stop_session'])}finally{stopOutput=undefined;peer('idle')}
 })
+
+test('project cleanup refuses to remove a folder when native success lacks every saved archive',async()=>{const folder=join(root,'project-cleanup'),other='local_00000000-0000-4000-8000-000000000099',own=join(store,`${sid}.json`),foreign=join(store,`${other}.json`);mkdirSync(folder,{recursive:true});writeFileSync(join(folder,'keep.txt'),'fixture work');writeFileSync(own,JSON.stringify({...record,cwd:folder,isArchived:false}));writeFileSync(foreign,JSON.stringify({...record,sessionId:other,cwd:folder,isArchived:false}));await state.updateRegistry(r=>{r.folders[folder]={kind:'probe'}});try{await assert.rejects(runOp('archive_project',{folder,dry_run:false,delete_folder:true}),e=>e.category==='outcome_unknown'&&e.detail.folderDeleted===false&&e.detail.notArchived.includes(other));assert.equal(existsSync(join(folder,'keep.txt')),true)}finally{writeFileSync(own,JSON.stringify(record));rmSync(foreign,{force:true});await state.updateRegistry(r=>delete r.folders[folder])}})
