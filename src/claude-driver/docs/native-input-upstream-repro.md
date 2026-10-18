@@ -59,7 +59,7 @@ and removal, but those compiled methods are not a supported public endpoint.
 
 The native client connects first to a shared per-macOS-user socket. Changing
 CODEX_HOME only changes a fallback helper launch selection, so it is not proof
-of per-worker helper isolation. No internal service-path override was executed.
+of per-worker helper isolation. At that review stage no internal service-path override had been executed; the later isolation experiments below have separately recorded source and limits.
 
 ## Requested runtime capability or clarification
 
@@ -88,3 +88,28 @@ with normal helper exit. Supervisor loss, in-flight input cancellation, physical
 input and real Claude remain unqualified. Include these findings in any future report;
 do not claim that no ownership workaround has been found. This packet is still
 prepared only and has not been sent.
+
+## Later independent active-client delivery failure
+
+Current driver source182ed05d owns private helper/worker/watchdog lifetimes and
+passes normal input, partial-input cancellation and same-mutex caller
+serialization. An independent-client boundary still fails with the unchanged
+reviewed native helper: run1792357645908 ends one owned helper during the other's
+4096-character input after an initial64-character effect. Expected4160; observed
+4161 on the original uninstrumented AppKit fixture, with normal turns/archive
+and helper exits. A one-client4096-character control1792357696219 passes.
+
+Fixture-only event observation1792357844051 logs4162 keyDown/insert deliveries,
+with two pairs sharing CG timestamps, keycode16, source PID5533, character hash
+and repeat=false. No global monitor or raw characters were recorded. This is
+native-event delivery evidence at the fixture boundary, not identification of a
+specific native replay callback. Synchronous diagnostic IO caused a target
+backlog after helper exit; counts3191/3438/4159 eventually became4162. Buffered
+observation now compiles but its native qualification is pending. Keep these
+receiver versions and effects separate.
+
+See ui-lease-owner.md and private external-owner-evidence/manifest.json for exact
+contexts, failed reports, sources, binary hashes, compressed event data and
+bounded analysis. No native runtime patch, shared-helper kill, permission change,
+real-model inference or external transmission occurred. Local quarantine remains
+blocked. A primary paste-path comparison is planned, not established as a fix.

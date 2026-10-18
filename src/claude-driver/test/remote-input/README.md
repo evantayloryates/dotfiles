@@ -35,7 +35,7 @@ must exit normally without a signal. Each new run preserves its harness source;
 earlier pre-snapshot source hashes are recovered from owned orchestration assets.
 Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
 
-`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input|concurrent-input` exercises the new lease owner, actual
+`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input|concurrent-input|external-input|type-long` exercises the new lease owner, actual
 worker/backend/MCP/helper, inherited lock receipt and owner-side native audit.
 The provider/fixture outlive the caller-loss test. It validates exact fresh AX
 state before killing only the caller, then observes owner/group/helper exit.
@@ -61,6 +61,22 @@ first group/socket retirement with the exact same mutex device/inode. Both
 own filters during each input and normal helper/watchdog cleanup. Final state
 must remain stable at1/5 seconds. This qualifies concurrent driver requests,
 not simultaneously injecting clients outside the driver's lock or physical keys.
+`external-input` deliberately gives the second owned client a separate test-only
+lock state. After the first64-character effect, the second starts4096 characters
+with both native helpers live. Only verified partial input/four owned filters
+releases the first provider response; first cleanup must preserve the second's
+active helper/filters. Both exact effects and settling are still required.
+This mode currently has retained native delivery failures; normal tool/helper
+exit does not turn those into passes. `type-long` is a one-client4096-character
+control. Neither mode enables local UI or changes saved app permissions.
+
+The fixture can receive a run-owned `CLAUDE_DRIVER_FIXTURE_EVENT_LOG` path. It
+records only delivered editor events: source/timestamp/keycode, hashes, counts
+and repeat flags. It has no global event monitor and stores no raw characters.
+Current logging buffers at most50000 rows and flushes on termination, reporting
+dropped rows. The earlier synchronous logger is preserved with its failed run:
+it delayed receiver delivery beyond helper exit. Do not call that an input-loss
+proof or treat helper exit as a target event-queue barrier.
 
 `owner-ancillary.mjs cooperative|escalated` is non-UI: real kernel/owner/worker/Git
 with a synthetic socket/backend. Git hash-object waits on an empty private FIFO,

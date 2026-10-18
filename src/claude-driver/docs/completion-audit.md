@@ -19,7 +19,12 @@ stable1/5-second independent state. Cancellation is not rollback or replay.
 Concurrent driver requests also pass1792357456810: the second waits under the
 same mutex until first group/socket retirement, then appends exactly once;
 128 exact characters remain stable. This is serialization, not simultaneous
-independent native input. All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
+independent native input. That independent boundary now FAILS: runs1792357645908
+and1792357844051 deliver4161/4162 instead of4160 despite normal lifecycle receipts.
+Fixture-only diagnostics capture duplicate native-timestamp/source/key deliveries;
+a one-client4096 control passes. Synchronous logging also causes target backlog;
+buffered diagnostics compile but remain unqualified. No production fix, physical
+clearance or quarantine release follows. All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
 loaded-adoption gates remain. Earlier e3c3937e cleanup/native/ancillary proof
 retains its separately recorded source and limits.
 

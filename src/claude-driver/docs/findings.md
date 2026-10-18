@@ -1,3 +1,52 @@
+## October 18 independent active input exposes duplicated native delivery
+
+FAILURE preserved on unchanged production182ed05d, signed helperf21c31c0 and
+original uninstrumented fixtureb7c3d7b4. Existing owner-native external-input mode
+uses two independently owned state/mutex/helper contexts on the one authorized
+fixture. First64 characters complete, second4096-character typeText starts while
+both helpers/four filters exist; first lease then completes normally during
+second input. Run1792357645908 returns normal turns/archive/helper/watchdog exit
+but final4161 characters instead of4160. Exact-effect gate FAILS; final hash is
+wrong. First helper5096, second5182. An independent same-length single-client
+control1792357696219 delivers4096 exactly and passes. One passing control does
+not establish a universal cause; no native callback cause is claimed.
+
+Fixture-only observation added keyDown/keyUp/insert/text-change metadata, no
+global monitor or raw characters. Instrumented run1792357844051 also FAILS:
+4162 keyDown deliveries and insertions, first helper5447 contributes64 and second
+helper5533 contributes4098. Two pairs share CG timestamp/keycode16/source5533/
+character hash and isARepeat=false, at delivered offsets162/164 and163/165.
+This identifies duplicate delivery at the receiver boundary, rather than only a
+wrong final count. It does not prove which native callback or replay path caused it.
+
+Synchronous per-event JSON/ISO-date logging perturbed receiver throughput:
+post-close3191 chars,1-second3438,5-second4159, final4162 at fixture stop. No loss
+is inferred from the earlier count: input was queued after helper exit. Current
+fixture now buffers at most50000 metadata rows and flushes on termination, uses
+numeric epoch/uptime and drops a redundant record. Buffered sourcecbe1ed4b and
+binary8516c25c compile successfully but have NOT run a native input gate yet.
+Prior source49c18195/binary71d72352 and originalb7c3 binary remain preserved.
+
+Mirror external-owner-evidence74 files/1331007 bytes retains all three immutable
+reports/sources/contexts/timelines, compressed20809-event log+raw hash, derived
+bounded analysis and both diagnostic builds. Failure contexts/control IDs are
+in ui-lease-owner.md. Final remote no owned process/helper/filter/stop marker;
+original four taps, uv508/caffeinate510 and clean old repo0203e604 unchanged.
+No shared helper kill, native binary patch, auth/person-gate change, real
+inference or local CUA. Local quarantine remains blocked/hash9808e860. Production
+source/suite identity remains182ed05d; prior full195-file result still only
+proves its isolated contract, not this failing native effect. All handles terminal.
+
+NEXT changed condition: qualify buffered observation on the independent-client
+boundary, then compare the driver's actual primary paste(text,{format:'text'})
+path with typeText while the second client stays active. Reuse the same harness,
+record any new case as a distinct attempt, and keep these failures failed even
+if a different route passes. typeIntoComposer already requires paste/readback;
+no production fix or quarantine release is established by these diagnostics.
+Do not change the signed runtime or restart/wake observer-owned brokers. Physical
+access question remains unanswered; no manual-key setup has started. Goal ACTIVE;
+full real-Claude UI, physical input, loaded adoption, cold startup/full audit remain.
+
 ## October 18 concurrent native caller requests serialize and preserve input
 
 PROGRESS on unchanged production source182ed05d. Existing owner-native fixture

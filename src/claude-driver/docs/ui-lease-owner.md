@@ -183,6 +183,45 @@ Read-only default local runtime inspection matches the six reviewed hashes and
 helper signature; no local helper was started. Actual MCP remainsfcf4/source182e
 and requires refresh before final adoption; no restart/recovery was triggered.
 
+## Independent active-client failure
+
+The external-input fixture gives its second owned client an independent test
+mutex. Both helpers/four filters are observed while second input is pending,
+then the first normally closes. This deliberately exercises a caller outside
+the driver's serialization contract. It exposes a failure on source182ed05d:
+
+| Run | Receiver/condition | Result |
+| --- | --- | --- |
+|1792357645908|Original uninstrumented fixture, two helpers, first teardown during second input|FAIL:4161 instead of4160; all lifecycle receipts normal|
+|1792357696219|Original fixture, one client,4096 characters|PASS: exact4096 with normal cleanup; a single control is not universal causal proof|
+|1792357844051|Synchronous fixture event diagnostics, same two-helper boundary|FAIL: final4162; two keyDown-delivery pairs share native timestamp/keycode/source/hash, repeat=false|
+
+Instrumented helper5447 contributes64 keyDowns; helper5533 contributes4098.
+The20809-event log records4162 insert/text-change deliveries. Two pairs occur at
+offsets162/164 and163/165, keycode16 and matching CG timestamps7630857691625 /
+7630860253875. These are receiver-boundary observations, not identification of
+a particular native callback. No signed helper/runtime code was changed.
+
+Synchronous logging also delayed target consumption:3191 after helper close,
+3438/4159 at1/5 seconds, then4162 before fixture stop. Earlier counts are not
+proof of lost input. Current diagnostics buffer50000 rows at most, avoid per-event
+ISO formatting/disk writes and flush on termination. Buffered sourcecbe1ed4b /
+binary8516c25c compiles; its native qualification remains pending. Earlier source
+49c18195/binary71d72352 and original receiverb7c3d7b4 are retained.
+
+Original external contexts:01a150d7-439c-7fb1-996d-ff21992cee59 /
+01a150d7-4f61-7723-952b-5322c581e81c, turns
+01a150d7-471b-7610-8d77-e489c83d7e18 /01a150d7-52ed-70f2-aedb-9cc0b877f55e.
+Control:01a150d8-08ab-75e2-b7c7-74717e881427, turn
+01a150d8-0c38-7981-a897-97c67d605b12. Instrumented external contexts:
+01a150da-49ef-74e1-aa34-5da01175f000 /01a150da-55ca-7fc0-a098-a95f5c79af31,
+turns01a150da-4d6d-7262-8519-e644a345c444 /01a150da-5731-7263-b364-965fd5bbeabf.
+Private external-owner-evidence contains74 files/1331007 bytes with exact run
+sources, raw compressed log/hash, derived bounded analysis and builds. Final
+remote has no owned resources and preserves original services/taps. Quarantine
+stays blocked. The next route comparison is the primary paste/text path; a pass
+there cannot erase these typeText failures or prove physical input safe.
+
 ## Remaining work
 
 Full computerUse focus/send behavior, actual

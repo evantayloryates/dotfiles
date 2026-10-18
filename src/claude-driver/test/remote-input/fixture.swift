@@ -3,19 +3,55 @@
 import AppKit
 import CryptoKit
 import Foundation
+import CoreGraphics
+
+// Diagnostic observation is confined to events delivered to this disposable
+// editor. No global monitor or raw typed characters are recorded.
+@MainActor final class ObservedTextView: NSTextView {
+    weak var fixture: Fixture?
+    override func keyDown(with event: NSEvent) {
+        fixture?.keyEvent(event, phase: "keyDown-before", characters: string.count)
+        super.keyDown(with: event)
+    }
+    override func keyUp(with event: NSEvent) {
+        fixture?.keyEvent(event, phase: "keyUp", characters: string.count)
+        super.keyUp(with: event)
+    }
+    override func insertText(_ insertString: Any, replacementRange: NSRange) {
+        let text = (insertString as? String) ?? (insertString as? NSAttributedString)?.string ?? ""
+        let before = string.count
+        super.insertText(insertString, replacementRange: replacementRange)
+        fixture?.record(["phase": "insert", "before": before, "after": string.count,
+                         "insertedCharacters": text.count, "insertedUtf8Bytes": text.utf8.count,
+                         "insertedSha256": Fixture.digest(text)])
+    }
+}
 
 @MainActor final class Fixture: NSObject, NSApplicationDelegate, NSTextViewDelegate {
     var window: NSWindow!
     var editor: NSTextView!
     var timer: Timer?
+    var events: FileHandle?
+    var eventSequence = 0
+    var bufferedEvents: [[String: Any]] = []
+    var droppedEvents = 0
     let directory = Bundle.main.bundleURL.deletingLastPathComponent()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let path = ProcessInfo.processInfo.environment["CLAUDE_DRIVER_FIXTURE_EVENT_LOG"],
+           path.hasPrefix("/Users/theo/.local/state/claude-driver/input-teardown-20261018/evidence/owner-native-"),
+           path.hasSuffix("/fixture-events.jsonl"), !path.contains("/../"),
+           !FileManager.default.fileExists(atPath: path),
+           FileManager.default.createFile(atPath: path, contents: nil, attributes: [.posixPermissions: 0o600]) {
+            events = try? FileHandle(forWritingTo: URL(fileURLWithPath: path))
+        }
         window = NSWindow(contentRect: NSRect(x: 100, y: 100, width: 620, height: 320),
                           styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
         window.title = "Claude Driver Input Teardown Fixture"
         window.isReleasedWhenClosed = false
-        editor = NSTextView(frame: window.contentView!.bounds)
+        let observed = ObservedTextView(frame: window.contentView!.bounds)
+        observed.fixture = self
+        editor = observed
         editor.autoresizingMask = [.width, .height]
         editor.isRichText = false
         editor.font = NSFont.monospacedSystemFont(ofSize: 18, weight: .regular)
@@ -35,7 +71,55 @@ import Foundation
         }
     }
 
-    func textDidChange(_ notification: Notification) { save() }
+    static func digest(_ text: String) -> String {
+        SHA256.hash(data: Data(text.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+    func record(_ metadata: [String: Any]) {
+        guard events != nil else { return }
+        eventSequence += 1
+        guard bufferedEvents.count < 50_000 else { droppedEvents += 1; return }
+        var row = metadata
+        row["sequence"] = eventSequence
+        row["pid"] = ProcessInfo.processInfo.processIdentifier
+        row["uptime"] = ProcessInfo.processInfo.systemUptime
+        row["epochSeconds"] = Date().timeIntervalSince1970
+        bufferedEvents.append(row)
+    }
+    func applicationWillTerminate(_ notification: Notification) {
+        guard let events else { return }
+        var batch = Data()
+        let summary: [String: Any] = ["phase": "log-summary", "pid": ProcessInfo.processInfo.processIdentifier,
+            "recordedEvents": bufferedEvents.count, "droppedEvents": droppedEvents,
+            "epochSeconds": Date().timeIntervalSince1970]
+        for row in bufferedEvents + [summary] {
+            if let bytes = try? JSONSerialization.data(withJSONObject: row, options: [.sortedKeys]) {
+                batch.append(bytes); batch.append(10)
+            }
+            if batch.count >= 256 * 1024 { try? events.write(contentsOf: batch); batch.removeAll(keepingCapacity: true) }
+        }
+        if !batch.isEmpty { try? events.write(contentsOf: batch) }
+        try? events.close()
+        self.events = nil
+    }
+    func keyEvent(_ event: NSEvent, phase: String, characters: Int) {
+        var row: [String: Any] = ["phase": phase, "characters": characters,
+            "eventTimestamp": event.timestamp,
+            "keyCode": event.keyCode, "isARepeat": event.isARepeat,
+            "modifiers": event.modifierFlags.rawValue,
+            "eventCharactersSha256": Self.digest(event.characters ?? "")]
+        if let cg = event.cgEvent {
+            row["cgTimestamp"] = String(cg.timestamp)
+            row["sourcePid"] = cg.getIntegerValueField(.eventSourceUnixProcessID)
+            row["sourceState"] = cg.getIntegerValueField(.eventSourceStateID)
+            row["sourceUserData"] = String(cg.getIntegerValueField(.eventSourceUserData))
+        }
+        record(row)
+    }
+    func textDidChange(_ notification: Notification) {
+        record(["phase": "text-change", "characters": editor.string.count,
+                "sha256": Self.digest(editor.string)])
+        save()
+    }
 
     func save() {
         let text = editor.string
