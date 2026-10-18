@@ -644,7 +644,7 @@ source "$DOTFILES_DIR/src/lib/terminal-file.sh"
 __terminal_pdf_display_scale() { print -r -- "$DISPLAY_SCALE"; }
 pdfinfo() { print -r -- "Pages: $PAGE_COUNT"; }
 pdftoppm() {
-  [[ "$*" == *"-scale-to $((500 * DISPLAY_SCALE))"* ]] || return 1
+  [[ "$*" == *"-scale-to $((400 * DISPLAY_SCALE))"* ]] || return 1
   while (( $# )); do
     if [[ "$1" == -f ]]; then print -rn -- "$2"; return 0; fi
     shift

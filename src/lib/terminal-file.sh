@@ -39,7 +39,7 @@ __terminal_preview() {
       if detected_scale="$(__terminal_pdf_display_scale)" && [[ "$detected_scale" =~ '^[1-3]$' ]]; then
         display_scale="$detected_scale"
       fi
-      raster_size="$((500 * display_scale))"
+      raster_size="$((400 * display_scale))"
       if (( pages <= 6 )); then
         for (( page = 1; page <= pages; page++ )); do selected+=("$page"); done
       else
