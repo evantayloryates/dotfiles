@@ -3,27 +3,39 @@
 import {spawn,execFileSync} from 'node:child_process'
 import {createServer} from 'node:http'
 import {createInterface} from 'node:readline'
-import {once} from 'node:events'
+import {once,EventEmitter} from 'node:events'
 import {readFileSync,writeFileSync,appendFileSync,mkdirSync,existsSync} from 'node:fs'
 import {createHash,randomUUID} from 'node:crypto'
 import {hostname,homedir} from 'node:os'
 import {join} from 'node:path'
 import * as zlib from 'node:zlib'
+import {JsonRpcPeer} from '../../../codex-bridge/lib/jsonrpc.mjs'
 
 const root='/Users/theo/.local/state/claude-driver/input-teardown-20261018'
 const proxyMode=process.argv[2]==='--proxy'
+const notifyMode=process.argv[2]==='--notify-probe'
 const swapped=proxyMode?process.argv[5]==='swapped':process.argv.includes('--swap-entrypoints')
 const single=proxyMode?process.argv[6]==='single':process.argv.includes('--single-endpoint')
+const recordNotify=process.argv.includes('--record-notify')
+const appServerHost=process.argv.includes('--app-server-host')
+if(recordNotify&&!single)throw Error('notify recording requires the single endpoint fixture')
+if(appServerHost&&(!recordNotify||!single))throw Error('app-server baseline requires recording notify and a single endpoint')
 // The SSH entry requires its connection marker; MCP children receive a filtered
 // environment. Their exact host/user/owner/run/route guards still apply.
-if(process.platform!=='darwin'||hostname().split('.')[0]!=='theo-air'||homedir()!=='/Users/theo'||(!proxyMode&&!process.env.SSH_CONNECTION)||JSON.parse(readFileSync(join(root,'owner.json'))).threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('remote owner/scope refused')
+if(process.platform!=='darwin'||hostname().split('.')[0]!=='theo-air'||homedir()!=='/Users/theo'||(!proxyMode&&!notifyMode&&!process.env.SSH_CONNECTION)||JSON.parse(readFileSync(join(root,'owner.json'))).threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('remote owner/scope refused')
 const hash=b=>createHash('sha256').update(b).digest('hex'),runtime=join(root,'tools/cua_node'),node=join(runtime,'bin/node'),nodeRepl=join(runtime,'bin/node_repl'),launcher=join(runtime,'lib/node_modules/@oai/cua-repl/bin/cua-repl.mjs'),cli=join(root,'tools/CodexCLI.app/Contents/MacOS/codex')
 for(const [path,sha]of [[node,'a90d52ad9b963c1c645f82e41909039510dd8958b8fc52b080a5ef5e8bbea0e1'],[nodeRepl,'a4bf42e64c504fc436b74e91b3e3588389a868cdc30cd49b41c7a82b26ffe879'],[launcher,'992174a5e637645aeb444adfdb1bae688e997bb84d7db07532f68e358e60f278'],[cli,'1afb28c01d7d49e892bd75f11076b10f1451e34e0ee308a95e5ab7f69f9c84fe']])if(hash(readFileSync(path))!==sha)throw Error('reviewed runtime changed')
 const routes=['node_repl','cua_repl']
 const activeRoutes=single?['cua_repl']:routes
 const code=route=>'console.log(JSON.stringify(await nodeRepl.rpc("probe",{phase:"host-register",endpoint:'+JSON.stringify(route)+'})));'
 
-if(proxyMode){
+if(notifyMode){
+ const run=process.argv[3],destination=process.argv[4],raw=process.argv[5]
+ if(!new RegExp('^'+root+'/evidence/(wrapper-host-routing-[0-9]+-[a-f0-9]{8}|worker-handoff-[A-Za-z0-9]{6})$').test(run)||!/^http:\/\/127\.0\.0\.1:[0-9]{2,5}\/notify-recording$/.test(destination)||typeof raw!=='string'||Buffer.byteLength(raw)>65536)throw Error('recording notify scope refused')
+ const payload=JSON.parse(raw)
+ const response=await fetch(destination,{method:'POST',headers:{'content-type':'application/json','x-fixture-run':run.split('/').at(-1)},body:JSON.stringify({pid:process.pid,parentPid:process.ppid,sentAt:new Date().toISOString(),environment:{codexHome:process.env.CODEX_HOME??null,nativePipeOverride:process.env.SKY_CUA_SERVICE_NATIVE_PIPE_PATH??null,nativeServiceApp:process.env.SKY_CUA_SERVICE_PATH??null},payload}),signal:AbortSignal.timeout(3000)})
+ if(!response.ok)throw Error('recording notify receiver refused: '+response.status)
+}else if(proxyMode){
  const run=process.argv[3],route=process.argv[4]
  if(!new RegExp('^'+root+'/evidence/wrapper-host-routing-[0-9]+-[a-f0-9]{8}$').test(run)||!routes.includes(route))throw Error('proxy scope refused')
  const log=e=>appendFileSync(join(run,route+'-events.jsonl'),JSON.stringify({at:new Date().toISOString(),...e})+'\n',{mode:0o600})
@@ -81,15 +93,21 @@ if(proxyMode){
  writeFileSync(join(home,'hooks.json'),hook,{flag:'wx',mode:0o600})
  writeFileSync(join(run,'source.mjs'),readFileSync(new URL(import.meta.url)),{flag:'wx',mode:0o600})
  writeFileSync(join(run,'probe.mjs'),`let registered=false;const events=[];export function handleRpc(request){const n=globalThis.nodeRepl;if(!registered){if(typeof n?.addTurnEndedHandler!=='function')throw Error('trusted handler unavailable');n.addTurnEndedHandler({timeoutMs:1000,run:event=>{events.push({event:'turn-ended',received:event})}});registered=true;}return {probeOnly:true,endpoint:request.endpoint,registered,events};}`,{flag:'wx',mode:0o600})
- const report={run,startedAt:new Date().toISOString(),scope:'actual-host-input-free-cleanup-routing',sourceSha256:hash(readFileSync(new URL(import.meta.url))),hookSha256:hookSha,reviewPath,swappedEntryPoints:swapped,singleEndpoint:single,activeRoutes,entryPoints:Object.fromEntries(activeRoutes.map(route=>[route,route===(swapped?'cua_repl':'node_repl')?'direct-node-repl':'packaged-cua-launcher'])),realModelCallsRequested:0,skyConfigured:false,nativeInputRequested:0,cuaBootstrapDisabled:true,savedTrustChanged:false,providerRequests:[],ok:false}
+ const report={run,startedAt:new Date().toISOString(),scope:appServerHost?'actual-app-server-notify-baseline-hook-trust-preserved':'actual-host-input-free-cleanup-routing',entryPoint:appServerHost?'app-server':'exec',sourceSha256:hash(readFileSync(new URL(import.meta.url))),hookSha256:hookSha,reviewPath,swappedEntryPoints:swapped,singleEndpoint:single,recordNotify,nativeNotifierExecuted:false,notifyReceipts:[],activeRoutes,entryPoints:Object.fromEntries(activeRoutes.map(route=>[route,route===(swapped?'cua_repl':'node_repl')?'direct-node-repl':'packaged-cua-launcher'])),realModelCallsRequested:0,skyConfigured:false,nativeInputRequested:0,cuaBootstrapDisabled:true,savedTrustChanged:false,providerRequests:[],ok:false}
  const save=()=>writeFileSync(join(run,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600})
  const helpers=()=>execFileSync('/bin/ps',['-axo','pid=,ppid=,comm='],{encoding:'utf8',timeout:5000}).split('\n').filter(l=>l.includes(join(root,'codex-home/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService'))).map(l=>l.trim())
  report.helpersBefore=helpers();save();if(report.helpersBefore.length)throw Error('owned helper must be absent')
+ let notifyResolve
+ const notifyObserved=new Promise(resolve=>{notifyResolve=resolve})
  const server=createServer(async(req,res)=>{
   const chunks=[];let bytes=0
   for await(const b of req){bytes+=b.length;if(bytes>2*1024*1024){res.writeHead(413).end();return}chunks.push(b)}
   const raw=Buffer.concat(chunks),encoding=req.headers['content-encoding'];let body
   try{body=JSON.parse((encoding==='gzip'?zlib.gunzipSync(raw):encoding==='zstd'?zlib.zstdDecompressSync(raw):raw).toString())}catch{res.writeHead(400).end();return}
+  if(recordNotify&&req.url==='/notify-recording'){
+   if(req.method!=='POST'||req.headers['x-fixture-run']!==run.split('/').at(-1)||raw.length>65536||req.headers.authorization){res.writeHead(403).end();return}
+   report.notifyReceipts.push({receivedAt:new Date().toISOString(),...body});save();res.writeHead(200).end('recorded');notifyResolve();return
+  }
   const index=report.providerRequests.length
   report.providerRequests.push({index,method:req.method,url:req.url,bytes:raw.length,sha256:hash(raw),authorizationPresent:!!req.headers.authorization,toolInventory:(body.tools??[]).map(t=>({type:t.type,name:t.name,tools:t.tools?.map(x=>({type:x.type,name:x.name}))}))});save()
   if(req.method!=='POST'||req.url!=='/v1/responses'||index>activeRoutes.length||req.headers.authorization){res.writeHead(403).end();return}
@@ -115,18 +133,42 @@ if(proxyMode){
  })
  server.listen(0,'127.0.0.1');await once(server,'listening')
  const port=server.address().port
- let config='model = "routing-fixture"\nmodel_provider = "routing_fixture"\n[model_providers.routing_fixture]\nname = "Recording routing fixture"\nbase_url = '+JSON.stringify('http://127.0.0.1:'+port+'/v1')+'\nwire_api = "responses"\nrequires_openai_auth = false\nsupports_websockets = false\nrequest_max_retries = 0\nstream_max_retries = 0\n'
+ let config=(recordNotify?'notify = '+JSON.stringify([node,new URL(import.meta.url).pathname,'--notify-probe',run,'http://127.0.0.1:'+port+'/notify-recording'])+'\n':'')+'model = "routing-fixture"\nmodel_provider = "routing_fixture"\n[model_providers.routing_fixture]\nname = "Recording routing fixture"\nbase_url = '+JSON.stringify('http://127.0.0.1:'+port+'/v1')+'\nwire_api = "responses"\nrequires_openai_auth = false\nsupports_websockets = false\nrequest_max_retries = 0\nstream_max_retries = 0\n'
  for(const route of activeRoutes)config+='[mcp_servers.'+route+']\ncommand = '+JSON.stringify(node)+'\nargs = '+JSON.stringify([new URL(import.meta.url).pathname,'--proxy',run,route,swapped?'swapped':'normal',single?'single':'multiple'])+'\nstartup_timeout_sec = 15\n'
  config+='[analytics]\nenabled = false\n';writeFileSync(join(home,'config.toml'),config,{flag:'wx',mode:0o600})
  const events=[];let exit,stderr=''
- const child=spawn(cli,['exec','--dangerously-bypass-hook-trust','--strict-config','--ephemeral','--skip-git-repo-check','--ignore-rules','--sandbox','read-only','--json','Recording-only lifecycle fixture; use the two provided fixed probe calls. No UI, shell, files or native capabilities.'],{cwd:run,env:{HOME:homedir(),USER:'theo',LOGNAME:'theo',PATH:join(runtime,'bin')+':/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:join(root,'tmp'),CODEX_HOME:home,SSH_CONNECTION:process.env.SSH_CONNECTION},detached:true,stdio:['ignore','pipe','pipe']})
+ const child=spawn(cli,appServerHost?['app-server','--strict-config','--listen','stdio://']:['exec','--dangerously-bypass-hook-trust','--strict-config','--ephemeral','--skip-git-repo-check','--ignore-rules','--sandbox','read-only','--json','Recording-only lifecycle fixture; use the two provided fixed probe calls. No UI, shell, files or native capabilities.'],{cwd:run,env:{HOME:homedir(),USER:'theo',LOGNAME:'theo',PATH:join(runtime,'bin')+':/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:join(root,'tmp'),CODEX_HOME:home,SSH_CONNECTION:process.env.SSH_CONNECTION},detached:true,stdio:[appServerHost?'pipe':'ignore','pipe','pipe']})
  report.hostPid=child.pid;save()
- createInterface({input:child.stdout}).on('line',line=>{try{events.push(JSON.parse(line))}catch{report.invalidHostJson=true}});child.stderr.on('data',b=>{stderr=(stderr+b).slice(-65536)})
+ const transport=new EventEmitter()
+ createInterface({input:child.stdout}).on('line',line=>{if(appServerHost)transport.emit('message',line);else try{events.push(JSON.parse(line))}catch{report.invalidHostJson=true}});child.stderr.on('data',b=>{stderr=(stderr+b).slice(-65536)})
+ let peer,complete,completion
+ if(appServerHost){
+  child.stdin.on('error',()=>{});transport.send=raw=>child.stdin.write(raw+'\n');transport.close=()=>child.stdin.end();child.on('exit',(code,signal)=>transport.emit('close','owned app-server closed '+(code??signal)));child.on('error',e=>transport.emit('error',e))
+  peer=new JsonRpcPeer(transport);completion=new Promise(resolve=>{complete=resolve})
+  peer.on('notification',(method,params)=>{events.push({method,params});if(method==='turn/completed'&&params.threadId===report.threadId)complete(params.turn)})
+  peer.on('request',request=>{report.unexpectedHostRequests??=[];report.unexpectedHostRequests.push(request.method);request.fail(-32601,'recording fixture refuses approvals and native requests')})
+ }
  const closed=new Promise(resolve=>{child.on('close',(code,signal)=>{exit={code,signal};resolve()});child.on('error',e=>{report.error=e.message;resolve()})});let timer
  try{
-  await Promise.race([closed,new Promise(resolve=>{timer=setTimeout(()=>{report.forcedHostTermination=true;try{process.kill(-child.pid,'SIGTERM')}catch{};resolve()},45000)})]);clearTimeout(timer)
+  if(appServerHost){
+   try{
+    await peer.request('initialize',{clientInfo:{name:'claude-driver-notify-fixture',version:'1'},capabilities:{experimentalApi:true}},{timeoutMs:15000});peer.notify('initialized',{})
+    const hooks=await peer.request('hooks/list',{cwds:[run]},{timeoutMs:10000});report.hookInventory=hooks.data?.flatMap(x=>x.hooks)??[]
+    const started=await peer.request('thread/start',{cwd:run,model:'routing-fixture',modelProvider:'routing_fixture',ephemeral:true,approvalPolicy:'on-request',sandbox:'read-only'},{timeoutMs:15000});report.threadId=started.thread.id
+    const turn=await peer.request('turn/start',{threadId:report.threadId,input:[{type:'text',text:'Recording-only notifier baseline. No UI, shell, files or native capabilities.'}]},{timeoutMs:15000});report.turnId=turn.turn.id
+    report.turn=await Promise.race([completion,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('owned recording turn timeout')),30000)})]);clearTimeout(timer)
+    if(!report.notifyReceipts.length){let waitTimer;await Promise.race([notifyObserved,new Promise(resolve=>{waitTimer=setTimeout(resolve,3000)})]);clearTimeout(waitTimer)}
+    report.notifyObservationAttempted=true
+    // Ephemeral diagnostic threads have no persisted rollout to archive.
+    // EOF retires this private host; do not turn a successful observation into
+    // an invalid archive mutation. Persistent worker archival is a separate gate.
+    report.archiveNotApplicable='ephemeral diagnostic thread has no persisted rollout'
+   }finally{peer.close()}
+  }
+  await Promise.race([closed,new Promise(resolve=>{timer=setTimeout(()=>{report.forcedHostTermination=true;try{process.kill(-child.pid,'SIGTERM')}catch{};resolve()},appServerHost?5000:45000)})]);clearTimeout(timer)
   if(!exit)await Promise.race([closed,new Promise(resolve=>setTimeout(resolve,5000))])
-  report.exit=exit??null;report.threadId=events.find(x=>x.type==='thread.started')?.thread_id
+  report.exit=exit??null;if(!appServerHost)report.threadId=events.find(x=>x.type==='thread.started')?.thread_id
+  if(recordNotify&&!report.notifyObservationAttempted&&!report.notifyReceipts.length){let notifyTimer;await Promise.race([notifyObserved,new Promise(resolve=>{notifyTimer=setTimeout(resolve,3000)})]);clearTimeout(notifyTimer)}
   writeFileSync(join(run,'host-events.json'),JSON.stringify(events,null,2)+'\n',{mode:0o600});writeFileSync(join(run,'host.stderr'),stderr,{mode:0o600})
   report.routes={}
   for(const route of routes){const p=join(run,route+'-events.jsonl'),rows=existsSync(p)?readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];report.routes[route]={calls:rows.filter(x=>x.event==='call'),results:rows.filter(x=>x.event==='result').map(x=>({name:x.name,isError:x.isError})),exits:rows.filter(x=>x.event==='exit'),callbackReadbacks:rows.filter(x=>x.event==='callback-readback')};}
@@ -134,22 +176,31 @@ if(proxyMode){
   report.observed={nodeReplServerJs:directJs.length,cuaReplServerJs:packagedJs.length,nodeReplServerStops:directStops.length,cuaReplServerStops:packagedStops.length}
   const context=(single?packagedJs:directJs)[0]?.metadata?.['x-codex-turn-metadata'],other=packagedJs[0]?.metadata?.['x-codex-turn-metadata'],stop=packagedStops[0]?.arguments
   report.realContext=context;report.contextsMatch=!!context&&context.thread_id===report.threadId&&context.turn_id===other?.turn_id&&context.session_id===stop?.session_id&&context.turn_id===stop?.turn_id
+  report.operationContextsMatch=!!context&&context.thread_id===report.threadId&&(!appServerHost||context.turn_id===report.turnId)
   report.helpersAfter=helpers()
   report.routingQualified=exit?.code===0&&!report.forcedHostTermination&&!report.admissionFailure&&report.providerRequests.length===activeRoutes.length+1&&report.providerRequests.every(x=>!x.authorizationPresent)&&directJs.length===(single?0:1)&&packagedJs.length===1&&directStops.length===0&&packagedStops.length===1&&report.contextsMatch&&activeRoutes.every(route=>report.routes[route].results.length===report.routes[route].calls.length&&report.routes[route].results.every(x=>!x.isError))
   if(single){
    const readbacks=packaged.callbackReadbacks
    try{const text=readbacks[0].result.content.filter(x=>x.type==='text').map(x=>x.text).join('\n'),recording=JSON.parse(text.slice(text.indexOf('{'),text.lastIndexOf('}')+1));report.callbackReceipt=recording;report.callbackQualified=readbacks.length===1&&!readbacks[0].isError&&recording.events.length===1&&recording.events[0].received.session_id===context.session_id&&recording.events[0].received.turn_id===context.turn_id}catch(e){report.callbackQualified=false;report.callbackError=e.message}
   }
+  if(recordNotify){
+   const receipt=report.notifyReceipts[0],payload=receipt?.payload
+   report.notifyQualified=report.notifyReceipts.length===1&&payload?.type==='agent-turn-complete'&&payload?.['thread-id']===context?.thread_id&&(!Object.hasOwn(payload,'turn-id')||payload['turn-id']===context?.turn_id)
+   report.notifyPayloadKeys=payload?Object.keys(payload).sort():[]
+   report.notifyTurnIdPresent=!!payload&&Object.hasOwn(payload,'turn-id')
+   report.notifyReceiptAfterJsHookCallMs=receipt&&packagedStops[0]?Date.parse(receipt.receivedAt)-Date.parse(packagedStops[0].at):null
+  }
   report.proxyExitReceiptsComplete=routes.every(route=>report.routes[route].exits.length===1&&report.routes[route].exits[0].code===0)
   // Host shutdown can terminate a proxy before its child-close callback runs.
   // Preserve missing receipts separately; independently observe the owned group.
-  const group=()=>execFileSync('/bin/ps',['-axo','pid=,ppid=,pgid=,comm='],{encoding:'utf8',timeout:5000}).split('\n').flatMap(line=>{const a=line.trim().split(/\s+/);return Number(a[2])===child.pid?[{pid:Number(a[0]),ppid:Number(a[1]),pgid:Number(a[2]),path:a.slice(3).join(' ')}]:[]})
+  const group=()=>execFileSync('/bin/ps',['-axo','pid=,ppid=,pgid=,comm='],{encoding:'utf8',timeout:5000}).split('\n').flatMap(line=>{const a=line.trim().split(/\s+/);return Number(a[2])===child.pid||report.notifyReceipts.some(r=>r.pid===Number(a[0]))?[{pid:Number(a[0]),ppid:Number(a[1]),pgid:Number(a[2]),path:a.slice(3).join(' ')}]:[]})
   report.retirementObservations=[]
   const deadline=Date.now()+2000
   do{report.remainingOwnedHostGroup=group();report.retirementObservations.push({at:new Date().toISOString(),members:report.remainingOwnedHostGroup});if(!report.remainingOwnedHostGroup.length)break;await new Promise(resolve=>setTimeout(resolve,100))}while(Date.now()<deadline)
-  report.ok=report.routingQualified&&(!single||report.callbackQualified)&&report.helpersAfter.length===0&&report.remainingOwnedHostGroup.length===0
+  if(appServerHost)report.appServerNotifyQualified=report.turn?.status==='completed'&&report.operationContextsMatch&&report.notifyQualified&&!report.admissionFailure&&report.providerRequests.length===2&&packagedJs.length===1&&packaged.results.filter(x=>x.name==='js').every(x=>!x.isError)&&!report.unexpectedHostRequests?.length
+  report.ok=(appServerHost?report.appServerNotifyQualified:report.routingQualified&&(!single||report.callbackQualified)&&(!recordNotify||report.notifyQualified))&&exit?.code===0&&!report.forcedHostTermination&&report.helpersAfter.length===0&&report.remainingOwnedHostGroup.length===0
  }catch(e){report.error=e.message}
- finally{clearTimeout(timer);await new Promise(resolve=>server.close(resolve));report.finishedAt=new Date().toISOString();save()}
- console.log(JSON.stringify({run,ok:report.ok,exit:report.exit,threadId:report.threadId,realContext:report.realContext,contextsMatch:report.contextsMatch,singleEndpoint:report.singleEndpoint,callbackQualified:report.callbackQualified,observed:report.observed,remainingOwnedGroup:report.remainingOwnedHostGroup?.length,helpersBefore:report.helpersBefore.length,helpersAfter:report.helpersAfter?.length,error:report.error}))
+ finally{clearTimeout(timer);if(appServerHost&&!exit){peer.close();try{process.kill(-child.pid,'SIGTERM');report.forcedHostTermination=true}catch{};await Promise.race([closed,new Promise(resolve=>setTimeout(resolve,2000))])}report.exit=exit??null;writeFileSync(join(run,'host-events.json'),JSON.stringify(events,null,2)+'\n',{mode:0o600});writeFileSync(join(run,'host.stderr'),stderr,{mode:0o600});await new Promise(resolve=>server.close(resolve));report.finishedAt=new Date().toISOString();save()}
+ console.log(JSON.stringify({run,ok:report.ok,entryPoint:report.entryPoint,exit:report.exit,threadId:report.threadId,realContext:report.realContext,contextsMatch:report.contextsMatch,operationContextsMatch:report.operationContextsMatch,singleEndpoint:report.singleEndpoint,callbackQualified:report.callbackQualified,notifyQualified:report.notifyQualified,appServerNotifyQualified:report.appServerNotifyQualified,notifyPayloadKeys:report.notifyPayloadKeys,notifyTurnIdPresent:report.notifyTurnIdPresent,notifyReceiptAfterJsHookCallMs:report.notifyReceiptAfterJsHookCallMs,observed:report.observed,remainingOwnedGroup:report.remainingOwnedHostGroup?.length,helpersBefore:report.helpersBefore.length,helpersAfter:report.helpersAfter?.length,error:report.error}))
  if(!report.ok)process.exitCode=1
 }

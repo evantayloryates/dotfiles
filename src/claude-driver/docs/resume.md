@@ -1,3 +1,34 @@
+## October 18 notifier reaches all tested hosts; private binding remains unqualified
+
+Recording substitutes for the configured native notify command receive matching
+actual thread/turn IDs through CLI exec5356395, raw app-server5458358 and actual
+tierc-worker worker-handoff-dIfJQq. No native notifier/helper/app/input ran. CLI
+gate passes; app-server original FAILS invalid ephemeral archive/owned-host
+termination, worker original FAILS immediate ancillary process retirement.
+Those failures stay intact. Worker result and archive ACK succeed; later
+independent owned groups/notifiers/helpers are empty without parent cleanup
+signal. uv508/caffeinate510 survive. See custom wrapper audit for exact scopes.
+
+App-server JS Stop remains untrusted/not dispatched while notify still delivers.
+Worker MCP receives its private socket/app override; notifier receives neither
+(CODEX_HOME only). Environment difference is proven; native endpoint selection,
+supported override handling and release effect are NOT. Older JS-Stop-only filter
+retention cannot qualify Taylor's complete configured native notification path.
+Do not attribute the whole defect upstream or claim app-server drops notify.
+
+Mirrors wrapper-notify-evidence14files/83992bytes and worker-notify-evidence
+7files/56017bytes verify exact reports/sources and selected config/metadata.
+notify-routing-analysis.json separates successful receipts from overall failed
+reports. Eight staged modules match local bytes; no whole closure assertion.
+Production182ed05d, global/project config and quarantine remain unchanged.
+
+NEXT changed condition: qualify supported native notifier endpoint selection and
+ownership without calling shared/unowned services. If exact confinement can be
+established, prepare one remote native lifecycle comparison with ordinary shared
+helper topology before considering input. Do not repeat unchanged two-helper
+typing or alter live global plugin/hook/notify/permissions. Goal active/incomplete;
+broader Codex bridge fixes remain parked.
+
 ## October 18 single-endpoint callback receipt passes; native notify still distinct
 
 Recording-only singleendpoint5062060 passes on actualhost0.163.0-alpha.10.2:

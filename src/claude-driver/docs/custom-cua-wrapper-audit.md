@@ -212,3 +212,67 @@ the JS Stop callback without executing SkyComputerUseClient. Then assess the
 bridge's actual app-server/worker lifecycle against that contract. This changes
 the tested routing condition without another native input experiment, and avoids
 assuming the existing native notification compensates for a separate MCP server.
+
+## Configured notifier delivery and private-worker binding
+
+The next gate substitutes a harmless localhost recorder for the top-level native
+notify command. It captures the actual command argument and selected environment;
+it never invokes SkyComputerUseClient, starts a helper, acquires an app or injects
+input. The deterministic provider makes no inference/authenticated request.
+
+- CLI exec1792365356395-fbf95009 passes. One recording MCP probe, one reviewed
+  JS Stop callback and one native-notifier substitute receipt carry the actual
+  thread01a1514c-e5b0-7fe0-b472-80ccc6b26ba6 and turn
+  01a1514c-e5b8-72d2-a38d-056e523bd661. Host exits0 and the owned group is empty.
+  The HTTP receipt arrived237ms after the JS hook call in this run; this is a
+  receipt timestamp comparison, not an execution-order guarantee.
+- Raw app-server1792365458358-f9230ac5 delivers one substitute receipt matching
+  actual thread01a1514e-7400-7a73-ba67-5b7f23028705/turn
+  01a1514e-7409-7980-95d0-7dfa0841e4d0 after a completed harmless probe. Its
+  reviewed JS Stop hook is untrusted and does not dispatch; no trust override
+  was used. Native notify delivery and JS callback dispatch are separate paths.
+  The original overall report stays FAILED: the fixture incorrectly attempted
+  archive on an ephemeral thread with no rollout, then terminated its owned
+  host in finally. Missing common-branch exit/events files are not invented.
+  Current fixture source avoids ephemeral archive and saves output in finally;
+  that corrected app-server branch has not been rerun or declared passing.
+- Actual unchanged tierc-worker runworker-handoff-dIfJQq returns exit0,
+  PRIVATE_WORKER_HANDOFF_OK and archive acknowledgement. Its sole harmless MCP
+  effect and notifier receipt match actual thread
+  01a15151-5446-7c61-9d80-1dee3af87da1/turn
+  01a15151-5471-7f52-b816-241301848a6b. Parent waits for a missing notifier only
+  after normal worker completion, so it does not extend worker close timing.
+  Original overall report stays FAILED because the immediate retirement check
+  saw ancillary Git/Node descendants. Independent later readback finds the group
+  and notifier absent without a parent cleanup signal. This is not a fabricated
+  normal-exit receipt or a rerun to turn the report green.
+
+All three payloads contain type=agent-turn-complete, thread-id and turn-id plus
+client/cwd/input-messages/last-assistant-message. Only synthetic fixture content
+was used. The actual worker's MCP receives its private socket and disabled helper
+app in SKY_CUA_SERVICE_NATIVE_PIPE_PATH/SKY_CUA_SERVICE_PATH. The notifier child
+receives CODEX_HOME but neither native pipe nor helper-app override. This proves
+an environment-binding difference. It does NOT establish which endpoint the
+signed notifier selects, whether it supports either variable, or native release.
+
+Private wrapper-notify-evidence/manifest.json verifies14 files/83992bytes;
+worker-notify-evidence/manifest.json verifies7 files/56017bytes, including exact
+fixture/recorder sources. Eight staged production modules match current local
+bytes; this is not a whole import-closure assertion. Derived
+notify-routing-analysis.json preserves original failures and separately qualifies
+notifier receipts. Independent final inventories find no owned group, notifier
+or copied helper; uv508/caffeinate510 remain. Local UI/config/quarantine and
+production runtime remain unchanged.
+
+The older filter-retention runs used JS Stop alone; they did not test Taylor's
+complete configured native notify path. They remain valid bounded observations
+but do not establish that ordinary native turn-end cleanup fails. Do not describe
+app-server as dropping configured notify, or equate successful notifier delivery
+with cleanup of a particular helper.
+
+NEXT: qualify supported native notifier endpoint selection and ownership without
+executing it against shared/unowned services. Only after exact confinement is
+established, prepare one changed-condition native lifecycle comparison on the
+owned remote fixture using ordinary shared-helper topology. Keep local quarantine
+enabled, avoid simultaneous independent input and preserve all earlier failures.
+No live server rename/plugin/notify change or upstream-only attribution follows.

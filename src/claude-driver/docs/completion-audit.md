@@ -11,7 +11,12 @@ actual host traces show the reviewed Stop hook targets the server named
 cua_repl, regardless of direct/packaged executable; the separate node_repl server
 receives no notification in that matched configuration. Our lifecycle
 orchestration is not fully ruled out, so upstream-only attribution was too
-strong. See [custom wrapper audit](custom-cua-wrapper-audit.md). No native input
+strong. Recording substitutes also receive configured native notify through CLI,
+raw app-server and the actual private worker; the latter's MCP receives private
+socket/app hints which its notifier child lacks. Native endpoint selection and
+release are still unqualified. Older JS-Stop-only retention does not qualify the
+complete configured native notification path. See
+[custom wrapper audit](custom-cua-wrapper-audit.md). No native input
 was repeated or native safety established. The reproduction packet remains
 unsent; every incomplete requirement below is retained. No local quarantine
 release, signed-runtime patch, broker wake, authentication change or external

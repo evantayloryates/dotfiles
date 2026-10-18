@@ -15,6 +15,15 @@ state after the real Stop hook using the actual unchanged host IDs. These modes
 never load Sky/browser, acquire apps, inject input or change saved hook trust.
 Original admission/retirement failures remain separate from derived routing proof.
 
+`--single-endpoint --record-notify` replaces the configured native notify command
+with this fixture's scoped localhost `--notify-probe` recorder. It captures the
+actual appended payload, IDs, PID and selected home/pipe/app environment; it never
+executes the signed native notifier. Optional `--app-server-host` observes actual
+raw app-server completion with normal hook trust, without the CLI exec override.
+Ephemeral diagnostic threads have no persisted rollout and are not archived.
+Prior failed archive/retirement reports stay unchanged; a recorder receipt proves
+delivery, not native helper selection or resource cleanup.
+
 `sky-setup-contract.mjs` imports the actual reviewed Sky JavaScript service on
 the remote host, calls setup only and traps native pipe, launch and network
 capabilities. It observes JavaScript handler registration, not an acquired app's
@@ -27,6 +36,12 @@ bundled app-server against a harmless MCP fixture and deterministic localhost
 provider. It never starts CUA or a helper. Its effect proof reads only the scoped
 socket/startup/home/surface environment; a completed turn without that effect
 fails. Each run keeps its own failure report. No hook review override is used.
+Its remote-only `--record-notify --notify-recorder <hashed recorder source>` mode
+uses the same harmless recorder with the actual unchanged worker. The parent
+waits for the notification after worker completion; it does not delay worker
+closure. Compare actual MCP metadata and the notifier environment, preserving
+immediate-retirement failures and independent later process readbacks separately.
+The source/hash/owner guards reject other hosts or unreviewed recorder/CLI bytes.
 
 `service-lifecycle.mjs` is restricted to the exact Theo Air test owner. It runs
 the production helper factory with the signed copied runtime, then performs one

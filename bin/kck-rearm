@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """kck rearm: re-arm Taylor's slot-3 Call Guidance smoke call at a chosen time.
 
-  kck rearm                         ask: "Rearm for 6:50p today? [Y/n]" (Enter = yes), or enter a time step by step
+  kck rearm                         ask: "Rearm for 6:50p today? [Y/n]" (Enter = yes), or step through
+                                    year, month, day, hour (1-12), minute, am/pm under a live preview
   kck rearm -m10 -d18 -h15 -min30   no questions: use these parts, the rest default to now (America/New_York)
 
 The default offered is the last time used for the current call, else the next 5-minute mark after now.
@@ -89,40 +90,56 @@ def parse_flags(args, now):
         raise SystemExit(f'kck rearm: not a valid date/time ({e})')
 
 
-def parse_hour(text):
-    m = re.fullmatch(r'\s*(\d{1,2})\s*([ap])?m?\s*', text.lower())
-    if not m:
-        raise ValueError(f'hour {text!r}')
-    h, ap = int(m.group(1)), m.group(2)
-    if ap:
-        if not 1 <= h <= 12:
-            raise ValueError(f'hour {text!r}')
-        h = h % 12 + (12 if ap == 'p' else 0)
-    if not 0 <= h <= 23:
-        raise ValueError(f'hour {text!r}')
-    return h
+MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+STEPS = ('year', 'month', 'day', 'hour', 'minute', 'ampm')
+LABELS = {'year': 'Year', 'month': 'Month', 'day': 'Day', 'hour': 'Hour', 'minute': 'Minute', 'ampm': 'AM/PM'}
 
 
-def ask_parts(defaults):
-    """Prompt year..minute; Enter keeps the bracketed value. Re-prompts from year on a bad date."""
-    print('Enter keeps the value in [brackets]. Hour is 0-23, or like 6p. Ctrl-C cancels.')
-    raw = {f: str(defaults[f]) for f in FIELDS}
-    labels = {'year': 'Year', 'month': 'Month', 'day': 'Day', 'hour': 'Hour', 'minute': 'Minute'}
+def preview(raw, done):
+    """'Oct 18 2026 7:05pm' with confirmed parts white and the rest gray."""
+    def part(field, text):
+        return color(text, '97' if field in done else '90')
+    try:
+        mon = MONTHS[int(raw['month']) - 1]
+    except (ValueError, IndexError):
+        mon = raw['month']
+    minute = raw['minute'].zfill(2) if raw['minute'].isdigit() else raw['minute']
+    return (f"{part('month', mon)} {part('day', raw['day'])} {part('year', raw['year'])} "
+            f"{part('hour', raw['hour'])}{color(':', '97' if 'minute' in done else '90')}"
+            f"{part('minute', minute)}{part('ampm', raw['ampm'])}")
+
+
+def to_datetime(raw):
+    year, month, day, minute = (int(raw[f]) for f in ('year', 'month', 'day', 'minute'))
+    hour = int(raw['hour'])
+    ampm = raw['ampm'].strip().lower().rstrip('m')
+    if not 1 <= hour <= 12:
+        raise ValueError(f'hour {raw["hour"]!r} must be 1-12')
+    if ampm not in ('a', 'p'):
+        raise ValueError(f'AM/PM {raw["ampm"]!r} must be am or pm')
+    return datetime(year, month, day, hour % 12 + (12 if ampm == 'p' else 0), minute, tzinfo=ET)
+
+
+def ask_parts(at):
+    """Step through year, month, day, hour (1-12), minute, am/pm under a live preview line.
+    Enter keeps the bracketed value. A bad date starts again from the year, keeping what was typed."""
+    raw = {'year': str(at.year), 'month': str(at.month), 'day': str(at.day),
+           'hour': str(at.hour % 12 or 12), 'minute': f'{at.minute:02d}', 'ampm': 'am' if at.hour < 12 else 'pm'}
+    print()
     while True:
-        for f in FIELDS:
-            hint = raw[f]
-            if f == 'hour':
-                try:
-                    hint = f'{raw[f]}, {clock(datetime(2000, 1, 1, parse_hour(raw[f]))).replace(":00", "")}'
-                except ValueError:
-                    pass
-            got = input(f'  {labels[f]} [{hint}]: ').strip()
+        done = set()
+        for f in STEPS:
+            print(preview(raw, done))
+            got = input(f'{LABELS[f]} [{raw[f]}]: ').strip()
             if got:
-                raw[f] = got
+                raw[f] = got.lower() if f == 'ampm' else got
+            done.add(f)
+            if TTY:
+                sys.stdout.write('\033[2F\033[J')   # back over the preview and prompt lines
         try:
-            parts = {f: int(raw[f]) for f in ('year', 'month', 'day', 'minute')}
-            parts['hour'] = parse_hour(raw['hour'])
-            return datetime(**parts, tzinfo=ET)
+            at = to_datetime(raw)
+            print(preview(raw, set(STEPS)))
+            return at
         except ValueError as e:
             print(color(f"Couldn't read that as a date and time ({e}). Starting again from the year, with what you typed as the defaults.", '31'))
 
@@ -177,7 +194,7 @@ def main():
         at = datetime.fromisoformat(stored).astimezone(ET) if stored else next_five(now)
         got = input(f'Rearm for {describe(at, now)}? [Y/n] ').strip().lower()
         if got not in ('', 'y', 'yes'):
-            at = ask_parts({f: getattr(at, f) for f in FIELDS})
+            at = ask_parts(at)
             print(f'Rearming for {describe(at, now)}')
     new_id = run_rearm(at) or call_id
     save_state(new_id, at)

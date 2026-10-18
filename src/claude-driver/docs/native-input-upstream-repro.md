@@ -10,6 +10,14 @@ failure independent of our integration. Own lifecycle contribution and actual
 custom/bundled cleanup-path overlap remain unverified. The packet requests
 runtime capability/clarification; it does not conclusively assign native blame.
 
+Later input-free actual-host traces also show configured native notify delivers
+matching IDs through CLI exec, raw app-server and the actual private worker. The
+retention runs below used JS Stop alone, without that native notify configuration.
+They do not establish failure of Taylor's complete ordinary turn-end path. The
+worker passes private socket/app hints to its MCP but not its notifier child;
+native endpoint selection and release remain unqualified. Keep this integration
+boundary in any future report rather than attributing it solely to the runtime.
+
 ## Expected contract
 
 A completed or interrupted owned Computer Use turn should have a supported way
