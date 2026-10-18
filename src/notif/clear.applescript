@@ -9,7 +9,7 @@ on panelIsOpen()
                 if not (exists window "Notification Center") then return false
                 set panel to first window whose name is "Notification Center"
                 set scroller to UI element 1 of UI element 1 of UI element 1 of panel
-                if value of attribute "AXRole" of scroller is not "AXScrollArea" then error "Notification Center layout changed."
+                if value of attribute "AXRole" of scroller is not "AXScrollArea" then return false
                 repeat with elementRef in UI elements of scroller
                     set elementIdentifier to missing value
                     try
@@ -66,7 +66,7 @@ on notificationElements()
             if not (exists window "Notification Center") then return missing value
             set panel to first window whose name is "Notification Center"
             set scroller to UI element 1 of UI element 1 of UI element 1 of panel
-            if value of attribute "AXRole" of scroller is not "AXScrollArea" then error "Notification Center layout changed."
+            if value of attribute "AXRole" of scroller is not "AXScrollArea" then return missing value
             if (count of UI elements of scroller) is 0 then return {}
             set firstElement to UI element 1 of scroller
             set firstIdentifier to missing value
@@ -150,7 +150,10 @@ set clearedCount to 0
 try
     -- Floating alerts on the primary display can be separate from the panel
     -- opened by the Clock on another display. Dismiss them where they appear.
-    if not panelIsOpen() then set clearedCount to clearVisibleNotifications()
+    if not panelIsOpen() then
+        set clearedCount to clearVisibleNotifications()
+        delay 0.2
+    end if
     ensurePanel()
 
     set transientFailures to 0
