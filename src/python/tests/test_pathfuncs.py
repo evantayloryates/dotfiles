@@ -146,12 +146,6 @@ class PathfuncsTests(unittest.TestCase):
             nex ssh
         '''), [f'<{self.checkout}/src/python/desktop.py>', '<clean>', '<--name>', '<two words>',
                '<web worker>', '<-C>', f'<{self.home}/src/github/nexrender-scripts/../nexrender-api>', '<ssh>'])
-        kit = copy.deepcopy(next(e for e in pathfuncs.CONFIG if e['slug'] == 'kit'))
-        kit['commands']['reload'] = kit['commands']['reload'].replace(
-            '/Applications/kitty.app/Contents/MacOS/kitty', 'capture')
-        self.assertEqual(self.shell(pathfuncs.build_function(kit) + '\nkitty reload'),
-                         ['<@>', '<load-config>', f'<{self.home}/.config/kitty/kitty.conf>'])
-
     def test_subfunctions_and_reload_cleanup(self):
         (self.home / '.claude/skills').mkdir(parents=True)
         self.assertEqual(self.shell('''

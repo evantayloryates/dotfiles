@@ -1,0 +1,95 @@
+# Ghostty config — symlinked from ~/.config/ghostty
+# Ported from kitty.conf where applicable.
+
+# --- Appearance ---
+background = #000000
+background-opacity = 0.65
+background-blur = 5
+
+# auto gives normal windows a native macOS titlebar so they can be dragged and
+# tabbed. The quick terminal is a panel and ignores this, staying edge-to-edge
+# and chromeless, so one setting covers both window types.
+window-decoration = auto
+window-padding-x = 10
+window-padding-y = 10
+
+selection-foreground = #ebdbb2
+selection-background = #d65d0e
+
+cursor-style = bar
+cursor-color = #ff0015
+
+# --- Palette ---
+# Ghostty ships a muted Tomorrow Night palette (dusty rose, olive, tan) which
+# reads as washed out next to kitty. These are kitty's saturated stock colors,
+# so ANSI output looks the way it did before the switch. Foreground is left at
+# Ghostty's #ffffff default, which is already brighter than kitty's #dddddd.
+palette = 0=#000000
+palette = 1=#cc0403
+palette = 2=#19cb00
+palette = 3=#cecb00
+palette = 4=#0d73cc
+palette = 5=#cb1ed1
+palette = 6=#0dcdcd
+palette = 7=#dddddd
+palette = 8=#767676
+palette = 9=#f2201f
+palette = 10=#23fd00
+palette = 11=#fffd00
+palette = 12=#1a8fff
+palette = 13=#fd28ff
+palette = 14=#14ffff
+palette = 15=#ffffff
+
+# --- Shell ---
+command = /bin/zsh
+shell-integration = zsh
+
+window-save-state = never
+confirm-close-surface = false
+
+# --- Quick terminal (hot window) ---
+# Owns cmd+space, replacing the deprecated Hammerspoon kitty hot window.
+# The global: prefix needs Accessibility permission for Ghostty.app, and
+# quick-terminal-position only takes effect after a full Ghostty restart.
+keybind = global:cmd+space=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 100%
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0
+quick-terminal-autohide = true
+quick-terminal-space-behavior = move
+
+# Ghostty 1.3.1 never re-enables its global event tap after macOS disables it
+# (any ~1s main-thread stall), so cmd+space then only worked with Ghostty
+# focused until a restart. Fixed upstream in 3c2c596dc (2026-03-28), after
+# 1.3.1. On 2026-10-14 the tip build 7685d36c0 (build 18152) was installed by
+# hand. Pinning the stable channel keeps Sparkle from following nightly; it
+# moves back to a stable release once one ships with a build number above 18152.
+auto-update-channel = stable
+
+# --- Keybinds (mirrors kitty.conf) ---
+keybind = super+d=new_split:right
+keybind = super+shift+d=new_split:down
+keybind = super+left=text:\x01
+keybind = super+right=text:\x05
+
+# cmd+w sends SIGINT then EOF rather than using close_surface/close_window:
+# both of those actions only hide the quick terminal panel and leave the shell
+# and its scrollback alive, so the next cmd+space resumed the old session.
+# Exiting the shell is what actually tears the session down, and it closes
+# normal windows too. Caveat: inside a full-screen program (vim, less, ssh)
+# these bytes go to that program instead of closing anything.
+keybind = super+w=text:\x03\x04
+
+# Clear: cmd+k keeps scrollback, cmd+opt+k wipes it too. cmd+k sends ^[^L,
+# which dotfiles/src/hooks/keybinds.sh binds to a widget that scrolls the
+# viewport into history before clearing. Ghostty has no native action for this:
+# clear_screen also drops scrollback, and a bare Ctrl+L erases the screen in
+# place without preserving it.
+keybind = super+k=text:\x1b\x0c
+keybind = super+alt+k=clear_screen
+
+# --- Not portable from kitty ---
+# allow_remote_control: Ghostty uses `ghostty +` CLI instead.
+# paste_actions filter: no custom paste-filter hook equivalent.

@@ -66,6 +66,19 @@ bash "$DOTFILES_DIR/install_brew.sh"
 # Global git settings, and what `git log` relies on (see the file's header).
 bash "$DOTFILES_DIR/install_git.sh"
 
+# Keep app-owned config at its expected path while versioning its source here.
+# Scoped installers refuse to replace an existing real directory or a link to
+# another location, so setup never overwrites local app settings.
+if [[ "$(uname)" == "Darwin" ]]; then
+  for CONFIG_APP in ghostty karabiner; do
+    if bash "$DOTFILES_DIR/src/$CONFIG_APP/install.sh"; then
+      log "🔗 Linked $CONFIG_APP config from dotfiles"
+    else
+      log "⚠️  $CONFIG_APP config needs manual migration; existing path left alone"
+    fi
+  done
+fi
+
 # Shell-independent op wrapper and its user LaunchAgents.
 bash "$DOTFILES_DIR/install_op_agent.sh"
 

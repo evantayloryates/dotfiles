@@ -1,5 +1,5 @@
 #!/bin/zsh
-source "$DOTFILES_DIR/src/lib/terminal-image.sh"
+source "$DOTFILES_DIR/src/lib/terminal-file.sh"
 
 # Echo a path in $1 for name $2 that does not exist yet, adding -1, -2, ...
 # before the extension until it is free.
@@ -197,25 +197,19 @@ clipsend() {
       ;;
   esac
 
-  # Preview saved images first so publishing their absolute paths is the final
+  # Preview supported files first so publishing their absolute paths is the final
   # clipboard operation, even if a renderer ever touches the pasteboard.
   for out in "${outs[@]}"; do
-    if __terminal_image_preview "$out"; then
+    if __terminal_preview "$out"; then
       :
     else
       local preview_status=$?
-      (( preview_status == 2 )) || print -u2 -- "⚠️ Image preview failed: $out"
+      (( preview_status == 2 )) || print -u2 -- "⚠️ File preview failed: $out"
     fi
   done
-  if ! printf '%s' "${(F)outs}" | /usr/bin/pbcopy; then
-    printf '%s\n' "${outs[@]}"
+  printf '%s\n' "${outs[@]}"
+  if ! __terminal_copy path "${outs[@]}"; then
     echo '❌ Files saved, but their paths could not be copied to the clipboard' >&2
     return 1
-  fi
-  printf '%s\n' "${outs[@]}"
-  if (( ${#outs} > 1 )); then
-    echo '✅ File paths copied to clipboard'
-  else
-    echo '✅ File path copied to clipboard'
   fi
 }

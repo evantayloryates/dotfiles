@@ -90,14 +90,11 @@ render_md_to_image() {
     return 1
   fi
 
-  # 4) Display left-aligned in kitty
-  # Using placement=left can be emulated by setting align=left and a reasonable width
-  # Use absolute path to bypass kitty() function alias
-  /Applications/kitty.app/Contents/MacOS/kitty +kitten icat \
-  --align left \
-  --scale-up \
-  --place "$(identify -format '%wx%h' "$trimmed_path")@0x0" \
-  "$trimmed_path"
+  # 4) Display in Ghostty without relying on Kitty's removed executable.
+  if ! chafa --probe=off --align=top,left --scale=max "$trimmed_path"; then
+    echo "Failed to display rendered image with chafa" >&2
+    return 1
+  fi
 
   # Clean up intermediates (keep trimmed image)
   rm -f "$tmp_md" "$tmp_html"

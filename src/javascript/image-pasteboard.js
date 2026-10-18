@@ -1,18 +1,17 @@
 // Prefer the original file on the pasteboard. PNG encoding remains an in-memory
-// fallback; neither mode creates a temporary file.
-// Chafa has already confirmed the input renders before this helper runs.
+// image fallback; neither mode creates a temporary file.
 ObjC.import('AppKit');
 
 function copyFile(path, pasteboard) {
   const url = $.NSURL.fileURLWithPath(path).URLByResolvingSymlinksInPath;
   const target = ObjC.unwrap(url.path);
   if (!$.NSFileManager.defaultManager.isReadableFileAtPath(target)) {
-    throw new Error('image file is not readable');
+    throw new Error('file is not readable');
   }
 
   pasteboard.clearContents;
   if (!pasteboard.writeObjects($([url]))) {
-    throw new Error('could not copy image file');
+    throw new Error('could not copy file');
   }
   const urls = pasteboard.readObjectsForClassesOptions(
     $([$.NSURL]), $({ NSPasteboardURLReadingFileURLsOnlyKey: true })
@@ -57,7 +56,7 @@ function copyImage(path, pasteboard) {
 function run(argv) {
   // Preserve the original one-argument PNG command for direct callers.
   if (argv.length === 1) return copyImage(argv[0], $.NSPasteboard.generalPasteboard);
-  if (argv.length !== 2) throw new Error('usage: image-pasteboard.js <file|png> <image-path>');
+  if (argv.length !== 2) throw new Error('usage: image-pasteboard.js <file|png> <path>');
   if (argv[0] === 'file') return copyFile(argv[1], $.NSPasteboard.generalPasteboard);
   if (argv[0] === 'png') return copyImage(argv[1], $.NSPasteboard.generalPasteboard);
   throw new Error('copy mode must be file or png');

@@ -14,6 +14,32 @@ import clipsend
 
 REPO = Path(__file__).resolve().parents[3]
 
+
+def sample_pdf():
+    """A two-page PDF small enough to generate without a PDF dependency."""
+    streams = [b'BT /F1 18 Tf 72 700 Td (First preview page) Tj ET',
+               b'BT /F1 18 Tf 72 700 Td (Second page) Tj ET']
+    objects = [
+        b'<< /Type /Catalog /Pages 2 0 R >>',
+        b'<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 6 0 R >>',
+        b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 7 0 R >>',
+    ]
+    objects += [f'<< /Length {len(stream)} >>\nstream\n'.encode() + stream + b'\nendstream'
+                for stream in streams]
+    data = bytearray(b'%PDF-1.4\n')
+    offsets = [0]
+    for number, obj in enumerate(objects, 1):
+        offsets.append(len(data))
+        data.extend(f'{number} 0 obj\n'.encode() + obj + b'\nendobj\n')
+    xref = len(data)
+    data.extend(f'xref\n0 {len(offsets)}\n0000000000 65535 f \n'.encode())
+    for offset in offsets[1:]:
+        data.extend(f'{offset:010} 00000 n \n'.encode())
+    data.extend(f'trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n'.encode())
+    return bytes(data)
+
 NEW_TYPES = {
     'yaml': 'name: demo\nreplicas: 2\n',
     'ts': 'interface User { name: string; }\n',
@@ -517,7 +543,7 @@ source "$DOTFILES_DIR/src/functions/img.sh"
 source "$DOTFILES_DIR/src/functions/aliases.sh"
 open() { print -r -- "OPEN:$*"; }
 chafa() { print -r -- "PREVIEW:${2:t}"; }
-__o_copy_file() { return 0; }
+__terminal_copy_file() { return 0; }
 o "$IMAGE"
 o "$IMPOSTOR"
 o -a Preview "$IMAGE"
@@ -531,6 +557,78 @@ o "$HOME/Desktop"
             'PREVIEW:image-without-suffix', '✅ File contents copied to clipboard',
             f'OPEN:{impostor}', f'OPEN:-a Preview {image}', f'OPEN:{self.desktop}',
         ])
+
+    def test_o_pdf_markdown_and_content_aware_copy_fallbacks(self):
+        pdf = self.root / 'document.pdf'
+        pdf.write_bytes(sample_pdf())
+        markdown = self.root / 'notes.md'
+        markdown.write_text('# Notes\n\nHello **Ghostty**.\n')
+        image = self.root / 'image.png'
+        def chunk(kind, data):
+            return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+        image.write_bytes(b'\x89PNG\r\n\x1a\n'
+                          + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
+                          + chunk(b'IDAT', zlib.compress(b'\0\xff\0\0'))
+                          + chunk(b'IEND', b''))
+        impostor = self.root / 'impostor.md'
+        impostor.write_bytes(b'\0not markdown')
+        script = r'''
+source "$DOTFILES_DIR/src/functions/img.sh"
+source "$DOTFILES_DIR/src/functions/aliases.sh"
+open() { print -r -- "OPEN:${1:t}"; }
+pdfinfo() { print -r -- 'Pages:          2'; }
+pdftoppm() { print -rn -- 'fake png'; }
+pdftotext() { print -r -- 'First preview page'; }
+chafa() { [[ "$1" == --probe=off ]] || return 1; [[ "$2" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${2:t}"; }
+mdcat() { print -r -- "PREVIEW:${3:t}"; }
+__terminal_copy_file() { print -r -- "file:${1:t}" >> "$HOME/copy-log"; print -u2 -- 'file unavailable'; return 1; }
+__terminal_copy_png() { print -r -- "png:${1:t}" >> "$HOME/copy-log"; return 0; }
+__terminal_copy_paths() { print -r -- "path:${1:t}" >> "$HOME/copy-log"; return 0; }
+o "$PDF"
+o "$MARKDOWN"
+o "$IMAGE"
+o "$IMPOSTOR"
+'''
+        env = dict(os.environ, HOME=self.temp, DOTFILES_DIR=str(REPO),
+                   PDF=str(pdf), MARKDOWN=str(markdown), IMAGE=str(image),
+                   IMPOSTOR=str(impostor))
+        result = subprocess.run(['zsh', '-f', '-c', script], env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('PDF preview: page 1 of 2', result.stdout)
+        self.assertIn('Text (page 1):\nFirst preview page', result.stdout)
+        self.assertIn('PREVIEW:notes.md', result.stdout)
+        self.assertIn('✅ Transcoded png contents copied to clipboard', result.stdout)
+        self.assertEqual(result.stdout.count('✅ File path copied to clipboard'), 2)
+        self.assertIn('OPEN:impostor.md', result.stdout)
+        self.assertEqual((self.root / 'copy-log').read_text().splitlines(), [
+            'file:document.pdf', 'path:document.pdf',
+            'file:notes.md', 'path:notes.md',
+            'file:image.png', 'png:image.png',
+        ])
+        self.assertEqual(result.stderr.count('❌ Copy Failure:'), 3)
+
+    def test_cs_previews_pdf_and_markdown_and_only_copies_paths(self):
+        pdf = self.root / 'source.pdf'
+        pdf.write_bytes(sample_pdf())
+        markdown = self.root / 'source.md'
+        markdown.write_text('# Preview\n\nA **Markdown** file.\n')
+        before = r'''
+pdfinfo() { print -r -- 'Pages:          2'; }
+pdftoppm() { print -rn -- 'fake png'; }
+pdftotext() { print -r -- 'First preview page'; }
+chafa() { [[ "$2" == - ]] && cat >/dev/null; print -r -- 'PREVIEW:pdf'; }
+mdcat() { print -r -- 'PREVIEW:markdown'; }
+__terminal_copy_file() { print -u2 -- 'unexpected file copy'; return 1; }
+__terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
+'''
+        for source, expected in ((pdf, 'PREVIEW:pdf'), (markdown, 'PREVIEW:markdown')):
+            with self.subTest(source=source):
+                result = self.run_cs(arguments=['--from', str(source)], before=before)
+                saved = self.assert_saved(result, source.name)
+                self.assertEqual(saved.read_bytes(), source.read_bytes())
+                self.assertIn(expected, result.stdout)
+                self.assertIn('✅ File path copied to clipboard', result.stdout)
+                saved.unlink()
 
     def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
         self.payload.write_bytes(b'\xff\0binary\x80')
@@ -643,6 +741,29 @@ __clipsend_pasteboard() {
         self.assertTrue((self.desktop / 'data.json').exists())
         self.assertIn('Files saved', result.stderr)
 
+    def test_copy_chain_reports_each_failure_and_unknown_message(self):
+        image = self.root / 'pixel.png'
+        def chunk(kind, data):
+            return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+        image.write_bytes(b'\x89PNG\r\n\x1a\n'
+                          + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0))
+                          + chunk(b'IDAT', zlib.compress(b'\0\xff\0\0'))
+                          + chunk(b'IEND', b''))
+        script = r'''
+source "$DOTFILES_DIR/src/lib/terminal-file.sh"
+__terminal_copy_file() { print -u2 -- 'a failure message that exceeds fifty characters by quite a bit'; return 1; }
+__terminal_copy_png() { return 1; }
+__terminal_copy_paths() { print -u2 -- 'path unavailable'; return 1; }
+__terminal_copy 'file,transcode,path' "$IMAGE"
+'''
+        env = dict(os.environ, DOTFILES_DIR=str(REPO), IMAGE=str(image))
+        result = subprocess.run(['zsh', '-f', '-c', script], env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stderr.count('\x1b[37m❌'), 3)
+        self.assertIn('\x1b[90m...\x1b[0m', result.stderr)
+        self.assertIn('❌ Transcode Copy Failure:\x1b[31m Unknown Error\x1b[0m', result.stderr)
+        self.assertIn('❌ Path Copy Failure:\x1b[31m path unavailable\x1b[0m', result.stderr)
+
 
 @unittest.skipUnless(sys.platform == 'darwin', 'requires macOS AppKit')
 class PasteboardTests(unittest.TestCase):
@@ -681,6 +802,45 @@ function run(argv) {
 ''')
             result = subprocess.run(['/usr/bin/osascript', '-l', 'JavaScript', str(script), directory],
                                     text=True, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), 'ok')
+
+    def test_original_file_copy_preserves_pdf_markdown_and_image_bytes(self):
+        bridge = (REPO / 'src/javascript/image-pasteboard.js').read_text()
+        bridge = bridge.replace('function run(argv)', 'function originalRun(argv)')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            pdf = root / 'source.pdf'
+            pdf.write_bytes(sample_pdf())
+            markdown = root / 'source.md'
+            markdown.write_bytes(b'# Original Markdown\n\nKeep **these** bytes.\n')
+            image = root / 'source.bmp'
+            image.write_bytes(b'BM' + b'example image bytes')
+            script = root / 'file-copy.js'
+            script.write_text(bridge + r'''
+function run(argv) {
+  const pb = $.NSPasteboard.pasteboardWithUniqueName;
+  try {
+    for (const path of argv) {
+      copyFile(path, pb);
+      const urls = pb.readObjectsForClassesOptions(
+        $([$.NSURL]), $({ NSPasteboardURLReadingFileURLsOnlyKey: true })
+      );
+      if (urls.isNil() || Number(urls.count) !== 1) throw new Error('missing file URL');
+      const url = urls.objectAtIndex(0);
+      const original = $.NSData.dataWithContentsOfFile(path);
+      const copied = $.NSData.dataWithContentsOfURL(url);
+      if (original.isNil() || copied.isNil() || !original.isEqualToData(copied)) {
+        throw new Error('copied file bytes changed');
+      }
+    }
+    return 'ok';
+  } finally { pb.releaseGlobally; }
+}
+''')
+            result = subprocess.run(['/usr/bin/osascript', '-l', 'JavaScript', str(script),
+                                     str(pdf), str(markdown), str(image)],
+                                    capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.strip(), 'ok')
 

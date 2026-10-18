@@ -13,8 +13,8 @@
     TERM_UNICODE=0
   elif [[ "$charset" == *utf(-|)8* ]]; then
     TERM_UNICODE=1
-  elif [[ "$TERM_PROGRAM" == (ghostty|iTerm.app|Apple_Terminal|vscode|WezTerm|kitty) ||
-          "$TERM" == (xterm-ghostty|xterm-kitty|wezterm|alacritty) ]]; then
+  elif [[ "$TERM_PROGRAM" == (ghostty|iTerm.app|Apple_Terminal|vscode|WezTerm) ||
+          "$TERM" == (xterm-ghostty|wezterm|alacritty) ]]; then
     TERM_UNICODE=1
   else
     TERM_UNICODE=0

@@ -195,7 +195,7 @@ local function checkAndFocus()
 		-- Don't follow cursor if a terminal hot window is currently focused.
 		-- Ghostty's quick terminal autohides the moment it loses focus, so
 		-- letting the mouse steal focus would dismiss it out from under you.
-		if currentApp == "kitty" or currentApp == "Ghostty" then
+		if currentApp == "Ghostty" then
 			logger("[checkAndFocus] " .. currentApp .. " is currently focused, skipping focus change")
 			return
 		end

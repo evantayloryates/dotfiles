@@ -18,8 +18,7 @@
 --
 -- Invariant the coordinator guarantees: AT MOST ONE overlay is presented at any
 -- time. We always dismiss the outgoing overlay before presenting the incoming
--- one, so the floating hot-corner backdrop can never end up covering the normal
--- -level kitty window (the original "terminal won't load" symptom).
+-- one, so the floating hot-corner backdrop cannot cover another overlay.
 
 OverlayCoordinator = {}
 

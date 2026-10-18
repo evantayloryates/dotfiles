@@ -15,9 +15,6 @@ local IMPORTS = {
 }
 local EXCLUDES = {
 	'AppleScripts',
-	-- Deprecated: the kitty hot window was replaced by Ghostty's quick terminal
-	-- on cmd+space. Kept on disk but no longer loaded.
-	'HotWindows',
 }
 
 for _,item in pairs(IMPORTS) do

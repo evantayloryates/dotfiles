@@ -1,62 +1,15 @@
-# Render an image inline in the terminal. Goes through kitty's standalone
-# `kitten` binary rather than the `kitty +kitten` launcher: kitten negotiates
-# the Kitty graphics protocol with whatever terminal it is running under, and
-# Ghostty implements that protocol, so this works in both.
-source "$DOTFILES_DIR/src/lib/terminal-image.sh"
-
-_term_image() {
-  /Applications/kitty.app/Contents/MacOS/kitten icat "$@"
-}
+# Preview supported files in Ghostty with the shared terminal renderer.
+source "$DOTFILES_DIR/src/lib/terminal-file.sh"
 
 __o_preview_and_copy() {
-  __terminal_image_preview "$1"
+  __terminal_preview "$1"
   local preview_status=$?
   if (( preview_status == 2 )); then
     open "$1"
     return
   fi
   (( preview_status == 0 )) || return "$preview_status"
-
-  local error
-  if error="$(__o_copy_file "$1" 2>&1)"; then
-    print -r -- '✅ File contents copied to clipboard'
-  else
-    __o_copy_failure '❌ Copy Failure:' "$error"
-    if error="$(__o_copy_png "$1" 2>&1)"; then
-      print -r -- '✅ Transcoded png contents copied to clipboard'
-    else
-      __o_copy_failure '❌ Transcode Copy Failure:' "$error"
-      return 1
-    fi
-  fi
-}
-
-__o_copy_file() {
-  /usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" file "${1:A}"
-}
-
-__o_copy_png() {
-  /usr/bin/osascript -l JavaScript "$DOTFILES_DIR/src/javascript/image-pasteboard.js" png "$1"
-}
-
-__o_copy_failure() {
-  local label="$1" message="$2"
-  message="${message%%$'\n'*}"
-  message="${message//$'\r'/ }"
-  message="${message//$'\e'/}"
-  message="${message//$'\t'/ }"
-  message="${message##*execution error: }"
-  while [[ "$message" == 'Error: '* ]]; do message="${message#Error: }"; done
-  if [[ "$message" =~ ' \(-[0-9]+\)$' ]]; then message="${message% *}"; fi
-  message="${message#"${message%%[![:space:]]*}"}"
-  message="${message%"${message##*[![:space:]]}"}"
-  [[ -n "$message" ]] || message='Unknown Error'
-
-  if (( ${#message} > 50 )); then
-    printf '\033[37m%s\033[31m %s\033[90m...\033[0m\n' "$label" "${message[1,47]}" >&2
-  else
-    printf '\033[37m%s\033[31m %s\033[0m\n' "$label" "$message" >&2
-  fi
+  __terminal_copy 'file,transcode,path' "$1"
 }
 
 __show() {
@@ -91,7 +44,10 @@ __show() {
     img_path="$1"
   fi
 
-  /Applications/kitty.app/Contents/MacOS/kitty +kitten icat --align left "$img_path" 2>/dev/null
+  if ! chafa --probe=off --align=top,left --scale=max "$img_path"; then
+    echo 'Failed to display image with chafa.' >&2
+    return 1
+  fi
 
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
     echo "📋 Image file copied to clipboard"

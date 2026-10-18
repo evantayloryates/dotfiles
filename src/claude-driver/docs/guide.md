@@ -2371,3 +2371,39 @@ Do not force another native profile now: preserve this substantive gate and use
 changed-condition/targeted checks. Then reconcile remaining full scope (group/
 window/person-only/appquit/loss/sustained-pressure) and final actual MCP adoption.
 All jobs terminal; no fixture cleanup pending. Goal active.
+
+## October 18 automatic late-readiness continuation before ordinary dispatch
+
+Ordinary preflight now detects a selected generation that differs from retained
+pair binding BEFORE taking controller route lock. Healthy/standalone binding
+returns immediately; original running renewal waits on existing normal route path.
+Exact failed readiness-timeout generation is independently requalified against
+original job/ledger/retired predecessor/current late-ready epoch/roles/settings.
+One stable original-job+ledger-hash continuation child executes outside route lock,
+preventing parent/child deadlock. Target account/identity/retained grants and exact
+source digests checked before submission and current binding/readiness afterward.
+Healthy generations do not submit a continuation; failed/cancelled/unknown child
+keeps its handle and blocks target dispatch with no retry or installation replay.
+
+Normal admission now explicitly refuses selected-vs-retained pair generation
+mismatch even if policy could otherwise be probed. Thus a parent that waited on a
+failed in-flight renewal cannot silently serve through stale failover enrollment.
+Late continuation identity is retained in ordinary route ledgers/public results.
+Standalone controllers without a pair keep existing admission behavior. All old
+mutation, request binding, process epoch and permission gates remain intact.
+
+Focused auto/cold/maintenance/continuation/MCP44/44 PASS12.8sec, private
+.runtime/state/automatic-late-readiness-focused-20261018.log. Final extracted
+stale-pair guard plus continuation12/12 PASS. No repeated live twelve-check profile,
+forced outage, source deployment/renewal, messages, permissions, app restart or
+UI/input changes this turn. Prior native full ordinary profile remains sourcef874,
+not falsely promoted to native proof of this new automatic branch.
+
+Next: consolidate full original-scope acceptance against persisted native12 checks,
+actual natural-outage recovery, actual filtered harnesses, and source-specific
+remaining group/window/person-only/appquit/loss/sustained-pressure gaps. Choose
+strategic remaining gate(s), then one final current-source full suite/harness batch
+and actual loaded-MCP adoption. Cached78678a MCP still requires supported user
+Codex restart after source settles; no hidden process kill/reload route exists.
+Fixture remains tool-title/Haiku5.5/high/bypass/unarchived/unpinned by last independent
+readback, pairfb79/c404 priorf874 healthy. No cleanup pending; goal active.
