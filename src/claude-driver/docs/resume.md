@@ -1,3 +1,26 @@
+## October 18 restored pair enrollment transition verification
+
+Added restored-pair-proof.mjs, exact before-enroll ordered ledger phases, immutable
+restoration proof/root claim, independent durable restoration/reactivation child
+readbacks and exact submissions/results. Two distinct prepared child-job generations
+must replace both old service IDs; only lost native PID/start changes, survivor
+native epoch remains exact. Activation cold_rebind only for restored role. Requires
+readiness/policy/read/role/settings/no-unknown/family verification and exact live
+survivor quiescence/retirement, preserving pair automaticRecovery/schema and scope.
+
+Internal enrollStandby now accepts restoredPairJobId as a separate exact proof
+path with current binding digest CAS and history preservation. Multiple proof
+kinds refuse as ambiguous. Generic same-epoch refresh unchanged. No public driver
+operation exposes this path before production adapter is complete.
+
+Focused restored proof/ledger/sequence/plan/existing enrollment19 PASS. Tests cover
+both lost roles, altered digest/scope, recycled generations, wrong epochs, uncertain
+children, changed activation args, missing/reordered steps, failed verification and
+policy flag loss. No live enrollment/native changes/full-suite repeat. Next finish
+production adapter with runtime/record/epoch/settings/selection guards and verified
+metadata rebind; then consolidate full suite and actual client adoption. Goal
+active; no live job or cleanup pending. Codex bridge fixes remain parked.
+
 ## October 18 durable reactivation claims and scheduler child evidence
 
 Added restored-pair-ledger.mjs. Exact plan digest and distinct durable job create
