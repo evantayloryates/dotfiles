@@ -1737,3 +1737,14 @@ Delivered/queued receipts prove acceptance only. include_causality can expose a
 bounded sdkPeerContent hash correlation for supported desktop SDK envelopes, with
 senderAttested:false and messageIdAvailable:false. This weaker observation never
 substitutes for authenticated peer-origin receipt evidence.
+
+### Ordinary archive capability
+
+An enrolled management controller can be prepared/renewed with
+session_archive_control:true (sessionArchiveControl). Default durable
+archive_session then uses exact same-account recipient binding and a retained
+receipt plus saved archived:true observation. The separate grant does not expand
+existing management, metadata or send generations. Optional reason is nonempty,
+at most 500 characters and contains no NUL. Native gates remain authoritative.
+Ordinary archive evidence does not assert process termination; fixed recovery-actor
+retirement retains its stronger separate proof. Native qualification is pending.

@@ -1327,3 +1327,38 @@ filtered harness and native batch for the final gate. ProDevs unarchive/pin alre
 verified; do not repeat just to show activity. Loaded MCP adoption remains unverified
 until final refresh. Legacy reports unchanged/pending; observer owns legacy wakes.
 Goal ACTIVE; Codex-driver/1Password work remain separate.
+
+## October 17 ordinary archive implementation
+
+Previous turn = progress (actual ordinary send failure-count tests). Implemented
+ordinary archive_session through the enrolled management controller instead of
+legacy tierB. Requires new explicit sessionArchiveControl/public
+session_archive_control:true AND management, sealed in package0.13.0, policy and
+pointer; prepare/activate/status/renew/maintenance/cold/pair roles preserve it.
+Existing generations gain NO archive authority. Health advertises only with all
+matching grants. Existing self/broker gates retained; self still follows its
+explicit existing path, ordinary route never targets its controller/caller.
+Optional reason is bounded nonempty <=500, no NUL; exact native arguments bound.
+No permission, delete, stop or arbitrary native-tool capability added.
+
+Ordinary archive uses account/cwd/CLI identity binding, exact native admission and
+receipt-hashed saved archived:true postcondition. It does NOT claim process death
+or fixed-actor retirement. Separated fixed archive observation/review from ordinary
+archive in settlement and historical-attempt review. No retry/fallback after an
+unresolved field. Missing ordinary target binding under the new archive right now
+explicitly refuses native-hook admission rather than falling through fixed roles.
+
+Focused60 passed; integrated synthetic1/1 passed28sec on source
+9cfc929657d7e66910054409f66cc9a8c8d6bd85a194f43562303b25bf5fcacf,
+pressure/v2-2026-10-18T02-59-08-877Z.json, sourceUnchanged. After that run, extracted
+binding-required helper and added missing-binding/fixed-role separation regression;
+focused20 pass on that final change. Full run is not final-source blanket proof.
+No native archive, controller renewal, app restart or ProDevs mutation this turn.
+Archive grant is implemented but NOT activated/native-qualified yet. Next strategic
+native batch should qualify ordinary archive/unarchive on the owned control target,
+not a user work chat; combine with subsequent ordinary stop integration if practical.
+
+NEXT implementation: ordinary stop with separate authority and exact recipient
+epoch, preserving requested/pending stop semantics. Both-absent recovery, natural
+pressure, broader original brief and final loaded-MCP/source suite remain open.
+Goal ACTIVE. No live test job remains; Codex-driver/1Password work stay separate.

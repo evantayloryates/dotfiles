@@ -4,7 +4,7 @@
 import {nativePolicyPeerMatches,nativePolicySettingsPath,serviceStateBindingMatches} from '../lib/runtime-entry.mjs'
 import {isMetadataOperation} from '../lib/native-metadata-control.mjs'
 import {nativeMetadataTargetObservation} from '../lib/native-metadata-admission.mjs'
-import {ordinarySessionTargetObservation,ordinarySessionBindingValid} from '../lib/ordinary-session-control.mjs'
+import {ordinarySessionTargetObservation,ordinarySessionBindingValid,ordinarySessionBindingRequired} from '../lib/ordinary-session-control.mjs'
 import {getRecord} from '../lib/sessions.mjs'
 import {inspectNativeResourcePid} from '../lib/native-resource-process.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
@@ -167,7 +167,7 @@ async function main(){
    const tools=Object.fromEntries([...body.toString().matchAll(/^\| (\w+) \| (mcp__\w+) \|$/gm)].map(m=>[m[1],m[2]])),index=nativeAdmissionIndex({input,pointer,entry,request,control,tools})
    if(index<0)throw Error('checkpoint')
    let metadataTarget,sessionTarget
-   if(Object.hasOwn(request,'nativeSessionTargetBinding')||pointer.sessionManagementControl===true&&['unarchive_session','set_session_title','set_session_model','set_session_effort','send_message'].includes(request.ops[index].op)&&!Object.hasOwn(request,'nativeMetadataTargetBinding')){
+   if(ordinarySessionBindingRequired(request,pointer,index)){
     if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
     sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId)})
     if(!sessionTarget)throw Error('ordinary session target identity or grant')

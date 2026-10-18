@@ -18,7 +18,7 @@ export async function settleIndependentServiceResult(session,serviceId,requestId
   const context=await loadIndependentServiceContext(session,serviceId,{allowRetired:true}),{config,epoch,pointer,policy}=context
   const {read}=context,request=read('requests/'+requestId+'.json'),receipt=read('.native-service-'+requestId+'.result.json')
   let archiveObservation,metadataObservation,ordinaryObservation,retainObservation=false,retainMetadata=false,retainOrdinary=false
-  if(request.ops?.[0]?.op==='archive_session'){
+  if(!Object.hasOwn(request,'nativeSessionTargetBinding')&&request.ops?.[0]?.op==='archive_session'){
    try{archiveObservation=read('.native-service-'+requestId+'.archive-observed.json')}catch(error){
     if(error.code!=='ENOENT')throw error
     const t=config.archiveTarget,r=t&&getRecord(t.sessionId)
