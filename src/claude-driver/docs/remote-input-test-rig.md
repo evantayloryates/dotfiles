@@ -5,6 +5,11 @@ Taylor supplied the remote connection from Codex chat “theo”
 the native input investigation. The goal was resumed through Play/Resume and is
 active. The full Claude-driver goal remains incomplete.
 
+The later [actual-host qualification](host-turn-end-qualification.md) supersedes
+the missing-context limitation of the standalone experiments below: real Codex
+metadata and successful Stop dispatch still retain native keyboard filters while
+another client stays live. The standalone results remain preserved separately.
+
 ## Environment and isolation
 
 SSH alias `theo-air-ts` resolves to Theo Air's existing tailnet connection,

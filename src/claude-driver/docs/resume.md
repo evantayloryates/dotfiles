@@ -1,3 +1,42 @@
+## October 18 actual host Stop verified; native filter cleanup still fails
+
+PROGRESS: Taylor approved isolated one-off tests of the exact reviewed Stop hook.
+Actual goal ACTIVE. Real copied Codex CLI/ephemeral turns and deterministic
+localhost Responses fixtures established genuine native session/turn metadata,
+without inference or account credentials. Normal app-server hook trust and the
+failed root-flag route are preserved. The documented override worked through
+codex exec, first with a harmless observer, then the real packaged CUA launcher.
+No saved hook trust or external test configuration changed.
+
+Bundled Computer Use already has Stop/Interrupt/SubagentStop turn_ended hooks.
+In settled native run run-1792352517565-ad6e80cb, exact synthetic delivery passed,
+actual Stop dispatch returned non-error, but both native keyboard filters stayed
+after host EOF and independent1/5/15-second observations while a second read-only
+client remained alive. Real metadata IDs matched hook IDs. Diagnostic result is
+FAILED cleanup, not host failure. No duplicate hook fix is justified.
+
+Normal second-client EOF removed helper/filters; own fixture stopped normally.
+Final remote inventory: no owned CLI/MCP/helper/fixture processes, original four
+non-helper taps, Switchboard/caffeinate508/510 and old repo0203e604 unchanged.
+Strict signature check on the exact helper app passed; the initial wrong-path
+check remains preserved.42 remote files/392773 bytes mirrored and hash-verified.
+Detailed method, receipts and limits: docs/host-turn-end-qualification.md.
+Candidate service memory433fa962 records the result and its qualification limits.
+
+Local quarantine remains blocked with unchanged9808e860 hash. No local CUA,
+keyboard input, shared-helper kill, permission/auth edit or app restart. Driver
+runtime source stays5d15b13f; existing focused12/full191 proof is unchanged.
+Only remote diagnostic assets/docs added; no production behavior changed.
+Ordinary service actors/ProDevs/observer broker, broad Codex work and1Password
+remain separate and untouched. No live test handle or human prompt is pending.
+
+NEXT changed-condition work: inspect native per-app owner/reference lifetime and
+the supported helper-instance boundary before choosing an ownership correction
+or dedicated-worker architecture. Missing metadata/missing Stop dispatch no
+longer explains the reproduced test. Do not repeat unchanged native tests or
+claim physical typing/real Claude/unattended cold-start qualification. Full goal
+remains incomplete; automatic continuation must use actual goal state.
+
 ## October 18 remote input rig active; shared-client retention reproduced
 
 Taylor supplied the remote setup in chat “theo”

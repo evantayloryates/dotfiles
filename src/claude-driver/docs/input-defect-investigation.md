@@ -4,6 +4,11 @@ Taylor authorized investigation of the duplicate-typing defect with UI automatio
 still disabled on this desktop. The initial investigation below was offline.
 Taylor then provided Theo Air as an isolated remote target; the new remote
 native findings are documented in [the test-rig report](remote-input-test-rig.md).
+The later [actual-host qualification](host-turn-end-qualification.md) confirms
+retention with real Codex turn metadata and a successful Stop hook, including a
+15-second settling window while a second client remains connected. Hook success
+does not establish native cleanup; adding a duplicate hook would not resolve the
+observed boundary.
 No local Computer Use runtime, input injection, helper retirement or quarantine
 release occurred.
 

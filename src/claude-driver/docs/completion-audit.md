@@ -94,12 +94,15 @@ retention: filters survived JS reset and typing-client EOF for at least 15 secon
 while another read-only client stayed connected. Last-client EOF removed the
 helper and filters without a kill. Failed cleanup remains a failed result.
 
-The remote fixture carried no actual Codex turn metadata and was not Claude;
-physical duplicate typing is not reproduced or ruled out. Next inspect the
-documented host turn-end contract and actual Mac registration, then qualify
-scoped native teardown with a real owned host turn while another client remains
-live. No fabricated metadata/private disposal route/shared-helper kill is
-authorized. All owned remote processes are stopped, Switchboard is preserved,
+The first remote fixture carried no actual Codex turn metadata and was not Claude.
+The later [actual-host qualification](host-turn-end-qualification.md) adds real
+native context and verified Stop dispatch: keyboard filters still persisted for
+15 seconds after host EOF while another client stayed connected. Both synthetic
+deliveries were exact; cleanup correctly failed. Physical duplicate typing is
+not reproduced or ruled out. Next inspect the native owner/reference and supported
+helper-instance boundary before designing an ownership fix. No fabricated
+metadata/private disposal route/shared-helper kill is authorized. All owned
+remote processes are stopped, Switchboard is preserved,
 and no fixture cleanup, local quarantine release or restart request is pending.
 The latest source is isolated-tested; actual loaded-client/native/harness
 adoption of that cleanup source remains a separate future gate.

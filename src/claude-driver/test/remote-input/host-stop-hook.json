@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "cua_repl",
+            "tool": "turn_ended",
+            "input": {
+              "hook_event_name": "${hook_event_name}",
+              "session_id": "${session_id}",
+              "turn_id": "${turn_id}"
+            },
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,6 +4,27 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`host-context.mjs` adds actual ephemeral Codex host turns through a deterministic
+localhost Responses fixture, without inference or account credentials. Default
+app-server mode preserves normal hook trust. `--exec-entry --review-receipt`
+requires Taylor's explicit receipt for the exact `host-stop-hook.json` file and
+uses the documented one-invocation hook-review override. It never changes saved
+trust. `hook-observer.mjs` first verifies harmless real hook dispatch.
+`--catalogue-native` only inventories the actual CUA tools, with no trust override
+or CUA call. `--native-turn` requires the reviewed exec entry, an empty live owned
+fixture and one clean held helper. It performs one acquisition and one synthetic
+type operation, then observes actual Stop dispatch, EOF and 1/5/15-second settling.
+`native-proxy.mjs` forwards public MCP metadata unchanged, binds operations to one
+actual native turn and relays only the existing explicit fixture app grant.
+`native-audit.mjs` only inventories tap/process and own fixture metadata.
+Keep the second client alive until settling ends; release it in finally and stop
+the fixture through its own stop file. Native retention must return failure even
+when delivery and the host turn succeed. No arbitrary provider-generated code,
+real model call, private native endpoint or shared-helper termination is used.
+See [actual-host findings](../../docs/host-turn-end-qualification.md) before
+running another experiment; current evidence already reproduces retention with
+real metadata and a successful Stop hook.
+
 The authorized remote host is `theo-air-ts` (console user `theo`). All test files
 live in `/Users/theo/.local/state/claude-driver/input-teardown-20261018`, with an
 `owner.json` marker binding the current Claude-driver Codex chat. Preserve the
