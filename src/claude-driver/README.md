@@ -40,8 +40,9 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `f13af418` passes all 187
-isolated test files, with fresh Claude/Codex harness checks passing 10/10 each.
+execution remains unqualified. Current host source `3bb05efd` passes all 187
+isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on prior
+source `f13af418`; loaded-client adoption is a separate gate.
 One actual human-assisted native deletion test reaped the
 record and transcript, rebuilt the original UUID/account/workspace without replay,
 and restored both reciprocal receiver roles with native reads and verified
@@ -76,15 +77,23 @@ human gates. Bypass mode does not remove them.
 
 Exact missing-record restoration and same-identity pair reactivation now have
 explicit durable operations, private claims/child ledgers and isolated integration
-evidence. They preserve grants and reject uncertain replay. Actual deleted-service
-recovery remains unqualified and ordinary routing does not invoke it automatically.
+evidence. They preserve grants and reject uncertain replay. Native deleted-service
+recovery passed once with human permission and loader consent; ordinary routing
+does not invoke it automatically.
 Installed app deletion can also reap the CLI transcript after ownership/liveness
 checks. The current same-identity path requires a surviving exact transcript and
-fails closed otherwise. An explicit minimal-seed rebuild path now handles missing
-transcripts in isolated fixtures; live deletion/rebuild remains unqualified.
+fails closed otherwise. An explicit minimal-seed rebuild path handles missing
+transcripts; its native proof is the human-assisted deletion test above.
 
-Qualification remains partial: unattended startup after app quit/restart, actual
-deleted-service recovery, sustained availability
+Ordinary requests distinguish a missing saved controller chat from an unqualified
+live generation. `driver_status` reports `record-restoration-required` and, only
+with matching retained account, identity and automatic pair, supplies an exact
+read-only `broker_service_missing_record_plan` invocation. This does not assess
+process absence, restore a record or authorize replay. Generic controller health
+never silently recreates an actor.
+
+Qualification remains partial: unattended startup after app quit/restart,
+automatic deleted-service recovery and sustained availability
 remain open. The isolated suite, fresh harnesses and native ordinary route passed
 their recorded source scopes. Groups retain the legacy route; window/UI
 operations remain quarantined. The default legacy `probe` still requires UI availability. Explicit

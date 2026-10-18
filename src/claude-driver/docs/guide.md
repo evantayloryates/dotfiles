@@ -22,8 +22,18 @@ independently observed child handles without exposing snapshots or transcript
 text. `submission-unconfirmed` requires original-handle reconciliation; it is not
 permission to submit again. A completed child does not erase a failed parent or
 prove service readiness. Missing-record plan/import/reactivation remain explicit
-experimental operations, not automatic ordinary-route recovery; actual native
-deleted-record recovery is still unqualified.
+experimental operations, not automatic ordinary-route recovery. One native
+deleted-record rebuild and reciprocal pair reactivation passed with human
+permission and hot-reload consent; unattended recreation is unqualified.
+
+If an ordinary operation fails with `session_management_controller_record_missing`,
+the target was not dispatched and no record restoration was attempted. Inspect
+`driver_status`: the ordinary controller reports `record-restoration-required`.
+Its `recoveryReadiness.inspection`, when present, is an exact read-only missing-record
+plan bound to the retained account, identity and automatic pair. Run that inspection
+before choosing an explicit restoration path. A hint does not prove process absence,
+terminal history, a surviving transcript, permission or native readiness. Health
+does not run restoration, seed rebuilds, consent steps or target replay.
 
 The installed PreToolUse adapter redirects exact cached wait/check commands,
 and a separate gate checks the actual native operation. See [resume.md](resume.md) for

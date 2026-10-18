@@ -15,9 +15,13 @@ export function validateSessionManagementEnrollment(row){
 export function readSessionManagementEnrollment(){
  try{return validateSessionManagementEnrollment(JSON.parse(readReceiverFile(file(),4096)))}catch(error){if(error.code==='ENOENT')return null;refuse()}
 }
-export function sessionManagementController(target){
- const row=readSessionManagementEnrollment();if(!row)return null
- if(!sid.test(target||'')||target===row.controllerSession||getRecord(row.controllerSession)?.cwd!==row.receiverCwd)refuse()
+export function sessionManagementController(target,dependencies={}){
+ const row=(dependencies.read??readSessionManagementEnrollment)();if(!row)return null
+ validateSessionManagementEnrollment(row)
+ if(!sid.test(target||'')||target===row.controllerSession)refuse()
+ const record=(dependencies.record??getRecord)(row.controllerSession)
+ if(!record)throw new DriverError('ordinary controller saved chat record is missing; inspect recovery before retrying the target',{category:'session_management_controller_record_missing',detail:{controllerSession:row.controllerSession,targetSession:target,reason:'controller-saved-record-missing',nextInspection:'driver_status',dispatched:false,targetDispatched:false,recordRestorationAttempted:false,nativeEpochAssessed:false,replayAuthorized:false,retrySafe:true}})
+ if(record.cwd!==row.receiverCwd)refuse()
  return row.controllerSession
 }
 export async function enrollSessionManagementController(session,{signal}={}){
@@ -42,7 +46,13 @@ export async function inspectSessionManagementController({signal}={},dependencie
  try{
   row=read();if(!row)return {configured:false,operations:[],nativeEffectsRequested:0,recoveryAttempted:false}
   validateSessionManagementEnrollment(row)
-  const r=record(row.controllerSession);if(!r||r.cwd!==row.receiverCwd)throw Error('identity')
+  const r=record(row.controllerSession)
+  if(!r){
+   const {inspectMissingControllerRecovery}=await import('./missing-controller-recovery.mjs')
+   const recoveryReadiness=await inspectMissingControllerRecovery(row,{signal},{...dependencies,read,record})
+   return {configured:true,controllerSession:row.controllerSession,operations:[],health:{nativeReadAdmission:'unverified'},reason:'controller-saved-record-missing',routeReadiness:{scope:'ordinary-controller-preconditions',admission:'record-restoration-required',operationAuthorized:false,targetAssessed:false,recoveryAttempted:false},recoveryReadiness,nativeEffectsRequested:0,recoveryAttempted:false}
+  }
+  if(r.cwd!==row.receiverCwd)throw Error('identity')
   const selected=select(r.cwd);if(selected.selector.sessionId!==row.controllerSession)throw Error('selection')
   const readPair=dependencies.readPair??(await import('./standby-enrollment.mjs')).readStandbyEnrollment,pair=readPair(row.controllerSession)
   const status=await inspect(row.controllerSession,selected.selector.serviceId,{signal}),after=select(r.cwd)

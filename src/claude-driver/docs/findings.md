@@ -1,3 +1,48 @@
+## October 18 ordinary controller loss diagnostics and desktop CLI ingress audit
+
+Current source 3bb05efd460950b3da825109cfe7ee9d8f2085f7fe3ae66bbf3912705cc864ff.
+Ordinary calls now distinguish a missing saved controller record with category
+session_management_controller_record_missing before target dispatch; no legacy
+fallback, restoration, process-absence inference or replay. driver_status reports
+record-restoration-required and offers an exact read-only missing-record plan only
+when original automatic pair, primary cwd, retained recovery identity and current
+account hash match. Rechecks record/enrollment/pair/identity/account and refuses
+races, foreign identity, disabled pair and absent evidence. Health does not inspect
+transcripts, discover substitutes, wake actors or execute recovery. Normal deleted
+controller restoration is still explicit experimental work, not automatic routing.
+
+Focused27 PASS. Initial26/27 failure was the test providing a stable replacement
+enrollment on every read rather than an actual race; corrected fixture, production
+guards unchanged. Preserved sanitized failure metadata in
+pressure/missing-controller-initial-focused-failure-20261018.json.
+Full187 PASS40.4sec, frozen source/sourceChangedfalse:
+pressure/v2-2026-10-18T17-32-57-742Z.json. No extra filtered harness/native12 rerun:
+last harness f13 and native12/loaded-MCP796 evidence stays source-scoped.
+
+Read-only installed app+bundledCLI2.1.299 static6 PASS:
+pressure/native-deeplink-contract-2026-10-18T17-31-56-704Z.json. Exact hashed CLI
+route/launcher/opener fragments prove --desktop --resume builds the SAME
+claude://resume?session=UUID import/navigation link already audited. Official
+https://code.claude.com/docs/en/cli-reference and /docs/en/desktop confirm no prompt
+or additional execution flags accepted. This supplies no changed supported startup
+condition, so no appquit/deeplink experiment repeated. No source execution from
+extracted fragments, UI automation, native message, permission or auth changes.
+
+Current-source CLI driver_status verifies live ordinary controller originalPID87665,
+readiness+policy true, unresolved0, noSTOP; original796 source/expired lease means
+source-maintenance-required, not a new crash. Global binding unchanged. Loaded
+Codex MCP last e9dd predates this host; final adoption remains separate. Recovered
+deletion fixture pair remains retained; no new native mutations or cleanup.
+
+NEXT: integrate the qualified retained-identity record-loss path with ordinary
+request admission and durable recovery orchestration, preserving exact original
+account/role and target intent, existing claims/failed roots and person-owned native
+permission/trust/loader gates. Do not silently replay a target or an uncertain
+bootstrap/import. All-process-absent startup still needs a genuinely different
+supported ingress; do not repeat unchanged tests. Final loaded-client adoption,
+ordinary profile and cleanup remain planned gates. Goal active, no human action
+pending and no live test/worker handle. Codex bridge/1Password stay separate.
+
 ## October 18 native deleted-record pair recovery completed with retained history
 
 Taylor completed recovered hot-reload consent. Independent primary successor
