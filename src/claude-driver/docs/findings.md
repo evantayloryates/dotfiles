@@ -1,3 +1,29 @@
+## October 18 retain same-identity recovery evidence before preparation
+
+Generation locator already supports offline inspection after app record loss, but
+account/CLI recovery identity was not separately retained. New
+service-recovery-identity.mjs captures immutable per-generation schema1 private
+snapshot before native preparation: session/CLI UUID/canonical probe cwd, hashed
+account store, prior bypass mode, generation/job and timestamp. No title/body,
+transcript content, account path or auth material. Exact own file metadata,
+O_NOFOLLOW/nonblock/bounds/mode checks; conflicts/races refuse, original bytes
+never overwritten. Snapshot is evidence only, no import/replacement/permission/
+role/replay authority. Existing live generations not silently backfilled.
+
+Focused identity/index6 and preparation/renewal/continuation14 PASS. No new native
+test/deletion/import/renewal. Code change is host source only; last actual MCP
+adoption/native pair qualification remains18ef (do not relabel current host source
+as adopted). Use current CLI during development; one final refresh after source
+settles, not repeated restarts for incremental edits.
+
+Next: missing-record same-identity recovery plan must combine this snapshot with
+exact retained enrollment, absent old PID/all host peers, reviewed terminal
+service history/no STOP or unknowns, exact same-account bounded transcript
+presence and versioned native import contract. Re-import may lower mode to Accept
+edits; that must stop for person permission gate, not claim unattended recovery.
+No destructive live loss test authorized/performed. Goal active; no live jobs or
+cleanup pending. Code does not yet restore a deleted actor.
+
 ## October 18 deep-link bootstrap candidate ruled out
 
 Installed deep-link handler static contract4 PASS, zero native effects:

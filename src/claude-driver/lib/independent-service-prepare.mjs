@@ -1,3 +1,4 @@
+import {retainServiceRecoveryIdentity} from './service-recovery-identity.mjs'
 import {promisify} from 'node:util'
 import {execFile} from 'node:child_process'
 import {randomUUID} from 'node:crypto'
@@ -46,6 +47,7 @@ export async function prepareIndependentService(session,{lifetimeSec=300,maxRequ
  if((modelControl||sendControl||stopControl)&&!metadataTarget)throw new DriverError('model capability requires metadata target',{category:'bad_args'})
  const serviceId=jobId?jobId.slice(1):randomUUID().replaceAll('-',''),state=independentServiceState(session,serviceId,record)
  retainIndependentGenerationLocator({session,serviceId,receiverCwd:record.cwd,origin:'preparation-intent',jobId:jobId??null})
+ retainServiceRecoveryIdentity(record,{serviceId,jobId:jobId??null})
  try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-prepare.mjs',import.meta.url)),session,serviceId,String(lifetimeSec),String(maxRequests),String(peer.pid),peer.procStart,...metadataTarget?[JSON.stringify(null),JSON.stringify(metadataTarget),...stopControl?[modelControl?'model':'none',sendControl?'send':'none','stop']:sendControl?[modelControl?'model':'none','send']:modelControl?['model']:[]]:archiveTarget?[JSON.stringify(archiveTarget)]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state,CLAUDE_DRIVER_SESSION_MANAGEMENT_CONTROL:managementControl?'1':'',CLAUDE_DRIVER_SESSION_METADATA_CONTROL:ordinaryMetadata?'1':'',CLAUDE_DRIVER_SESSION_SEND_CONTROL:ordinarySend?'1':'',CLAUDE_DRIVER_SESSION_ARCHIVE_CONTROL:ordinaryArchive?'1':'',CLAUDE_DRIVER_SESSION_STOP_CONTROL:ordinaryStop?'1':''},signal,timeout:30000,maxBuffer:65536});return JSON.parse(stdout)}
  catch{throw new DriverError('independent preparation failed or was interrupted; inspect the original service namespace',{category:'independent_service_prepare_unresolved',detail:{serviceId,installed:false,settingsChanged:false,retrySafe:false}})}
 }
