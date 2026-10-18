@@ -1,3 +1,25 @@
+## October 17 ordinary send route failure gate
+
+Previous turn = progress: ordinary native send and SDK-only correlation published.
+Extracted the actual host send orchestration into runOrdinarySend, used by the
+public route, and tested effect counts/order across maintenance/ownership failure,
+intent persistence failure, unqualified/pending/native-error receipts, transport
+uncertainty and checkpoint failure after dispatch. Every dispatched failure calls
+native exactly once; pre-dispatch failures call it zero times. Failure records
+retain the original result/native failure; no fallback or retry was introduced.
+Focused7 passed (ordinary send orchestration + configuration batching). No desktop
+message, generation renewal, app restart or full suite for this host-only refactor.
+The full pressure runner discovers this new test automatically for the final batch.
+
+Remaining ordinary gaps confirmed in current public driver: archive_session still
+uses legacy tierB; stop_session uses fixed metadata target route or legacy tierB.
+NEXT implementation: explicit ordinary archive capability, separate from existing
+management/metadata/send rights, with exact target binding and persisted archive
+postcondition; preserve self/broker and native gates, no ProDevs archive test.
+Then ordinary stop bound to actual recipient epoch and exact stop receipt, without
+weakening pending-stop handling. Both-absent recovery/native pressure and final
+loaded-MCP integration remain open. Goal ACTIVE; no live job pending from this turn.
+
 ## October 17 ordinary native sends and SDK journal visibility
 
 Implemented separate sessionSendControl (public session_send_control:true), requiring
