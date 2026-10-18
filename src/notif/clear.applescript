@@ -33,6 +33,17 @@ on ensurePanel()
     error "Notification Center did not open."
 end ensurePanel
 
+on closePanel()
+    if not panelIsOpen() then return true
+    togglePanel()
+    -- The accessibility window can outlive the closing animation briefly.
+    repeat 20 times
+        if not panelIsOpen() then return true
+        delay 0.1
+    end repeat
+    return false
+end closePanel
+
 on notificationElements()
     tell application "System Events"
         tell process "NotificationCenter"
@@ -85,10 +96,8 @@ on hasClosableNotification(shouldClose)
     end try
 end hasClosableNotification
 
-set openedHere to false
 set clearedCount to 0
 try
-    set openedHere to not panelIsOpen()
     ensurePanel()
 
     set transientFailures to 0
@@ -122,13 +131,13 @@ try
     if remaining is missing value then error "Could not verify Notification Center after clearing notifications."
     if remaining then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
 on error errorMessage number errorNumber
-    if openedHere then
-        try
-            if panelIsOpen() then togglePanel()
-        end try
-    end if
+    try
+        closePanel()
+    end try
     error errorMessage number errorNumber
 end try
 
-if openedHere and panelIsOpen() then togglePanel()
+if not closePanel() then
+    error "Cleared " & clearedCount & " notification(s), but Notification Center did not close."
+end if
 return "Cleared " & clearedCount & " notification(s)."

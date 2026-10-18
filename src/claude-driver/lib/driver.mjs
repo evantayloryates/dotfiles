@@ -1079,6 +1079,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('pair bootstrap requires explicit experimental durable submission',{category:'bad_args'});return (await import('./pair-bootstrap.mjs')).bootstrapIndependentPair(args.session,args.expected_enrollment_sha256,ctx)},
   },
   {
+    name:'broker_service_renewal_lineage',title:'Inspect exact offline interrupted renewal lineage',readOnly:true,
+    description:'Read-only proof of one installed primary successor whose renewal stopped at a metadata family read after verified turnover. Binds original failed job, unchanged enrollment/selector, independently reviewed retired predecessor and offline successor, abandoned read, retained predecessor family and unchanged roles/settings. Does not authorize adoption, bootstrap, rebind, wake or replay.',
+    schema:{required:['session','expected_enrollment_sha256'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},
+    run:async(args,ctx)=>(await import('./interrupted-renewal-lineage.mjs')).inspectInterruptedRenewalLineage(args.session,args.expected_enrollment_sha256,{signal:ctx.signal}),
+  },
+  {
     name:'broker_service_pair_bootstrap_plan',title:'Inspect exact absent-controller pair bootstrap prerequisites',readOnly:true,
     description:'Read-only admission plan for one retained automatic standby enrollment. Requires both original OS epochs and all same-host peers absent, owned importable records, exact installed terminal histories with no STOP or unknown effects, retained empty-family receipt, pair-only roles and unchanged selectors. Does not import, start an app, wake, renew, rebind, replay or authorize those effects; process startup/readiness remain unassessed.',
     schema:{required:['session','expected_enrollment_sha256'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},

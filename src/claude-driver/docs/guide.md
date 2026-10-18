@@ -2092,3 +2092,34 @@ binding or relax unknown mutation gates. BOTH owned fresh source8bab.../forkcbc.
 remain unarchived pending eligible pair recovery. Goal active; no live native jobs.
 
 Stable-source91c5bbf9963effa2ab1a5a00699fb251c1c72372021ff1ffa1e23deb71ea3201 focused42/42 PASS12.8sec, offline-read-abandonment-stable-focused-20261017.log. First stale-source failure log preserved separately; full suite deferred to consolidated gate.
+
+## October 17 interrupted renewal successor lineage independently verified
+
+Added read-only broker_service_renewal_lineage. It examines only deterministic
+j<selected-primary-service> ledger/original failed job, exact retained binding,
+selector and old OS epoch; independently verifies retired predecessor plus current
+offline successor histories. Requires original phase before-standby-family,
+recorded verified prepare/quiesce/retire/activate/policy turnover, exactly the
+recorded abandoned family read, predecessor's independently settled empty-family
+receipt and unchanged native role grants/target/settings/anchor. Any changed job,
+unknown mutation, scope/epoch/settings/role/family mismatch refuses. No automatic
+service scanning, binding mutation, adoption, bootstrap, import or wake authority.
+
+Actual public read-only inspection passed for842d->9d576, original renewal
+j9d5761452b974d1284b24dba7d0c2034, retained bindingd5ed..., original ledger digest
+354079ed917c7259b8f2237a293c0b682fce761a20c2c597fc0ddca088daae64,
+abandoned familyba99... and retained predecessor family2d38.... Outcome unknown
+preserved; recoveryAuthorizedfalse. Evidence
+.runtime/state/interrupted-renewal-lineage-20261017.json. Sixteen focused lineage/
+role/pair-plan tests PASS; initial positive fixture carried forbidden extra serviceId
+inside metadataTarget, corrected synthetic fixture to exact native shape, not guard.
+No full/native lifecycle repeat, archive retry or app/permission/process changes.
+
+NEXT concrete implementation: carry verified lineage as a separate source-actor
+map in the pair bootstrap root, while retaining ORIGINAL enrollment for final CAS.
+Recheck proof before effects, snapshot/retire selected9d predecessor source, preserve
+842d retired history/family and unknown read marker; keep standby1da role exact.
+Extend root transition and failed-import continuation checks to verify source map,
+never loosen ordinary arbitrary-generation selection. Then eligible original-pair
+bootstrap, final source-specific readiness and archive owned source8bab/forkcbc.
+Both fixtures still unarchived; pair remains absent; goal active, no live jobs.
