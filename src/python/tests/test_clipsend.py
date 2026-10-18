@@ -639,7 +639,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
     def test_pdf_preview_page_selection_and_omission_marker(self):
         from PIL import Image
         from io import BytesIO
-        from terminal_pdf_preview import CELL_WIDTH, page_geometry, plan_pages
+        from terminal_pdf_preview import CELL_WIDTH, HEADER_HEIGHT, page_geometry, plan_pages
 
         pdf = self.root / 'pages.pdf'
         pdf.write_bytes(sample_pdf(9))
@@ -662,7 +662,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                 self.assertEqual(image.getpixel((14 * scale, 48 * scale))[3], 0)
                 self.assertEqual(image.getpixel((15 * scale, 48 * scale))[3], 255)
                 self.assertEqual(image.getpixel((image.width - 1, 48 * scale))[3], 0)
-                self.assertEqual(image.height, (height + 38) * scale)
+                self.assertEqual(image.height, (height + HEADER_HEIGHT) * scale)
                 self.assertGreaterEqual(height, 300)
                 self.assertEqual(selected[-1], 9)
 
@@ -697,7 +697,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
     def test_pdf_rotated_page_preserves_target_height(self):
         from PIL import Image
         from io import BytesIO
-        from terminal_pdf_preview import page_geometry, plan_pages
+        from terminal_pdf_preview import HEADER_HEIGHT, page_geometry, plan_pages
 
         pdf = self.root / 'rotated.pdf'
         pdf.write_bytes(sample_pdf(1, rotations=[90]))
@@ -709,7 +709,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
              str(pdf), '1', '100'], capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr.decode())
         image = Image.open(BytesIO(result.stdout))
-        self.assertEqual(image.height, plan_pages(aspects, 100)[1] + 38)
+        self.assertEqual(image.height, plan_pages(aspects, 100)[1] + HEADER_HEIGHT)
         self.assertGreater(image.width, 480)
 
     def test_pdf_width_planner_balances_size_and_page_count(self):

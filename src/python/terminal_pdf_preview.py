@@ -21,7 +21,9 @@ MIN_HEIGHT = 300
 MAX_HEIGHT = 650
 PAGE_GAP = 15
 EDGE_PADDING = 15
-HEADER_HEIGHT = 38
+HEADER_HEIGHT = 32
+HEADER_TOP_PADDING = 10
+HEADER_FONT_SIZE = 14
 OMISSION_WIDTH = 24
 MIN_PAGE_SLOT = 100
 CELL_WIDTH = 10.0  # Chafa's fallback pixel width per terminal column
@@ -149,7 +151,7 @@ def compose(source, selected, rotations, count, height, scale):
     gap = PAGE_GAP * scale
     header = HEADER_HEIGHT * scale
     marker_width = OMISSION_WIDTH * scale
-    font = ImageFont.truetype(FONT, 18 * scale)
+    font = ImageFont.truetype(FONT, HEADER_FONT_SIZE * scale)
     small_font = ImageFont.truetype(FONT, 13 * scale)
     with tempfile.TemporaryDirectory(prefix="terminal-pdf-") as directory:
         folder = Path(directory)
@@ -181,7 +183,8 @@ def compose(source, selected, rotations, count, height, scale):
                 slot_width = slot_widths[value]
                 label = f"Page {value}"
                 label_width = draw.textbbox((0, 0), label, font=font)[2]
-                draw.text((x + (slot_width - label_width) / 2, 3 * scale),
+                draw.text((x + (slot_width - label_width) / 2,
+                           HEADER_TOP_PADDING * scale),
                           label, fill="white", font=font)
                 canvas.alpha_composite(page_image,
                                        (x + (slot_width - page_image.width) // 2, header))
