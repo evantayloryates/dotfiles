@@ -147,21 +147,26 @@ export async function runObservedFocusOperation(fn,d){
 }
 
 // Run fn (which returns { navigatedTo, ... }) under a focus mode.
-export async function withFocus(mode='restore',fn,opts={}){
+export async function runNavigatingFocusOperation(mode,fn,opts,d){
  if(!FOCUS_MODES.includes(mode))mode='restore'
- if(opts.observeUnchanged===true&&mode==='restore')return runObservedFocusOperation(fn,{snapshot})
- const before=mode==='leave'?null:await snapshot()
- let result
- try{result=await fn()}catch(error){
-  if(mode==='restore'&&opts.target){const restoration=await restoreFrom(before,opts.target,{...opts,evidence:true});error.focusRestoration=restoration}
+ if(opts.observeUnchanged===true&&mode==='restore')return runObservedFocusOperation(fn,{snapshot:d.snapshot})
+ const before=mode==='leave'?null:await d.snapshot()
+ let result,navigationTarget=opts.target??null
+ const navigationIntent=target=>{if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(target||''))throw Error('invalid navigation target');navigationTarget=target}
+ try{result=await fn({navigationIntent})}catch(error){
+  if(mode==='restore'&&navigationTarget){try{const restoration=await d.restore(before,navigationTarget,{...opts,evidence:true});error.focusRestoration=restoration;error.detail={...error.detail,focusRestoration:restoration}}catch{error.focusRestoration={verified:false,action:'restoration failed (not confirmed)'}}}
   throw error
  }
  const target=result?.navigatedTo||null
  if(mode==='leave'||!target)return {result,focus:{mode,before,action:'none',verified:null}}
  if(mode==='show'){
-  const landed=await waitMain(target,opts.settleMs??3000)===target
+  const landed=await d.waitMain(target,opts.settleMs??3000)===target
   return {result,focus:{mode,before,action:landed?'shown':'shown (not confirmed)',target,verified:landed,navigationObserved:landed}}
  }
- const restoration=await restoreFrom(before,target,{...opts,evidence:true})
+ const restoration=await d.restore(before,target,{...opts,evidence:true})
  return {result,focus:{mode,before,...restoration,target}}
+}
+
+export async function withFocus(mode='restore',fn,opts={}){
+ return runNavigatingFocusOperation(mode,fn,opts,{snapshot,restore:restoreFrom,waitMain})
 }

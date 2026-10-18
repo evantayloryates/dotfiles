@@ -22,3 +22,24 @@ test('failed metadata effects retain fresh focus evidence without hiding origina
  const {runObservedFocusOperation}=await import('../lib/focus.mjs'),snapshots=[{at:1,mainSession:'original',frontApp:'codex',source:'disk'},{at:2,mainSession:'other',frontApp:'codex',source:'disk'}],error=Object.assign(Error('native outcome unknown'),{category:'outcome_unknown',detail:{retrySafe:false,requestId:'original'}})
  await assert.rejects(runObservedFocusOperation(async()=>{throw error},{snapshot:async()=>snapshots.shift()}),actual=>actual===error&&actual.category==='outcome_unknown'&&actual.focusObservation.disposition==='changed-unattributed'&&actual.focusObservation.verified===false&&actual.detail.retrySafe===false&&actual.detail.requestId==='original'&&actual.detail.focusObservation===actual.focusObservation)
 })
+
+const created='local_12345678-1234-1234-1234-123456789abc'
+test('failed import restores only its explicitly registered target and preserves reconciliation identity',async()=>{
+ const {runNavigatingFocusOperation}=await import('../lib/focus.mjs'),calls=[]
+ const error=Object.assign(Error('import missing'),{category:'import_missing',detail:{sessionId:created,created:true,retrySafe:false}})
+ await assert.rejects(runNavigatingFocusOperation('restore',async({navigationIntent})=>{navigationIntent(created);throw error},{},{snapshot:async()=>before,restore:async(b,target)=>{calls.push([b,target]);return {verified:true,disposition:'restore-observed'}}}),e=>e===error&&e.detail.sessionId===created&&e.detail.retrySafe===false&&e.detail.focusRestoration.verified===true)
+ assert.deepEqual(calls,[[before,created]])
+})
+test('failure without navigation intent, or in show/leave mode, never restores',async()=>{
+ const {runNavigatingFocusOperation}=await import('../lib/focus.mjs')
+ for(const mode of ['restore','show','leave']){let restores=0;const error=Error('failed');await assert.rejects(runNavigatingFocusOperation(mode,async({navigationIntent})=>{if(mode!=='restore')navigationIntent(created);throw error},{},{snapshot:async()=>before,restore:async()=>{restores++}}),e=>e===error);assert.equal(restores,0)}
+})
+test('focus restoration failure never replaces an uncertain import error',async()=>{
+ const {runNavigatingFocusOperation}=await import('../lib/focus.mjs'),error=Object.assign(Error('uncertain'),{category:'outcome_unknown'})
+ await assert.rejects(runNavigatingFocusOperation('restore',async({navigationIntent})=>{navigationIntent(created);throw error},{},{snapshot:async()=>before,restore:async()=>{throw Error('observation failed')}}),e=>e===error&&e.focusRestoration.verified===false)
+})
+test('successful creation reports observed focus evidence from exact returned target',async()=>{
+ const {runNavigatingFocusOperation}=await import('../lib/focus.mjs'),calls=[]
+ const r=await runNavigatingFocusOperation('restore',async({navigationIntent})=>{navigationIntent(created);return {navigatedTo:created,sessionId:created}},{},{snapshot:async()=>before,restore:async(b,t)=>{calls.push(t);return {verified:false,navigationObserved:true,action:'not confirmed'}}})
+ assert.equal(r.focus.verified,false);assert.equal(r.focus.navigationObserved,true);assert.deepEqual(calls,[created])
+})

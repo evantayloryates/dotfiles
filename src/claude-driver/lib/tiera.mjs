@@ -45,7 +45,7 @@ async function bootstrap(args, cwd, signal, uuid) {
 }
 
 // create_session({ folder | no_project, title, model?, effort?, bootstrap_prompt? })
-export async function createSession({ folder, no_project, title, model, effort, bootstrap_prompt, permission_mode }, { signal } = {}) {
+export async function createSession({ folder, no_project, title, model, effort, bootstrap_prompt, permission_mode }, { signal, navigationIntent } = {}) {
   if (!title || typeof title !== 'string') throw new DriverError('title is required', { category: 'bad_args' })
   if (!folder && !no_project) throw new DriverError('pass folder (absolute path) or no_project: true', { category: 'bad_args' })
   let cwd
@@ -72,8 +72,10 @@ export async function createSession({ folder, no_project, title, model, effort, 
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title, kind: 'create' }
     if (createdFolder) reg.folders[cwd] = { createdAt: Date.now(), kind: 'scratch', session: localId }
   })
+  navigationIntent?.(localId)
+  try{
   await importLink(uuid)
-  const w = await waitForRecord(localId, (r) => r.title === title && r.cwd === cwd)
+  const w = await waitForRecord(localId, (r) => r.title === title && r.cwd === cwd && r.cliSessionId === uuid)
   if (!w.ok) {
     const log = await mainLogTail(uuid)
     throw new DriverError(`imported record did not verify within 20 s (record: ${w.record ? JSON.stringify({ title: w.record.title, cwd: w.record.cwd }) : 'missing'})${log ? `\nmain.log:\n${log}` : ''}`, {
@@ -81,10 +83,11 @@ export async function createSession({ folder, no_project, title, model, effort, 
     })
   }
   return { sessionId: localId, cliSessionId: uuid, cwd, title, model: w.record.model, permissionMode: w.record.permissionMode, titleSource: w.record.titleSource, bootMs, navigatedTo: localId, verified: true }
+  }catch(error){error.detail={...error.detail,sessionId:localId,cliSessionId:uuid,cwd,created:true,importAttempted:true,retrySafe:false};throw error}
 }
 
 // fork_session({ session, title? })
-export async function forkSession({ session, title, bootstrap_prompt }, { signal } = {}) {
+export async function forkSession({ session, title, bootstrap_prompt }, { signal, navigationIntent } = {}) {
   const src = resolveSession(session)
   const cli = src.cliSessionId || src.sessionId.replace(/^local_/, '')
   const cwd = src.cwd
@@ -98,10 +101,13 @@ export async function forkSession({ session, title, bootstrap_prompt }, { signal
   await updateRegistry((reg) => {
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title: t, kind: 'fork', from: src.sessionId }
   })
+  navigationIntent?.(localId)
+  try{
   await importLink(uuid)
-  const w = await waitForRecord(localId, (r) => r.title === t)
+  const w = await waitForRecord(localId, (r) => r.title === t && r.cwd === cwd && r.cliSessionId === uuid)
   if (!w.ok) throw new DriverError(`fork import did not verify within 20 s${(await mainLogTail(uuid)) ? `\n${await mainLogTail(uuid)}` : ''}`, { category: 'import_missing' })
   return { sessionId: localId, cliSessionId: uuid, forkedFrom: src.sessionId, cwd, title: t, navigatedTo: localId, verified: true }
+  }catch(error){error.detail={...error.detail,sessionId:localId,cliSessionId:uuid,cwd,forkedFrom:src.sessionId,created:true,importAttempted:true,retrySafe:false};throw error}
 }
 
 // Unarchive by re-importing: proven for imported sessions (cli id == local

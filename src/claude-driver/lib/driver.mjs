@@ -436,8 +436,8 @@ export const OPS = [
         ctx.notes.push('bypass pool is empty; fell back to an import')
       }
       ctx.tier = 'A'
-      const { result, focus } = await withFocus(f, () => createSession({ ...args, permission_mode: want }, ctx))
-      const out = { ...result, focus: focus.action, intendedPermissionMode: want }
+      const { result, focus } = await withFocus(f, ({navigationIntent}) => createSession({ ...args, permission_mode: want }, {...ctx,navigationIntent}))
+      const out = { ...result, focus: focus.action, focusVerified:focus.verified, navigationVerified:focus.navigationObserved??null, focusDisposition:focus.disposition??null, intendedPermissionMode: want }
       out.observationCursor=sessionEvents({session:result.sessionId}).cursor
       if (out.permissionMode !== want) {
         out.verified = false
@@ -478,9 +478,9 @@ export const OPS = [
     navigates: true,
     run: async (args, ctx) => {
       ctx.tier = 'A'
-      const { result, focus } = await withFocus(focusArg(args), () => forkSession(args, ctx))
+      const { result, focus } = await withFocus(focusArg(args), ({navigationIntent}) => forkSession(args, {...ctx,navigationIntent}))
       delete result.navigatedTo
-      return { ...result, focus: focus.action }
+      return { ...result, focus: focus.action, focusVerified:focus.verified, navigationVerified:focus.navigationObserved??null, focusDisposition:focus.disposition??null }
     },
   },
   {

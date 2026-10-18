@@ -1874,3 +1874,29 @@ ProDevs metadata proof remains valid on its recorded source; no new message or
 archive test was run on user chats. Goal remains active.
 
 Integrated synthetic gate on the same 034aee... source: 1/1 PASS in 39.0 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-34-54-384Z.json. This does not expand native or loaded-client qualification.
+
+## October 17 creation/fork failure reconciliation and focus boundary
+
+Current-source audit found an import failure could omit the already-bootstrapped
+identity and withFocus could not restore after unknown-target creation/fork errors.
+Tier A now registers the exact new local ID immediately before import. Failure
+restoration uses only this internal navigation intent, existing before-op snapshot
+and fresh user-movement policy; it never derives authority from an error string or
+arbitrary saved record. Original import error/category and no-replay status survive
+restoration failure. Errors retain session/CLI ID, cwd, created/importAttempted,
+retrySafe:false (plus fork origin). Do not create a replacement to resolve them.
+Create/fork import verification now checks title, exact cwd and CLI UUID; public
+results expose focusVerified/navigationVerified/disposition separately from saved
+record verification. Eleven focused policy tests passed, including import failure,
+no-intent/show/leave, restoration failure and unconfirmed successful restoration.
+No real new chat, import, fork, app restart or message was performed for this fix;
+native creation/fork qualification remains open.
+
+Loaded actual Codex MCP status still reports runtime78678a... versus source034a...
+and restartRequired:true BEFORE this change. Final connector adoption remains a
+separate gate; do not treat current CLI proof as adoption. Next changed-condition
+step: qualify consolidated creation/fork lifecycle with preserved permission gates,
+then one final loaded-client refresh and source-specific integration gate. Existing
+full objective and other outage/pressure/window gaps remain active.
+
+Same-source cc707991544f36ebbe1abbc9d91a09368a560df1a270b56c704a3cd64e7a8699 integrated synthetic gate: 1/1 PASS, 34.2 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-36-27-652Z.json. No native creation/fork claim.
