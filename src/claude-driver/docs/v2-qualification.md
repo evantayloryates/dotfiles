@@ -2599,3 +2599,17 @@ window/person, both-absent/pressure/final loaded-MCP gates. Multi-target native
 project batches remain unqualified by this one-target proof (synthetic sequencing
 covers multiple targets). Avoid repeated scratch archiving/messages. Goal ACTIVE;
 all job/test handles terminal; controller idle, target dormant after restoration.
+
+## October 17 immediate next: automatic renewal left standby enrollment stale
+
+Final read-only audit AFTER the native project gate found actual primary service
+750877f7733b4a95bf05735881d5a93d, but retained automatic standby enrollment still
+names predecessorc5fbfd1706384ac68e8b07dd5538682a and familyc539... (digest9e08...).
+Renewal ledgerj750877... standbyRefresh.phase=not-enrolled, qualifiedfalse,
+category=standby-refresh-unqualified; fresh familycf715... receipt exists and is
+settled, but enrollment CAS did NOT complete. Do NOT claim current pair failover
+qualified from successful public archive or the earlier c5 refresh. Native primary
+is idle/verified/no unknown requests; archive/account proof/restored baseline remain
+valid. Diagnose this changed-condition renewal/rebind failure FIRST next turn;
+no duplicate family call/wake/replay or app restart to hide the retained failure.
+Goal active; this is agent-executable investigation, not a user permission blocker.
