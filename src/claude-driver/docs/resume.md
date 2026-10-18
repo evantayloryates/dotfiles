@@ -1,3 +1,35 @@
+## October 18 disposable native loss fixture staged; native mode action pending
+
+Using existing create_session TierA path, staged two new task-owned sessions in
+sibling owned probe folders; no serving pair or ProDevs mutation. Primary create
+jbc1d5b520c654f6aa776fad35b3f1da6 terminalUNVERIFIED because requested bypass imported
+as actualacceptEdits. Original result preserved, not recreated. Batch helper stopped
+on unverified; resumed from exact persisted record/permissionGap to create standby
+jcfd8130bbaf443fb95c187730fe3e9a9, also native permission gap. Both focusrestore-observed.
+No test service installed, bootstrap task only ready/no tools/no other messages.
+
+Primary local_af930615-78fb-44bc-ac42-91289658e344,
+claude-driver-deletion-primary-2026-10-18,
+cwd .runtime/state/probe/deleted-primary-2026-10-18,
+Haiku5.5/acceptEdits/unarchived, titleSourcenull, nativePID22668/start07:31:51 idle.
+Standby local_d0ac9a3a-5fe5-4220-a18b-366813d8ed1d,
+claude-driver-deletion-standby-2026-10-18,
+cwd .runtime/state/probe/deleted-standby-2026-10-18,
+Haiku5.5/acceptEdits/unarchived, titleSourcenull, nativePID23690/start07:32:15 idle.
+Exact private checkpoint deleted-service-native-fixture-20261018.json retains
+create handles/results/actual records. Serving pair binding still primary3f6a.../
+standbyecd2..., unchanged. DeletionAttemptedfalse; no CLI transcript removal or
+permission alteration performed on these native actors.
+
+Async action requested: In Claude Code, set BOTH exact titles to Bypass permissions
+and send ready in each. Do not repeat creations, synthesize approval or assume
+mode changed from authorization alone. Next read actual modes/native epochs, then
+prepare exact reciprocal test roles; native hot-reload/trust cards remain person
+owned. Delete card/manual deletion gate only after concrete test pair is qualified;
+never delete working serving actors. Goal active; no live jobs/process observers
+pending. Two staged test sessions intentionally retained, cleanup not due until
+test completion. Codex bridge remains parked.
+
 ## October 18 actual headless seed CLI and fresh harness gate
 
 One actual bundled CLI2.1.299 contract, task-created UUID2043db15-e320-468b-8a8d-24079d85bd1a
