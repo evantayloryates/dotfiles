@@ -18,6 +18,19 @@ orchestrator removes its own fixture stop marker only after fixture exit. This
 is a factory/native seam gate, not an actual worker or typing test. See
 [production preparation](../../docs/private-ui-service.md) for boundaries.
 
+`worker-native.mjs normal|abort-after-acquire|timeout-after-acquire` combines the
+actual worker/backend/MCP with that production helper factory, only on Theo Air.
+It validates the existing exact human fixture grant before creating a test-only
+app policy; no production target/persisted permission is changed. A deterministic
+localhost provider requests acquisition and a fresh AX read, verifies the exact
+empty/live fixture, then completes, kills only the verified owned worker group,
+or holds the provider response for the normal30-second worker timeout. No typing,
+model inference or hook override. Actual timeout/SIGKILL/archive outcomes stay
+distinct from native cleanup. The native helper is outside the killed group and
+must exit normally without a signal. Each new run preserves its harness source;
+earlier pre-snapshot source hashes are recovered from owned orchestration assets.
+Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
+
 `host-context.mjs` adds actual ephemeral Codex host turns through a deterministic
 localhost Responses fixture, without inference or account credentials. Default
 app-server mode preserves normal hook trust. `--exec-entry --review-receipt`

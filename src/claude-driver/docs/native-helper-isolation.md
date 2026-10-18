@@ -76,11 +76,12 @@ with the default client and fixture retained. The worker's separate backend grou
 was corrected and isolated-tested. The later [private UI service](private-ui-service.md)
 integrates exact helper/socket ownership and explicit public thread configuration.
 Actual worker/MCP fixture handoff and actual factory/native read-only lifecycle
-pass as separate gates; their combined native worker path remains unqualified.
+passed separately, then the combined actual worker/native read-only path passed
+normal completion, owned worker-group loss and pending-provider timeout.
 The missing startup sentinel now has a passing remote refusal test. Existing
 plugin environment inheritance is not assumed. No local quarantine was cleared.
 
 Physical typing, simultaneous active input by another caller, real Claude,
-production-worker timeout teardown and unattended cold startup remain unqualified.
+supervisor loss, in-flight native input cancellation and cold startup remain unqualified.
 No production isolation, universal always-on behavior or full-goal completion
 is claimed from this single owned native run.

@@ -59,11 +59,12 @@ non-helper taps, clean old repo0203e604 and Switchboard/caffeinate508/510 unchan
 No live handle or cleanup is pending. No local CUA initialized; human quarantine
 is unchanged.
 
-## Remaining integration
+## Later integration and remaining boundary
 
-Production still uses the plugin's ordinary MCP environment and shared native
-helper. This group correction does not clear quarantine or establish private
-helper ownership there. Next implement and qualify the private helper/socket
-lifecycle and actual worker MCP handoff, failing instead of using the shared
-socket on uncertainty. Include helper idle/startup failure and worker timeout.
-Physical typing, real Claude and unattended cold startup remain separate gates.
+The [private UI service](private-ui-service.md) now owns its helper/socket and
+uses explicit per-thread MCP configuration. Combined actual worker/native
+read-only completion, worker-group SIGKILL and normal pending-provider timeout
+pass on source5fea8859. Those tests do not kill the supervising service; its
+ownership/lock lifetime is the next distinct gate. Physical typing, in-flight
+input cancellation, real Claude and unattended cold startup remain separate.
+Local quarantine stays enabled.

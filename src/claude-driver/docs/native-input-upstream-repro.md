@@ -82,7 +82,9 @@ The [private-helper prototype](native-helper-isolation.md) subsequently passed a
 real owned typing turn: its helper owned both filters and exited normally on
 client EOF while the default helper/client stayed live. This is a potential
 workaround using the current runtime's implementation setting, not a documented
-public release API. Production handoff, interruption/cancellation, physical
-input and real Claude are unqualified. Include this finding in any future report;
+public release API. Later [combined worker tests](private-ui-service.md) qualify
+read-only native completion, owned worker-group loss and pending-provider timeout
+with normal helper exit. Supervisor loss, in-flight input cancellation, physical
+input and real Claude remain unqualified. Include these findings in any future report;
 do not claim that no ownership workaround has been found. This packet is still
 prepared only and has not been sent.

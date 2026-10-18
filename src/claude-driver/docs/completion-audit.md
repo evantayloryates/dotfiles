@@ -7,8 +7,10 @@ requirements. A green ordinary profile does not prove unattended startup.
 Current source: `5fea88597ffafba529d1c2ea089252e1629b5cfe3603220eef73d4f8af75a359`.
 The [private input service](private-ui-service.md) now integrates owned helper
 and socket lifecycle with the existing UI worker. Actual worker/config handoff
-through a harmless MCP and actual factory/native read-only lifecycle pass as
-separate gates. The combined native worker path remains unqualified. Full193
+through a harmless MCP and actual factory/native read-only lifecycle passed as
+separate gates. Later combined actual worker/native read-only completion,
+worker-group SIGKILL and pending-provider timeout pass on the same source.
+These do not qualify supervisor loss or in-flight input cancellation. Full193
 isolated files pass once in68.023s, unchanged source/suite/installed identity
 (pressure/v2-2026-10-18T20-21-08-552Z.json). Local quarantine remains enabled.
 The [input investigation](input-defect-investigation.md) added a narrow cleanup
@@ -122,9 +124,10 @@ not sent. A later [private-helper prototype](native-helper-isolation.md) passed
 real host typing and cleanup while the default client stayed live, on the same
 runtime. Abrupt-owner cleanup then passed with the default client retained; the
 actual worker's backend group was corrected and isolated-tested. Next qualify
-the combined native worker/helper path. The later actual factory/native lifecycle
-and actual worker/harmless-MCP handoff now pass separately; see the current
-private-service checkpoint above. This is implementation-specific preparation,
+supervisor-loss ownership. The later factory/native and actual worker/MCP handoff
+gates were followed by combined read-only completion, worker-group loss and
+normal pending-provider timeout. See the current private-service checkpoint above.
+These are implementation-specific preparation,
 not a global release or physical-input clearance. No fabricated
 metadata/private disposal route/shared-helper kill is authorized. All owned
 remote processes are stopped, Switchboard is preserved,

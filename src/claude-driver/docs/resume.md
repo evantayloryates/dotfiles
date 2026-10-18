@@ -1,3 +1,58 @@
+## October 18 combined native worker completion, group loss and timeout pass
+
+PROGRESS on unchanged production source5fea8859. The actual Tier C worker,
+bundled backend, public MCP launcher and production private-helper factory now
+ran together on Theo Air. Deterministic localhost provider; existing exact
+human fixture grant validated into an isolated test-only bridge app policy.
+No production target changes, saved permissions, hook override, account auth,
+model inference or typing. The full computerUse supervisor/focus/send path is
+not invoked by this fixture composition; keep that boundary explicit.
+
+First native run1792354975435 stays FAILED: approved tool acquisition completed,
+but Codex omitted one initial text item and the exact AX markers were absent.
+Changed condition: one documented fresh getAXState read. Run1792355030848 PASSED
+exact live/empty fixture state, actual turn completion and archive acknowledgement;
+helper3401 normal exit0 without signal, fixture stayed alive until final cleanup.
+Thread01a150af-5b6b-76c2-b131-26574d1eea06,
+turn01a150af-5ee3-77b3-b42e-ccde21ffb9b2. Initial tool completion did not substitute
+for the independent effect/state gate.
+
+Changed ownership condition1792355053893 PASSED cleanup after killing only the
+verified worker group3497, separate from helper group3481. Helper3490 received
+no signal and exited normally0 on lost clients. Host/turn completion=false and
+archive acknowledgement=false remain explicit. Actual saved rollout metadata:
+thread01a150af-b56e-7ff2-b424-46dd0cb9ae6a,
+turn01a150af-b8f4-7b81-9812-0f2d3fee815b. Missing worker output is not fabricated.
+
+Changed deadline condition1792355070158 PASSED cleanup with native clients live
+and final provider response withheld after verified read-only acquisition. The
+real worker's normal30-second turn deadline interrupted/archived/disconnected;
+result stays timeout, helper3577 normal exit0. Thread01a150af-f4f7-7a91-933b-d4146ec433d0,
+turn01a150af-f87a-7950-9739-afc5d6813489. This is a pending-provider timeout after
+acquisition, not cancellation during a native input operation.
+
+All final fixtures empty/exit0. Fifteen files/129650 bytes mirrored/hash-verified
+under native-owner-20261018/combined-worker-evidence, including failed run, exact
+earlier harness sources, actual contexts and native inventories. Final remote:
+no owned process/helper/filter, original four non-helper taps, old repo0203e604
+clean, uv/caffeinate508/510 unchanged, no stop marker or auth copy. Local human
+quarantine stays blocked/hash9808e860. All owned handles/cleanup are terminal.
+Candidate service memory26a47ff5 and docs/private-ui-service.md record the limits.
+Current production and staged bridge dependencies match the qualified source;
+reuse the full193-file68.023s proof rather than rerunning for nested fixtures/docs.
+
+NEXT changed condition: test loss of the supervising service in an owned
+synthetic-process rig with the provider kept alive. Current source suggests the
+parent-held kernel UI lock can disappear while detached worker clients persist;
+its normal exit handler cannot cover SIGKILL. Establish that fact independently,
+including pre-worker helper startup, then fix owner/lock lifetime and qualify
+the same changed condition. Do not merely repeat worker-group loss or claim a
+successful archive covers parent death. Physical input, simultaneous active
+input, in-flight native input cancellation, real Claude, actual loaded adoption,
+local quarantine release, cold startup and full goal audit remain open. Keep
+goal ACTIVE, broad Codex/1Password parked, and no interim typing/full-suite reruns
+without relevant changes. No human action or restart requested at this gate.
+
 ## October 18 private input service integrated; worker/config and native seams pass
 
 PROGRESS: source5fea88597ffafba529d1c2ea089252e1629b5cfe3603220eef73d4f8af75a359

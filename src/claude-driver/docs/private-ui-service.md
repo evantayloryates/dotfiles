@@ -59,6 +59,28 @@ Roster refusal retains bounded names/status/tool names, not tool descriptions.
   read-only fixture acquisition passed, client exit0 preceded helper normal exit0,
   and the fixture stayed alive and empty until final cleanup. No typing, helper
   signal, target quit to obtain cleanup, host turn or hook override was used.
+- **Combined actual native worker:** worker-native-1792355030848 used the actual
+  worker/backend/MCP launcher and production helper factory together. The existing
+  human read-only fixture grant was validated before writing an isolated test
+  bridge policy; production Claude targets and saved native approvals stayed
+  unchanged. Exact fresh AX fixture state, completed turn, archive acknowledgement
+  and helper3401 normal exit0 passed. No helper/filter remained while the fixture
+  stayed alive and empty. Initial run1792354975435 remains failed: Codex omitted
+  one initial text item, so the AX fixture markers were absent despite tool
+  completion/approval. A fresh documented getAXState read changed that condition.
+  No final-text or send-return inference was used to pass it.
+- **Combined worker loss:** worker-native-1792355053893 verified the same read-only
+  fixture, checked worker group3497 separate from helper group3481, then killed
+  only the worker group. Helper3490 received no signal and exited normally0.
+  Host completion and archive acknowledgement remain false. Actual rollout
+  metadata supplies thread01a150af-b56e-7ff2-b424-46dd0cb9ae6a and
+  turn01a150af-b8f4-7b81-9812-0f2d3fee815b; missing worker output is not invented.
+- **Combined normal timeout:** worker-native-1792355070158 held only the fixture
+  provider's final response after verified acquisition. The actual worker's
+  normal30-second deadline reported timeout, interrupted/archived the thread and
+  disconnected clients. Helper3577 exited normally0; no helper/filter remained
+  while the fixture stayed alive/empty. Timeout remains timeout. This is a
+  pending-provider timeout after read-only acquisition, not in-flight input.
 - **Isolated regression checks:** private socket ownership, component drift,
   quarantine, cancellation, spawn failure, forced-cleanup failure, exclusive MCP
   roster, strict archive handling and process-group ownership are covered. The
@@ -74,19 +96,34 @@ native processes or filters, the original four non-helper taps, clean old repo
 labels returned113; those label checks are unavailable, not service-state proof.
 No user/test auth files were present. Local quarantine hash remains9808e860.
 
+The combined runs and exact earlier harness snapshots are mirrored with hashes
+in `combined-worker-evidence/manifest.json`:15 files/129650 bytes. Actual completed
+thread01a150af-5b6b-76c2-b131-26574d1eea06/turn01a150af-5ee3-77b3-b42e-ccde21ffb9b2;
+timeout thread01a150af-f4f7-7a91-933b-d4146ec433d0/turn01a150af-f87a-7950-9739-afc5d6813489.
+Final remote inventory again has no owned processes/filter, original four taps,
+clean old repo0203e604, uv/caffeinate508/510 unchanged, no fixture stop marker and
+no copied auth files. Production source5fea8859 and all staged bridge dependencies
+match; the passing193-file suite is reused rather than repeated for nested
+diagnostic assets/docs. Service candidate memory26a47ff5 records these limits.
+
 ## Remaining boundaries
 
-These gates qualify the actual worker/config seam and actual factory/native seam
-separately. They do not yet qualify their complete combined native worker path,
-physical keyboard behavior, simultaneous active input, supervisor SIGKILL,
-production native timeout/cancellation, real Claude or loaded harness adoption.
+The combined gate qualifies the worker/backend/MCP/helper composition through a
+test orchestrator using the production factory and worker. It does not invoke
+the full computerUse supervisor, production Claude targeting/focus/send gates or
+physical typing. Simultaneous active input, supervisor SIGKILL, in-flight native
+input cancellation, real Claude and loaded harness adoption remain unqualified.
 The prior abrupt native CLI-owner proof remains separately recorded. A normal
 JavaScript exit handler cannot guarantee cleanup after supervisor SIGKILL.
 
-Next use one isolated remote combined worker/helper read-only gate with the
-existing exact fixture authorization. Keep its test-only app policy explicit;
-do not broaden production targets, fake Claude identity, forge native approval
-or clear local quarantine. Then qualify native timeout/cancellation before
-considering physical-input/person gates. Do not repeat typing per interim edit.
+Next independently test supervisor loss with a retained provider and owned
+synthetic processes. Source inspection identifies a potential gap: the current
+parent owns the kernel UI lock, detached worker group and helper. A lost parent
+may release its lock while its worker still has clients; process.once(exit)
+cannot run after SIGKILL. Account for the startup
+window before a worker exists as well as the running lease. Then design bounded
+owner-loss cleanup/lock lifetime on this evidence; do not merely repeat worker
+group loss or claim that a successful archive covers supervisor loss. Preserve
+quarantine and separate physical-input/person gates. No interim typing repeats.
 Cold startup and the full completion audit remain open. Broad Codex bridge
 changes and 1Password work stay parked.

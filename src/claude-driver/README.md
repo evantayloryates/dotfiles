@@ -435,9 +435,9 @@ of the shared native helper's keyboard filters. The prepared
 [private input service](docs/private-ui-service.md) now owns one signed helper
 and verified private socket per lease, explicitly binds the worker's sole CUA
 MCP to it, refuses shared startup, and requires normal helper exit plus a native
-audit before success. Actual worker/config and factory/native read-only gates
-pass separately. Their combined native worker path, physical input and timeout
-qualification remain open; UI fallback stays quarantined.
+audit before success. Combined actual worker/native read-only completion, owned
+worker-group loss and pending-provider timeout pass. Supervisor loss, physical
+input and in-flight input cancellation remain open; UI fallback stays quarantined.
 
 ## Focus policy
 
