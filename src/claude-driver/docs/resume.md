@@ -1,3 +1,26 @@
+## October 18 missing-service recovery diagnosis
+
+Audit confirmed archived retained actors are admissible for exact re-import, but
+missing saved actors cannot be replaced by current pair recovery. Added explicit
+saved-service-session-missing reason + primary/standby role and replacementAuthorized
+false to pure planner and actual inspection before offline service reads. Other
+offline evidence failures now include fixed inspection phase and actor role,
+without arbitrary error text, chat content or logs. Automatic recovery durably
+checkpoints bootstrap-refused diagnosis before rejecting, with no bootstrap child
+or target dispatch. A missing record is NOT proof of user deletion or crash.
+
+Focused pair/automatic regression12 PASS, including missing both roles vs archived
+same identity, refusal checkpoint and no child. No native outage/profile/restart,
+archive/delete, new chat, permissions or message test. Prior163-file and fresh
+Claude/Codex consolidated gate remains previous source3f2db9d5; this diagnostic
+change has focused qualification only, do not relabel the prior full pass.
+
+Codex restart question remains pending from preceding turn. Continue independent
+scope work rather than treating a pending answer as approval. Deleted-service
+replacement, appquit/sustained availability and actual loaded MCP adoption remain
+open; explicit retained-pair bootstrap and ordinary native12 already proven.
+No cleanup or live job handles pending. Goal active.
+
 ## October 18 input-free CLI entrypoints and consolidated gates
 
 preflight/probe now support explicit --input-free --controller <exact ID> --session

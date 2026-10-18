@@ -26,7 +26,8 @@ export function planPairBootstrap({binding,expectedSha256,actors,familyVerified,
   const old=i===0?sources.primary:sources.standby,a=actors[i],other=i===0?binding.standby:binding.primary,s=a?.status,r=a?.record,p=a?.policy,selection=a?.selection
   if(a?.peerPresent===true)return result('wait','surviving-controller-present')
   if(a?.oldPidAbsent!==true||a?.sameHostAbsent!==true)return result('inspect','independent-pair-absence-unqualified')
-  if(!r||r.sessionId!==old.sessionId||r.cwd!==old.cwd||r.sessionId!=='local_'+r.cliSessionId||r.permissionMode!=='bypassPermissions'||typeof r.isArchived!=='boolean'||r.worktreePath||a.registered!==true||a.openPrCount!==0||a.recordIdentityQualified!==true)return result('inspect','owned-importable-record-unqualified')
+  if(!r)return {...result('inspect','saved-service-session-missing'),actorRole:i===0?'primary':'standby',replacementAuthorized:false}
+  if(r.sessionId!==old.sessionId||r.cwd!==old.cwd||r.sessionId!=='local_'+r.cliSessionId||r.permissionMode!=='bypassPermissions'||typeof r.isArchived!=='boolean'||r.worktreePath||a.registered!==true||a.openPrCount!==0||a.recordIdentityQualified!==true)return result('inspect','owned-importable-record-unqualified')
   if(!s?.verified||s.verificationMode!=='offline-installed'||s.sourceDisposition!=='installed'||s.sessionId!==old.sessionId||s.serviceId!==old.serviceId||s.nativeEpoch?.pid!==old.pid||s.nativeEpoch?.procStart!==old.procStart||s.admissionStopped!==false||s.terminalAttemptReviewComplete!==true||!Array.isArray(s.unresolvedRequestIds)||s.unresolvedRequestIds.length)return result('inspect','offline-history-or-stop-unqualified')
   if(selection?.selector?.sessionId!==old.sessionId||selection.selector.serviceId!==old.serviceId||selection.selector.pid!==old.pid||selection.selector.procStart!==old.procStart||selection.selector.build!==s.build||selection.selector.generation!==s.generation||p?.sessionId!==old.sessionId||p.pid!==old.pid||p.procStart!==old.procStart||p.build!==s.build||!hash.test(p.settingsHash||'')||!hash.test(p.receiverHook?.anchorSha256||''))return result('inspect','selector-policy-or-stable-settings-unqualified')
   if(i===0?!same(s.metadataTarget,other)||s.archiveTarget!==undefined:!same(s.archiveTarget,other)||s.metadataTarget!==undefined)return result('inspect','pair-role-target-unqualified')
@@ -43,19 +44,27 @@ export async function inspectPairBootstrap(primary,expectedSha256,{signal}={}){
  const peers=[peerRecord(binding.primary.sessionId),peerRecord(binding.standby.sessionId)]
  if(peers.some(Boolean))return {action:'wait',reason:'surviving-controller-present',bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}
  const actors=[]
+ let inspectionPhase='primary-selection',actorRole='primary'
  try{
   const primarySelection=loadReceiverSelection(binding.primary.cwd),renewalLineage=primarySelection.selector.serviceId===binding.primary.serviceId?undefined:await inspectInterruptedRenewalLineage(primary,expectedSha256,{signal}),sources=pairBootstrapSourceActors(binding,renewalLineage)
+  inspectionPhase='process-inventory'
   const currentProcesses=liveProcesses()
   for(const [i,e]of [sources.primary,sources.standby].entries()){
    if(signal?.aborted)throw Error('cancelled')
-   const record=getRecord(e.sessionId),selection=loadReceiverSelection(e.cwd),absence=requireIndependentOfflineMutation({...e},e.sessionId,{processes:()=>currentProcesses}),status=await inspectIndependentService(e.sessionId,e.serviceId,{signal,offline:true}),policy=JSON.parse(readReceiverFile(join(e.cwd,'.claude-driver-services',e.serviceId,'broker','stop-rescue-policy.json'),65536))
+   actorRole=i===0?'primary':'standby';inspectionPhase='saved-session'
+   const record=getRecord(e.sessionId)
+   if(!record)return {action:'inspect',reason:'saved-service-session-missing',actorRole,replacementAuthorized:false,bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}
+   inspectionPhase='offline-service-review'
+   const selection=loadReceiverSelection(e.cwd),absence=requireIndependentOfflineMutation({...e},e.sessionId,{processes:()=>currentProcesses}),status=await inspectIndependentService(e.sessionId,e.serviceId,{signal,offline:true}),policy=JSON.parse(readReceiverFile(join(e.cwd,'.claude-driver-services',e.serviceId,'broker','stop-rescue-policy.json'),65536))
    ordinarySessionBinding(record,(i===0?binding.standby:binding.primary).sessionId)
    actors.push({record,selection,status,policy,peerPresent:false,oldPidAbsent:absence.previousPidObservedAbsent,sameHostAbsent:!currentProcesses.some(p=>p.hostSessionId===e.sessionId),registered:metadataTargetRegistered(e,{controlStateDir:STATE_DIR}),openPrCount:openPrs(record).length,recordIdentityQualified:true})
   }
+  inspectionPhase='retained-family';actorRole='primary'
   const receipt=JSON.parse(readReceiverFile(join(binding.primary.cwd,'.claude-driver-services',binding.primary.serviceId,'broker','results',binding.familyRequestId+'.native.json'),65536)),familyVerified=receipt.id===binding.familyRequestId&&receipt.source==='native-peer-service-result'&&receipt.results?.length===1&&receipt.results[0].op==='list_sessions'&&receipt.results[0].ok===true&&parseNativeFamilyMetadata(receipt.results[0].result,primary)?.length===0
+  inspectionPhase='final-absence-and-binding'
   // Observe absence and selection again after potentially slow offline reviews.
   for(const [i,e]of [sources.primary,sources.standby].entries()){requireIndependentOfflineMutation(e,e.sessionId);if(peerRecord(e.sessionId)||JSON.stringify(loadReceiverSelection(e.cwd))!==JSON.stringify(actors[i].selection))throw Error('pair changed')}
   if(standbyEnrollmentDigest(readStandbyEnrollment(primary))!==expectedSha256)throw Error('enrollment changed')
   return {...planPairBootstrap({binding,expectedSha256,actors,familyVerified,version:versions(),renewalLineage}),primarySession:primary,standbySession:binding.standby.sessionId,observedAt:Date.now()}
- }catch{return {action:'inspect',reason:'offline-pair-evidence-unqualified',bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}}
+ }catch{return {action:'inspect',reason:'offline-pair-evidence-unqualified',inspectionPhase,actorRole,bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}}
 }

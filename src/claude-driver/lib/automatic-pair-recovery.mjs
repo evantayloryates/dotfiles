@@ -25,7 +25,7 @@ export async function runAutomaticPairRecovery(d){
    await d.guard(enrollment);plan=await d.plan(enrollment)
   }
  }
- if(plan.bootstrapPreparationEligible!==true)throw Error('automatic pair bootstrap not eligible')
+ if(plan.bootstrapPreparationEligible!==true){await d.record('bootstrap-refused',{reason:plan.reason,inspectionPhase:plan.inspectionPhase,actorRole:plan.actorRole,replacementAuthorized:false});throw Error('automatic pair bootstrap not eligible')}
  await d.record('before-bootstrap',{enrollmentSha256:plan.enrollmentSha256});await d.guard(enrollment)
  const child=await d.submit(plan);await d.record('submitted',child)
  const result=await d.wait(child);await d.record('after-bootstrap',result)

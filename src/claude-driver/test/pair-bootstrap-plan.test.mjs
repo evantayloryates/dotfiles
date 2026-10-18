@@ -17,3 +17,7 @@ test('verified interrupted primary source map preserves original enrollment and 
  const r=planPairBootstrap(f);assert.equal(r.bootstrapPreparationEligible,true);assert.equal(r.sourceActors.primary.serviceId,successor);assert.deepEqual(f.binding,before);assert.equal(r.importAuthorized,false)
  for(const mutate of [g=>g.renewalLineage.rolesPreserved=false,g=>g.renewalLineage.enrollmentSha256='0'.repeat(64),g=>g.renewalLineage.predecessorServiceId=successor,g=>g.actors[0].status.unresolvedRequestIds=['mutation'],g=>g.actors[1].peerPresent=true,g=>g.familyVerified=false,g=>g.actors[0].selection.selector.pid=999]){const g=structuredClone(f);mutate(g);assert.equal(planPairBootstrap(g).bootstrapPreparationEligible,false)}
 })
+
+test('missing saved actor is distinguished without authorizing a replacement; archive alone remains importable',()=>{
+ for(const i of [0,1]){const f=fixture();f.actors[i].record=null;const r=planPairBootstrap(f);assert.equal(r.reason,'saved-service-session-missing');assert.equal(r.actorRole,i===0?'primary':'standby');assert.equal(r.replacementAuthorized,false);assert.equal(r.bootstrapPreparationEligible,false);const archived=fixture();archived.actors[i].record.isArchived=true;assert.equal(planPairBootstrap(archived).bootstrapPreparationEligible,true)}
+})

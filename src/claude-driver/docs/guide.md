@@ -2422,3 +2422,8 @@ profile, including native effects and baseline restoration. No implicit target,
 creation or legacy fallback. Both leave whole-interface legacy capabilities
 untouched: creation/focus/archive, groups/windows, human cards and outage recovery
 remain separate acceptance gates. Inspect a failed saved job before retrying.
+
+Recovery planning distinguishes `saved-service-session-missing` with a fixed actor
+role from `offline-pair-evidence-unqualified` with a fixed inspection phase.
+Missing records do not prove deletion. Neither diagnosis authorizes replacement,
+replay or startup; automatic refusal is durably checkpointed before dispatch.
