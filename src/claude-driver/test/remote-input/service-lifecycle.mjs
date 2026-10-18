@@ -1,6 +1,6 @@
 // Remote-only production helper factory qualification. Read-only fixture
 // acquisition through public MCP; no typing, host turn or hook-trust override.
-import {spawn} from 'node:child_process'
+import {spawn,spawnSync} from 'node:child_process'
 import {EventEmitter,once} from 'node:events'
 import {createInterface} from 'node:readline'
 import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
@@ -15,13 +15,20 @@ const run=join(root,'evidence','service-lifecycle-'+Date.now());mkdirSync(run,{m
 process.env.CLAUDE_DRIVER_STATE_DIR=join(run,'policy');mkdirSync(process.env.CLAUDE_DRIVER_STATE_DIR)
 writeFileSync(join(process.env.CLAUDE_DRIVER_STATE_DIR,'ui-quarantine.json'),JSON.stringify({blocked:false,scope:'authorized remote isolated lifecycle fixture'}))
 const {inspectPrivateInputRuntime,openPrivateInputService,privateInputThreadParams}=await import('../../lib/private-input-service.mjs')
+const {acquireKernelLock}=await import('../../lib/kernel-lock.mjs')
+const inheritedLock=process.argv.includes('--inherited-lock'),lockPath=join(run,'ui-automation.mutex')
 const runtimeRoot=join(root,'tools/cua_node'),cli=join(root,'tools/CodexCLI.app/Contents/MacOS/codex'),helperApp=join(root,'codex-home/computer-use/Codex Computer Use.app')
 const report={run,scope:'production-private-helper-factory-readonly-fixture',startedAt:new Date().toISOString(),inputEventsRequested:0,actualHostTurn:false,approvalRelays:[]}
 const hash=b=>createHash('sha256').update(b).digest('hex')
 const receiptPath=join(root,'evidence/acquire-1792351052633.request-1.response.json'),receipt=JSON.parse(readFileSync(receiptPath)),original=JSON.parse(readFileSync(receiptPath.replace('.response.json','.pending.json')))
 if(receipt.source!=='Taylor via current Codex chat'||receipt.action!=='accept'||receipt.requestSha256!==hash(JSON.stringify(original.params)))throw Error('original fixture test approval refused')
 const fixtureEnv={HOME:homedir(),USER:'theo',LOGNAME:'theo',PATH:'/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:join(root,'tmp')}
-let fixture,service,client,peer,clientExit,fixtureExit,fixtureStopRequested=false
+let fixture,service,client,peer,clientExit,fixtureExit,fixtureStopRequested=false,releaseLock
+const contend=()=>{
+ const code='import{acquireKernelLock}from '+JSON.stringify(new URL('../../lib/kernel-lock.mjs',import.meta.url).href)+';try{const release=await acquireKernelLock('+JSON.stringify(lockPath)+',{timeoutMs:300});console.log("ACQUIRED");release()}catch(e){console.log(e.category)}'
+ const r=spawnSync(process.execPath,['--input-type=module','-e',code],{encoding:'utf8',timeout:3000,env:fixtureEnv})
+ return {code:r.status,result:r.stdout.trim(),error:r.error?.code}
+}
 const stop=join(root,'fixture/stop')
 try{
  report.before=audit(root)
@@ -33,7 +40,8 @@ try{
   if(i===39)throw Error('owned empty fixture not ready')
   await new Promise(r=>setTimeout(r,100))
  }
- service=await openPrivateInputService({evidenceDir:run},{inspect:()=>inspectPrivateInputRuntime({resourceRoot:runtimeRoot,helperApp,cli})})
+ if(inheritedLock)releaseLock=await acquireKernelLock(lockPath)
+ service=await openPrivateInputService({evidenceDir:run,...inheritedLock?{lockFd:releaseLock.fd}:{}},{inspect:()=>inspectPrivateInputRuntime({resourceRoot:runtimeRoot,helperApp,cli})})
  report.ready={pid:service.pid,socketPath:service.binding.socketPath,evidence:service.evidence}
  const server=privateInputThreadParams({},service.binding).config.mcp_servers.cua_repl
  const transport=new EventEmitter()
@@ -57,9 +65,11 @@ try{
  const text=(result.content??[]).filter(c=>c.type==='text').map(c=>c.text).join('\n')
  report.acquisition={isError:result.isError===true,bytes:Buffer.byteLength(text),sha256:hash(text),exactFixtureObserved:text.includes('Claude Driver Input Teardown Fixture')&&text.includes('claude-driver-test-editor'),...(result.isError?{firstLine:text.split('\n')[0].slice(0,300)}:{})}
  report.afterAcquisition=audit(root)
+ if(inheritedLock){releaseLock();report.parentLockReleased=true;report.lockContenderBeforeClose=contend();if(report.lockContenderBeforeClose.result!=='lock_timeout')throw Error('native helper failed to retain kernel UI ownership')}
  peer.close();for(let i=0;i<50&&!clientExit;i++)await new Promise(r=>setTimeout(r,100))
  report.clientExit=clientExit??null
  report.closeReceipt=await service.close()
+ if(inheritedLock){report.lockContenderAfterClose=contend();if(report.lockContenderAfterClose.result!=='ACQUIRED')throw Error('native helper exit did not release kernel UI ownership')}
  report.afterClose=audit(root)
  report.ok=!result.isError&&report.acquisition.exactFixtureObserved&&clientExit?.code===0&&report.closeReceipt.nativeHelperExited&&!report.closeReceipt.forcedTermination&&report.afterClose.helperProcesses.length===0&&report.afterClose.helperKeyboardFilters.length===0&&report.afterClose.fixtureState.characters===0&&report.afterClose.fixtureProcessCurrent
 }catch(error){report.error={category:error.category,message:error.message};report.ok=false}
@@ -67,6 +77,7 @@ finally{
  peer?.close()
  if(client&&!clientExit){try{process.kill(-client.pid,'SIGTERM')}catch{};for(let i=0;i<30&&!clientExit;i++)await new Promise(r=>setTimeout(r,100))}
  if(service)try{report.finalClose=await service.close()}catch(e){report.cleanupError=e.message;report.ok=false}
+ releaseLock?.()
  if(fixture&&fixture.exitCode===null&&fixture.signalCode===null){writeFileSync(stop,'owned fixture stop\n',{flag:'wx'});fixtureStopRequested=true;const timer=setTimeout(()=>{},10000);await Promise.race([once(fixture,'exit').then(([code,signal])=>{fixtureExit={code,signal}}),new Promise(r=>setTimeout(r,10000))]);clearTimeout(timer)}
  report.fixtureExit=fixtureExit??null;report.fixtureStopRequested=fixtureStopRequested
  report.final=audit(root);report.finishedAt=new Date().toISOString()

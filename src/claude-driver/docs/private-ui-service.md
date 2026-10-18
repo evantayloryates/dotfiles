@@ -116,14 +116,12 @@ input cancellation, real Claude and loaded harness adoption remain unqualified.
 The prior abrupt native CLI-owner proof remains separately recorded. A normal
 JavaScript exit handler cannot guarantee cleanup after supervisor SIGKILL.
 
-Next independently test supervisor loss with a retained provider and owned
-synthetic processes. Source inspection identifies a potential gap: the current
-parent owns the kernel UI lock, detached worker group and helper. A lost parent
-may release its lock while its worker still has clients; process.once(exit)
-cannot run after SIGKILL. Account for the startup
-window before a worker exists as well as the running lease. Then design bounded
-owner-loss cleanup/lock lifetime on this evidence; do not merely repeat worker
-group loss or claim that a successful archive covers supervisor loss. Preserve
-quarantine and separate physical-input/person gates. No interim typing repeats.
+The later [supervisor lock correction](ui-supervisor-lock.md) reproduces that
+gap in an owned synthetic rig, then makes the helper and worker retain the
+kernel lock. The signed helper's inherited-descriptor boundary is also verified
+remotely. Overlap is fenced, but automatic orphan cleanup remains unfinished.
+The next owner-loss cleanup must cover startup and cleanup-owner failure while
+retaining the fence. Successful archive alone does not cover supervisor death.
+Preserve quarantine and separate physical-input/person gates. No typing repeats.
 Cold startup and the full completion audit remain open. Broad Codex bridge
 changes and 1Password work stay parked.

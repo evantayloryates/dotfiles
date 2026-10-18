@@ -438,6 +438,9 @@ MCP to it, refuses shared startup, and requires normal helper exit plus a native
 audit before success. Combined actual worker/native read-only completion, owned
 worker-group loss and pending-provider timeout pass. Supervisor loss, physical
 input and in-flight input cancellation remain open; UI fallback stays quarantined.
+The [supervisor lock correction](docs/ui-supervisor-lock.md) now retains kernel
+ownership in the helper and worker, fencing overlap after parent loss. Automatic
+orphan cleanup remains a separate unfinished recovery step.
 
 ## Focus policy
 

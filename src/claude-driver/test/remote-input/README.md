@@ -17,6 +17,10 @@ It observes normal client/helper exit and independent tap inventories. The
 orchestrator removes its own fixture stop marker only after fixture exit. This
 is a factory/native seam gate, not an actual worker or typing test. See
 [production preparation](../../docs/private-ui-service.md) for boundaries.
+Its `--inherited-lock` mode passes the actual borrowed kernel lock to the helper,
+closes the parent descriptor while the native client remains live, independently
+checks contender refusal, then checks acquisition after normal helper exit. No
+native supervisor kill or helper signal is used by that boundary test.
 
 `worker-native.mjs normal|abort-after-acquire|timeout-after-acquire` combines the
 actual worker/backend/MCP with that production helper factory, only on Theo Air.

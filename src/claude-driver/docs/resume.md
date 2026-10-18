@@ -1,3 +1,53 @@
+## October 18 supervisor-loss overlap reproduced and kernel ownership retained
+
+PROGRESS: current source8dfd7c77141948bc203cdaf83e45d0d8fbc7bb7b04863d951b16a44846f53312.
+Actual lock + private-helper factory + actual worker synthetic process rig
+independently reproduced the parent-loss gap. Before fix, parent SIGKILL let a
+new withLock callback enter while helper12071 stayed live before worker startup;
+running case also entered over helper12083/worker12086. Unrelated sentinel lived.
+Qualified failure: native-owner-20261018/supervisor-lock-before-qualified.log.
+Earlier fixture syntax/setup failures remain separate, not causal evidence.
+
+The existing kernel lock now exposes a borrowed descriptor only to an explicit
+trusted caller. Tier C duplicates that same open-file description into helper
+and worker as fd3; parent close/death no longer unlocks retained resources.
+Helper lsof verifies device/inode; worker verifies inherited identity before
+backend startup and returns a checked identity receipt. Other withLock callbacks
+retain their prior signature/release behavior. No mutex inode unlink/replacement,
+shared Codex source change, native patch, permission/auth change or local CUA.
+
+Both supervisor-SIGKILL cases now block a fresh lease while resources live, then
+allow acquisition after exact owned cleanup. Sentinel remains live. This is
+fencing against overlap, NOT automatic orphan cleanup. Seventeen final focused
+checks pass; six cleanup/group checks also passed before the final two admission
+cases. Full194-file isolated suite passes once71.139s, frozen source/suite/installed
+identity: pressure/v2-2026-10-18T20-31-54-446Z.json. Sibling/source hashes saved in
+supervisor-lock-source.json. Previous combined native worker tests retain5fea8859.
+
+Remote service-lifecycle-1792355409074 qualifies actual signed helper fd retention:
+helper3704 retained fd3 dev16777234/ino949804. After the parent closed its fd,
+an independent contender timed out while helper/client stayed live. After normal
+client exit0/helper exit0, contender acquired. Read-only exact fixture stayed
+alive/empty until final normal stop0. No typing, helper signal, hook override,
+native supervisor kill or person/persisted permission change. Eight files/40687
+bytes mirrored/hash-verified in inherited-lock-evidence. Final remote inventory:
+no owned process/helper/filter, original four non-helper taps, old repo0203e604
+clean, uv/caffeinate508/510 unchanged, no stop marker or auth copy. Local human
+quarantine stays blocked/hash9808e860. All owned handles/cleanup are terminal.
+Detailed evidence/limits: docs/ui-supervisor-lock.md. Service candidate memory
+and final local readback are recorded in supervisor-lock-final-readback.json.
+
+NEXT changed condition: owned lifetime channel/reaper established before helper
+startup, retaining kernel ownership during cleanup. Qualify supervisor loss,
+startup failure/cancellation and cleanup-owner failure with the provider retained
+in the synthetic rig; do not move the same gap into an unchecked child. Fencing
+alone can leave an orphan holding the service unavailable, so do not declare
+unattended recovery or readiness. Then one remote read-only changed-condition
+gate, including the new worker inherited receipt. Physical input, simultaneous
+active input, in-flight input cancellation, real Claude, loaded adoption, local
+quarantine release, cold startup and full goal audit remain open. Keep goal
+ACTIVE, broad Codex/1Password parked, and avoid interim typing/full-suite repeats.
+
 ## October 18 combined native worker completion, group loss and timeout pass
 
 PROGRESS on unchanged production source5fea8859. The actual Tier C worker,

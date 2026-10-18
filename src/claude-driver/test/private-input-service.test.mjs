@@ -5,7 +5,7 @@ import {tmpdir} from 'node:os'
 import {join,dirname} from 'node:path'
 import {connect} from 'node:net'
 import {once} from 'node:events'
-import {spawn} from 'node:child_process'
+import {spawn,spawnSync} from 'node:child_process'
 import {syntheticInputBinding,syntheticInputRoster} from './private-input-fixture.mjs'
 const root=mkdtempSync(join(tmpdir(),'claude-private-input-'))
 process.env.CLAUDE_DRIVER_STATE_DIR=join(root,'policy')
@@ -57,6 +57,16 @@ test('thread binding replaces only this lease CUA server and disables duplicate 
 test('changed runtime refuses before signature verification or native launch',async()=>{
  const dir=join(root,'changed-runtime');mkdirSync(join(dir,'bin'),{recursive:true});writeFileSync(join(dir,'bin/node'),'synthetic changed runtime')
  await assert.rejects(inspectPrivateInputRuntime({resourceRoot:dir,helperApp:dir,cli:join(dir,'cli')}),/component changed.*node/)
+})
+test('an invalid inherited lock refuses before inspecting or spawning the runtime',async()=>{
+ let inspected=false
+ await assert.rejects(openPrivateInputService({evidenceDir:root,lockFd:-1},{inspect:async()=>{inspected=true}}),/kernel lock descriptor unavailable/)
+ assert.equal(inspected,false)
+})
+test('worker refuses an invalid inherited lock before starting its backend',()=>{
+ const r=spawnSync(process.execPath,['src/claude-driver/scripts/tierc-worker.mjs'],{encoding:'utf8',timeout:3000,input:JSON.stringify({task:'synthetic lock refusal',timeoutSec:30,inputService:syntheticInputBinding(root),ownerLock:{fd:99,dev:0,ino:0}}),env:{...process.env,CODEX_BRIDGE_CODEX_PATH:join(root,'must-not-start')}})
+ assert.equal(r.error,undefined);assert.equal(r.status,1)
+ const out=JSON.parse(r.stdout);assert.match(out.error.message,/invalid inherited UI lock descriptor/);assert.equal(out.cleanup,undefined)
 })
 test('MCP admission verifies the exclusive connected server across roster pages',async()=>{
  const requests=[]

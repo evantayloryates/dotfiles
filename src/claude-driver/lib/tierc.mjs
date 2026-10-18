@@ -4,6 +4,7 @@
 // UI-only affordances. Results are claims; callers verify through Tier A.
 
 import {spawn} from 'node:child_process'
+import {fstatSync} from 'node:fs'
 import {randomUUID} from 'node:crypto'
 import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
@@ -21,7 +22,7 @@ const POSTURE =
 
 export async function computerUse(task, {timeoutSec=180, session='claude-driver', progress=()=>{}, signal, outputSchema}={}) {
   assertUiAvailable()
-  return withLock('ui-automation',async()=>{
+  return withLock('ui-automation',async(lockFd)=>{
     assertUiAvailable()
     if(signal?.aborted)throw new DriverError('UI lease cancelled before startup',{category:'cancelled'})
     const dir=ensureDir(join(STATE_DIR,'tierc',randomUUID()))
@@ -32,10 +33,11 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
     if(signal?.aborted)throw new DriverError('UI lease cancelled before startup',{category:'cancelled'})
     let inputService
     try{
-      inputService=await openPrivateInputService({evidenceDir:dir,signal})
-      const boundPayload=JSON.stringify({...JSON.parse(payload),inputService:inputService.binding})
+      inputService=await openPrivateInputService({evidenceDir:dir,signal,lockFd})
+      const lock=fstatSync(lockFd),ownerLock={fd:3,dev:lock.dev,ino:lock.ino}
+      const boundPayload=JSON.stringify({...JSON.parse(payload),inputService:inputService.binding,ownerLock})
       if(Buffer.byteLength(boundPayload)>64*1024)throw new DriverError('UI task and input binding exceed worker bound',{category:'bad_args'})
-      const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe'],detached:true})
+      const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe',lockFd],detached:true})
       let output='',stderr='',stopped=false,timedOut=false,overflow=false,spawnError
       const stop=()=>{stopped=true;try{process.kill(-child.pid,'SIGTERM')}catch{}}
       const timer=setTimeout(()=>{timedOut=true;stop()},(Math.max(30,timeoutSec)+10)*1000)
@@ -60,7 +62,7 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
       const nativeInputService=await inputService.close()
       if(signal?.aborted)throw new DriverError('UI lease cancelled; inspect state before another send',{category:'cancelled',detail:{evidence}})
       if(code!==0||result?.error||!result?.result||overflow||timedOut)throw new DriverError(`Tier C private worker failed: ${result?.error?.message||spawnError||(timedOut?'timeout':'invalid result')}`,{category:'tier_c_failed',detail:{evidence}})
-      if(result.execution?.transport!=='stdio'||result.execution?.privateStateDir!==dir||result.execution?.inputServiceSocket!==inputService.binding.socketPath||result.execution?.mcpAdmission?.serverName!=='cua_repl')throw new DriverError('Tier C worker isolation could not be verified',{category:'tier_c_failed',detail:{evidence}})
+      if(result.execution?.transport!=='stdio'||result.execution?.privateStateDir!==dir||result.execution?.inputServiceSocket!==inputService.binding.socketPath||result.execution?.mcpAdmission?.serverName!=='cua_repl'||JSON.stringify(result.execution?.ownerLock)!==JSON.stringify(ownerLock))throw new DriverError('Tier C worker isolation could not be verified',{category:'tier_c_failed',detail:{evidence}})
       let structured
       if(outputSchema&&result.result.status==='completed'){
         try{structured=JSON.parse(result.result.finalText)}catch{throw new DriverError('Tier C worker returned an invalid structured outcome',{category:'tier_c_failed',detail:{evidence}})}
@@ -74,7 +76,7 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
         await assertInputHealthy({phase:'after-lease',evidence:join(dir,'input-taps-after.json')})
       }
     }
-  },{signal})
+  },{signal,passKernelLock:true})
 }
 
 // Type a line into the composer of the session currently shown in the main

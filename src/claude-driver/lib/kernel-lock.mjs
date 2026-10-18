@@ -31,6 +31,10 @@ export async function acquireKernelLock(file,{timeoutMs=120000,signal}={}) {
   if(signal?.aborted)throw failure('cancelled','cancelled before dispatch')
   retained=true
   let released=false
-  return ()=>{if(!released){released=true;closeSync(fd)}}
+  const release=()=>{if(!released){released=true;closeSync(fd)}}
+  // Trusted owners may duplicate this same open-file description into owned
+  // resource processes. Closing the parent then cannot unlock live resources.
+  Object.defineProperty(release,'fd',{value:fd})
+  return release
  }finally {if(!retained)closeSync(fd)}
 }

@@ -1,7 +1,7 @@
 // Own one native input service per private UI lease. No shared helper control,
 // credential copy, permission edit or quarantine release is performed here.
 import {spawn,execFile} from 'node:child_process'
-import {readFileSync,existsSync,mkdtempSync,lstatSync,rmSync} from 'node:fs'
+import {readFileSync,existsSync,mkdtempSync,lstatSync,rmSync,fstatSync} from 'node:fs'
 import {homedir} from 'node:os'
 import {join,dirname,isAbsolute} from 'node:path'
 import {createHash} from 'node:crypto'
@@ -73,12 +73,16 @@ export async function admitPrivateInputRoster(threadId,getStatus,{timeoutMs=1500
  throw new DriverError('Private input MCP roster did not establish exclusive owned server',{category:'private_input_service_failed',detail:{threadId,roster:lastObserved}})
 }
 
-export async function openPrivateInputService({evidenceDir,signal},{inspect=inspectPrivateInputRuntime,spawnChild=spawn,verifySocketOwner=async(pid,path)=>{
+export async function openPrivateInputService({evidenceDir,signal,lockFd},{inspect=inspectPrivateInputRuntime,spawnChild=spawn,verifySocketOwner=async(pid,path)=>{
  const {stdout}=await run('/usr/sbin/lsof',['-nP','-a','-p',String(pid),'-U'],{timeout:5000,maxBuffer:65536})
  return stdout.split('\n').some(line=>line.trim().split(/\s+/)[1]===String(pid)&&line.trim().endsWith(' '+path))
 }}={}){
  assertUiAvailable()
  if(signal?.aborted)throw fail('Private input startup cancelled')
+ let lockIdentity
+ if(lockFd!==undefined){
+  try{if(!Number.isInteger(lockFd)||lockFd<3)throw Error();const s=fstatSync(lockFd);if(!s.isFile())throw Error();lockIdentity={dev:s.dev,ino:s.ino}}catch{throw fail('Inherited UI kernel lock descriptor unavailable')}
+ }
  const runtime=await inspect()
  assertUiAvailable()
  if(signal?.aborted)throw fail('Private input startup cancelled')
@@ -88,11 +92,11 @@ export async function openPrivateInputService({evidenceDir,signal},{inspect=insp
  const socketPath=join(socketDir,'s'),startupDisabledApp=join(socketDir,'startup-disabled.app')
  const binding={version:1,node:runtime.files.node,launcher:runtime.files.launcher,resourceRoot:runtime.resourceRoot,cli:runtime.files.cli,codexHome:runtime.codexHome,socketPath,startupDisabledApp}
  const evidence=join(evidenceDir,'private-input-service.json')
- const row={version:1,startedAt:new Date().toISOString(),socketPath,helperPath:runtime.files.helper,runtimeHashes:runtime.hashes,parentPid:process.pid,ready:false,closed:false,forcedTermination:false}
+ const row={version:1,startedAt:new Date().toISOString(),socketPath,helperPath:runtime.files.helper,runtimeHashes:runtime.hashes,parentPid:process.pid,ready:false,closed:false,forcedTermination:false,...lockIdentity?{inheritedLock:{...lockIdentity,childFd:3,verified:false}}:{}}
  let exit,spawnError,stderrBytes=0,closePromise
  const env={HOME:homedir(),USER:process.env.USER||'',LOGNAME:process.env.LOGNAME||'',PATH:dirname(runtime.files.cli)+':'+join(runtime.resourceRoot,'bin')+':/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:process.env.TMPDIR||'/tmp',CODEX_HOME:runtime.codexHome,CODEX_CLI_PATH:runtime.files.cli,SKY_CUA_SERVICE_NATIVE_PIPE_PATH:socketPath}
  let child
- try{child=spawnChild(runtime.files.helper,[],{env,stdio:['ignore','ignore','pipe']})}
+ try{child=spawnChild(runtime.files.helper,[],{env,stdio:['ignore','ignore','pipe',...(lockIdentity?[lockFd]:[])]})}
  catch{row.failure='helper_spawn_failed';row.closed=true;writeJsonAtomic(evidence,row);rmSync(socketDir,{recursive:true,force:true});throw fail('Private input helper spawn failed')}
  row.pid=child.pid
  child.stderr?.on('data',b=>{stderrBytes+=b.length})
@@ -118,6 +122,12 @@ export async function openPrivateInputService({evidenceDir,signal},{inspect=insp
     const parent=lstatSync(socketDir),socket=lstatSync(socketPath)
     if(parent.isSymbolicLink()||!parent.isDirectory()||parent.uid!==process.getuid()||(parent.mode&0o077)!==0||socket.isSymbolicLink()||!socket.isSocket()||socket.uid!==process.getuid())throw fail('Private input socket ownership unverified')
     if(!await verifySocketOwner(child.pid,socketPath))throw fail('Private input socket not bound to exact owned helper')
+    if(lockIdentity){
+     const {stdout}=await run('/usr/sbin/lsof',['-nP','-a','-p',String(child.pid),'-d','3','-F','fiD'],{timeout:5000,maxBuffer:65536})
+     const fields=stdout.trim().split('\n')
+     if(!fields.includes('f3')||!fields.includes('i'+lockIdentity.ino)||!fields.some(s=>s.startsWith('D')&&BigInt(s.slice(1))===BigInt(lockIdentity.dev)))throw fail('Owned helper did not retain the UI kernel lock')
+     row.inheritedLock.verified=true
+    }
     if(exit||spawnError)throw fail('Private input helper exited during verification')
     row.ready=true;save();return {binding,close,evidence,pid:child.pid}
    }

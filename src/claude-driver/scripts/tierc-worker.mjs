@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // One isolated UI lease. This process never connects to the shared daemon or
 // resumes a different caller's thread. Its state belongs to claude-driver.
-import {readFileSync} from 'node:fs'
+import {readFileSync,fstatSync} from 'node:fs'
 import {assertUiAvailable} from '../lib/ui-policy.mjs'
 import {privateInputThreadParams,admitPrivateInputRoster} from '../lib/private-input-service.mjs'
 let bridge
@@ -13,6 +13,11 @@ try{
  const input=JSON.parse(raw)
  if(typeof input.task!=='string'||!Number.isFinite(input.timeoutSec))throw new Error('invalid UI worker input')
  if(!input.inputService)throw new Error('private input service binding required')
+ if(input.ownerLock){
+  if(input.ownerLock.fd!==3)throw new Error('invalid inherited UI lock descriptor')
+  const s=fstatSync(3)
+  if(!s.isFile()||s.dev!==input.ownerLock.dev||s.ino!==input.ownerLock.ino)throw new Error('inherited UI lock identity mismatch')
+ }
  const {Bridge,DEVELOPER_INSTRUCTIONS}=await import('../../codex-bridge/lib/bridge.mjs')
  bridge=new Bridge({log:(...a)=>console.error('[tier-c]',...a)})
  bridge.app.mode='stdio'
@@ -30,7 +35,7 @@ try{
  const threadId=await bridge.ensureThread('claude-driver-ui',{cwd:process.env.CODEX_BRIDGE_STATE_DIR,newThread:true,roster:'trim',instructions})
  const mcpAdmission=await admitPrivateInputRoster(threadId,params=>bridge.app.request('mcpServerStatus/list',params))
  const result=await bridge.run({task:input.task,output_schema:input.outputSchema,cwd:process.env.CODEX_BRIDGE_STATE_DIR,developer_instructions:instructions,session:'claude-driver-ui',new_thread:false,mcp_roster:'trim',apps:['Claude','com.anthropic.claudefordesktop'],timeout_sec:input.timeoutSec,screenshots:'none'}, {progress:message=>console.error(JSON.stringify({progress:message}))})
- outcome={...result,execution:{transport:bridge.app.transportKind,backendVersion:bridge.app.version,privateStateDir:process.env.CODEX_BRIDGE_STATE_DIR,inputServiceSocket:input.inputService.socketPath,mcpAdmission}}
+ outcome={...result,execution:{transport:bridge.app.transportKind,backendVersion:bridge.app.version,privateStateDir:process.env.CODEX_BRIDGE_STATE_DIR,inputServiceSocket:input.inputService.socketPath,mcpAdmission,...input.ownerLock?{ownerLock:input.ownerLock}:{}}}
 }catch(e){outcome={error:{category:e.category||'tier_c_failed',message:e.message,...e.detail?{detail:e.detail}:{}}};process.exitCode=1}
 finally{
  // Disconnecting the transport or resetting JS alone does not release
