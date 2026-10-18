@@ -643,7 +643,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
 source "$DOTFILES_DIR/src/lib/terminal-file.sh"
 pdfinfo() { print -r -- "Pages: $PAGE_COUNT"; }
 pdftoppm() {
-  [[ "$*" == *'-scale-to 300'* ]] || return 1
+  [[ "$*" == *'-scale-to 500'* ]] || return 1
   while (( $# )); do
     if [[ "$1" == -f ]]; then print -rn -- "$2"; return 0; fi
     shift

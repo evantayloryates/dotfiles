@@ -44,7 +44,7 @@ __terminal_preview() {
           print -r -- ''
         fi
         # One page at a time streams PNG bytes; no temporary images are saved.
-        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to 300 -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
+        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to 500 -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
         previous="$page"
       done ;;
     markdown)
