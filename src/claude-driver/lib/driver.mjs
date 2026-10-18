@@ -1073,6 +1073,18 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable record restoration required',{category:'bad_args'});return(await import('./missing-service-restoration.mjs')).restoreMissingServiceRecord(args.session,args.role,args.expected_enrollment_sha256,args.expected_plan_sha256,ctx)},
   },
   {
+    name:'broker_service_restored_pair_plan',title:'Inspect reactivation of one restored service record',readOnly:true,
+    description:'Read-only exact completed restoration-root, durable retirement, actual bypass/new idle native epoch and reciprocal surviving service/role inspection. Returns root/plan hashes only when preparation qualifies. No import, permission change, activation, replay or serving authority.',
+    schema:{required:['restoration_job_id'],properties:{restoration_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},
+    run:async(args,ctx)=>{const {rootSha256}=(await import('./restored-record-proof.mjs')).readRestoredRecordRoot(args.restoration_job_id),plan=await(await import('./restored-pair-plan.mjs')).inspectRestoredPair(args.restoration_job_id,rootSha256,ctx);return {...plan,...plan.pairPreparationEligible?{planSha256:(await import('./restored-pair-ledger.mjs')).restoredPairPlanDigest(plan)}:{}}},
+  },
+  {
+    name:'broker_service_reactivate_restored_pair',title:'Reactivate the exact restored service pair',readOnly:false,
+    description:'Experimental durable one-use reactivation anchored to completed record restoration and exact current root/plan hashes. Prepares both original roles, retires only the surviving old generation, verifies stable activation/readiness/policy/reads/settings and CAS enrollment plus metadata rebind. Never imports again, raises permissions or replays uncertain work. Failures preserve original root and child handles; positive native missing-record recovery remains unqualified.',
+    schema:{required:['restoration_job_id','expected_root_sha256','expected_plan_sha256','experimental'],properties:{restoration_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},expected_plan_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable restored pair reactivation required',{category:'bad_args'});return(await import('./restored-pair-execute.mjs')).reactivateRestoredPair(args.restoration_job_id,args.expected_root_sha256,args.expected_plan_sha256,ctx)},
+  },
+  {
     name:'broker_service_pair_bootstrap_status',title:'Inspect one retained pair bootstrap root',readOnly:true,
     description:'Read bounded root identity/hash, phase and attempted import roles. No process startup assessment, continuation authority, imports, effects or replay.',
     schema:{required:['root_job_id'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},

@@ -1,3 +1,25 @@
+## October 18 restored pair driver entrypoints and consolidated gate
+
+Registered broker_service_restored_pair_plan (read-only exact restoration job;
+returns qualified root/plan hashes) and broker_service_reactivate_restored_pair
+(explicit experimental durable job plus exact hashes). Both use existing CLI/MCP
+operation registry. No automatic routing to missing-record recovery yet. Invalid
+or non-durable execution refuses before effects; no generic import/replay path.
+
+Full consolidated isolated suite177 files PASS1/1 round44.8sec, sourceChangedfalse,
+build95f9dfde9bdb8173d70a362288276112bf9e490aa0c8d7725059d40218eccf5c,
+pressure/v2-2026-10-18T05-54-29-349Z.json. Private log
+pressure/restored-pair-consolidated-20261018.log. Driver boundary test passed.
+Suite exercises components/guards/ledger, NOT a positive production-adapter native
+restoration. No live chats/imports/deletions/service changes or refresh performed.
+
+Next: positive integrated execution fixture using real ledger/scheduler protocol
+and enrollment proof; strengthen any adapter-contract gaps it finds. Then settled
+current-source filtered harness/client adoption and strategic native gate. Existing
+native/MCP18ef evidence remains historical. Actual missing-record positive and
+unattended cold-app startup remain UNQUALIFIED. Goal active; no live jobs/cleanup
+pending. Codex bridge work remains parked.
+
 ## October 18 production restored-pair execution adapter
 
 Added restored-pair-execute.mjs: exact root/plan hashes and durable distinct job,
