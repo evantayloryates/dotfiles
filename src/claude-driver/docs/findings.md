@@ -1,3 +1,22 @@
+## October 18: project request contexts are not recovery parent jobs
+
+A derived per-session project context identifies a native request but is not an
+actual scheduler record. Controller-record recovery continuations must be able
+to independently inspect their exact parent job and private argument hash. Project
+archives now submit real durable archive_session children, retaining logical
+contextId, actual childJobId and native requestId separately. The existing
+restoration child runner is shared rather than duplicating scheduling/retry code.
+Intent precedes submit; handle precedes observation; uncertainty never resubmits
+and prevents later project targets. Parent cancellation can leave a child active;
+inspect its original handle before further action.
+
+Current fcf484e3: full191 frozen PASS; actual Claude/Codex harnesses10/10 each;
+two-target native project batch passed exact child jobs/receipts and restored
+archived baselines without folder deletion. Prior ordinary12 remains sourcedf52.
+The new full-scope completion-audit.md preserves original requirements, partial
+fresh-import permission proof, human/platform gates and pending loaded Codex MCP
+adoption. No universal always-on claim is made. Exact evidence/handles: resume.md.
+
 ## October 18: freeze recipients before queuing or repairing the controller
 
 Source df52d791 stores a sanitized action snapshot at durable submission,

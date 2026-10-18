@@ -840,7 +840,7 @@ export const OPS = [
         await updateRegistry((r) => delete r.folders[folder])
         folderDeleted = true
       }
-      return { ...plan,...archiveRoute?{route:'independent-project-archive',routeFile:archiveRoute.routeFile,requests:archiveRoute.results.map(r=>({sessionId:r.sessionId,contextId:r.contextId}))}:{}, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
+      return { ...plan,...archiveRoute?{route:'independent-project-archive',routeFile:archiveRoute.routeFile,requests:archiveRoute.results.map(r=>({sessionId:r.sessionId,contextId:r.contextId,childJobId:archiveRoute.childJobs[r.sessionId],requestId:r.result.requestId}))}:{}, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
     },
   },
   // ---------------- bypass pool

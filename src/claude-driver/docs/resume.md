@@ -1,3 +1,71 @@
+## October 18 full-scope audit and real durable project archive children
+
+Previous turn was progress: 8ff6fca froze ordinary recipients and passed source
+df52 native12/ProDevs plus full190 and both actual harnesses. Actual loaded Codex
+MCP still reports e9dd31e4/restartRequiredtrue; the existing restart request is
+pending. No repeated approval request, Codex reload work or UI initialization.
+
+Read-only full audit now lives in docs/completion-audit.md. Actual persisted
+registrations4/4 resolve to the same canonical launcher (symlink spelling is not
+another installation); global Claude skill is a real directory with SKILL.md,
+MEMORY.md and memories/. Original brief hash unchanged. Inspected actual pool
+claim/config/archive and fresh import/fork jobs, including unverified Accept edits
+versus requested Bypass and verified fork prefix/focus on their recorded sources.
+All three historical lifecycle fixtures remain archived; no cleanup forgotten.
+Cold app readback still explicitly says humanStartupRequiredtrue and automatic
+AppRestartQualifiedfalse. Original full goal remains incomplete, not narrowed to
+ordinary12. Cursor last auth gate/OpenCode unavailable, person-only consent,
+quarantined windows and natural-pressure serving remain explicit limitations.
+Private audit: pressure/goal-completion-audit-df52-20261018.json.
+
+One targeted native two-target project batch passed on df52 with exact frozen
+scope and archived baselines. Code inspection found a recovery integration gap:
+project entries used derived request contexts without actual scheduler jobs;
+ordinary controller-record continuations require an independently inspected real
+parent. Current source fcf484e3e94b4dfa804ec3bdca375d64d6f42cada92f3de27c500933ab5cbbc9
+now schedules each archive as a real durable child. Reuses existing one-attempt
+runner, extracted into durable-child.mjs with the old restoration export retained.
+Each parent journals submission before scheduler and actual job ID before wait.
+Public requests and unresolved details expose childJobId separately from logical
+contextId/native requestId. Unknown submission/observation and parent cancellation
+preserve known handles, stop later targets, and never resubmit. A child may still
+continue; inspect/cancel its original job explicitly rather than replay the batch.
+No folder-deletion authority, scope, grants, target bindings or quarantine changed.
+
+Focused47 PASS incl real isolated archive worker/controller-missing refusal,
+first child preserved/no second target job/both records untouched; original
+restoration, native prefix/checkpoint and uncertainty tests use the shared runner.
+Focused -1 retained an overly generic expected error; corrected to the existing
+specific session_management_controller_record_missing. No production gate weakened.
+First native preparation stopped before any effects because verifier expected
+fork registry.kind=create; corrected exact create/fork provenance and preserved log.
+Full191 PASS40.7sec frozen source/suite/installed identity, sourceChangedfalse:
+pressure/v2-2026-10-18T18-21-47-071Z.json; project-durable-child-full-1-20261018.log.
+Actual filtered Claude and Codex(gpt-6-sol) current-source contracts each10/10 PASS,
+configs unchanged: harness-v2-{claude,codex}-2026-10-18T18-22-37-733Z.json.
+
+Targeted current native batch PASS (did not repeat ordinary12): parent
+j2b638902f0254997a39dc2ff820bbf49; children j3ec41dd928fd4610becb5bc6fab69e21 and
+jf2f8f87d1e4144c18ddc7e6f91c2ac0e independently inspected completed/archive_session,
+exact target args and native rpeer<actual-child-id> receipts. Both source/fork
+records returned to their exact archived title/model/effort/mode/pin/CLI baseline;
+folder remains. No new chats/task messages, permission change, delete, restart,
+UI/keyboard or outage experiment. Proof pressure/project-durable-child-native-
+fcf4-20261018.json; readback project-child-final-readback-fcf4-20261018.json.
+Primary9eb43753 samePID87665 now sourcefcf4; standby263d0710 samePID89119 remains
+sealed sourcedf52. BOTH idle/ready/policytrue/unexpired/noSTOP/unresolved[];
+never claim mixed-source membership means both actors run current source.
+ProDevs independently remains unarchived+pinned. Observer/recovered deletion
+fixtures untouched. No live test worker or task-owned cleanup pending.
+
+NEXT CHANGED CONDITION: after the existing user Codex restart, verify actual
+loaded runtime/source equality and read retained current project children and
+ProDevs via MCP; no new target mutation/full profile needed for that adoption.
+Full always-on completion still requires a changed supported cold-start ingress
+or independently resolved input quarantine, not repeated identical probes. Retain
+full original scope and limitations in completion-audit.md; do not mark complete
+from ordinary/native/fixture counts. Goal active. Codex-driver/1Password separate.
+
 ## October 18 frozen ordinary recipient actions and final current-source gates
 
 Previous turn was progress (aa38f20): exact pair-readiness continuation. Current

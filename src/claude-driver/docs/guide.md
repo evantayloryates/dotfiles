@@ -1924,13 +1924,19 @@ synchronous and explicit alternate-route batches keep their existing behavior.
 ### Independent project batches
 
 Durable archive_project default routing uses at most 128 exact unique targets,
-with stable per-session contexts and a retained parent ledger. All target/account/
-folder/service exclusions are checked before the first archive and again per step.
-Stop on uncertainty; inspect project-archive-routes rather than replaying the batch.
+with stable per-session contexts and a retained parent ledger. Each archive is
+also a real durable child job, so controller-record recovery can inspect its
+actual parent and private intent. Public requests retain contextId, childJobId
+and native requestId; unresolved details preserve every known child handle.
+All target/account/folder/service exclusions are checked before the first archive
+and again per step. Stop on uncertainty; inspect project-archive-routes and the
+original child jobs rather than replaying the batch. A child may continue after
+parent cancellation or observation loss; later targets stop.
 Cleanup remains separately gated: complete saved archives, valid current temp/probe
 ownership, no retained service directory (including aliases), and no fresh active
-session under the folder. A one-target frozen archive-only native gate and same-store admission passed on
-source99e7808. Multi-target native sequencing remains separate.
+session under the folder. A current fcf484e3 two-target native batch passed with
+distinct actual child jobs, exact receipts and restored archived baselines. No
+folder was deleted. The prior one-target source99e7808 proof remains historical.
 
 ### Project jobs and foreground cleanup
 

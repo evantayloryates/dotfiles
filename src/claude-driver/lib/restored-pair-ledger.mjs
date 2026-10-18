@@ -29,17 +29,7 @@ export function restoredPairChildSubmission(plan,rootJobId,step){
  else throw Error('reactivation child step requires exact supported lifecycle mapping')
  return {operation,arguments:args,idempotency_key:'restored-pair:'+rootJobId+':'+step,timeout_sec:120}
 }
-export async function runRestoredPairChild(context,step,submission,{signal,run}={}){
- const {ledger,save}=context
- if(!/^[-a-z]{1,48}$/.test(step||'')||ledger.children[step])throw Error('reactivation child already attempted or invalid')
- const call=run??(async(op,args,ctx)=>(await import('./driver.mjs')).runOp(op,args,ctx))
- ledger.children[step]={submission:structuredClone(submission),phase:'before-submit'};save()
- if(signal?.aborted)throw Error('reactivation cancelled before child submission')
- const submitted=await call('driver_submit',submission)
- if(!job.test(submitted?.jobId||''))throw Error('reactivation scheduler handle unavailable')
- ledger.children[step].jobId=submitted.jobId;save()
- for(;;){if(signal?.aborted)throw Error('reactivation child may continue after cancellation');const observed=await call('driver_wait',{job_id:submitted.jobId,timeout_sec:10,include_result:true},{signal});ledger.children[step].observation=observed;save();if(observed.jobId!==submitted.jobId||observed.operation!==submission.operation)throw Error('reactivation child observation identity changed');if(observed.state==='completed')return observed.result;if(!['queued','running'].includes(observed.state))throw Error('reactivation child failed or uncertain')}
-}
+export {runDurableChild as runRestoredPairChild} from './durable-child.mjs'
 // Separate ownership of the remaining suffix. The original restoration claim
 // and failed reactivation root are never released, reassigned or overwritten.
 export function createRestoredPairReadinessLedger(checkpoint,jobId,{dir=join(STATE_DIR,'restored-pair-reactivations'),now=Date.now}={}){

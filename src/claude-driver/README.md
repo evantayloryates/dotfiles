@@ -31,7 +31,8 @@ harness ──MCP stdio──▶ bin/claude-driver-mcp (server.mjs) ─┐   bin
 
 Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 `driver_guide` tool and the `claude-driver://guide` resource). Dated evidence:
-[docs/findings.md](docs/findings.md). Original research and decisions:
+[docs/findings.md](docs/findings.md). Full requirement audit:
+[docs/completion-audit.md](docs/completion-audit.md). Original research and decisions:
 [docs/brief.md](docs/brief.md).
 
 ## Current qualification — October 18, 2026
@@ -40,7 +41,7 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `df52d791` passes all 190
+execution remains unqualified. Current host source `fcf484e3` passes all 191
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on this
 source. This desktop chat still loads `e9dd31e4` and correctly reports
 `restartRequired:true`; loaded-client adoption is a separate gate.
@@ -50,8 +51,10 @@ and restored both reciprocal receiver roles with native reads and verified
 enrollment. Original failed jobs and claims remain preserved through separately
 claimed continuations. Native packages retained their sealed source `5ee1ea07`.
 Unattended recreation/permission/loader consent and cold-app startup remain
-unqualified. The final twelve-check ordinary profile passed on current source `df52d791`.
-This desktop MCP still needs loaded-client adoption.
+unqualified. The twelve-check ordinary profile passed on source `df52d791`.
+A current-source two-target project archive also passed with real child jobs,
+exact native receipts and restored baselines. This desktop MCP still needs
+loaded-client adoption.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
