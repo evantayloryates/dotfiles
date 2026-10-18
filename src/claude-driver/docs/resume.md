@@ -1,3 +1,31 @@
+## October 17 live standby lease maintenance verified
+
+Resolved the stale enrollment described below. The standby was live and idle but
+its lease expired; enrollment correctly refused it. Primary renewal now checks
+that exact condition, renews only the explicitly automatic, unchanged live standby
+once through a durable child, then CAS-enrolls the successor pair using its already
+settled fresh family receipt. It never relaxes enrollment, wakes sessions, repeats
+unknown effects or grants the standby ordinary-chat controls. Detailed enrollment
+refusal reasons are retained. Healthy standby refresh performs no child renewal.
+
+Native source 034aeea65a01da3cf64e2ad3842eda7e0dd3ce6af5e4b5fa10983f6dbface422:
+parent jf23fcc62dee94311a6dac05634fa7845 completed, primary f23fcc62dee94311a6dac05634fa7845;
+one standby child j1da3f53b10404658b6fe65ed48314b46 completed, standby 1da3f53b10404658b6fe65ed48314b46.
+Both original native epochs preserved. Enrollment digest daf17288497edab690509b91189ed16ad15b056e94d0132dd960df420524d2fc
+and family rpeerfe9632125f936a14310aa2a5e5685da7 independently read back:
+action wait / reason primary-live, automatic recovery enabled. Earlier j750877...
+failed refresh and the child's reciprocal refresh refusal against the predecessor
+primary remain retained. Final parent CAS repaired the pair; child refusal alone
+is not pair failure or proof of crash. Evidence: .runtime/state/live-standby-refresh-native-20261017.json.
+This qualifies live-expired-standby maintenance, not unattended outage recovery or
+loaded MCP adoption. Focused synthetic gate: 20 passed.
+
+Next: finish current-source integration checks, reconcile cached MCP adoption at
+one final refresh, and proceed through the existing full-scope qualification audit
+(native creation/pool/fork and recovery still have unqualified gates). Ordinary
+ProDevs metadata proof remains valid on its recorded source; no new message or
+archive test was run on user chats. Goal remains active.
+
 ## October 17 immediate next: automatic renewal left standby enrollment stale
 
 Final read-only audit AFTER the native project gate found actual primary service
@@ -9506,3 +9534,5 @@ node src/claude-driver/scripts/live-v2.mjs --live --input-free
 Shared technical mechanisms and reports belong to this service's docs and
 private memory. Harness skills should retain only harness-specific judgment.
 Nothing should automatically restart qualification while paused.
+
+Integrated synthetic gate on the same 034aee... source: 1/1 PASS in 39.0 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-34-54-384Z.json. This does not expand native or loaded-client qualification.

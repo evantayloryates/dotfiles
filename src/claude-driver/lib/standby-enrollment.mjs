@@ -34,7 +34,7 @@ export function standbyRefreshAllowed(before,after,expected){
 }
 async function qualified(args,{signal,allowAbsentPrimary=false,primaryEpoch}={}){
  const plan=await inspectStandbyRecovery(args.session,args.service_id,args.session_id,args.target_service_id,args.family_request_id,{signal})
- if(!(plan.action==='wait'&&plan.reason==='primary-live')&&!(allowAbsentPrimary===true&&plan.action==='recover'&&plan.coldRecoveryEligible===true))throw Error('standby enrollment requires qualified live primary and standby')
+ if(!(plan.action==='wait'&&plan.reason==='primary-live')&&!(allowAbsentPrimary===true&&plan.action==='recover'&&plan.coldRecoveryEligible===true))throw Object.assign(Error('standby enrollment requires qualified live primary and standby'),{category:'standby_enrollment_unqualified',detail:{action:plan.action,reason:plan.reason}})
  const epoch=(session,service)=>{const r=getRecord(session),native=peerRecord(session),p=native??(allowAbsentPrimary&&session===args.session_id?primaryEpoch:null),selected=loadReceiverSelection(r.cwd);if(!p||selected.selector.sessionId!==session||selected.selector.serviceId!==service||p.pid!==selected.selector.pid||p.procStart!==selected.selector.procStart)throw Error('enrollment selection changed');return {sessionId:session,serviceId:service,cwd:r.cwd,pid:p.pid,procStart:p.procStart}}
  return validateStandbyEnrollment({schemaVersion:1,primary:epoch(args.session_id,args.target_service_id),standby:epoch(args.session,args.service_id),familyRequestId:args.family_request_id,enrolledAt:Date.now()},args.session_id)
 }

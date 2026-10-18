@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto'
 import {readStandbyEnrollment,standbyEnrollmentDigest,enrollStandby,standbyBindingsForSession,inspectEnrolledStandby} from './standby-enrollment.mjs'
 import {readIndependentService} from './independent-service-result.mjs'
+import {inspectStandbyRecovery} from './standby-plan.mjs'
 import {join} from 'node:path'
 import {writeFileSync} from 'node:fs'
 import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
@@ -38,6 +39,24 @@ export async function runIndependentRenewal(d){
   await d.record('after-'+phase,results)
  }
  return results
+}
+// The primary may be serving while its exact live standby's lease expires.
+// Repair only that specific condition once; do not turn enrollment failures into
+// generic recovery, fresh family calls, wakes or repeated renewal attempts.
+export async function runLiveStandbyRefresh(d){
+ await d.guard();const plan=await d.plan();await d.record('inspected',plan)
+ let serviceId=d.standbyServiceId
+ if(plan.action==='inspect'&&plan.reason==='standby-lease-unqualified'&&d.automatic===true){
+  await d.guard();await d.record('before-standby-renew')
+  const renewed=await d.renew();await d.record('after-standby-renew',renewed)
+  if(renewed?.installed!==true||renewed.readinessObserved!==true||renewed.nativePolicyObserved!==true||renewed.readAdmissionQualified!==true||!/^[a-f0-9]{32}$/.test(renewed.serviceId||''))throw Error('standby lease renewal unqualified')
+  serviceId=renewed.serviceId
+  await d.guard(serviceId)
+ }else if(plan.action!=='wait'||plan.reason!=='primary-live')throw Object.assign(Error('standby refresh plan refused'),{category:'standby_refresh_unqualified',detail:{action:plan.action,reason:plan.reason}})
+ await d.guard(serviceId)
+ const result=await d.enroll(serviceId);await d.record('enrolled',result)
+ if(result?.verified!==true||result.enrolled!==true||result.standbyServiceId!==serviceId||d.primaryServiceId!==undefined&&result.primaryServiceId!==d.primaryServiceId||d.automatic===true&&result.automaticRecoveryEnabled!==true)throw Error('standby enrollment unverified')
+ return result
 }
 export async function renewIndependentService(session,serviceId,{jobId,lifetimeSec=300,maxRequests=8,signal,absentPrimaryBinding,sessionManagementControl,sessionMetadataControl,sessionSendControl,sessionArchiveControl,sessionStopControl}={}){
  if(!/^j[a-f0-9]{32}$/.test(jobId||'')||! /^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(session||'')||! /^[a-f0-9]{32}$/.test(serviceId||'')||jobId.slice(1)===serviceId)throw new DriverError('renewal requires one durable job and distinct predecessor',{category:'bad_args'})
@@ -81,8 +100,15 @@ export async function renewIndependentService(session,serviceId,{jobId,lifetimeS
      const family=await readIndependentService(session,successorServiceId,session,{family:true,jobId:contextId,signal,timeoutMs:20000})
      if(family.receiptVerified!==true||family.state!=='completed')throw Error('standby family request unresolved')
      standbyFamilyRequestId=family.requestId;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'family-settled',family};writeJsonAtomic(file,ledger)
-     try{const refreshed=await enrollStandby({session:standbyBinding.standby.sessionId,service_id:standbyBinding.standby.serviceId,session_id:session,target_service_id:successorServiceId,family_request_id:family.requestId},{signal,expectedSha256:standbyEnrollmentDigest(standbyBinding)});standbyRefreshQualified=true;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'enrolled',qualified:true,result:refreshed}}
-     catch(error){standbyRefreshQualified=false;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'not-enrolled',qualified:false,category:error.category??'standby-refresh-unqualified'}}
+     try{const refreshed=await runLiveStandbyRefresh({
+      standbyServiceId:standbyBinding.standby.serviceId,primaryServiceId:successorServiceId,automatic:standbyBinding.schemaVersion===2&&standbyBinding.automaticRecovery===true,
+      guard:async expectedServiceId=>{await guard('verify');const current=readStandbyEnrollment(session),standby=peerRecord(standbyBinding.standby.sessionId),selected=loadReceiverSelection(standbyBinding.standby.cwd);if(standbyEnrollmentDigest(current)!==standbyEnrollmentDigest(standbyBinding)||!standby||standby.pid!==standbyBinding.standby.pid||standby.procStart!==standbyBinding.standby.procStart||standby.status!=='idle'||selected.selector.sessionId!==standbyBinding.standby.sessionId||selected.selector.serviceId!==(expectedServiceId??standbyBinding.standby.serviceId))throw Error('standby refresh owner or epoch changed')},
+      plan:()=>inspectStandbyRecovery(standbyBinding.standby.sessionId,standbyBinding.standby.serviceId,session,successorServiceId,family.requestId,{signal}),
+      record:async(phase,observation)=>{ledger.standbyRefresh={...ledger.standbyRefresh,maintenancePhase:phase,...observation?{maintenanceObservation:observation}:{}};writeJsonAtomic(file,ledger)},
+      renew:async()=>{const {runOp}=await import('./driver.mjs'),submission={operation:'broker_service_renew',arguments:{session:standbyBinding.standby.sessionId,service_id:standbyBinding.standby.serviceId,experimental:true,lifetime_sec:3600,max_requests:64},idempotency_key:'live-standby-lease:'+jobId,timeout_sec:120},child=await runOp('driver_submit',submission);ledger.standbyRefresh.renewalJobId=child.jobId;writeJsonAtomic(file,ledger);for(;;){if(signal?.aborted)throw Error('standby maintenance child may continue; inspect original');const observed=await runOp('driver_wait',{job_id:child.jobId,timeout_sec:10,include_result:true},{signal});ledger.standbyRefresh.renewalObservation=observed;writeJsonAtomic(file,ledger);if(observed.state==='completed')return observed.result;if(!['queued','running'].includes(observed.state))throw Error('standby maintenance child failed or unresolved')}},
+      enroll:standbyServiceId=>enrollStandby({session:standbyBinding.standby.sessionId,service_id:standbyServiceId,session_id:session,target_service_id:successorServiceId,family_request_id:family.requestId},{signal,expectedSha256:standbyEnrollmentDigest(standbyBinding)})
+     });standbyRefreshQualified=true;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'enrolled',qualified:true,result:refreshed}}
+     catch(error){standbyRefreshQualified=false;ledger.standbyRefresh={...ledger.standbyRefresh,phase:'not-enrolled',qualified:false,category:error.category??'standby-refresh-unqualified',...error.detail?.reason?{reason:error.detail.reason}:{}}}
     }
     await guard('verify');const refreshedStatus=await inspectIndependentService(session,successorServiceId,{signal});if(refreshedStatus.unresolvedRequestIds.length||refreshedStatus.unreservedSlots<1)throw Error('standby family consumed operation admission')
    }
