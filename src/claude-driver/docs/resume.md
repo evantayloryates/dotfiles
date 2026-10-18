@@ -1,5 +1,21 @@
 ## October 18 blocked audit after three consecutive impasse turns
 
+After Taylor's delayed physical-key reply, the platform goal became active
+again. The fresh resumed audit also reached three consecutive impasse turns:
+source, reviewed runtime hashes/signature, quarantine and report hashes remain
+unchanged. Taylor reported typing a brief example in Terminal on Theo Air; no
+synchronized capture, exact-effect comparison or helper-retirement condition
+was present, so this is manual context only. The old physical-key request is
+superseded; do not ask Taylor to repeat it on the unchanged runtime.
+
+A bounded official documentation refresh found task-stop guidance and
+application-owned Responses SDK cleanup, but no supported per-owner cleanup
+contract for this installed macOS helper. Do not substitute SDK/browser close
+examples for native release. Private supported-cleanup-doc-review-20261018.json
+and manual-physical-input-user-report-20261018.json retain those findings;
+blocked-audit-resumed-20261018.json records the fresh three-turn audit. No new
+native input was attempted. Goal disposition returns to blocked, not complete.
+
 The full goal is blocked, not complete. Three consecutive goal turns made no
 progress beyond revalidating the same native safety dependency. Current source
 182ed05d, all six reviewed runtime hashes and helper signature remain unchanged;
