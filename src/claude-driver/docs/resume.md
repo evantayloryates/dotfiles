@@ -29,8 +29,8 @@ Need durable reconciliation for ORIGINAL failed root/import result (no replay of
 retire/unarchive/wake). Synthetic branch tests before native completion. Preserve
 all original jobs and distinguish no-wake import recovery from fixedwake reply.
 Private postTrustArchiveRecoveryTrial holds planned request/root; save final
-observation/cause there. Goal resumed/active by Taylor's reply; previous blocked
-state no longer describes frontier. No user action needed for this engineering step.
+observation/cause there. Actual get_goal still reports blocked despite Taylor's reply; no tool can resume it.
+Engineering frontier is now actionable; request Play/Resume to restore continuation.
 
 ## October 17 blocked audit — manual accidental archive still pending
 
