@@ -1,3 +1,46 @@
+## October 17 continuation: absent-pair admission and installed import contract
+
+Previous goal turn = progress (focus evidence + bounded route health), not a wait.
+New lib/pair-bootstrap-plan.mjs + public read-only
+broker_service_pair_bootstrap_plan(session,expected_enrollment_sha256) gate exact
+retained automatic pair bootstrap PREPARATION. Both original OS PIDs and all
+same-host peers absent; both owned importable registered bypass records, no
+worktree/PR; sealed offline-installed terminal histories, no STOP/unknown effects;
+exact selectors/build/generation/policy/settings/anchor/pair-only role targets and
+grants; retained settled empty-family receipt. Rechecks absence/selection/digest
+after review. Live peer => wait, never stop it. No import/wake/startup/serving/replay
+authority. Missing/ambiguous facts fail closed; absence cause remains unclassified.
+Actual read-only call on binding056e78... returns wait/surviving-controller-present,
+zero effects. No live outage, app restart, chat creation, message or permission action.
+
+New scripts/native-resume-contract-v2.mjs extracts exact installed session-manager
+method from .vite/build/index.chunk-CFJssAFf.js (2.11MiB), sourceSHA
+abff2bf8cd6fa8d3d18964636ebaa6034e93997a9eea16a8802eaec0f759c9b7.
+Existing import delegates to unarchive; already-active record returns without warm
+registration; archived record registers warm lifecycle and saves metadata. These
+are synthetic installed-method results, NOT evidence of native startup or absence
+of downstream warm effects. No whole bundle execution or app IPC.
+Bounded source reader adds explicit maxBytes option (default2MiB, ceiling8MiB);
+this reviewed member opts into3MiB. Focused pair/source7 PASS.
+Native-resume contract3 PASS report pressure/native-resume-contract-
+2026-10-18T02-27-53-076Z.json. Two earlier failed reports retained: test fixture
+omitted sessionViewRecord formatter then asserted event name instead of payload
+unarchived type; corrected synthetic stubs only, no product or app effects.
+
+New docs/pair-bootstrap.md defines remaining durable executor and qualification
+sequence; planner is not that executor. NEXT implement stable root/children,
+old-pair absence/no-unknown/STOP guards, per-effect checkpoints, one import attempt
+per actor and independent new-epoch evidence. Capture current account-store
+identities before effects (legacy enrollment has no historical account-store hash).
+Restore exact pair roles with controlled counterpart new-epoch proof, then native
+readiness/policy/read and fresh-family CAS enrollment. Preserve failed imports/
+human trust gates; no replay or silent role dropping. Do synthetic transaction
+checks before ONE disruptive integrated outage test; no repeated native tests per
+edit. Both actors remain live at this checkpoint. Original broader brief still
+open; goal active. Loaded MCP/final-source/native gates remain pending. No jobs
+running; Codex-driver/1Password parked. Full suite/harness passes from prior708034
+remain historical; defer repeat to final integrated source gate.
+
 ## October 17 continuation: focus endpoint evidence and discoverable ordinary-route health
 
 Previous goal turn = progress: real ordinary ProDevs unarchive/pin and repaired

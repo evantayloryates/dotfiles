@@ -1668,3 +1668,14 @@ qualified receiver with `broker_service_enroll_session_management`, `session` an
 `experimental:true`. Enrollment performs no native effects and does not change
 an existing fixed target. Renewal and guarded cold recovery preserve the grant.
 Only one exact enrolled controller is selected; this is not arbitrary discovery.
+
+### Both controllers absent: read-only bootstrap planning
+
+`broker_service_pair_bootstrap_plan` takes the exact primary `session` and
+`expected_enrollment_sha256`. It checks only that retained pair and returns wait
+if either controller survives. A `bootstrapPreparationEligible:true` result is
+not startup, import, serving or replay permission; it only qualifies prerequisites
+for a later durable transaction. It performs no recovery effects. Missing records,
+changed versions/roles/selection, reused PIDs, unknown effects and intentional STOP
+refuse. See `docs/pair-bootstrap.md` for the mechanism evidence and remaining
+executor requirements. Do not stop a live controller to satisfy this planner.

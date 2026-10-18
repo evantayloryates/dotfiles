@@ -1041,6 +1041,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw Error('explicit durable import continuation required');return (await import('./enrolled-import-continuation.mjs')).continueEnrolledImport(args.session,args.original_recovery_parent_job_id,args.expected_enrollment_sha256,ctx)},
   },
   {
+    name:'broker_service_pair_bootstrap_plan',title:'Inspect exact absent-controller pair bootstrap prerequisites',readOnly:true,
+    description:'Read-only admission plan for one retained automatic standby enrollment. Requires both original OS epochs and all same-host peers absent, owned importable records, exact installed terminal histories with no STOP or unknown effects, retained empty-family receipt, pair-only roles and unchanged selectors. Does not import, start an app, wake, renew, rebind, replay or authorize those effects; process startup/readiness remain unassessed.',
+    schema:{required:['session','expected_enrollment_sha256'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},
+    run:async(args,ctx)=>(await import('./pair-bootstrap-plan.mjs')).inspectPairBootstrap(args.session,args.expected_enrollment_sha256,{signal:ctx.signal}),
+  },
+  {
     name:'broker_service_rebind_standby',title:'Reseal an enrolled standby after verified cold recovery',
     description:'Experimental durable exact original-recovery rebind. Requires completed verified enrolled recovery parent, unchanged old binding digest and exact current primary/standby epochs. Reuses generation turnover, native policy checks and fresh primary family receipt before archival CAS of the binding. No process restart, wake, permission change or arbitrary target retargeting. Inspect original parent after uncertainty; never replay.',
     schema:{required:['session','recovery_parent_job_id','expected_enrollment_sha256','experimental'],properties:{human_assisted_primary_service_id:{type:'string',description:'Explicit restored primary generation after a verified original undelivered workspace-trust refusal and human start. Reports human-assisted only; original failure retained.'},session:{type:'string'},recovery_parent_job_id:{type:'string'},expected_enrollment_sha256:{type:'string'},experimental:{type:'boolean',enum:[true]}}},

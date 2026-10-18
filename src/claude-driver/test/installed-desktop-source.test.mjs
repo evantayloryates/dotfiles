@@ -17,3 +17,7 @@ test('source extractor refuses linked, unpacked, oversized, truncated and malfor
  }
  const f=fixture();try{for(const member of ['../member.js','/member.js','a//b','missing.js'])assert.throws(()=>installedDesktopChunk(f.path,member),/refused/);const link=join(f.dir,'linked.asar');symlinkSync(f.path,link);assert.throws(()=>installedDesktopChunk(link,'member.js'))}finally{rmSync(f.dir,{recursive:true,force:true})}
 })
+test('larger reviewed members require an explicit bounded read opt-in',()=>{
+ const body=Buffer.alloc(2*1024*1024+1,32),f=fixture({offset:'0',size:body.length},body)
+ try{assert.throws(()=>installedDesktopChunk(f.path,'member.js'),/refused/);assert.equal(installedDesktopChunk(f.path,'member.js',{maxBytes:3*1024*1024}).bytes,body.length);for(const maxBytes of [0,-1,8*1024*1024+1,Infinity,'3000000'])assert.throws(()=>installedDesktopChunk(f.path,'member.js',{maxBytes}),/read bound refused/)}finally{rmSync(f.dir,{recursive:true,force:true})}
+})
