@@ -1,3 +1,26 @@
+## October 18 final read-only preflight; client refresh still pending
+
+Actual this-chat MCP rechecked: runtime18ef/source79619016, restartRequiredtrue;
+ordinary route currentSourceMatchesfalse/pairGenerationMatchestrue, no effects.
+No new restart/toggle request sent: existing final app-refresh question pending.
+
+Public CLI preflight --input-free --controller c0a... --session 8f1... PASS,
+pressure/live-v2-2026-10-18T06-01-40-220Z.json. Read-only ordinary profile only:
+before/after filters0/inputAutomationfalse/quarantinetrue; exact fixture baseline
+(tool title/Haiku5.5/high/bypass/unarchived/unpinned) and native epoch observed,
+PID67531/startSunOct18 04:16:00. No native effect or service maintenance requested.
+This is NOT full native12 or full legacy UI preflight qualification.
+
+NEXT ACTION: Taylor's requested Codex quit/reopen, then resume here. After actual
+MCP source/runtime adoption is verified, run one existing ordinary input-free
+native12 final profile. Do not launch that long observer while the pending app
+restart can interrupt it, repeat unchanged no-ops, or edit source to evade an
+external refresh gate. Full180/fresh harness gate remains valid source79619016.
+Unattended app startup and actual deleted-record recovery still unqualified.
+Goal active, no live job/process/cleanup pending. This turn completed new read-only
+preflight evidence; subsequent unchanged adoption waits are no-progress, not live
+process waits. Codex bridge remains parked.
+
 ## October 18 final source isolated/harness gate and standby deployment
 
 Source79619016d6fa309f9619ba89606049a3d8aa34f9b1d7f8dd30ca78b6f1d73e5f:
