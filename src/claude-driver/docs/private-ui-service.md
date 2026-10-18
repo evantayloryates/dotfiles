@@ -4,6 +4,16 @@ Tier C now prepares one owned native helper and socket for each UI lease. The
 global UI quarantine remains enabled. This is preparation for a safer recovery
 path, not clearance for local input or proof of universal unattended startup.
 
+The later isolated shared-helper handoff candidate passes on the reviewed
+runtime: normal first-client EOF during second-client input preserves the same
+helper and delivers exactly4160 characters, stable at1/5s. This avoids the
+per-lease helper teardown boundary that failed with two private helpers. It is
+not wired into this production factory. A keeper must live outside per-lease
+cleanup groups and must not inherit their UI-lock descriptor; leases must still
+retain the kernel mutex through independent receiving settlement and client
+retirement. Cancellation, caller/owner loss, runtime drift and physical-input
+safety require their own qualification. See [wrapper audit](custom-cua-wrapper-audit.md).
+
 ## Ownership and failure behavior
 
 `lib/private-input-service.mjs` hashes six reviewed critical files: bundled Node,

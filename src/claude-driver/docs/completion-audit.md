@@ -29,8 +29,23 @@ both retain two filters through JS Stop, native command exit0 and1/5-second chec
 while the helper/MCP live. Normal last-client EOF retires them. Native receiving
 receipt, intended filter lifetime, physical-key safety and the historical cause
 remain unqualified. Original failed release reports are preserved. Next prepare
-one long-lived shared-helper candidate to avoid per-lease helper teardown and
-qualify two owned clients sharing it; no unchanged native input replay.
+one long-lived shared-helper candidate to avoid per-lease helper teardown. That
+candidate now passes the narrow remote handoff gate below; production adoption
+and physical-input safety remain incomplete.
+
+Shared-helper1792367275539-1f12122c retains helper8350 across an idle lease gap
+and normal first-client EOF during the second pending input, at95 received
+characters. Exactly one64-character and one4096-character action produce4160
+exact bytes/hash, stable at1/5s; buffered native logs have zero duplicate event
+signatures and zero drops. Both actual hosts and all owned processes exit0;
+final groups/native/socket absent, uv508/caffeinate510 preserved. This is a
+candidate lifetime correction, not production integration or general native
+safety. First shared gate remains failed because its immediate receiving check
+aborted the second host before the queue drained. Existing bounded observer
+extraction plus5 pure checks corrects that observation boundary; no action was
+replayed within either run. Next prepare keeper/lease ownership and synthetic
+cancellation/owner-loss/drift qualification before integration. Broader Codex
+bridge fixes remain parked and the goal is not complete.
 
 Current source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
 The [private lease owner](ui-lease-owner.md) now establishes a checked live

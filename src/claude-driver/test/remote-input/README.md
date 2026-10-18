@@ -4,6 +4,27 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`shared-helper-candidate.mjs` is restricted to the existing Theo Air fixture
+owner and reviewed runtime/human grants. It requires an absent default socket
+and empty native baseline, starts one exact owned helper, and retains two public
+MCP clients outside their real ephemeral host groups. No private pipe override
+is used. One fixed64-character input precedes one fixed4096-character input;
+the first MCP closes normally only after independent partial receiving evidence
+and a pending second tool call. The helper must remain unchanged across that
+handoff and the idle gap. Real host metadata is forwarded unchanged through the
+guarded relay; the approved Stop and guarded native notifier are separate routes.
+The final state must match exactly at1/5s, and all owned processes must retire
+normally. No preexisting helper/socket is adopted, removed or signalled. It is a
+diagnostic lifetime candidate, not a production keeper or physical-input gate.
+
+`receiving-state.mjs` extracts owner-native's existing bounded observer: exact
+fixture PID, character/UTF8 counts and hash stable100ms within5s. Tool return
+does not prove the receiving queue has drained. Read errors reset stability;
+process replacement refuses immediately. Five pure contracts cover delayed
+settlement, transient exact state followed by duplication, process replacement,
+read-error stability and UTF8 mismatch. No observer action issues/retries input.
+Historical source/report snapshots and original failed verdicts stay unchanged.
+
 `native-notifier-help.mjs` is a remote-only help inspection under a deny-by-default
 sandbox: no mach/network/write/fork capabilities or helper startup are granted.
 It checks exact host/user/chat/runtime identity and requires no native baseline

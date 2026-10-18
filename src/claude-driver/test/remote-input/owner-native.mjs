@@ -13,6 +13,7 @@ import {join} from 'node:path'
 import {createHash} from 'node:crypto'
 import {fileURLToPath} from 'node:url'
 import {audit} from './native-audit.mjs'
+import {settleReceivingState} from './receiving-state.mjs'
 const root='/Users/theo/.local/state/claude-driver/input-teardown-20261018'
 if(process.platform!=='darwin'||hostname().split('.')[0]!=='theo-air'||homedir()!=='/Users/theo'||!process.env.SSH_CONNECTION||JSON.parse(readFileSync(join(root,'owner.json'))).threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('remote owner refused')
 const mode=process.argv[2]||'normal'
@@ -43,21 +44,14 @@ const intent={characters:payload.length,utf8Bytes:Buffer.byteLength(payload),sha
 if(inputMode)writeFileSync(join(run,'expected-input.json'),JSON.stringify({first:payload,second:paired?secondPayload:null}),{flag:'wx',mode:0o600})
 if(inputMode)writeFileSync(join(run,'input-intent.json'),JSON.stringify(intent),{flag:'wx',mode:0o600})
 const report={run,mode,scope:inputMode?'remote-ui-owner-native-input':'remote-ui-owner-native-readonly',startedAt:new Date().toISOString(),inputEventsPlanned:paired?2:inputMode?1:0,inputEventsRequested:0,realModelCallsRequested:0,hookTrustOverrideRequested:false,fixtureGrantReceipt:receiptPath,fixtureBinarySha256:hash(readFileSync(join(root,'fixture/ClaudeDriverInputFixture.app/Contents/MacOS/InputFixture'))),workerSha256:hash(readFileSync(worker)),harnessSha256:hash(readFileSync(new URL(import.meta.url))),providerRequests:[]}
+report.receivingObserverSha256=hash(readFileSync(new URL('./receiving-state.mjs',import.meta.url)))
 if(paired){report.second={providerRequests:[],intent:secondIntent};writeFileSync(join(run,'second-input-intent.json'),JSON.stringify(secondIntent),{flag:'wx',mode:0o600})}
 writeFileSync(join(run,'owner-native-source.mjs'),readFileSync(new URL(import.meta.url)),{flag:'wx',mode:0o600})
+writeFileSync(join(run,'receiving-state.mjs'),readFileSync(new URL('./receiving-state.mjs',import.meta.url)),{flag:'wx',mode:0o600})
 let fixture,child,exit,secondChild,secondExit,secondDone,startSecond,secondStdout='',secondStderr='',stdout='',stderr='',http,timer,inputMonitor,acquisitionVerified=false
 const stop=join(root,'fixture/stop'),sleep=ms=>new Promise(r=>setTimeout(r,ms))
 async function settleFixture(expected){
- const started=Date.now(),expectedHash=hash(expected),observations=[];let stableSince
- while(Date.now()-started<5000){
-  const value=JSON.parse(readFileSync(join(root,'fixture/state.json'))),now=Date.now()
-  if(observations.at(-1)?.sha256!==value.sha256){observations.push({elapsedMs:now-started,characters:value.characters,sha256:value.sha256});if(observations.length>16)observations.shift()}
-  const exact=value.pid===fixture.pid&&value.characters===expected.length&&value.utf8Bytes===Buffer.byteLength(expected)&&value.sha256===expectedHash
-  if(!exact)stableSince=undefined
-  else{stableSince??=now;if(now-stableSince>=100)return{verified:true,elapsedMs:now-started,stableMs:now-stableSince,observations,inputAttempts:1}}
-  await sleep(25)
- }
- return{verified:false,elapsedMs:Date.now()-started,observations,inputAttempts:1}
+ return settleReceivingState({path:join(root,'fixture/state.json'),pid:fixture.pid,text:expected})
 }
 try{
  report.before=audit(root)

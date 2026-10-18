@@ -13,6 +13,7 @@ import json
 import os
 import re
 import subprocess
+from urllib.parse import quote
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -204,8 +205,13 @@ def run_rearm(at, call_id):
     print(f'✅ Rearm Succeeded for call {call_id}')
     links = read_links()
     print()
-    print(f"🔗 Client: {link(links['CLIENT']) if 'CLIENT' in links else '(no client link in links.env)'}")
-    print(f"🔗 Coach:  {link(links['COACH']) if 'COACH' in links else '(no coach link in links.env)'}")
+    print(f"🔗 Client:    {link(links['CLIENT']) if 'CLIENT' in links else '(no client link in links.env)'}")
+    print(f"🔗 Coach:     {link(links['COACH']) if 'COACH' in links else '(no coach link in links.env)'}")
+    m = re.search(r'"clientId":(\d+)', proc.stdout)
+    if 'COACH' in links and m:
+        feed = quote(f'/dashboard/todos/{m.group(1)}/feed', safe='')
+        dash = re.sub(r'returnTo=[^&]*', f'returnTo={feed}', links['COACH'])
+        print(f"🔗 Dashboard: {link(dash)}")
     return call_id
 
 

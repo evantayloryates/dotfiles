@@ -1,3 +1,42 @@
+## October 18 shared-helper client handoff candidate passes
+
+Remote owner-native-shared-1792367275539-1f12122c keeps one default helper8350
+alive through an idle lease gap and normal first-MCP EOF while the second native
+input is pending (95 characters received). Each actor requests input once:64 then
+4096 characters. Independent receiving bytes/hash match4160 and remain exact at
+1/5s. Complete buffered logs contain4160 nonrepeat keyDown events, no duplicate
+native signature and zero drops. Both actual hosts, MCPs, helper and fixture
+exit0 normally; final owned groups/native processes/socket absent, uv508 and
+caffeinate510 preserved. Actual host IDs match JS Stop/native command payloads;
+native command completion remains distinct from native receiving-side IPC proof.
+
+Initial shared candidate1792367112035-41d53b0c stays FAILED: an immediate receiving
+check saw3644 before the target queue drained, aborted the second host and prevented
+its completion notifier. Late exact4160 is narrower evidence, not a revised verdict.
+Extracted the existing owner-native bounded receiving observer and added5 passing
+pure contracts; corrected candidate waits for exact stable receiving state before
+host completion. Second settlement took2606ms after tool return, without replay.
+Exact mirrors19files/10662954bytes and shared-helper-candidate-analysis.json bind
+both reports/sources and cleanup. Candidate sourcec3ac2de6, observerff2780fa.
+
+This changes the helper lifetime that reproduced duplicate delivery under two
+private helpers. It supports an in-scope driver integration candidate; our own
+orchestration is not exonerated and upstream-only attribution is unwarranted.
+It does not clear physical input, live custom-config merging or production UI.
+Production182ed05d/local configs/quarantine remain unchanged; goal incomplete.
+Fresh readback verifies the complete195-suite/199-evidence filename sets and
+all hashes plus full installed binary/version identity against the frozen pass;
+the suite is reused, not rerun. New nested scripts pass syntax checks. Service
+candidate memoryb10a954c is written and independently queried back. The initial
+local readback script compared basenames with stored relative paths and failed;
+corrected path representation passes without changing evidence or rerunning tests.
+
+NEXT: design a driver-owned keeper outside per-lease cleanup groups. Preserve
+the kernel UI lease through receiving settlement and client EOF; qualify
+cancellation, caller/owner loss and runtime drift synthetically before wiring it.
+Do not kill/adopt a preexisting helper, repeat unchanged native typing or change
+the broader Codex bridge. No native test process remains to clean up.
+
 ## October 18 full notifier command retains filters on both socket paths
 
 Owned remote notifier-lifecycle-BiV1Od readonly case binds actual host IDs,

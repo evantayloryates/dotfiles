@@ -391,3 +391,65 @@ or local quarantine change. This changes the failing lifetime boundary; do not
 repeat the unchanged two-helper or full-notifier input probes. A supported native
 release/coordination contract remains another possible resolution, not an
 established exclusive upstream blocker. Keep broader Codex bridge fixes parked.
+
+
+## Shared-helper lifetime candidate and independent receiving settlement
+
+The next changed-condition gate retains one ordinary-socket helper rather than
+tearing down a private helper per lease. Remote-only
+shared-helper-candidate.mjs admits the existing exact owner, reviewed binary
+hashes/signature and human fixture/Stop receipts. It refuses a preexisting socket,
+helper or fixture. Parent-owned public MCPs survive their real ephemeral host
+completion; actual IDs are forwarded unchanged, with no private native RPC or
+native pipe override. Native notify uses exact owned running-app/socket admission.
+
+Initial owner-native-shared-1792367112035-41d53b0c remains FAILED. First MCP EOF
+was qualified during second pending input at98 received characters and the helper
+stayed alive. The second tool returned successfully while the fixture queue was
+still draining; an immediate snapshot saw3644 instead of4160. The provider refused
+its final response, second host exited1 and its completion notifier did not run.
+The later exact4160 result does not change that verdict. The reported downstream
+native-command error is not proof of a native notifier malfunction.
+
+Extracted owner-native's existing bounded receiving observer into
+receiving-state.mjs; it waits for the same fixture PID and exact count/UTF8/hash
+stable100ms within5s, never issuing input. Five pure contracts pass, including a
+briefly exact state that later duplicates and a changed PID with matching text.
+The initial run was not replayed unchanged: the next candidate waits for target
+settlement before allowing host completion. The original failed artifacts remain.
+
+Corrected owner-native-shared-1792367275539-1f12122c PASSES on sourcec3ac2de6,
+observerff2780fa. Helper8350 survives the idle gap and normal first-MCP EOF while
+second input is pending at95 characters. Each actor inputs once:64 then4096.
+Second independent receiving settlement takes2606ms after tool return; exact
+4160 characters/hash remain stable at1/5s. Buffered logs contain4160 complete
+nonrepeat keyDown signatures, zero duplicates and zero dropped events.
+
+Actual first thread01a1516a-3382-7361-b0c1-4d29cb43fad5/turn
+01a1516a-338b-7313-bfcc-292e8f64ed80 and second
+thread01a1516a-52b1-7893-be88-77ef12866e65/turn
+01a1516a-52b9-7a63-a2f0-fc3c8b8d5d9c match their public calls, JS Stop and native
+notifier payloads. Both hosts, MCPs, helper and fixture exit0 normally; no forced
+helper cleanup. Native command exit0 still does not prove native IPC receiver
+receipt. The first and corrected runs each have one input attempt per actor.
+
+Private shared-helper-candidate-evidence manifests verify19 files/10662954 bytes
+across both runs, including exact source, expected-input, complete hashed-event
+logs, configs/Stop hooks and quarantine evidence. Derived
+shared-helper-candidate-analysis.json retains both original verdicts and computes
+complete event-signature counts outside the transcript. Final independent remote
+inventory finds no owned groups/native processes or ordinary socket; original
+uv508/caffeinate510 survive. No local CUA, native permission, global config,
+production source or quarantine change occurred.
+
+This narrows a contributor on our side: the driver's per-lease native-helper
+lifetime differs from the passing shared-helper shape. It does not prove that
+Taylor's custom registration caused the historical physical-key duplication.
+The custom registration is unnecessary for the retained two-private-helper
+failure, while name-bound cleanup remains a separate integration risk. Neither
+upstream-only attribution nor complete exoneration of our orchestration is
+supported. A driver-owned keeper outside per-lease cleanup groups is the next
+candidate, with the kernel lease retained through receiving settlement and
+client retirement. Qualify cancellation, caller/owner loss and runtime drift
+synthetically before production wiring. Physical-input clearance, exact live
+custom/browser/plugin merging and universal client safety remain unverified.
