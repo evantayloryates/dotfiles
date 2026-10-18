@@ -40,18 +40,18 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The last consolidated gate on source `79619016`
-passed all 180 isolated test files and both fresh harnesses (10/10 each). One
-current-CLI ordinary no-op verified a native receipt and renewed the primary
-controller to `0c8a57a5`, preserving its native process. The standby subsequently
-renewed to `79619016` on its existing process; both generations now retain recovery
-identity snapshots. This chat's loaded MCP still runs `18ef4d44` and reports
-refresh required; its earlier restart/adoption proof is historical. Final loaded-client adoption and the final native profile remain pending.
+execution remains unqualified. The consolidated gate on source `79619016`
+passed all 180 isolated test files and both fresh harnesses (10/10 each).
+The restarted Codex-chat MCP now matches that source, and an actual MCP ordinary
+no-op renewed both expired controller leases with a verified receipt. Both
+controllers run that source on their original native processes. The final ordinary
+native profile passed all twelve checks and restored the owned fixture baseline.
+Live deleted-record recovery and unattended cold-app startup remain unqualified.
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
 explicit scoped grants. The combined ordinary profile passed all twelve checks
-on source `f8745320`: causal replies, durable reuse, pre-dispatch cancellation,
+on source `79619016`: causal replies, durable reuse, pre-dispatch cancellation,
 concurrent controls, batched metadata, busy queue, interruption with replacement,
 preserved queued turn, unique replies, baseline restoration and input audits.
 This uses an owned ordinary fixture; earlier ProDevs unarchive/pin verification
@@ -76,7 +76,7 @@ evidence. They preserve grants and reject uncertain replay. Actual deleted-servi
 recovery remains unqualified and ordinary routing does not invoke it automatically.
 
 Qualification remains partial: unattended startup after app quit/restart, actual
-deleted-service recovery, sustained availability and current loaded-client adoption
+deleted-service recovery, sustained availability
 remain open. The isolated suite, fresh harnesses and native ordinary route passed
 their recorded source scopes. Groups retain the legacy route; window/UI
 operations remain quarantined. The default legacy `probe` still requires UI availability. Explicit

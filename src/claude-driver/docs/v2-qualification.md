@@ -1,3 +1,38 @@
+## October 18 restarted MCP adopted; final native ordinary12 passed
+
+Taylor restarted Codex. Actual this-chat MCP runtime==source79619016d6fa309f9619ba89606049a3d8aa34f9b1d7f8dd30ca78b6f1d73e5f,
+restartRequiredfalse. Original processes survived >2h45m, leases expired. First
+final native profile REFUSED before any native request on insufficient controller
+lease margin: pressure/live-v2-2026-10-18T07-16-14-368Z.json preserved (input audits
+pass, adoption gate failure). No blind repetition.
+
+Changed condition: actual refreshed-MCP pinfalse no-op jd64e49b64320419e98c750979501ddec
+COMPLETED18.7sec with native receipt. Maintenancej3f6a8668ea6e40038f3c18d6ad1db0e4
+renewed primary AND expired standby; no old failed request replay. Focus endpoints
+changed Finder->Browser; correctly left untouched/cause unassessed, not falsely
+claimed restored. Same primaryPID87665/start04:25:46 and standbyPID89119/start04:26:26.
+New primaryservice3f6a8668ea6e40038f3c18d6ad1db0e4, standbyserviceecd2b479649546fea130bcb22a459887.
+Both build79619016/readiness/nativePolicytrue, unexpired/no STOP/unresolved[].
+
+Then final public CLI probe --input-free --controller c0a... --session8f1... --live
+PASS12/12, sourceBefore==sourceAfter79619016:
+pressure/live-v2-2026-10-18T07-16-45-048Z.json. Covers causal reply/durable reuse,
+pre-dispatch cancellation, concurrent3 controls, batched metadata, queue retention,
+interrupt/replacement, unique replies, baseline restoration, filters0/quarantinetrue.
+Reply proof uses native sender/body/cursor/ancestry; returned UUID link remains
+false, not misrepresented. Independent final-native-adopted-readback-20261018.json
+confirms exact tooltitle/Haiku5.5/high/bypass/unarchived/unpinned baseline and both
+current-generation status. Actual MCP post-status currentSourceMatchestrue,
+pairGenerationMatchestrue/admissionobserved, no restart required.
+
+Actual refreshed-MCP read confirms exact ProDevs437775cb unarchived/pinned; no
+messages or repeated state mutation. Loaded-client and final ordinary native
+qualification gates CLOSED on recorded source. Full180/fresh harnesses already
+same source. Remaining full-objective gaps: actual positive native deleted-record
+restoration/reactivation and supported unattended all-Code-processes-absent startup;
+no deletion or unchanged appquit test performed. No whole-interface/UI/window
+claim. Goal active; no live job/process/cleanup pending. Codex bridge remains parked.
+
 ## October 18 final source isolated/harness gate and standby deployment
 
 Source79619016d6fa309f9619ba89606049a3d8aa34f9b1d7f8dd30ca78b6f1d73e5f:
