@@ -1,3 +1,29 @@
+## October 18 native notifier selection needs running-app ownership admission
+
+Static client4861d29e common sendRequestToRunningService path resolves a running
+helper application using CODEX_HOME/bundle path/NSRunningApplication and process
+identity; symbols include native XPC transport. The exact turn-ended command
+call graph/endpoint/effect is not executed proof. Do not assume MCP private pipe
+override support or patch env forwarding. Multiple private helpers share a bundle
+path, so their native notifier ownership cannot be inferred from separate sockets.
+
+Remote help-only notifier-help-1hqoOX FAILS under deny-by-default sandbox:
+SIGABRT/no output, exact PID7704 dyld startup stack. No native notification,
+helper or app/input requested; do not call it a normal notifier crash. Preserve
+failure; sandbox not loosened/replayed. Native baseline/after are empty. Added
+read-only notifier-candidates.swift for the running-service PID/bundle/executable
+admission needed before any actual native notifier test. See wrapper audit and
+private native-notifier-selection-analysis.json for scope and source binding.
+The exact hashed candidate probe runs successfully: zero service candidates and
+independent native processes, uv508/caffeinate510 preserved. Nonempty owned-helper
+admission and actual native notifier delivery remain untested.
+
+NEXT: candidate admission plus independent process/socket ownership must show
+zero preexisting services and one exact owned helper before preparing the native
+lifecycle comparison with actual host IDs. No private RPC, shared/unowned helper
+control or simultaneous independent input. Production182ed05d and local UI
+quarantine remain unchanged; goal active/incomplete, Codex fixes parked.
+
 ## October 18 notifier reaches all tested hosts; private binding remains unqualified
 
 Recording substitutes for the configured native notify command receive matching

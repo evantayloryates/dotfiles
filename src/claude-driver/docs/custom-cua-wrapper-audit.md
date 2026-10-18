@@ -276,3 +276,50 @@ established, prepare one changed-condition native lifecycle comparison on the
 owned remote fixture using ordinary shared-helper topology. Keep local quarantine
 enabled, avoid simultaneous independent input and preserve all earlier failures.
 No live server rename/plugin/notify change or upstream-only attribution follows.
+
+## Static native selection narrows the next admission gate
+
+The unchanged native client4861d29e contains a separate running-service request
+path. Symbol/relative-function inspection binds sendRequestToRunningService at
+0x10002ef30 to selection entry0x100031f08, called with w0=0. The selection path
+reads CODEX_HOME (decoded from Swift small-string constants), builds the
+computer-use/Codex Computer Use.app path, enumerates NSRunningApplication for
+com.openai.sky.CUAService and uses running-process identities. Native transport
+symbols include ComputerUseIPCXPCTransport.Connection. The JavaScript MCP's
+private native-pipe override is not a demonstrated native notifier contract.
+
+This is bounded static evidence for the common running-service request path,
+not a fully reconstructed turn-ended subcommand call graph or actual native
+endpoint receipt. It changes the proposed experiment: forwarding a missing
+socket environment variable is not a justified fix, and multiple private helpers
+with the same bundle path cannot be presumed to receive distinct notifications.
+Admit one exact owned running-app candidate before a native lifecycle gate.
+
+A separate help-only fixture runs the reviewed client under a deny-by-default
+sandbox on Theo Air. Runnotifier-help-1hqoOX preserves its failure: --help exits
+SIGABRT with no output, before turn-ended --help was attempted. The exact owned
+PID7704 crash stack is in dyld startup; no ordinary notifier crash, endpoint
+selection or cleanup failure follows. The sandbox was not loosened or replayed.
+Native process inventory is empty before/after. No helper, app, input, native
+notification, credential or permission operation was requested.
+
+notifier-candidates.swift is a read-only remote admission probe. It lists only
+the native service bundle's PID, bundle/executable paths and termination state,
+under the existing exact host/user/chat guard. It does not launch/acquire any
+app, connect to a helper or perform cleanup. Its output can establish candidate
+identity beside independent process/socket ownership; it cannot prove what the
+native notifier selects or releases.
+
+The exact hashed candidate probee4c3178e1958 runs successfully on Theo Air with
+an empty candidate list, independently matching the empty native process list.
+uv508/caffeinate510 remain. This qualifies the empty admission baseline only;
+no helper has been started to qualify the nonempty owned-candidate gate yet.
+notifier-selection-evidence/manifest.json verifies the three exact help-run
+files,5589bytes, with separate candidate-audit-final.json. The local Swift parse
+and remote compilation/execution succeed; no CUA runtime is initialized.
+
+Private native-notifier-selection-analysis.json binds source/symbol/excerpt and
+exact abort evidence. The first llvm-objdump --macho invocation ignored address
+bounds and produced a full private disassembly; subsequent extracted excerpts
+retain explicit address bounds. No target binary was run locally. The new
+fixtures are outside production and the frozen top-level suite.

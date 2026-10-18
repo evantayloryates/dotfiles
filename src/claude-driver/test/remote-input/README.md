@@ -4,6 +4,16 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`native-notifier-help.mjs` is a remote-only help inspection under a deny-by-default
+sandbox: no mach/network/write/fork capabilities or helper startup are granted.
+It checks exact host/user/chat/runtime identity and requires no native baseline
+process. Preserve failures; it does not deliver a native notification. The first
+attempt aborted in dyld startup before help output and is not a normal-runtime
+crash qualification. `notifier-candidates.swift` separately enumerates only the
+native service bundle's running PID and bundle/executable paths, without app
+acquisition, helper connection or input. This is future test-admission evidence,
+not actual notifier selection or resource-release proof.
+
 `wrapper-lifecycle.mjs` compares the reviewed direct NodeREPL and packaged CUA
 entrypoints with a recording trusted service, empty bootstrap and disabled native
 startup. A supplied synthetic turn-end notification must reach one callback.

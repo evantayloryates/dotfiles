@@ -72,9 +72,17 @@ release these filters. The Mac API reviewed exposes no App release method;
 Tab.close is a browser-tab API. Native symbols show app-instance deactivation
 and removal, but those compiled methods are not a supported public endpoint.
 
-The native client connects first to a shared per-macOS-user socket. Changing
+The JavaScript MCP native-pipe client connects first to a shared per-macOS-user socket. Changing
 CODEX_HOME only changes a fallback helper launch selection, so it is not proof
 of per-worker helper isolation. At that review stage no internal service-path override had been executed; the later isolation experiments below have separately recorded source and limits.
+
+The separate signed native notification client has a common running-service
+path which resolves a running application/process using CODEX_HOME and helper
+bundle identity, with XPC transport symbols. Its exact turn-ended call graph,
+selected endpoint and release effect are not execution-qualified. Do not assume
+the JavaScript private-pipe override also binds this notifier. Later read-only
+remote candidate admission verifies an empty baseline only; multiple private
+helpers sharing one app path still need exact ownership qualification.
 
 ## Requested runtime capability or clarification
 
