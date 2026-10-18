@@ -1061,6 +1061,18 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw Error('explicit durable import continuation required');return (await import('./enrolled-import-continuation.mjs')).continueEnrolledImport(args.session,args.original_recovery_parent_job_id,args.expected_enrollment_sha256,ctx)},
   },
   {
+    name:'broker_service_missing_record_plan',title:'Inspect exact missing service record recovery',readOnly:true,
+    description:'Read-only exact retained pair/role plan for same-identity import preparation after a saved service record disappears. Requires immutable recovery identity, same account, independent absence, terminal history/no STOP or unknowns and exact transcript metadata. No imports, permission changes, replacement authority or replay.',
+    schema:{required:['session','role','expected_enrollment_sha256'],properties:{session:{type:'string'},role:{type:'string',enum:['primary','standby']},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},
+    run:async(args,ctx)=>{const plan=await(await import('./missing-service-plan.mjs')).inspectMissingServiceImport(args.session,args.role,args.expected_enrollment_sha256,ctx);return {...plan,...plan.importPreparationEligible?{planSha256:(await import('./missing-service-restoration.mjs')).missingServicePlanDigest(plan)}:{}}},
+  },
+  {
+    name:'broker_service_restore_missing_record',title:'Restore one exact missing service record',readOnly:false,
+    description:'Experimental durable one-import record restoration from an exact current qualified plan and enrollment digest. Claims the old generation before import; repeats no attempted import. Verifies recreated same account/CLI identity and reports actual permission mode. Does not install service authority, raise permissions, replay work or claim serving. Consent/startup and subsequent service recovery remain separate gates.',
+    schema:{required:['session','role','expected_enrollment_sha256','expected_plan_sha256','experimental'],properties:{session:{type:'string'},role:{type:'string',enum:['primary','standby']},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},expected_plan_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable record restoration required',{category:'bad_args'});return(await import('./missing-service-restoration.mjs')).restoreMissingServiceRecord(args.session,args.role,args.expected_enrollment_sha256,args.expected_plan_sha256,ctx)},
+  },
+  {
     name:'broker_service_pair_bootstrap_status',title:'Inspect one retained pair bootstrap root',readOnly:true,
     description:'Read bounded root identity/hash, phase and attempted import roles. No process startup assessment, continuation authority, imports, effects or replay.',
     schema:{required:['root_job_id'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},

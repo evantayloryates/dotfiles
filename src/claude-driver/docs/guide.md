@@ -2443,3 +2443,12 @@ Missing-service planning is available through
 It reads exact retained identity/history and transcript metadata only. A positive
 preparation result authorizes no import, permission raise, role transfer or replay.
 Present saved records return wait; unreadable/racing/unknown/STOP evidence refuses.
+
+`broker_service_missing_record_plan` inspects an exact automatic pair actor and
+returns a planSha256 only for qualified same-identity import preparation.
+`broker_service_restore_missing_record` requires driver_submit, experimental:true
+and exact enrollment/plan hashes. It claims the old generation once, checkpoints
+import intent, imports that CLI identity once and verifies the recreated account
+record. Reattach the original job after uncertainty. recordRestored is a partial
+outcome: serviceRestored/servingQualified remain false. Observe actual native
+mode/startup before any service reactivation; native consent stays human.

@@ -1,3 +1,35 @@
+## October 18 durable missing-record restoration root implemented
+
+Added broker_service_missing_record_plan (read-only, plan digest when eligible)
+and durable experimental broker_service_restore_missing_record. Exact pair/plan
+hashes, immutable generation claim, original job handle on competing root, repeated
+plan guards through final pre-import boundary, checkpoint before one import,
+actual same UUID/cwd/canonical account-file verification afterward. Preserves
+focus via existing wrapper; no shell/keyboard/app-file write or permission raise.
+Post-import Accept edits reports humanPermissionRequiredtrue/actualBypassModefalse;
+recordRestored does NOT mean serviceRestored/serving/native epoch qualified.
+Installation/role recovery is separate and still required. Claims never replay.
+
+Focused MCP+identity+plan+restoration34 PASS12.5sec; strengthened real saved-record
+verifier/final guard then restoration6 PASS. Includes all effect/checkpoint
+failures, exact pre-import drift, original exclusive claim bytes/job, mode clamp,
+foreign account/UUID/cwd/worktree/archived state. Actual current CLI durable
+negativej5a46920be3d144dc859a018ff2404b56 failed as intended before import because
+record exists/importAttemptedfalse; evidence missing-record-present-negative-20261018.json.
+Original negative failure preserved, no claim/import/native operation or deletion.
+Actual positive deleted-record import remains UNQUALIFIED. No destructive loss
+test or whole native profile. Existing actor snapshots only future prep, not
+backfilled authority.
+
+NEXT: qualify positive restoration against isolated full filesystem/account
+fixtures and missing/linked/changed transcript boundaries; then integrate the
+restored-record outcome with existing human-assisted/native service recovery,
+without pretending lowered mode or absent epoch serves. Automatic routing still
+refuses missing actors until that whole chain is qualified. Avoid creating new
+controller identities or broadening grants. Host/MCP schema changed; current
+loaded MCP/native proof remains18ef until final refresh, current CLI for work.
+Goal active; no live jobs/cleanup pending. Codex bridge changes remain parked.
+
 ## October 18 missing-service same-identity preparation plan implemented
 
 Added missing-service-plan.mjs + explicit CLI scripts/missing-service-plan-v2.mjs

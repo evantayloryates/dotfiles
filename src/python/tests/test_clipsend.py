@@ -15,7 +15,7 @@ import clipsend
 REPO = Path(__file__).resolve().parents[3]
 
 
-def sample_pdf(page_count=2):
+def sample_pdf(page_count=2, boxes=None, rotations=None):
     """A small PDF with numbered pages, generated without a PDF dependency."""
     streams = [f'BT /F1 18 Tf 72 700 Td (Page {page}) Tj ET'.encode()
                for page in range(1, page_count + 1)]
@@ -27,9 +27,12 @@ def sample_pdf(page_count=2):
     ]
     for page in range(page_count):
         stream_ref = 4 + page_count + page
+        width, height = boxes[page] if boxes else (612, 792)
+        rotation = f'/Rotate {rotations[page]} ' if rotations else ''
         objects.append(
-            f'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] '
-            f'/Resources << /Font << /F1 3 0 R >> >> /Contents {stream_ref} 0 R >>'.encode()
+            f'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {width} {height}] '
+            f'{rotation}/Resources << /Font << /F1 3 0 R >> >> '
+            f'/Contents {stream_ref} 0 R >>'.encode()
         )
     objects += [f'<< /Length {len(stream)} >>\nstream\n'.encode() + stream + b'\nendstream'
                 for stream in streams]
@@ -582,10 +585,8 @@ o "$HOME/Desktop"
 source "$DOTFILES_DIR/src/functions/img.sh"
 source "$DOTFILES_DIR/src/functions/aliases.sh"
 open() { print -r -- "OPEN:${1:t}"; }
-pdfinfo() { print -r -- 'Pages:          2'; }
-pdftoppm() { print -rn -- 'fake png'; }
 pdftotext() { print -u2 -- 'unexpected text extraction'; return 1; }
-chafa() { [[ "$1" == --probe=off ]] || return 1; local path="${@[-1]}"; [[ "$path" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${path:t}"; }
+chafa() { [[ "$1" == --probe=off ]] || return 1; local target="${@[-1]}"; [[ "$target" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${target:t}"; }
 mdcat() { print -r -- "PREVIEW:${3:t}"; }
 __terminal_copy_file() { print -r -- "file:${1:t}" >> "$HOME/copy-log"; print -u2 -- 'file unavailable'; return 1; }
 __terminal_copy_png() { print -r -- "png:${1:t}" >> "$HOME/copy-log"; return 0; }
@@ -600,7 +601,7 @@ o "$IMPOSTOR"
                    IMPOSTOR=str(impostor))
         result = subprocess.run(['zsh', '-f', '-c', script], env=env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.count('PREVIEW:-'), 2)
+        self.assertEqual(result.stdout.count('PREVIEW:-'), 1)
         self.assertNotIn('PDF preview:', result.stdout)
         self.assertNotIn('Text (page', result.stdout)
         self.assertNotIn('unexpected text extraction', result.stderr)
@@ -621,8 +622,6 @@ o "$IMPOSTOR"
         markdown = self.root / 'source.md'
         markdown.write_text('# Preview\n\nA **Markdown** file.\n')
         before = r'''
-pdfinfo() { print -r -- 'Pages:          2'; }
-pdftoppm() { print -rn -- 'fake png'; }
 chafa() { [[ "$2" == - ]] && cat >/dev/null; print -r -- 'PREVIEW:pdf'; }
 mdcat() { print -r -- 'PREVIEW:markdown'; }
 __terminal_copy_file() { print -u2 -- 'unexpected file copy'; return 1; }
@@ -638,43 +637,71 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                 saved.unlink()
 
     def test_pdf_preview_page_selection_and_omission_marker(self):
+        from PIL import Image
+        from io import BytesIO
+        from terminal_pdf_preview import page_geometry, plan_pages
+
         pdf = self.root / 'pages.pdf'
-        script = r'''
-source "$DOTFILES_DIR/src/lib/terminal-file.sh"
-__terminal_pdf_display_scale() { print -r -- "$DISPLAY_SCALE"; }
-pdfinfo() { print -r -- "Pages: $PAGE_COUNT"; }
-pdftoppm() {
-  [[ "$*" == *"-scale-to $((380 * DISPLAY_SCALE))"* ]] || return 1
-  while (( $# )); do
-    if [[ "$1" == -f ]]; then print -rn -- "$2"; return 0; fi
-    shift
-  done
-  return 1
-}
-chafa() { print -r -- "PAGE:$(cat)"; }
-__terminal_preview "$PDF"
-'''
-        for count, expected, scale in ((1, [1], 1), (2, [1, 2], 2),
-                                       (6, list(range(1, 7)), 1),
-                                       (7, [1, 2, 3, 6, 7], 1),
-                                       (8, [1, 2, 3, 7, 8], 1)):
-            with self.subTest(pages=count):
-                pdf.write_bytes(sample_pdf(count))
-                env = dict(os.environ, DOTFILES_DIR=str(REPO), PDF=str(pdf),
-                           PAGE_COUNT=str(count), DISPLAY_SCALE=str(scale))
-                result = subprocess.run(['zsh', '-f', '-c', script], env=env,
-                                        capture_output=True, text=True)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual([int(line.removeprefix('PAGE:'))
-                                  for line in result.stdout.splitlines() if line.startswith('PAGE:')], expected)
-                self.assertNotIn('PDF preview:', result.stdout)
-                self.assertNotIn('Text (page', result.stdout)
-                if count > 6:
-                    self.assertIn(f'pages 4-{count - 2} omitted', result.stdout)
-                    self.assertIn('\x1b[90m', result.stdout)
-                    self.assertIn('\x1b[0m', result.stdout)
-                else:
-                    self.assertNotIn('omitted', result.stdout)
+        pdf.write_bytes(sample_pdf(9))
+        aspects, _ = page_geometry(pdf)
+        self.assertEqual(plan_pages(aspects, 80)[0], [1, 9])
+        self.assertEqual(plan_pages(aspects, 120)[0], [1, 2, 9])
+        self.assertEqual(plan_pages(aspects, 400)[0], list(range(1, 10)))
+
+        for columns, scale in ((80, 1), (120, 2)):
+            with self.subTest(columns=columns, scale=scale):
+                result = subprocess.run(
+                    [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
+                     str(pdf), str(scale), str(columns)], capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                image = Image.open(BytesIO(result.stdout))
+                self.assertEqual(image.mode, 'RGBA')
+                self.assertLessEqual(image.width, int((columns - 2) * 9.5 * scale) + 8)
+                self.assertEqual(image.getpixel((0, 0))[3], 0)
+                self.assertEqual(image.height, (380 + 38) * scale)
+
+    def test_pdf_mixed_page_shapes_and_narrow_width(self):
+        from PIL import Image
+        from io import BytesIO
+        from terminal_pdf_preview import page_geometry, plan_pages
+
+        pdf = self.root / 'mixed & é.pdf'
+        boxes = [(612, 792), (792, 612), (306, 792), (900, 500),
+                 (612, 792), (500, 900), (1000, 400), (612, 792), (400, 900)]
+        pdf.write_bytes(sample_pdf(len(boxes), boxes))
+        aspects, _ = page_geometry(pdf)
+        self.assertAlmostEqual(aspects[2], 792 / 612)
+        self.assertEqual(plan_pages(aspects, 30)[0], [1])
+        self.assertEqual(plan_pages(aspects, 100)[0], [1, 8, 9])
+        self.assertEqual(plan_pages(aspects, 180)[0], [1, 2, 3, 8, 9])
+
+        result = subprocess.run(
+            [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
+             str(pdf), '1', '180'], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        image = Image.open(BytesIO(result.stdout))
+        self.assertLessEqual(image.width, 1691)
+        self.assertEqual(image.getpixel((0, 0))[3], 0)
+        # Page 2 is landscape and should keep its width/height relationship.
+        self.assertGreater(image.width, 1500)
+
+    def test_pdf_rotated_page_preserves_target_height(self):
+        from PIL import Image
+        from io import BytesIO
+        from terminal_pdf_preview import page_geometry
+
+        pdf = self.root / 'rotated.pdf'
+        pdf.write_bytes(sample_pdf(1, rotations=[90]))
+        aspects, rotations = page_geometry(pdf)
+        self.assertEqual(rotations[1], 90)
+        self.assertAlmostEqual(aspects[1], 792 / 612)
+        result = subprocess.run(
+            [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
+             str(pdf), '1', '100'], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        image = Image.open(BytesIO(result.stdout))
+        self.assertEqual(image.height, 380 + 38)
+        self.assertGreater(image.width, 480)
 
     def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
         self.payload.write_bytes(b'\xff\0binary\x80')
