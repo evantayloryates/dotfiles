@@ -1,3 +1,26 @@
+## October 17 loaded-client refresh blocked audit
+
+Direct actual this-chat driver_status still loadedruntime64c8563.../API2/
+restartRequiredtrue after original reconnect request, screenshot correction and
+current recheck. Current disk source changed with diagnostics, but this loaded
+runtime stayed identical. SourceBuildf844cba... is computed by that old runtime,
+not the finalhost algorithm. No write attempted through stale connector. Do not
+count fresh isolated MCP harnesses as this connection's reload. Native pair3c68/
+a29c remains last verified healthy; auto binding0f9550 enabled; no native job active.
+
+The same genuine client-refresh condition spans at least three goal turns; safe
+independent repairs/concurrency/residency/completion audit are checkpointed. No
+agent restart API/CLI exists here and CUA remains quarantined; do not kill process,
+uninstall/readd config, restart whole app or weaken input protections to fake it.
+Goal blocked pending actual custom-MCP off/on reconnect attempt by Taylor, then
+Play/Resume if required. Minimal pending instruction: In Codex Plugins -> MCPs,
+turn claude-driver off,then on. Verify direct driver_status loadedruntime/current/
+restartRequiredfalse before effects. If off/on doesn't reload, retain actual status
+and investigate supported client connection lifecycle, do not claim success.
+Broader appquit/bothgone/naturalpressure/lifecycle gates remain incomplete; no goal
+completion implied. Original whole native recovery/auto delivery failures and
+successful distinct continuations/contracts preserved. No cleanup pending.
+
 ## October 17 MCP UI correction and independent service health candidate
 
 Taylor supplied Desktop/question-p1.png and question-p2.png. Read both: actual
