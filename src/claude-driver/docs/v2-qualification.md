@@ -1,3 +1,31 @@
+## October 18 installed native warm-start guards qualified in isolation
+
+Reused existing scripts/native-resume-contract-v2.mjs and exact installed source
+chunkCFJssAFf SHAabff2bf8cd6fa8d3d18964636ebaa6034e93997a9eea16a8802eaec0f759c9b7.
+Added extracted warmSession ingress guards (343 bytes), synthetic records only.
+Missing/archived/unconfirmed import/person-stop/platform-hold return before
+spawn; confirmed imported and ordinary active records pass INITIAL guards only.
+No IPC, account access, whole bundle execution, monkeypatch, override or live effect.
+Existing source also checks crash-loop canAutoSpawn later; not exercised here.
+
+First contract report04:27:35 FAILED after original3 checks: new extraction test
+wrapper lacked one closing object brace (SyntaxError), no native action occurred.
+Corrected wrapper;04:27:48 report PASS10 checks, nativeEffectsRequested0:
+pressure/native-resume-contract-2026-10-18T04-27-48-728Z.json. Failed report retained.
+This confirms native guards, not WHICH one caused prior appquit failure. Current
+formatted getRecord omits resumeConfirmed/importedFrom, so absent fields there
+cannot prove the app's in-memory guard state. Do not infer trust refusal or write
+app records. Source import existing-active branch remains unarchive no-op; import
+may open saved chat without new process, as actual appquit test demonstrated.
+
+Bridge last independent current-source pair readiness remains healthy after
+human-assisted continuation. No new native profile/outage/messages this turn.
+Next: supported machine ingress feasibility with exact app tool contracts, without
+spoofing human origin, bypassing native stop/trust/crash guard or using quarantined
+keyboard. If no supported path exists, document native boundary rather than
+pretending always-on achieved. Deleted-service rebind/sustained availability and
+actual loaded MCP adoption remain open. Goal active; no jobs or cleanup pending.
+
 ## October 18 human ready unblocked exact appquit continuation
 
 Taylor reported sending ready and receiving ready. Independently observed primary

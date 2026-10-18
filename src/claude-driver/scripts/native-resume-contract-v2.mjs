@@ -25,6 +25,21 @@ try{
  check('missing stored session does not register warm lifecycle',()=>{native.call(context(), 'owned');assert.deepEqual(calls,[])})
  check('already-active imported record is an unarchive no-op',()=>{const r={sessionId:'owned',isArchived:false};native.call(context(r),'owned');assert.deepEqual(calls,[]);assert.equal(r.isArchived,false)})
  check('archived record requests warm lifecycle and saves metadata; startup still unassessed',()=>{const r={sessionId:'owned',isArchived:true,cliSessionId:'owned-cli'};native.call(context(r),'owned');assert.equal(r.isArchived,false);assert.equal(r.unarchivedCliSessionId,'owned-cli');assert.ok(calls.includes('warm:owned'));assert.ok(calls.includes('save'));assert.ok(calls.includes('emit:unarchived'))})
+ // Execute only the exact leading guards; never execute spawn, IPC or account code.
+ const warmStart=source.text.indexOf('async warmSession(e,r={}){'),warmEnd=source.text.indexOf('let s=this.cliCrashLoopGuard.canAutoSpawn',warmStart)
+ assert.ok(warmStart>0&&warmEnd>warmStart&&warmEnd-warmStart<2048)
+ const warmPrefix=source.text.slice(warmStart,warmEnd);assert.ok(warmPrefix.endsWith('return;'))
+ out.source.warmIngressSha256=hash(warmPrefix)
+ const warm=runInNewContext('({'+warmPrefix+'return "past-initial-gates";}})',{Date,t:{yT:record=>record.syntheticPlatformHold===true}},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}}).warmSession
+ const warmContext=record=>({sessions:new Map(record?[['owned',record]]:[]),currentAccountId:'synthetic-account',currentOrgId:'synthetic-org',refreshSdkMcpStatuses:()=>{throw Error('unexpected SDK poll')}})
+ for(const [name,record,expected]of [
+  ['missing-record',null,undefined],['archived-record',{isArchived:true},undefined],
+  ['unconfirmed-import',{importedFrom:'synthetic',resumeConfirmed:false},undefined],
+  ['person-stop-hold',{stoppedUntilPersonSends:true},undefined],
+  ['platform-hold',{syntheticPlatformHold:true},undefined],
+  ['confirmed-import',{importedFrom:'synthetic',resumeConfirmed:true},'past-initial-gates'],
+  ['ordinary-active-record',{},'past-initial-gates']
+ ]){assert.equal(await warm.call(warmContext(record),'owned'),expected);rows.push({name:'warm-ingress-'+name,ok:true,startupAssessed:false})}
  const current=installedDesktopChunk('/Applications/Claude.app/Contents/Resources/app.asar',source.member,{maxBytes:3*1024*1024});assert.equal(current.sha256,source.sha256)
  out.ok=true
 }catch{out.failureCategory='installed-resume-contract-unqualified'}
