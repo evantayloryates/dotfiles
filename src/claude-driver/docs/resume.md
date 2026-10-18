@@ -1,3 +1,35 @@
+## October 17 actual loaded MCP refresh verified after Codex app restart
+
+Taylor toggled custom claude-driver off/on; screenshots read: toggle changed but
+direct loaded MCP still64c8563/restartRequiredtrue. New screenshots exposed global
+circular-arrow Restart beside Servers (tooltipRestart), so prior claim of no
+restart control was too broad: no individual editor button, but global control
+exists. Taylor instead restarted whole Codex app. No agent processkill/config
+remove/readd/native Claude restart or permission change performed.
+
+ACTUAL THIS CHAT MCP driver_status nowruntimeBuild=sourceBuild=
+78678a25ddee6a1aca120743b48ae756a1f4ff3de7cc29a7eb2bc256d23e7115,
+restartRequiredfalse,API2/app2.42304.0/CLI2.1.299. New service_health schema available
+and both exact independent services observed through this loaded connection:
+primary3c68/PID96436 and standby a29c/PID90418 live/readiness/policy/notexpired/
+0unknown. Sealed native buildbe087 intentionally distinct from callerhost78678;
+sealed installed-byte/native evidence verified, not silently hot-updated.
+Automaticbinding0f9550 unchanged/enabled, planwaitprimarylive/noeffects.
+
+ACTUAL direct MCP driver_submit broker_service_read completed
+jac96c7dc24f1454cb84d8f33e6c09970, request rpeerac96c7dc24f1454cb84d8f33e6c09970,
+receiptVerifiedtrue/nativeTooltoolu_plugin_194fa5e8cdb64aa7998c4eeec32d0451,
+cleanupPendingfalse. Reattachment EXACT original key samejob/reusedtrue/completed.
+This qualifies the existing chat connection, not merely a fresh isolated harness.
+Sanitized pressure/loaded-mcp-after-app-restart-20261017.json retains source/health/
+binding/read/reattach proof. No model message, reload, wake or native recovery needed.
+
+CLIENT REFRESH BLOCKER RESOLVED. Actual get_goal still blocked; no supported tool
+resumes it. Taylor must Play/Resume for automatic broader goal continuation.
+Remaining appquit/bothgone/naturalpressure/lifecycle gates still incomplete; native
+pair and this-chat MCP currently working. Do not repeat archive/reconnect prompts.
+No cleanup or running test jobs. Source unchanged by verification/checkpoint.
+
 ## October 17 loaded-client refresh blocked audit
 
 Direct actual this-chat driver_status still loadedruntime64c8563.../API2/
