@@ -23,7 +23,7 @@ import {
   BROKER_DIR, CAPABILITIES, LEDGER, PENDING_LEARNINGS, STATE_DIR, appendJsonl, loadRegistry, readJson, readJsonl, redactArgs, updateRegistry,
 } from './state.mjs'
 import { cleanupCliLeftovers } from './cleanup.mjs'
-import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolTitle, reconcile, recycleMessage, setEntry } from './pool.mjs'
+import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolServiceActors, poolTitle, reconcile, recycleMessage, setEntry } from './pool.mjs'
 import { submitJob, inspectJob, waitJob, cancelJob } from './jobs.mjs'
 import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
 import { sessionEvents, waitSession } from './events.mjs'
@@ -855,8 +855,9 @@ export const OPS = [
       if (args.suggest) {
         const pool = poolOf()
         const pins = readPins()
+        const protectedIds=new Set(poolServiceActors())
         out.candidates = allRecords()
-          .filter((r) => r.isArchived && r.permissionMode === BYPASS && !r.scheduledTaskId && !r.worktreePath && !pool[r.sessionId] && !pins.has(r.sessionId))
+          .filter((r) => !protectedIds.has(r.sessionId) && r.sessionId!==brokerInfo().sessionId && r.sessionId!==callerHostSession() && r.isArchived && r.permissionMode === BYPASS && !r.scheduledTaskId && !r.worktreePath && !pool[r.sessionId] && !pins.has(r.sessionId))
           .filter((r) => Array.isArray(r.prs) && r.prs.length && !openPrs(r).length)
           .filter((r) => !folder || resolve(r.cwd || '') === folder)
           .sort((a, b) => (a.completedTurns || 0) - (b.completedTurns || 0))

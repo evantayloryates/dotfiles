@@ -1958,3 +1958,32 @@ permission gates; final loaded MCP remains stale. Pool service-actor protection
 also needs audit: poolGate currently explicitly excludes caller/legacy broker but
 not the independent pair, unlike project archive. Do not recycle service actors
 or use a live recycle experiment to investigate this boundary. Goal active.
+
+## October 17 pool operations exclude retained independent service actors
+
+Audit found pool_release and stale/clean pool claims protected caller/legacy broker
+but not the independent primary/standby. Pool now reads the retained management
+and standby enrollments: both actors are refused by release even override:true,
+excluded from suggestions, and reported service_protected if found in pool
+inventory. Reconcile preserves their entries for diagnosis rather than dropping or
+recycling them; claim cannot consume them. Expired/absent/archived actors remain
+protected by retained role, not current native liveness. Invalid enrollment fails
+closed without modifying inventory. No lease renewal, repair, wake or native
+recycle is performed by this check.
+
+Isolated public pool_release refuses both actors before native effects; public
+pool_status suggestions exclude both and retain an ordinary candidate. Clean and
+stale-claimed service entries cannot become available; an ordinary approved member
+still claims successfully. Initial focused pool/v2/MCP gate76/76 passed12.6sec;
+final suggestion guard additionally passed8 pool tests, no full/native repeat.
+Live read-only role audit independently found both actual actors protected and
+ordinary approved dotfiles member still ready; evidence
+.runtime/state/pool-service-protection-20261017.json (source before final narrow
+suggestion guard; don't claim native dispatch proof). No service actor was recycled
+or archived. Prior metadata-only native pool lifecycle qualification is retained
+on source673aae; this guard does not claim final-source native adoption.
+
+Next: one bounded owned fresh import/fork lifecycle gate with saved mode/focus
+verification and retained failed identities. Do not repeat pool metadata/messages.
+Final MCP adoption, both-absent recovery, pressure and window gates remain open.
+Goal active; no unknown native jobs introduced.

@@ -18,6 +18,17 @@ import { basename, join, resolve } from 'node:path'
 import { getRecord, openPrs, readPins } from './sessions.mjs'
 import { loadRegistry, readJson, updateRegistry, withLock } from './state.mjs'
 
+import {readSessionManagementEnrollment} from './session-management-controller.mjs'
+import {readStandbyEnrollment} from './standby-enrollment.mjs'
+
+// Retained roles protect actors even while absent, expired or archived. Invalid
+// enrollment fails closed; pool inspection must never repair service metadata.
+export function poolServiceActors(){
+ const controller=readSessionManagementEnrollment();if(!controller)return []
+ const binding=readStandbyEnrollment(controller.controllerSession)
+ return [controller.controllerSession,binding?.primary?.sessionId,binding?.standby?.sessionId].filter(Boolean)
+}
+
 export const BYPASS = 'bypassPermissions'
 export const RECYCLE_WAIT_MS = 180_000
 // A claim whose handed-back calls were never made: the session is still clean after this long.
@@ -65,10 +76,11 @@ export function setEntry(id, patch) {
 }
 
 // Why a session cannot be pooled, or [] when it can.
-export function poolGate(rec, { self, brokerId, live, override = false } = {}) {
+export function poolGate(rec, { self, brokerId, live, override = false, protectedIds=poolServiceActors() } = {}) {
   const why = []
   if (rec.sessionId === self) why.push('is you')
   if (rec.sessionId === brokerId) why.push('is the broker')
+  if (protectedIds.includes(rec.sessionId)) why.push('is a retained independent service actor')
   if (rec.scheduledTaskId) why.push('is an unattended scheduled-task run')
   if (rec.permissionMode !== BYPASS) why.push(`is in ${rec.permissionMode}, not bypassPermissions (the pool only holds sessions Taylor already put in bypass; it never raises one)`)
   if (rec.worktreePath) why.push('owns an app-managed worktree')
@@ -81,6 +93,7 @@ export function poolGate(rec, { self, brokerId, live, override = false } = {}) {
 // Disk health of one entry.
 export function health(id, entry) {
   const rec = getRecord(id)
+  if(poolServiceActors().includes(id))return {status:'service_protected',rec}
   if (!rec) return { status: 'gone' }
   if (rec.permissionMode !== BYPASS) return { status: 'not_bypass', rec }
   if (entry.state === 'parked') return { status: rec.cliSessionId || !rec.isArchived ? 'dirty' : 'ready', rec }
@@ -102,6 +115,7 @@ async function reconcileUnlocked() {
       rows.push({ sessionId: id, status: h.status, dropped: true, title: h.rec?.title })
       continue
     }
+    if(h.status==='service_protected'){rows.push({sessionId:id,status:h.status,folder:h.rec?.cwd??entry.folder,title:h.rec?.title,archived:h.rec?.isArchived===true});continue}
     if (h.status === 'claim_stale') {
       await setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined })
       h.status = 'ready'
@@ -128,7 +142,8 @@ export async function claim(folder, { title } = {}) {
       .filter((m) => m.status === 'ready')
       .map((m) => ({ ...m, entry: poolOf()[m.sessionId] }))
       .sort((a, b) => (a.entry.parkedAt || 0) - (b.entry.parkedAt || 0))
-    const pick = ready.find((m) => canonical(m.folder) === want)
+    const protectedIds=poolServiceActors()
+    const pick = ready.find((m) => !protectedIds.includes(m.sessionId)&&canonical(m.folder) === want)
     if (!pick) return null
     await setEntry(pick.sessionId, { state: 'claimed', claimedAt: Date.now(), claimedTitle: title })
     return { sessionId: pick.sessionId, folder: pick.folder, archived: pick.archived, priorTitle: pick.priorTitle }
