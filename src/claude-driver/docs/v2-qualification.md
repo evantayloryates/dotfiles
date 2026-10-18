@@ -1,3 +1,29 @@
+## October 18 consolidated gate; actual loaded MCP remains blocked
+
+Current source18ef4d442ae72cce83e46b6df014662eca4818cc1b11662c34a1fa996398cede:
+full isolated suite164 files PASS1/1 round39.7sec, sourceChangedfalse, report
+pressure/v2-2026-10-18T04-30-29-703Z.json. Fresh Claude10/10 (27.5sec) and configured
+gpt-6-sol Codex10/10 (19.2sec), reports harness-v2-{claude,codex}-2026-10-18T04-29-49-970Z.json,
+source/global config unchanged. No native profile/outage repeated. All four
+persisted registrations reread and point at claude-driver-mcp. Cursor execution
+still previously auth-gated; OpenCode executable not found in current PATH.
+Registration is not execution qualification.
+
+Actual this-chat MCP runtime78678a25 still loaded, source18ef4d44,
+restartRequiredtrue, ordinary status section absent. This external refresh blocker
+has persisted across more than3 goal turns; no supported individual reload was
+found, and killing client/app processes is not the requested reload method.
+NEXT PERSON ACTION: quit/reopen Codex, then resume goal here. Verify actual MCP
+runtime/source/schema afterward before any further completion claim. Do not ask
+repeated off/on toggles or claim fresh subprocess harness equals cached adoption.
+
+No safe further live gate should run while host client remains stale. Scope
+incomplete: unattended all-process-absent app startup, deleted-service controlled
+replacement, sustained availability, remaining optional/window/person-only limits.
+These are not waived by passing synthetic gates. Last native pair verified healthy;
+original failure preserved; no live jobs/cleanup pending. Mark BLOCKED on loaded
+client adoption after publication. Resume retains full original objective.
+
 ## October 18 status route readiness separated from process health
 
 Existing driver_status already exposed sessionManagement; extended its read-only
