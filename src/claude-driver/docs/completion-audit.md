@@ -22,6 +22,16 @@ unsent; every incomplete requirement below is retained. No local quarantine
 release, signed-runtime patch, broker wake, authentication change or external
 communication is implied.
 
+The configured public native notifier has now been invoked in controlled owned
+remote gates with actual host IDs and exact running-app/socket ownership. One
+fixed64-character input on each private/default socket path is verified once;
+both retain two filters through JS Stop, native command exit0 and1/5-second checks
+while the helper/MCP live. Normal last-client EOF retires them. Native receiving
+receipt, intended filter lifetime, physical-key safety and the historical cause
+remain unqualified. Original failed release reports are preserved. Next prepare
+one long-lived shared-helper candidate to avoid per-lease helper teardown and
+qualify two owned clients sharing it; no unchanged native input replay.
+
 Current source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
 The [private lease owner](ui-lease-owner.md) now establishes a checked live
 watchdog before native startup. Current group/creator/fd identity, inherited

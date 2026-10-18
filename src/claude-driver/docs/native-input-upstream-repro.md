@@ -46,6 +46,23 @@ private RPC, consent bypass or OS permission change was used.
 
 ## Exact software and reproduction assets
 
+Later controlled gates also invoke the actual public native notifier after the
+reviewed JS Stop, with matching actual host IDs and one exact owned running-app
+candidate/socket PID. Both private-socket xlxKbf and ordinary-socket ofIekk cases
+verify one64-character input, then retain two filters after command exit0 and
+through1/5-second observations while the same helper/MCP live. Normal final MCP
+EOF/helper exit removes the filters. A read-only case BiV1Od creates no filters
+and cannot qualify release. All original release verdicts remain failed.
+
+The fixture explicitly binds notifier CODEX_HOME to the owned helper installation
+and holds a parent-owned public MCP across host completion; it is not the entire
+desktop config/plugin merge. No native receiving-side IPC receipt was collected,
+so exit0 is command completion rather than delivery proof. The public help has
+no helper PID/socket selector. These results narrow the missing-notify hypothesis,
+not the historical physical-key cause or intended lifetime of a persistent
+filter. See the wrapper audit for exact source/ID/cleanup evidence and the next
+single-shared-helper lifetime candidate. No local quarantine clearance follows.
+
 - Codex desktop: 26.1013.31256/build 20586; copied CLI: 0.163.0-alpha.10.2.
 - Helper: 26.1013.1001501/build 1001501, executable SHA256
   `f21c31c0ee5df419dbd165bf76ebd65c64d864c6fec5b6c6c3a23c42ff3d2e13`.

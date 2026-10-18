@@ -323,3 +323,71 @@ exact abort evidence. The first llvm-objdump --macho invocation ignored address
 bounds and produced a full private disassembly; subsequent extracted excerpts
 retain explicit address bounds. No target binary was run locally. The new
 fixtures are outside production and the frozen top-level suite.
+
+## Actual native notifier with private and ordinary sockets
+
+Three owned remote gates now exercise the actual host, public MCP, exact human
+fixture grant and unchanged reviewed JS Stop hook. A parent-owned MCP forwards
+the host's real metadata unchanged and remains alive after host completion, so
+filter retention is distinguishable from last-client EOF. A guarded localhost
+notify wrapper admits exactly one owned running-app candidate and independently
+checks that PID owns the socket before invoking the reviewed public native client
+with the host's original JSON payload. Native CODEX_HOME is explicitly bound to
+the owned helper installation; no pipe environment override is passed to it.
+
+This is a controlled integration fixture, not the desktop's entire plugin/config
+merge. In particular, it deliberately holds the native MCP after host completion
+and relays it through a fixture proxy. No inference or credential access occurs.
+
+| Run | Condition | Observed result |
+| --- | --- | --- |
+| notifier-lifecycle-BiV1Od, source80755aee9770 | Read-only acquisition, private socket | Exact real IDs, JS Stop and native command exit0; zero filters before/after. Original release gate stays FAILED because it never created filters. |
+| notifier-lifecycle-xlxKbf, sourceb6f0f861263d | One fixed64-character input, private socket | Input verified once by receiving bytes/hash; two filters after input, JS Stop and native command, still two at1/5s with same helper/MCP alive. Release gate FAILED. |
+| notifier-lifecycle-ofIekk, source2a51c733d968 | One fixed64-character input, default per-user socket | Same retained-two-filter result and exact input once. No private pipe override on MCP. Socket and all native helpers absent before startup; only the new owned helper is controlled. Release gate FAILED. |
+
+Readonly actual thread01a1515d-f4b9-7af2-a5eb-174236f500ae/turn
+01a1515d-f4c1-71c1-9dc1-a94980cb9da1, private-input thread
+01a1515f-2277-79b3-92d8-3e7ae4157ed2/turn
+01a1515f-227f-7633-beed-1b7a90973487 and default-socket thread
+01a15160-f667-7043-a438-bf9a8aaa9a57/turn
+01a15160-f66f-74e0-8cb7-e4d84ae84d2c match native acquisition, reviewed Stop
+arguments and configured notify payloads. Helper PIDs7771/7886/8021 match both
+running-app and independent socket ownership admissions. No input was retried.
+
+All native command invocations exit0 with no output. That qualifies command
+completion, not a receiving-side native IPC receipt: none was collected. Original
+reports call this notificationQualified; the derived analysis and current source
+call it notifierCommandQualified and explicitly leave native receiver receipt
+unqualified. This diagnostic naming correction was not a new native test.
+
+Only normal parent MCP EOF retires the helper/filters in these observations.
+Helper, MCP and fixture exit0 without forced cleanup in every case. Final
+independent groups/wrapper/native/fixture inventory is empty, the ordinary socket
+is absent, and uv508/caffeinate510 survive. The default-socket mode uses an owned
+startup/lifetime adapter instead of the production private-helper factory; it
+does not adopt or kill a preexisting shared service.
+
+Normal public turn-ended --help, after the owned gate and with no native process
+present, exits0. It exposes payload and --previous-notify only, no PID/socket
+selection option. The older deny-default help attempt remains failed and its
+sandbox profile was unchanged; do not call that startup abort a normal crash.
+
+Private notifier-lifecycle-evidence manifests verify17 files/286644bytes, exact
+producer sources/config/hook/state and factory receipts where applicable.
+notifier-lifecycle-analysis.json verifies real-ID/source/admission/retirement
+claims while retaining all three failed release verdicts. Nine staged modules
+match local source, not a whole import-closure assertion. Local production182ed05d,
+installed identity, configuration and quarantine remain unchanged.
+
+These cases narrow the hypothesis: adding native notify or switching the pipe
+alone has not demonstrated per-turn filter retirement. Retention by itself does
+not prove a filter stale/unsafe or identify the historical physical-key defect.
+The earlier two-private-helper duplicate-delivery failure also remains intact.
+
+NEXT: prepare a single long-lived shared-helper candidate which avoids retiring
+a native helper per UI lease. Qualify two owned MCP clients sharing that helper,
+including one client's EOF while the other remains active, before any production
+or local quarantine change. This changes the failing lifetime boundary; do not
+repeat the unchanged two-helper or full-notifier input probes. A supported native
+release/coordination contract remains another possible resolution, not an
+established exclusive upstream blocker. Keep broader Codex bridge fixes parked.

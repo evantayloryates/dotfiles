@@ -1,3 +1,35 @@
+## October 18 full notifier command retains filters on both socket paths
+
+Owned remote notifier-lifecycle-BiV1Od readonly case binds actual host IDs,
+reviewed JS Stop and public native notifier exit0, but creates zero filters;
+original release precondition FAIL remains. Changed single-input casesxlxKbf
+(private socket) andofIekk(default per-user socket) each deliver exactly one
+fixed64-character input with verified receiving bytes/hash. Both retain two
+filters after JS Stop/native command and at1/5s while same helper/MCP stay alive.
+Both release gates FAIL. No unchanged input replay or second helper was used.
+
+Exact owned running-app candidate plus independent socket PID are admitted before
+each command. Actual host IDs are forwarded unchanged through the public MCP;
+the parent holds it alive after host exit. Native notifier CODEX_HOME is bound to
+the owned helper installation, with no private pipe hint. Command exit0 does NOT
+prove native receiver delivery; no receiving-side receipt was collected. Original
+notificationQualified field has this narrower command meaning; current source
+renames it notifierCommandQualified without rerunning native cases.
+
+All helper/MCP/fixture exits0 normally, final groups/wrappers/native/fixture are
+absent, default socket absent, uv508/caffeinate510 preserved. Mirrors17files/
+286644bytes and derived notifier-lifecycle-analysis.json verify exact sources,
+IDs, candidate/socket admission and independent effect/retirement. Public normal
+turn-ended --help exposes payload/previous-notify only; older sandboxed help
+abort remains failed. Production182ed05d, local configs/quarantine unchanged.
+
+NEXT: prepare a single long-lived shared-helper candidate avoiding per-lease
+native teardown, then qualify two owned clients sharing it and one client EOF
+while the other remains active. This changes the boundary that reproduced
+duplicate delivery; no unchanged two-helper or full-notifier input replay. Filter
+retention alone is not historical physical-key cause or local clearance. Goal
+active/incomplete; broader Codex bridge fixes remain parked.
+
 ## October 18 native notifier selection needs running-app ownership admission
 
 Static client4861d29e common sendRequestToRunningService path resolves a running

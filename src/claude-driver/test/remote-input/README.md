@@ -14,6 +14,36 @@ native service bundle's running PID and bundle/executable paths, without app
 acquisition, helper connection or input. This is future test-admission evidence,
 not actual notifier selection or resource-release proof.
 
+`notifier-lifecycle.mjs` admits one exact owned running helper and independently
+verifies its private socket owner before relaying a configured notification to
+the reviewed public native client. The actual ephemeral host uses a deterministic
+localhost provider and the unchanged reviewed Stop hook. A parent-owned public
+MCP remains alive across host completion, making filter cleanup distinguishable
+from last-client EOF. Real host metadata is forwarded unchanged. The notifier's
+CODEX_HOME is explicitly bound to the owned helper installation; no native pipe
+override is presumed to bind it. This controlled integration gate does not
+reproduce the live desktop's complete plugin/config merge.
+
+Default mode acquires only the exact human-authorized disposable fixture.
+`--type-once` adds one fixed64-character synthetic message, admitted only against
+the fresh empty fixture, verifies exact receiving bytes/hash and never retries
+input. It records filter state before/after JS Stop/native notify and at bounded
+settled observations while the helper and MCP stay alive. Command success and
+actual cleanup are separate verdicts; a read-only run with no filters cannot
+qualify release. Preserve failed reports and normal/forced retirement separately.
+No local CUA, permissions, shared helper control or concurrent input is involved.
+`--shared-socket` uses a freshly owned helper at the ordinary per-user socket,
+only when that socket and all native service processes are absent beforehand.
+It neither adopts nor removes a preexisting endpoint. MCP uses the default pipe
+with no private override; exact running-app and socket-owner admission still
+precedes the public native notifier. The owned helper must exit normally after
+the parent MCP closes. This mode changes the transport/lifetime adapter from the
+production private-helper factory; keep that difference in comparison results.
+`notifierCommandQualified` means exact payload/owned admission/command completion,
+not an authenticated receiving-side native receipt. Original earlier reports use
+the broader field name notificationQualified; derived analysis preserves this
+narrow meaning and every failed release verdict. No rerun follows a field rename.
+
 `wrapper-lifecycle.mjs` compares the reviewed direct NodeREPL and packaged CUA
 entrypoints with a recording trusted service, empty bootstrap and disabled native
 startup. A supplied synthetic turn-end notification must reach one callback.

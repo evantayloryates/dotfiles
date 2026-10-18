@@ -165,18 +165,47 @@ def current_call():
     return (out.stdout.split() or ['none'])[0]
 
 
-def run_rearm(at):
+LINKS = Path.home() / 'src/github/kickoff/.scratch/mono-smoke/links.env'
+
+
+def link(url):
+    """Light-blue, underlined, clickable (OSC 8) in terminals that support it."""
+    if not TTY:
+        return url
+    return f'\033]8;;{url}\033\\\033[4;94m{url}\033[0m\033]8;;\033\\'
+
+
+def read_links():
+    links = {}
+    try:
+        for line in LINKS.read_text().splitlines():
+            if '=' in line and not line.lstrip().startswith('#'):
+                k, v = line.split('=', 1)
+                links[k.strip()] = v.strip().strip('"\'')
+    except OSError:
+        pass
+    return links
+
+
+def run_rearm(at, call_id):
     args = ['-y', str(at.year), '-mo', str(at.month), '-d', str(at.day), '-h', str(at.hour), '-min', str(at.minute)]
     proc = subprocess.run(['bash', str(REARM), *args], capture_output=True, text=True)
-    call_id = None
     for line in proc.stdout.splitlines():
         if line.startswith('CALL_ID='):
             call_id = line.split('=', 1)[1].strip()
-        elif line.strip():
-            print(line)
-    if proc.returncode != 0:
-        sys.stderr.write(proc.stderr)
-        raise SystemExit(proc.returncode)
+    ready = proc.returncode == 0 and '"ready":true' in proc.stdout
+    print()
+    if not ready:
+        print(f'❌ Rearm Failed for call {call_id}')
+        detail = [l for l in (proc.stderr + proc.stdout).splitlines() if l.strip() and not l.startswith('CALL_ID=')]
+        for l in detail[-6:]:
+            print(color(f'   {l}', '90'))
+        raise SystemExit(proc.returncode or 1)
+    print(f'✅ Rearm Succeeded for call {call_id}')
+    links = read_links()
+    print()
+    print(f"🔗 Client: {link(links['CLIENT']) if 'CLIENT' in links else '(no client link in links.env)'}")
+    print(f"🔗 Coach:  {link(links['COACH']) if 'COACH' in links else '(no coach link in links.env)'}")
     return call_id
 
 
@@ -188,15 +217,14 @@ def main():
     call_id = current_call()
     if sys.argv[1:]:
         at = parse_flags(sys.argv[1:], now)
-        print(f'Rearming for {describe(at, now)}')
+        print(f'Rearm for {describe(at, now)}')
     else:
         stored = load_state().get(call_id)
         at = datetime.fromisoformat(stored).astimezone(ET) if stored else next_five(now)
         got = input(f'Rearm for {describe(at, now)}? [Y/n] ').strip().lower()
         if got not in ('', 'y', 'yes'):
             at = ask_parts(at)
-            print(f'Rearming for {describe(at, now)}')
-    new_id = run_rearm(at) or call_id
+    new_id = run_rearm(at, call_id) or call_id
     save_state(new_id, at)
 
 
