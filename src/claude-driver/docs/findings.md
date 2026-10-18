@@ -1,3 +1,42 @@
+## October 17 consolidated actual harness gate and scope audit
+
+Actual filtered harness-v2 on stable source
+86d5d0ed9a0f7ad2551cbe43a1065bea0f46dbb09f34049bf91ab78bed6e4fa0:
+Claude10/10 PASS23.4sec, configured Codex gpt-6-sol10/10 PASS18.7sec. Reports
+pressure/harness-v2-{claude,codex}-2026-10-18T03-55-22-057Z.json. Actual clients
+used isolated synthetic stores with native control tools filtered out; source and
+global configs unchanged. These validate clients/durable contracts, not live effect
+qualification. No shell in model fixture, desktop messages or UI recovery.
+
+Actual attached Codex driver_status still runtime78678a... vs current86d5...,
+restartRequiredtrue; no independent-management fields from cached older schema.
+Tool inventory exposes no supported single-MCP reload/restart action. Do not kill
+client processes, repeat toggles or claim fresh subprocess client means adoption.
+Defer ONE user Codex restart until remaining runner/code changes settle.
+
+Read-only native pair audit: primary89c7 buildd423..., PID13210/start03:50:04 idle,
+verified/readiness/policytrue, unresolved[],27 spare slots. Pair wait/primary-live,
+automaticRecoveryEnabledtrue. This current health is source-specific d423, not
+native execution of latest automatic composition. No request/lease effect performed.
+
+Current acceptance frontier (preserves original full scope):
+- Ordinary ProDevs unarchive/pin, model/config/stop/interrupt and approved pool have
+  native receipts/saved-state evidence on named revisions; fresh import/fork and
+  focus/history covered, with bypass-import mismatch explicitly unverified.
+- Actual both-absent natural governor recovery passed explicit durable API; normal
+  request automatic bootstrap/read-abandonment is now synthetic-qualified only.
+- Durable/cancellation/concurrency/uncertainty and actual cross-harness contracts
+  pass; current native combined queue-vs-interrupt ordering/full11 runner remains.
+- Existing live-v2 supports fixed enrolled metadata target, but batched results
+  still assume independent-metadata/childJobs; ordinary session route returns
+  independent-session-management/requestIds. Do not run it blindly or count its
+  component exclusions as full11 acceptance. Next adapt this EXISTING runner to
+  explicit owned ordinary fixture/current receipts and restore-only cleanup.
+- Group/project/window/person-only controls, appquit/delete/archival loss recovery,
+  sustained pressure/residency and final loaded-MCP adoption remain separate open
+  scope; no human card or input quarantine may be bypassed to green a suite.
+Goal active; do not mark complete from these fresh harness/synthetic checks.
+
 ## October 17 automatic interrupted-family read reconciliation composed
 
 Normal ordinary request recovery can now screen the exact interrupted-renewal
@@ -2222,3 +2261,5 @@ Same-source cc707991544f36ebbe1abbc9d91a09368a560df1a270b56c704a3cd64e7a8699 int
 Focused gate on source673aae502955f073ac7215f524417010cd65f57e5cf4c5cc01ed28f78331fa2d: 87/87 PASS in12.7sec (import/focus/creation followups/v2/MCP). Private log tiera-import-focused-20261017.log. No full-suite or native repeat for this interim gate.
 
 Stable-source91c5bbf9963effa2ab1a5a00699fb251c1c72372021ff1ffa1e23deb71ea3201 focused42/42 PASS12.8sec, offline-read-abandonment-stable-focused-20261017.log. First stale-source failure log preserved separately; full suite deferred to consolidated gate.
+
+Integrated current86d5 gate: all160 test files passed in35.3sec,1/1 round, sourceUnchanged; pressure/v2-2026-10-18T03-56-45-280Z.json. Aggregate hashed evidence .runtime/state/consolidated-harness-gate-20261017.json binds both actual harness reports and suite to identical source; loadedMCP adoption remains false.
