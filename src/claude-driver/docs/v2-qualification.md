@@ -10,7 +10,9 @@ Codex (23-32-50-846Z) and Claude (23-37-13-536Z),18checks each. These prove
 receipt and causal reply through the enrolled route, not unattended recovery.
 Exact standby enrollment, renewal refresh, cold routing, proof-bound rebind and
 automatic recovery/rebind composition now exist. Current enrollment still has
-automatic recovery disabled. Actual successful native cold recovery/rebind,
+automatic recovery disabled. A proof-bound continuation of the trusted import-started
+epoch now completes native service restoration and standard standby rebind; original
+failed jobs remain failed. Fresh whole one-shot cold recovery remains unqualified. Actual successful native cold recovery/rebind,
 app quit or both controllers lost, natural-pressure survival and the wider
 creation/fork/archive/window/person-only gates remain incomplete. Synthetic suite
 and filtered MCP checks establish only their named scope. The full goal remains

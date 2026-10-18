@@ -1609,4 +1609,10 @@ checks that new owned idle epoch against the original completed import-only chil
 and its timing, with the old PID absent. That path skips redundant wake/reply but
 still requires the restored service readiness, policy and native-read contract.
 The normal wake path retains its absence guard. A failed historical attempt is
-never replayed or rewritten as successful; explicit continuation remains pending.
+never replayed or rewritten as successful; explicit continuation uses `broker_service_continue_imported` with the failed
+`original_recovery_parent_job_id`, exact `expected_enrollment_sha256` and
+`experimental:true`, submitted durably. It validates completed original import
+stages and a terminal wake preparation refusal with no publication. A persistent
+one-use claim prevents another continuation of the same original child. Only
+remaining restoration stages run; the failed jobs remain failed. Standby rebind
+uses the new completed continuation parent. This does not enable automatic recovery.

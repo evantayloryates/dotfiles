@@ -1,3 +1,50 @@
+## October 17 imported-epoch continuation and exact standby rebind native qualified
+
+Previousbatch50332b1. Added explicit broker_service_continue_imported operation,
+exact failed enrolled parent+binding digest. Reads original completed import stages,
+original raw terminal child jobs and exact wake prepare refusal with requestIdnull,
+retrySafetrue/cleanupfalse; independently requires no request/control/native intent/
+response/publication in old sealed actor. Original failure remains immutable.
+Low-level recover accepts import_continuation_job_id only for this exact boundary.
+Retired primary history+same import-started owned idleepoch+oldPIDabsence required.
+Persistent one-use claim keyed ORIGINAL child prevents a new identity replay.
+Continuation composes ONLY remaining service phases; generic cold/wake unchanged.
+Expired standby permitted as historical authority for this branch because no request
+is sent through it; exact live idle controller, sealedrole/0unknown still required.
+
+Actual continuationj2e1eddd82d31426f85ced4fb6b324870 COMPLETED, child
+j2e0db5dd952744c3ab7a44fdea3ff138 COMPLETED; childJobs ONLY prepare/activate/policy/read.
+Original rootj3d706293f27c4f3e953779a2fe88202a and old childjb866... remain FAILED.
+NEWPRIMARY7189c5c777c54b69b2ccf011f51ce667 on SAME import-started PID58199/start
+SunOct18 00:23:22UTC, sealed host8375a51e2dc988a9fff446ed232e11cf70213ca31b292ed80b76ef2a4b4e6971.
+Settings/anchor/model+send+stop role preserved,actual readiness/policy/native read,
+zero unresolved attempts. No retire/import/wake replay or native permission action.
+
+Actual standard standbyrebindj61ca7dc43cb847a1a9b67ec923c4a4c2 COMPLETED against
+new continuation parent. NEWSTANDBY61ca7dc43cb847a1a9b67ec923c4a4c2 on samePID90418,
+archiveTarget now ONLY primary58199/start00:23:22UTC. Freshfamily
+rpeer701dba9e12bc7a8a067af0980b1d1a48. Binding NOW
+aa9d02d08c917eab402332604bd55da074b933130281223baa055937113dc615;
+prior1aedf3 bytes retained. Currentplanwait/primarylive/automaticRecoveryEnabledfalse.
+Saved both exact title/titleSource/model/effort/cwd/bypass/archive/pin baselines match.
+Fresh actual Codex MCP native send18checks PASS report
+harness-native-native-send-codex-2026-10-18T00-37-40-647Z.json. Fresh actual Claude MCP native send18checks PASS report
+harness-native-native-send-claude-2026-10-18T00-37-58-379Z.json. Both native services
+verified idle/readiness/policytrue/notexpired/0unknown after final contracts. No maintenance/recoverychildren in send.
+
+13focused tests PASS including changed/foreign/published/unknown wake refusal and
+no lifecycle replay. Full finalv2-2026-10-18T00-37-22-298Z PASS1/1/sourceunchanged;
+filteredClaude00-36-54-546Z/Codex00-36-55-789Z PASS10each. Earlierfull
+v2-00-36-48-039Z sourceChangedtrue retained: corrected production mode flag while
+that isolated test was running,then reran final current source. No native job ran
+against changing source. New branch full native one-shot from initial absence is
+still unqualified: actual success here is explicit failure-bound continuation plus
+native standard rebind. Automatic routing remains disabled pending fresh one-shot
+qualification. Appquit/bothgone/naturalpressure/wider lifecycle gates remain.
+NEXT reassess full one-shot import-started native path; preserve explicit continuation
+proof for failures, never use original failed jobs as success. Goal active, watcher
+paused, legacy observer owns legacy recovery, Codex-driver/1Password parked.
+
 ## October 17 import-started recovery path implemented; original continuation pending
 
 Previousbatch5615e7d. Goal actual active on continuation. Added a distinct

@@ -1,3 +1,4 @@
+import {readImportContinuation} from './import-recovery-continuation.mjs'
 import {recoveryRoleFromHistory,recoveredRoleMatches} from './recovery-role.mjs'
 import {metadataTargetPreflightMatches,metadataTargetRegistered} from './native-metadata-control.mjs'
 import {join} from 'node:path'
@@ -16,19 +17,21 @@ const sid=/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/,hex=/^[a-f0-9]{3
 const requireResult=(value,keys)=>{if(!value||!keys.every(k=>value[k]===true))throw Error('recovery child result unqualified');return value}
 // A one-shot parent composes existing durable operations. Every child identity
 // and before/after boundary is retained; uncertainty stops rather than replays.
-export async function runIndependentRecovery(d,{cycle=false,familyRequestId}={}){
+export async function runIndependentRecovery(d,{cycle=false,familyRequestId,importContinuation=false}={}){
  const results={}
  const step=async(name,work)=>{await d.guard();await d.record('before-'+name,results);results[name]=await work();await d.record('after-'+name,results);return results[name]}
  await step('preflight',d.preflight)
  if(cycle){const family=await step('family',()=>d.family());requireResult(family,['receiptVerified']);if(family.state!=='completed')throw Error('family failed');familyRequestId=family.requestId}
  if(!/^rpeer[a-f0-9]{32}$/.test(familyRequestId||''))throw Error('retained native family receipt required')
+ if(importContinuation&&(!results.preflight.retired||cycle))throw Error('continuation requires retired cold history')
  if(!results.preflight.retired){
   requireResult(await step('quiesce',()=>d.quiesce(!cycle)),['quiescent','terminalAttemptReviewComplete'])
   requireResult(await step('retire',()=>d.retire(!cycle)),['filesRetired','terminalAttemptReviewComplete'])
  }
  if(cycle){const archive=await step('archive',()=>d.archive(familyRequestId));requireResult(archive,['receiptVerified','archiveVerified','previousPidObservedAbsent']);if(archive.state!=='completed')throw Error('archive failed')}
  if(cycle||results.preflight.archived)requireResult(await step('unarchive',d.unarchive),['unarchived'])
- const imported=results.unarchive&&d.importedEpoch?await step('importedEpoch',d.importedEpoch):null
+ const imported=(results.unarchive||importContinuation)&&d.importedEpoch?await step('importedEpoch',d.importedEpoch):null
+ if(importContinuation&&imported?.started!==true)throw Error('continuation imported epoch missing')
  if(imported?.started===true){requireResult(imported,['verified','oldPidAbsent']);if(!Number.isSafeInteger(imported.pid)||typeof imported.procStart!=='string')throw Error('imported epoch evidence unqualified')}
  else {
  await step('observeBeforeWake',d.observeBeforeWake)
@@ -54,14 +57,15 @@ export function recoveryReplyObserved(events){
  }
  return false
 }
-export async function recoverIndependentTarget(session,serviceId,target,targetServiceId,{jobId,signal,cycle=false,familyRequestId}={}){
+export async function recoverIndependentTarget(session,serviceId,target,targetServiceId,{jobId,signal,cycle=false,familyRequestId,importContinuationJobId}={}){
+ if(importContinuationJobId!==undefined&&(!/^j[a-f0-9]{32}$/.test(importContinuationJobId)||cycle))throw new DriverError('exact original cold recovery child required',{category:'bad_args'})
  if(!sid.test(session||'')||!sid.test(target||'')||session===target||!hex.test(serviceId||'')||!hex.test(targetServiceId||'')||!/^j[a-f0-9]{32}$/.test(jobId||'')||typeof cycle!=='boolean'||!cycle&&!/^rpeer[a-f0-9]{32}$/.test(familyRequestId||''))throw new DriverError('recovery requires durable exact controller/target identities and retained family for cold mode',{category:'bad_args'})
  if(callerHostSession()===target)throw new DriverError('recovery must be controlled from a different session; refusing self archive or retirement',{category:'gate_self'})
  return withLock('independent-recovery-'+target,async()=>{
-  const file=join(ensureDir(join(STATE_DIR,'independent-service-recoveries')),jobId+'.json'),ledger={schemaVersion:1,kind:'independent-service-recovery',jobId,session,target,serviceId,targetServiceId,cycle,phase:'created',children:{},steps:[],retrySafe:false,at:Date.now()}
+  const file=join(ensureDir(join(STATE_DIR,'independent-service-recoveries')),jobId+'.json'),ledger={...importContinuationJobId?{importContinuationJobId}:{},schemaVersion:1,kind:'independent-service-recovery',jobId,session,target,serviceId,targetServiceId,cycle,phase:'created',children:{},steps:[],retrySafe:false,at:Date.now()}
   writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600})
   const save=()=>{ledger.updatedAt=Date.now();writeJsonAtomic(file,ledger)}
-  const controller=peerRecord(session),record=getRecord(target);let sealed,cursor,newPeer,baseline,restoredRole,importedPeer
+  const controller=peerRecord(session),record=getRecord(target);let sealed,cursor,newPeer,baseline,restoredRole,importedPeer,continuation
   const admitRoleTarget=t=>{const r=getRecord(t.sessionId);return metadataTargetPreflightMatches({target:t,record:r,peer:peerRecord(t.sessionId),registered:metadataTargetRegistered(t,{controlStateDir:STATE_DIR}),openPrCount:r?openPrs(r).length:null})}
   const policy=id=>JSON.parse(readReceiverFile(join(record.cwd,'.claude-driver-services',id,'broker','stop-rescue-policy.json'),65536))
   const guard=async()=>{if(signal?.aborted)throw Error('recovery cancelled; child may continue');const p=peerRecord(session);if(!controller||!p||p.pid!==controller.pid||p.procStart!==controller.procStart||p.status!=='idle'||getRecord(target)?.cwd!==record?.cwd)throw Error('recovery controller or target changed')}
@@ -75,20 +79,22 @@ export async function recoverIndependentTarget(session,serviceId,target,targetSe
   const familyReceipt=ref=>{const r=JSON.parse(readReceiverFile(join(record.cwd,'.claude-driver-services',targetServiceId,'broker','results',ref+'.native.json'),65536));if(r.id!==ref||r.source!=='native-peer-service-result'||r.results?.length!==1||r.results[0].op!=='list_sessions'||r.results[0].ok!==true||parseNativeFamilyMetadata(r.results[0].result,target)?.length!==0)throw Error('empty native family receipt unqualified')}
   const targetArgs={session:target,service_id:targetServiceId,experimental:true},controlArgs=ref=>({session,service_id:serviceId,session_id:target,target_service_id:targetServiceId,family_request_id:ref,experimental:true,timeout_sec:30})
   try{
-   const result=await runIndependentRecovery({guard,record:async(phase,results)=>{ledger.phase=phase;ledger.results=results;ledger.steps.push({phase,at:Date.now()});save()},
+   const result=await runIndependentRecovery({guard,record:async(phase,results)=>{if(phase==='after-preflight'&&continuation){const claim=join(ensureDir(join(STATE_DIR,'import-continuation-claims')),importContinuationJobId+'.json');writeFileSync(claim,JSON.stringify({originalJobId:importContinuationJobId,continuationJobId:jobId,at:Date.now()}),{flag:'wx',mode:0o600})}ledger.phase=phase;ledger.results=results;ledger.steps.push({phase,at:Date.now()});save()},
     preflight:async()=>{
+     if(importContinuationJobId)continuation=readImportContinuation(importContinuationJobId,{session,serviceId,target,targetServiceId,familyRequestId,actorCwd:getRecord(session)?.cwd})
      const c=await inspectIndependentService(session,serviceId,{signal});sealed=c.archiveTarget
-     if(!record||!c.verified||!c.readinessObserved||!c.nativePolicyObserved||c.admissionStopped||c.expired||c.deadline-Date.now()<180000||c.unresolvedRequestIds?.length||c.unreservedSlots<2||!archiveTargetValid(sealed,{sessionId:session,receiverCwd:getRecord(session).cwd})||sealed.sessionId!==target||sealed.cwd!==record.cwd||record.permissionMode!=='bypassPermissions'||record.worktreePath||readPins().has(target)||openPrs(record).length)throw Error('recovery sealed scope unqualified')
+     if(!record||!c.verified||!c.readinessObserved||!c.nativePolicyObserved||c.admissionStopped||!continuation&&(c.expired||c.deadline-Date.now()<180000)||c.unresolvedRequestIds?.length||c.unreservedSlots<2||!archiveTargetValid(sealed,{sessionId:session,receiverCwd:getRecord(session).cwd})||sealed.sessionId!==target||sealed.cwd!==record.cwd||record.permissionMode!=='bypassPermissions'||record.worktreePath||readPins().has(target)||openPrs(record).length)throw Error('recovery sealed scope unqualified')
      const selected=loadReceiverSelection(record.cwd);if(selected.selector.serviceId!==targetServiceId||selected.selector.pid!==sealed.pid||selected.selector.procStart!==sealed.procStart)throw Error('target selector changed')
      const p=peerRecord(target)
      if(cycle){if(record.isArchived||!p||p.pid!==sealed.pid||p.procStart!==sealed.procStart||p.status!=='idle')throw Error('cycle target not exact idle epoch')}
-     else if(p||liveProcesses().some(p=>p.hostSessionId===target)||inspectNativeResourcePid(sealed.pid)!==null)throw Error('cold recovery requires absent original process and no current peer')
-     let t=await inspectIndependentService(target,targetServiceId,{signal,...cycle?{}:{offline:true}});if(!cycle&&!t.verified)t=await inspectIndependentService(target,targetServiceId,{signal,historical:true});if(!t.verified||!t.terminalAttemptReviewComplete||t.unresolvedRequestIds?.length||t.nativeEpoch?.pid!==sealed.pid||t.nativeEpoch?.procStart!==sealed.procStart||selected.pointer.build!==t.build||selected.pointer.generation!==t.generation)throw Error('target terminal inventory unqualified')
+     else if(!continuation&&(p||liveProcesses().some(p=>p.hostSessionId===target)||inspectNativeResourcePid(sealed.pid)!==null))throw Error('cold recovery requires absent original process and no current peer')
+     let t=await inspectIndependentService(target,targetServiceId,{signal,...cycle?{}:continuation?{historical:true}:{offline:true}});if(!cycle&&!t.verified)t=await inspectIndependentService(target,targetServiceId,{signal,historical:true});if(!t.verified||!t.terminalAttemptReviewComplete||t.unresolvedRequestIds?.length||t.nativeEpoch?.pid!==sealed.pid||t.nativeEpoch?.procStart!==sealed.procStart||selected.pointer.build!==t.build||selected.pointer.generation!==t.generation)throw Error('target terminal inventory unqualified')
      if(!cycle){familyReceipt(familyRequestId);if(!t.settledRequestIds?.includes(familyRequestId))throw Error('family not terminal in target history')}
-     baseline=policy(targetServiceId);restoredRole=recoveryRoleFromHistory(t,baseline,{sessionId:target,receiverCwd:record.cwd,admitTarget:admitRoleTarget});ledger.restoredRole=restoredRole;save();if(!/^[a-f0-9]{64}$/.test(baseline.settingsHash||'')||!/^[a-f0-9]{64}$/.test(baseline.receiverHook?.anchorSha256||''))throw Error('stable settings evidence missing');return {retired:t.sourceDisposition==='files-retired'&&t.admissionStopped===true&&t.stopMarkerMatchesGeneration===true,archived:record.isArchived,oldEpoch:{pid:sealed.pid,procStart:sealed.procStart},settingsHash:baseline.settingsHash,anchorSha256:baseline.receiverHook?.anchorSha256}
+     if(continuation&&(!t.admissionStopped||t.sourceDisposition!=='files-retired'||!importStartedEpochQualified({peer:p,record:getRecord(target),oldEpoch:sealed,oldPidAbsent:inspectNativeResourcePid(sealed.pid)===null,unarchive:continuation.unarchive,target})))throw Error('continued imported epoch unqualified')
+     baseline=policy(targetServiceId);restoredRole=recoveryRoleFromHistory(t,baseline,{sessionId:target,receiverCwd:record.cwd,admitTarget:admitRoleTarget});ledger.restoredRole=restoredRole;save();if(!/^[a-f0-9]{64}$/.test(baseline.settingsHash||'')||!/^[a-f0-9]{64}$/.test(baseline.receiverHook?.anchorSha256||''))throw Error('stable settings evidence missing');return {retired:t.sourceDisposition==='files-retired'&&t.admissionStopped===true&&t.stopMarkerMatchesGeneration===true,archived:continuation?false:record.isArchived,oldEpoch:{pid:sealed.pid,procStart:sealed.procStart},settingsHash:baseline.settingsHash,anchorSha256:baseline.receiverHook?.anchorSha256}
     },
     family:async()=>{const r=await child('family','broker_service_family',targetArgs);familyReceipt(r.requestId);return r},quiesce:offline=>child('quiesce','broker_service_quiesce',{...targetArgs,...offline?{offline:true}:{}}),retire:offline=>child('retire','broker_service_retire',{...targetArgs,...offline?{offline:true}:{}}),archive:ref=>child('archive','broker_service_archive',controlArgs(ref)),unarchive:()=>child('unarchive','unarchive_session',{session:target,import_only:true}),
-    importedEpoch:async()=>{const p=peerRecord(target);if(!p)return {started:false};const observed=ledger.children.unarchive?.observation;
+    importedEpoch:async()=>{const p=peerRecord(target);if(!p)return {started:false};const observed=continuation?.unarchive??ledger.children.unarchive?.observation;
      if(!importStartedEpochQualified({peer:p,record:getRecord(target),oldEpoch:sealed,oldPidAbsent:inspectNativeResourcePid(sealed.pid)===null,unarchive:observed,target}))throw Error('import-started native epoch unqualified');importedPeer=p;return {started:true,verified:true,oldPidAbsent:true,pid:p.pid,procStart:p.procStart,unarchiveJobId:observed.jobId}},
     observeBeforeWake:async()=>{const {runOp}=await import('./driver.mjs');const r=await runOp('session_events',{session:target,include_causality:true});cursor=r.cursor;return r},wake:ref=>child('wake','broker_service_wake_target',controlArgs(ref)),
     newEpoch:async()=>{const end=Date.now()+30000;for(;;){await guard();if(inspectNativeResourcePid(sealed.pid)!==null)throw Error('original PID present');const p=peerRecord(target);if(p){if(importedPeer&&(p.pid!==importedPeer.pid||p.procStart!==importedPeer.procStart))throw Error('import-started epoch changed');if(p.cwd!==record.cwd||p.hostSessionId!==target||p.version!=='2.1.299'||p.entrypoint!=='claude-desktop'||p.pid===sealed.pid||p.procStart===sealed.procStart)throw Error('new native epoch unqualified');if(p.status==='idle'){newPeer=p;return {pid:p.pid,procStart:p.procStart,cwd:p.cwd}}}if(Date.now()>end)throw Error('new native epoch deadline');await sleep(100)}},
@@ -96,7 +102,7 @@ export async function recoverIndependentTarget(session,serviceId,target,targetSe
     prepare:()=>{if(!restoredRole||Object.values(restoredRole.bindings).some(t=>!admitRoleTarget(t)))throw Error('recovery role target changed before preparation');return child('prepare','broker_service_prepare',{session:target,experimental:true,lifetime_sec:3600,max_requests:32,...restoredRole.prepareArguments})},activate:id=>child('activate','broker_service_activate',{session:target,service_id:id,experimental:true,stable_hook:true,cold_rebind:true}),
     readiness:id=>waitIndependentReadiness({signal},{guard,inspect:()=>inspectIndependentService(target,id,{signal}),now:Date.now,wait:()=>sleep(100)}),policy:id=>child('policy','broker_service_policy_probe',{session:target,service_id:id,experimental:true,timeout_sec:20}),read:id=>child('read','broker_service_read',{session:target,service_id:id,session_id:session,experimental:true,timeout_sec:20}),
     verify:async id=>{const s=await inspectIndependentService(target,id,{signal}),p=peerRecord(target),after=policy(id);if(!s.verified||!s.readinessObserved||!s.nativePolicyObserved||s.admissionStopped||s.expired||s.unresolvedRequestIds?.length||!p||p.pid!==newPeer.pid||p.procStart!==newPeer.procStart||s.nativeEpoch.pid!==p.pid||after.settingsHash!==baseline.settingsHash||after.receiverHook?.anchorSha256!==baseline.receiverHook?.anchorSha256||!recoveredRoleMatches(restoredRole,s))throw Error('final recovery identity or settings changed');return {serviceId:id,pid:p.pid,procStart:p.procStart,settingsPreserved:true,anchorPreserved:true,noUnresolvedAttempts:true,rolePreserved:true,restoredGrants:restoredRole.grants}}
-   },{cycle,familyRequestId})
+   },{cycle,familyRequestId,importContinuation:!!importContinuationJobId})
    ledger.phase='completed';save();return {...result,recoveryFile:file,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId])),retrySafe:false}
   }catch(error){ledger.failure={category:error.category??'recovery_step_failed',nativeFailure:error.detail?.nativeFailure,at:Date.now()};save();throw new DriverError('recovery stopped; inspect retained parent/children, never replay unknown effects',{category:'independent_service_recovery_unresolved',detail:{jobId,phase:ledger.phase,failureCategory:error.category??'recovery_step_failed',nativeFailure:error.detail?.nativeFailure,recoveryFile:file,childJobs:Object.fromEntries(Object.entries(ledger.children).map(([k,v])=>[k,v.jobId??null])),retrySafe:false}})}
  },{timeoutMs:5000,signal})
