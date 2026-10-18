@@ -3,6 +3,13 @@
 Prepared for review only. No issue, support message or external report has been
 sent. Raw evidence stays in the private service state directory.
 
+Attribution caveat from the [custom wrapper audit](custom-cua-wrapper-audit.md):
+the isolated failure does not need Taylor's custom NodeREPL registration, but
+does use our private-helper orchestration. It does not establish a stock desktop
+failure independent of our integration. Own lifecycle contribution and actual
+custom/bundled cleanup-path overlap remain unverified. The packet requests
+runtime capability/clarification; it does not conclusively assign native blame.
+
 ## Expected contract
 
 A completed or interrupted owned Computer Use turn should have a supported way

@@ -1,3 +1,30 @@
+## October 18 custom-wrapper audit corrects the attribution frontier
+
+Taylor clarified the custom CUA deployment. Read-only selected config/source
+audit verifies old computer-use MCP disabled, custom node_repl enabled by default
+and backed by @oai/sky/service, plus saved enabled unified/computer-use plugins.
+The unified plugin contributes cua_repl and lifecycle hooks; notify separately
+calls SkyComputerUseClient turn-ended. Both tool namespaces are exposed here,
+but no active duplicate native connection is inferred from flags/tool presence.
+See [custom wrapper audit](custom-cua-wrapper-audit.md).
+
+Retained failure report1792358685306 matches its immutable manifest and admits
+one non-plugin cua_repl server, no other MCP. Taylor's custom registration/browser
+service/local notify were absent. The failure therefore does not require that
+custom registration. Our private-per-lease helper teardown and two-helper test
+topology differ from ordinary shared-helper use; own orchestration is NOT fully
+ruled out. Earlier upstream-only blocker wording is too strong. This is new
+deployment evidence and a concrete changed-condition investigation, not native
+clearance. No local CUA/input/config change occurred; production182ed05d and
+quarantine remain unchanged. Current platform goal must be read independently;
+this question did not itself request a new native test or resume its controls.
+
+NEXT: metadata/source trace of effective server/hook ownership, then prepare a
+single-helper exact-custom versus packaged-route comparison on the isolated host,
+one lifecycle variable at a time. Review baseline/cleanup before input. Do not
+repeat unchanged independent-helper input, alter signed runtime/global settings,
+or attribute the historical physical-key failure to a proven native callback.
+
 ## October 18 blocked audit after three consecutive impasse turns
 
 After Taylor's delayed physical-key reply, the platform goal became active
