@@ -1,3 +1,31 @@
+## October 18 blocked audit after three consecutive impasse turns
+
+The full goal is blocked, not complete. Three consecutive goal turns made no
+progress beyond revalidating the same native safety dependency. Current source
+182ed05d, all six reviewed runtime hashes and helper signature remain unchanged;
+quarantine stays blocked. The inbox contains only the same four previously
+reviewed unresolved legacy reports, with exact matching filenames/hashes. No
+native input, wake/restart, replay, permission/auth change or external message
+was attempted. No live owned test handle is awaiting observation. Existing
+services, failure artifacts and observer ownership are preserved.
+
+The installed runtime still has the reproduced independent-client duplicate-
+delivery boundary. No reviewed supported owner-scoped cleanup or cross-client
+coordination change is available. Signed-runtime/Codex bridge fixes remain
+outside this goal's implementation scope. More identical native probes cannot
+qualify the service. Current-source isolated and Claude/Codex MCP contract
+proofs remain valid within their existing scope; they do not close native safety,
+cold startup, pressure, person-gate or loaded-adoption requirements.
+
+Next owner/action: the native runtime maintainer must provide a cleanup/input
+coordination fix or supported safe contract using the prepared
+[reproduction packet](native-input-upstream-repro.md). It has NOT been sent.
+When a changed safe condition exists, Taylor can use Play/Resume in this Codex
+chat; requalify only the changed boundary on Theo Air's disposable fixture before
+considering local UI release. A restart/MCP refresh alone does not fix the
+native failure. Do not auto-resume from old approvals or unchanged inbox reports.
+Private blocked-audit-current.json records the three-turn audit and next condition.
+
 ## October 18 read-only completion and registration audit
 
 Current source remains182ed05d; full goal remains incomplete. All four saved
