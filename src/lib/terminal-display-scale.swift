@@ -1,10 +1,13 @@
 import AppKit
 import CoreGraphics
 
-// Report the backing scale of the display containing most of Ghostty's front
-// window. Called while an interactive command is running in Ghostty.
-guard let app = NSWorkspace.shared.frontmostApplication,
-      app.bundleIdentifier == "com.mitchellh.ghostty" else {
+// Report the backing scale of the display containing most of Ghostty's topmost
+// visible window. The quick terminal is a nonactivating panel, so another app
+// may remain frontmost even while a command is being entered in Ghostty.
+let ghosttyPIDs = Set(NSRunningApplication.runningApplications(
+    withBundleIdentifier: "com.mitchellh.ghostty"
+).map(\.processIdentifier))
+guard !ghosttyPIDs.isEmpty else {
     print(1)
     exit(0)
 }
@@ -24,7 +27,7 @@ func windowRect(_ info: [String: Any]) -> CGRect? {
 }
 
 guard let window = windows.first(where: {
-    ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == app.processIdentifier
+    ghosttyPIDs.contains(($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value ?? 0)
         && (windowRect($0)?.width ?? 0) >= 100
         && (windowRect($0)?.height ?? 0) >= 100
 }), let bounds = windowRect(window) else {
