@@ -13,6 +13,26 @@ controllers lost, natural-pressure survival and wider creation/fork/archive/wind
 person-only gates remain incomplete. This is bounded failover qualification, not
 proof of always-on operation. The full goal remains unfinished.
 
+## Completion audit after automatic recovery qualification
+
+| Requirement | Current evidence and boundary |
+| --- | --- |
+| Durable cross-harness tools | Fresh actual Claude and Codex filtered MCP contracts pass; native receipt/reply contracts pass in named reports. This chat's loaded connector is separately stale and needs client restart. |
+| Efficient concurrent requests | Four concurrent native reads on recovered3c68 pass exact receipts, idempotent reattachment, capacity delta4, no unknowns/model turn; p50 1801ms/p95 3062ms including queue time. Four samples are not an SLA. |
+| Controller failover with surviving standby | Actual ordinary sendj65d648... recovered, rebound and delivered; independent causal reply/baselines match; binding0f9550 automatic true. |
+| App quit or both controllers lost | Missing native qualification and a verified full bootstrap strategy; surviving-standby success does not prove this case. |
+| Stop, steer and executing cancellation | Prior scoped native stop/steer proof and synthetic uncertainty boundaries; broad executing-effect cancellation is not established by a cancellation flag. |
+| Model, effort, title and pin controls | Prior scoped native mutation/readback evidence retained; latest recovery preserves exact grants and settings. This is not blanket qualification of every configuration path. |
+| Create in folder/no folder and fork | Current full native end-to-end coverage remains missing; historical mechanism notes are not current qualification. |
+| Archive, unarchive and deletion | Manual accidental archive plus verified import restoration/current recovery proved; full project archive, cleanup and native deletion-card workflows remain separate. Never auto-answer human cards. |
+| Permissions and trust | Bypass preserved; actual trust refusal/human approval retained. Permission mode does not grant workspace trust or hot-reload consent. |
+| Focus and windows | Existing scoped navigation and recovery focus restoration evidence; full create/fork/window paths remain unqualified under input quarantine. |
+| Sustained residency under pressure | Current-generation read-only 180s/13samples same-PID idle survival verified; zero natural events, so pressure remains unqualified. |
+| Existing legacy broker | Separate observer-owned channel remains unqualified/stale; independent service success does not revive or qualify it. |
+
+This audit preserves the full build brief and active goal. No combination of the
+scoped rows closes the missing lifecycle, bootstrap, residency or loaded-client gates.
+
 ## October 17 durable standby enrollment refreshes across primary renewal
 
 Previousbatch published80602ef. Addedstandby-enrollment.mjs andpublic

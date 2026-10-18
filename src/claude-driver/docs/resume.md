@@ -1,3 +1,41 @@
+## October 17 recovered-controller concurrent reads and current idle observation
+
+Previousbatch7d39bd9. Four CONCURRENT durable broker_service_read submissions on
+currentprimary3c68 -> exactinterrupt target all COMPLETED with distinct correlated
+native receipts. Reattaching each original key returns samejob/reusedtrue; capacity
+delta EXACT4; nounknowns/samePID96436/start00:42:30UTC/sourceunchanged/no controller
+model turn. Queue-inclusive samples4:p50 1801ms/p95 3062ms, NOT an SLA. Private
+one-use script at existing scratch-native-read-2026-10-17/native-read-burst.mjs;
+report pressure/native-read-burst-3c68be7da94f4ca785cc1b0d1361e07c.json. Never rerun
+this claimed generation test blindly. No mutation/messages, service turnover or
+recovery in this burst; active automatic binding0f9550 remains unchanged.
+
+Read-only residency180sec on current primary completed13samples, samePID/idle;
+source unchanged/input audits passed/no nativewrites. Report
+independent-residency-2026-10-18T00-43-58-958Z.json idleSurvivalVerifiedtrue,
+pressureQualifiedfalse/pressureEvents0/errornull/okfalse. Exit1 means missing natural
+pressure gate, not process failure. Preserve unqualified result. No pressure was
+manufactured. Do not rerun unchanged idle tests expecting pressure qualification.
+
+Direct THIS CHAT loaded MCP driver_status (not isolated harness) is connected API2
+but restartRequiredtrue,loadedruntime64c8563... versus its sourceBuild81549cd...;
+that stale runtime computes source with older algorithm, do not confuse it with
+currenthostbe087. Sanitized pressure/loaded-mcp-stale-20261017.json retained. This
+is distinct from working fresh Claude/Codex MCP harnesses and native service pair.
+No effects attempted through stale MCP, no legacy wake. Existing legacy broker
+still belongs to observer; its liveness does not establish serving readiness.
+
+No exposed tool or codex mcp CLI command restarts this loaded connection (CLI help
+lists list/get/add/remove/login/logout only). Official MCP docs at
+https://learn.chatgpt.com/docs/extend/mcp?surface=cli describe Settings/MCP servers
+and Restart, but no agent callable restart here. Asked Taylor minimally:
+In Codex Settings -> MCP servers,restart claude-driver. Answer pending. No app
+restart, config remove/readd, processkill, CUA or permission changes performed.
+NEXT after actual restart: direct loaded driver_status currentruntime/restartfalse,
+then bounded direct live connector test on ownedpair. Continue broader lifecycle/
+bootstrap work without conflating this client gap with native broker failure.
+Full completion audit matrix added to v2-qualification.md. Goal remains incomplete.
+
 ## October 17 one-shot cold recovery and automatic recovery/rebind/send native PASS
 
 Previousbatch0b8228f. Taylor archived exacttransport; current aa9d02 binding/action
