@@ -1,3 +1,39 @@
+## October 17 user-facing ProDevs unarchive/pin failure is a completion blocker
+
+Taylor supplied screenshot of another chat trying to unarchive and then pin ProDevs
+in Claude's Kickoff group. User asks alignment/current limitation and durable coverage
+before goal completion, NOT execution of the quoted task. No unarchive/pin/message/
+enrollment changes made to ProDevs in this review.
+
+Independently scoped ledger: 2026-10-18T01:55:39.699Z (October17 Eastern) current
+clientdriverd85f760 unarchive_session targetlocal_437775cb-d113-4cc5-9497-62f3196a1fbd
+TierB FAILED broker_runtime_epoch_mismatch (active release belongs to another native
+process). At01:55:43.783Z explicit import_only attempt FAILED
+unarchive_import_unverified. Current source imported identity requirement
+sessionId===local_+cliSessionId; read-only target record confirms ProDevs archivedtrue,
+pinnedfalse,importLinkEligiblefalse. The import-only refusal means unsupported path
+for this native session; do not infer that a link was dispatched and failed to restore.
+
+Root cause scope: scratchpair failover/readiness/current loaded MCP successes do NOT
+supply a general unarchive role for ordinary native user sessions. Public native
+unarchive still falls to observer-owned stale legacy broker. Pin of an unarchived
+unenrolled target likewise uses legacy TierB; actual pin request was not dispatched
+here because unarchive did not succeed. This is a known current architecture gap,
+not stale Codex MCP source and not evidence that healthy scratch pair is offline.
+Original task response correctly failed closed rather than using quarantined UI,
+but manual user workaround is NOT completion of required service capability.
+
+REQUIRED COMPLETION GATE: public existing native archived-session unarchive THEN pin
+through supported authorized bridge path, with persisted archivefalse/pinnedtrue
+and exact target identity/focus readbacks. Include negative/unknown outcome tests;
+no arbitrary scope broadening, inferred auth, permission/input relaxation or silent
+legacy fallback. Must cover real user-facing target class, not only driver-created
+importable scratch. Add scoped fixture or explicit authorized target acceptance when
+resumed; preserve original failed attempts. Do not make ProDevs changes from screenshot
+request alone. User is evaluating before pressing Resume; actual goal stays blocked
+until user resumes, but prior client-refresh blocker is resolved. No need another
+client restart. Continue broad implementation from this gap after resume.
+
 ## October 17 actual loaded MCP refresh verified after Codex app restart
 
 Taylor toggled custom claude-driver off/on; screenshots read: toggle changed but

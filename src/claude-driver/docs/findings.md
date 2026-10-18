@@ -1245,3 +1245,12 @@ Human-assisted retired receipts require explicit empty unresolved inventory, str
 terminal review and a present bounded native tool ID. Missing values cannot stand
 in for verified absence or a correlated tool receipt. Regression tests cover these
 malformed cases; no additional native recovery authority is granted.
+
+### Ordinary native archived sessions remain outside qualified scratch recovery (October 17)
+
+ProDevs public unarchive failed through legacy broker epoch mismatch; its native
+identity is ineligible for CLI re-import, so import-only failed closed. Read-only
+record confirms archived and unpinned. No pin request was proven executed. Current
+MCP and independent scratch pair readiness do not qualify general user-session
+unarchive/pin. This full public workflow must pass with persisted target readback
+before goal completion; manual UI workaround is not the service's acceptance test.
