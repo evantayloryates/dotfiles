@@ -35,7 +35,7 @@ must exit normally without a signal. Each new run preserves its harness source;
 earlier pre-snapshot source hashes are recovered from owned orchestration assets.
 Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
 
-`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input` exercises the new lease owner, actual
+`owner-native.mjs normal|caller-loss|double-owner-loss|type-normal|cancel-input|concurrent-input` exercises the new lease owner, actual
 worker/backend/MCP/helper, inherited lock receipt and owner-side native audit.
 The provider/fixture outlive the caller-loss test. It validates exact fresh AX
 state before killing only the caller, then observes owner/group/helper exit.
@@ -52,6 +52,15 @@ a normal helper exit, normal watchdog disarm, no residual resources, and stable
 prefix/hash after1/5 seconds. A result arriving before partial-effect admission
 is inconclusive/failed, never reclassified as in-flight cancellation. This is
 cancellation of outstanding native input, not rollback or physical-key proof.
+`concurrent-input` submits a second caller while the first owns the same kernel
+UI mutex. The callers share only that lock state; each has separate home/backend,
+provider sequence, owner/helper/watchdog and evidence. The second must be alive
+and waiting both before and after the first input effect, then enter only after
+first group/socket retirement with the exact same mutex device/inode. Both
+64-character inputs must appear once in order as128 exact characters, with two
+own filters during each input and normal helper/watchdog cleanup. Final state
+must remain stable at1/5 seconds. This qualifies concurrent driver requests,
+not simultaneously injecting clients outside the driver's lock or physical keys.
 
 `owner-ancillary.mjs cooperative|escalated` is non-UI: real kernel/owner/worker/Git
 with a synthetic socket/backend. Git hash-object waits on an empty private FIFO,

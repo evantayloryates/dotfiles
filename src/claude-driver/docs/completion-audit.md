@@ -16,7 +16,10 @@ interrupted work and normal native exit remain unverified. Active input and outs
 this source (1792357253765/1792357268408): exact64-character delivery and retained
 109-character prefix after cancellation, normal helper/watchdog cleanup and
 stable1/5-second independent state. Cancellation is not rollback or replay.
-All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
+Concurrent driver requests also pass1792357456810: the second waits under the
+same mutex until first group/socket retirement, then appends exactly once;
+128 exact characters remain stable. This is serialization, not simultaneous
+independent native input. All-three-controller loss remains fenced. Local quarantine, physical/concurrent-input/full-scope and
 loaded-adoption gates remain. Earlier e3c3937e cleanup/native/ancillary proof
 retains its separately recorded source and limits.
 
@@ -78,7 +81,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source182ed05d has isolated and remote read-only proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Latest actual readback reports runtime fcf484e3/source182ed05d/restartRequired:true; native controller admission remains unverified. Current source182ed05d has isolated and remote read-only proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 

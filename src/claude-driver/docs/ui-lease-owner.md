@@ -161,7 +161,29 @@ files/266665 bytes. No real inference, new hook override, permissions/auth chang
 or local CUA. Final remote owns no process/helper/filter; original services/taps
 remain. Quarantine stays blocked. Reuse the unchanged full195-file68.519s proof.
 
+## Concurrent caller qualification
+
+Run1792357456810 submits a second real caller while the first holds the real UI
+mutex. Separate homes/backends/providers preserve both operations' evidence.
+Caller4951 remains queued before and after the first64-character native effect,
+then enters after900ms through the same device/inode. Before second native entry,
+first group/socket is absent and helper4878/watchdog4875 have closed normally.
+Second helper4970/watchdog4967 also close normally after exact append. Both
+turn/archive acknowledgements pass;128 exact ordered characters remain stable
+at1/5 seconds with no helper/filter. Fixture source2d3cda3b and both actual
+contexts/timelines are retained in concurrent-owner-evidence29 files/297535 bytes.
+Production source182ed05d and the frozen full195-file result remain unchanged.
+
+Threads01a150d4-60fd-7ca0-8f5e-d68ce92b8829 and
+01a150d4-6dce-7f31-a692-44c4703ebad2; turns
+01a150d4-647d-7530-baa8-db158d48dd19 and01a150d4-6f2f-7a22-8f6c-c4e835f0c50c.
+This verifies driver serialization. It does not prove simultaneous independent
+native input outside the mutex, physical-key safety or real Claude behavior.
+Read-only default local runtime inspection matches the six reviewed hashes and
+helper signature; no local helper was started. Actual MCP remainsfcf4/source182e
+and requires refresh before final adoption; no restart/recovery was triggered.
+
 ## Remaining work
 
 Full computerUse focus/send behavior, actual
-loaded adoption, physical input, concurrent active input, cold startup and the completion audit remain separate gates.
+loaded adoption, physical input, independent concurrent native input, cold startup and the completion audit remain separate gates.

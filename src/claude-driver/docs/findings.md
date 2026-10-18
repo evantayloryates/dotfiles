@@ -1,3 +1,47 @@
+## October 18 concurrent native caller requests serialize and preserve input
+
+PROGRESS on unchanged production source182ed05d. Existing owner-native fixture
+now has concurrent-input mode with one shared real UI mutex but separate caller,
+home/backend, provider sequence, owner/helper/watchdog and durable evidence.
+Run1792357456810 passes. Caller4951 starts while first owner4872/helper4878 is
+live, remains queued through the first exact64-character effect and its two
+filters, then enters900ms after submission. Same mutex dev16777234/ino976699.
+Before second native entry, first helper exit0/watchdog disarm0, empty first
+resource group and absent first socket are independently verified.
+
+Second owner4963/helper4970 delivers its own64 characters exactly once. Final128
+characters match first+second payload hashes in order, stable at1/5 seconds.
+Both actual turns/archive acknowledgements, helper exit0, watchdog disarm0 and
+empty resource groups pass. First thread01a150d4-60fd-7ca0-8f5e-d68ce92b8829/
+turn01a150d4-647d-7530-baa8-db158d48dd19; second thread
+01a150d4-6dce-7f31-a692-44c4703ebad2/turn01a150d4-6f2f-7a22-8f6c-c4e835f0c50c.
+Exact fixture source2d3cda3b retained. Mirror concurrent-owner-evidence29 files/
+297535 bytes includes hashes, sources, both contexts/timelines, queue/entry
+markers, intents, native audits and final readback. Final remote no owned process,
+helper/filter/stop marker; original four taps, uv508/caffeinate510 and clean old
+repo0203e604 preserved. Fixture exits0; no inference/hook override/person gate
+change/local CUA. Local quarantine still blocked/hash9808e860.
+
+Read-only default local runtime inspection passes all six reviewed binary/module
+hashes and helper signature without starting any helper. Actual connected MCP
+still loadsfcf484e3/source182ed05d/restartRequired=true; current native controller
+admission is unverified. Observer-owned legacy broker is nonresident. Do not
+wake/restart it or equate registration with current-source adoption. Sanitized
+readback concurrent-actual-mcp-readback.json preserves that distinction.
+No production source or top-level suite/installed identity changed, so the frozen
+full195-file68.519s result remains applicable rather than rerunning it.
+
+NEXT changed condition: independent active input outside the driver's UI mutex
+while a private owned lease ends, using only the authorized remote fixture and
+existing grant. Reuse the public client/private-helper isolation harness; verify
+one helper's teardown preserves the other's active context and exact input.
+Concurrent driver requests are serialized; do not present this as two independent
+native injectors or physical-key proof. A question asks whether Taylor has
+physical access to Theo Air; its answer remains required before any manual-key
+setup. Continue independent authorized preparation meanwhile. Full real-Claude
+focus/send, physical/external input, local quarantine release, loaded adoption,
+cold startup and the remaining completion audit stay open. Goal ACTIVE.
+
 ## October 18 active native input and partial-input cancellation pass
 
 PROGRESS on unchanged production source182ed05d. Extended existing remote owner
