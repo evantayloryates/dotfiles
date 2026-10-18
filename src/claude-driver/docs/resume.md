@@ -1,3 +1,22 @@
+## October 18 goal blocked after the loaded-client adoption audit
+
+Actual goal status is now BLOCKED, not complete. The same user-owned Codex
+restart requirement was confirmed in three consecutive goal turns; earlier two
+turns made independent engineering progress, now published as 8ff6fca/391584b.
+Latest actual MCP status still runtimee9dd31e4/sourcefcf484e3/restartRequiredtrue.
+All current owned jobs/tests are terminal and fixture cleanup is complete.
+No running process or unknown native request is being treated as a wait/retry.
+
+NEXT PERSON ACTION: restart Codex, then use this goal's Play/Resume control.
+After resumption, read actual loaded runtime/source equality and retained project
+child jobs/ProDevs state via MCP. Do not repeat target messages or full native
+profiles for adoption alone. Resumption starts a fresh blocked audit. Preserve
+full original objective and completion-audit.md: unsupported unattended cold
+startup, quarantined UI/window paths and native person gates remain unproven.
+No UI/quarantine/auth changes, app wake/restart, process termination, other-chat
+message or new fixture was performed for this blocked transition. Working and
+recovered actors, observer broker, Codex-driver and1Password remain separate.
+
 ## October 18 full-scope audit and real durable project archive children
 
 Previous turn was progress: 8ff6fca froze ordinary recipients and passed source
