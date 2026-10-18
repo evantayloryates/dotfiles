@@ -1,3 +1,31 @@
+## October 18 human ready unblocked exact appquit continuation
+
+Taylor reported sending ready and receiving ready. Independently observed primary
+PID87665/startSunOct18 04:25:46 2026 idle. Exact failed-root continuation inspection
+qualified original digest/retired histories/account/settings/roles; reply alone
+was not accepted as readiness. Durable continuationj0a26c618897b45c59910ac839f470a59
+COMPLETED13.2sec on source1f21629c333fca40251617afe0483a9be9f9b46b38ddb367e17f79101f282e66.
+Retained original primary import and quiesce/retire prefix; standby imported once
+and startedPID89119/start04:26:26 without further person input. Restored exact
+roles, native policy/readiness/reads/family and CAS pair/public metadata enrollment.
+No original pin replay, new chat, permission change, UI/keyboard or app restart.
+
+Independent appquit-recovery-readback-20261018.json verifies primaryf24a9eae2bc94d25a07a16c9764dadef
+and standbye9fe0ff1888c429fae022b4fe018acaf current source1f21629, both idle,
+verified/readiness/policytrue/unresolved[]. Pair plan wait/primary-live. Original
+failed root SHA83f86cb0b39ff49d9d55fcb6a64557c4900e7b06ac9cbdb545c429ee576e6150
+unchanged. Fixture baseline title/bypass/unpinned unchanged. Bridge serving is
+RESTORED. Human-assisted recovery passed; automatic app-restart startup remains
+FAILED/unqualified. No claim that person ready fixes unattended startup.
+
+Actual goal status now ACTIVE after user reply. Next independent implementation
+frontier: unattended startup after app reopen needs a supported native mechanism;
+current import-only route opens chat without starting receiver on fresh app.
+Deleted-service replacement controlled authority rebind and sustained availability
+remain open. Existing pending Codex restart needed for actual loaded-MCP adoption;
+do not ask duplicate toggles. No live jobs or cleanup pending. Do not repeat
+ordinary native12 or appquit test without changing the startup mechanism.
+
 ## October 18 blocked audit: native startup still absent
 
 Revalidated exact failed import continuation without effects: primary peer absent,

@@ -1,6 +1,5 @@
--- Dismiss delivered notifications through Notification Center's accessibility
--- actions. This leaves notification settings, scheduled notifications, and the
--- usernoted database alone.
+-- Dismiss only floating alerts currently shown on the display. Opening the
+-- Notification Center panel would also expose older delivered notifications.
 
 on panelIsOpen()
     try
@@ -28,42 +27,10 @@ on panelIsOpen()
     end try
 end panelIsOpen
 
-on togglePanel()
-    tell application "System Events"
-        tell process "ControlCenter"
-            click (first menu bar item of menu bar 1 whose description is "Clock")
-        end tell
-    end tell
-end togglePanel
-
-on ensurePanel()
-    if panelIsOpen() then return
-    togglePanel()
-    repeat 20 times
-        if panelIsOpen() then return
-        delay 0.1
-    end repeat
-    error "Notification Center did not open."
-end ensurePanel
-
-on closePanel()
-    -- A Clock click can be ignored while Notification Center is animating.
-    -- Recheck its window before each attempt so a delayed close is not undone.
-    repeat 3 times
-        if not panelIsOpen() then return true
-        togglePanel()
-        repeat 20 times
-            if not panelIsOpen() then return true
-            delay 0.1
-        end repeat
-    end repeat
-    return false
-end closePanel
-
 on notificationElements()
     tell application "System Events"
         tell process "NotificationCenter"
-            if not (exists window "Notification Center") then return missing value
+            if not (exists window "Notification Center") then return {}
             set panel to first window whose name is "Notification Center"
             set scroller to UI element 1 of UI element 1 of UI element 1 of panel
             if value of attribute "AXRole" of scroller is not "AXScrollArea" then return missing value
@@ -76,9 +43,8 @@ on notificationElements()
             if firstIdentifier is "AXNotificationListItems" then
                 return UI elements of firstElement
             end if
-            -- A remaining alert may be promoted directly under the scroll area.
-            -- Keep the widget provider and panel controls out of the search.
-            if value of attribute "AXRole" of firstElement is "AXGroup" then return {firstElement}
+            -- Remaining alerts can be promoted directly under the scroll area.
+            if value of attribute "AXRole" of firstElement is "AXGroup" then return UI elements of scroller
             return {}
         end tell
     end tell
@@ -106,96 +72,91 @@ on hasCloseAction(itemRef, shouldClose, depth)
     end tell
 end hasCloseAction
 
-on hasClosableNotification(shouldClose)
+on visibleNotificationIDs()
+    try
+        set candidateElements to notificationElements()
+        if candidateElements is missing value then return missing value
+        if (count of candidateElements) is 0 then return {}
+        set notificationIDs to {}
+        tell application "System Events"
+            tell process "NotificationCenter"
+                set notificationWindow to first window whose name is "Notification Center"
+                set windowPosition to position of notificationWindow
+                set windowSize to size of notificationWindow
+                set windowLeft to item 1 of windowPosition
+                set windowTop to item 2 of windowPosition
+                set windowRight to windowLeft + (item 1 of windowSize)
+                set windowBottom to windowTop + (item 2 of windowSize)
+                repeat with itemRef in candidateElements
+                    if my hasCloseAction(itemRef, false, 3) then
+                        set elementPosition to position of itemRef
+                        set elementSize to size of itemRef
+                        set elementLeft to item 1 of elementPosition
+                        set elementTop to item 2 of elementPosition
+                        set elementRight to elementLeft + (item 1 of elementSize)
+                        set elementBottom to elementTop + (item 2 of elementSize)
+                        if elementLeft >= windowLeft and elementTop >= windowTop and elementRight <= windowRight and elementBottom <= windowBottom then
+                            set elementID to value of attribute "AXIdentifier" of itemRef
+                            if elementID is missing value then error "A visible notification has no stable identifier."
+                            set end of notificationIDs to elementID as text
+                        end if
+                    end if
+                end repeat
+                return notificationIDs
+            end tell
+        end tell
+    on error errorMessage number errorNumber
+        if errorNumber is -1728 or errorNumber is -1719 then return missing value
+        error errorMessage number errorNumber
+    end try
+end visibleNotificationIDs
+
+on notificationWithID(targetID, shouldClose)
     try
         set candidateElements to notificationElements()
         if candidateElements is missing value then return missing value
         tell application "System Events"
             tell process "NotificationCenter"
                 repeat with itemRef in candidateElements
-                    if my hasCloseAction(itemRef, shouldClose, 3) then return true
+                    set elementID to value of attribute "AXIdentifier" of itemRef
+                    if elementID as text is targetID then
+                        if shouldClose then return my hasCloseAction(itemRef, true, 3)
+                        return true
+                    end if
                 end repeat
                 return false
             end tell
         end tell
     on error errorMessage number errorNumber
-        -- A dismissal may remove the window or invalidate an AX element
-        -- between the snapshot and its next lookup. Reacquire the panel.
         if errorNumber is -1728 or errorNumber is -1719 then return missing value
         error errorMessage number errorNumber
     end try
-end hasClosableNotification
+end notificationWithID
 
-on clearVisibleNotifications()
-    set visibleCount to 0
-    set emptyChecks to 0
-    repeat 500 times
-        if panelIsOpen() then exit repeat
-        set didClose to hasClosableNotification(true)
-        if didClose is missing value then exit repeat
-        if didClose then
-            set visibleCount to visibleCount + 1
-            set emptyChecks to 0
-            delay 0.05
-        else
-            set emptyChecks to emptyChecks + 1
-            if emptyChecks is 2 then exit repeat
-            delay 0.2
-        end if
-    end repeat
-    return visibleCount
-end clearVisibleNotifications
-
+if panelIsOpen() then error "Close Notification Center before clearing on-screen alerts."
+set initialIDs to missing value
+repeat 5 times
+    set initialIDs to visibleNotificationIDs()
+    if initialIDs is not missing value then exit repeat
+    delay 0.1
+end repeat
+if initialIDs is missing value then error "Could not inspect on-screen notifications."
 set clearedCount to 0
-try
-    -- Floating alerts on the primary display can be separate from the panel
-    -- opened by the Clock on another display. Dismiss them where they appear.
-    if not panelIsOpen() then
-        set clearedCount to clearVisibleNotifications()
-        delay 0.2
-    end if
-    ensurePanel()
-
-    set transientFailures to 0
-    set emptyChecks to 0
-    repeat 500 times
-        set didClose to hasClosableNotification(true)
-        if didClose is missing value then
-            set transientFailures to transientFailures + 1
-            if transientFailures > 5 then error "Notification Center kept disappearing while clearing notifications."
-            ensurePanel()
-            delay 0.1
-        else if didClose then
-            set transientFailures to 0
-            set emptyChecks to 0
-            set clearedCount to clearedCount + 1
-            delay 0.05
-        else
-            set transientFailures to 0
-            set emptyChecks to emptyChecks + 1
-            if emptyChecks is 2 then exit repeat
-            delay 0.2
+repeat with targetID in initialIDs
+    set closedByUs to false
+    set stillPresent to missing value
+    repeat 8 times
+        if panelIsOpen() then error "Notification Center opened while clearing on-screen alerts."
+        set stillPresent to notificationWithID(contents of targetID as text, false)
+        if stillPresent is false then exit repeat
+        if stillPresent is true then
+            set didClose to notificationWithID(contents of targetID as text, true)
+            if didClose is true then set closedByUs to true
         end if
+        delay 0.2
     end repeat
-    set remaining to missing value
-    repeat 5 times
-        ensurePanel()
-        set remaining to hasClosableNotification(false)
-        if remaining is not missing value then exit repeat
-        delay 0.1
-    end repeat
-    if remaining is missing value then error "Could not verify Notification Center after clearing notifications."
-    if remaining then error "Notification Center kept receiving notifications; stopped after 500 dismissals."
-on error errorMessage number errorNumber
-    try
-        closePanel()
-    end try
-    error errorMessage number errorNumber
-end try
-
-if not closePanel() then
-    error "Cleared " & clearedCount & " notification(s), but Notification Center did not close."
-end if
-set clearedCount to clearedCount + clearVisibleNotifications()
-if hasClosableNotification(false) is true then error "Notifications remained after clearing."
-return "Cleared " & clearedCount & " notification(s)."
+    if stillPresent is not false then set stillPresent to notificationWithID(contents of targetID as text, false)
+    if stillPresent is not false then error "An initially visible notification remained after clearing."
+    if closedByUs then set clearedCount to clearedCount + 1
+end repeat
+return "Cleared " & clearedCount & " on-screen notification(s)."
