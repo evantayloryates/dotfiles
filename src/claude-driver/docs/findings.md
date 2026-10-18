@@ -1327,4 +1327,3 @@ filtered harness and native batch for the final gate. ProDevs unarchive/pin alre
 verified; do not repeat just to show activity. Loaded MCP adoption remains unverified
 until final refresh. Legacy reports unchanged/pending; observer owns legacy wakes.
 Goal ACTIVE; Codex-driver/1Password work remain separate.
-
