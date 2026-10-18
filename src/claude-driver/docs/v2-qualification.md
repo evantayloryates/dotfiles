@@ -1,3 +1,15 @@
+## October 18 final loaded-client adoption closed
+
+After Taylor restarted Codex, actual this-chat MCP runtime/source match fcf484e3,
+restartRequiredfalse. Read-only MCP inspection confirms the original completed
+project parent/two child receipts and ProDevs unarchived+pinned. Both controller
+epochs remain idle, ready/policy observed, unexpired/no STOP/unresolved[];
+primary fcf4 and standby df52 retain their distinct sealed sources. This is not
+new native test or universal serving proof. Evidence:
+pressure/actual-mcp-adoption-fcf4-20261018.json. Goal resumed ACTIVE; historical
+blocked audit resets. No further Codex restart request or fixture cleanup.
+Full remaining platform/quarantine/person/pressure limits: completion-audit.md.
+
 ## October 18 full-scope audit and real durable project archive children
 
 Previous turn was progress: 8ff6fca froze ordinary recipients and passed source

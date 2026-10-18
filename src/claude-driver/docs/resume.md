@@ -1,4 +1,31 @@
-## October 18 goal blocked after the loaded-client adoption audit
+## October 18 resumed: actual loaded MCP adoption verified
+
+Taylor restarted Codex and resumed. Actual goal ACTIVE (fresh blocked audit).
+Actual this-chat MCP runtimeBuild==sourceBuild==fcf484e3e94b4dfa804ec3bdca375d64d6f42cada92f3de27c500933ab5cbbc9,
+restartRequiredfalse. Retained project parent j2b638902f0254997a39dc2ff820bbf49
+and both original archive children independently inspected completed on that
+source, exact targets/native receiptVerifiedtrue; no action replay. ProDevs
+local_437775cb-d113-4cc5-9497-62f3196a1fbd remains unarchived+pinned.
+
+Both service statuses verified live-native, same original primaryPID87665 and
+standbyPID89119, idle/readinessObserved/nativePolicyObserved/unexpired/noSTOP/
+unresolved[]. Primary9eb43753 runs fcf4, standby263d0710 remains df52; do not
+relabel mixed-source membership or read-only preconditions as universal serving.
+Private sanitized proof: pressure/actual-mcp-adoption-fcf4-20261018.json.
+No new native test, message, permission change, app restart, UI/keyboard,
+process termination or fixture was performed. Prior failures remain unchanged.
+
+Adoption gate CLOSED; no Codex restart remains pending. completion-audit.md
+still holds the full goal, which is not complete. NEXT changed condition is a
+supported all-Code-processes-absent startup ingress or independently resolved
+input quarantine. Existing installed resume/machine-tool contracts rule out
+the tested candidates only, not all imaginable ingress. Do not repeat those
+outage experiments unchanged or synthesize authority/session context. Natural
+pressure and person-gate qualification remain separate. No test worker or cleanup
+pending; ordinary and recovered pairs retained, observer broker untouched.
+Codex-driver fixes and 1Password remain separate.
+
+## October 18 historical goal block before the loaded-client adoption audit
 
 Actual goal status is now BLOCKED, not complete. The same user-owned Codex
 restart requirement was confirmed in three consecutive goal turns; earlier two

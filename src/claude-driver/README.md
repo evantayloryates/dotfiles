@@ -43,8 +43,8 @@ been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
 execution remains unqualified. Current host source `fcf484e3` passes all 191
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on this
-source. This desktop chat still loads `e9dd31e4` and correctly reports
-`restartRequired:true`; loaded-client adoption is a separate gate.
+source. After Taylor restarted Codex, this desktop chat verified matching loaded
+and on-disk `fcf484e3` builds with `restartRequired:false` through its actual MCP.
 One actual human-assisted native deletion test reaped the
 record and transcript, rebuilt the original UUID/account/workspace without replay,
 and restored both reciprocal receiver roles with native reads and verified
@@ -53,8 +53,8 @@ claimed continuations. Native packages retained their sealed source `5ee1ea07`.
 Unattended recreation/permission/loader consent and cold-app startup remain
 unqualified. The twelve-check ordinary profile passed on source `df52d791`.
 A current-source two-target project archive also passed with real child jobs,
-exact native receipts and restored baselines. This desktop MCP still needs
-loaded-client adoption.
+exact native receipts and restored baselines. Read-only post-restart MCP inspection
+retains those completed jobs and verifies ProDevs remains unarchived and pinned.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

@@ -1,3 +1,17 @@
+## October 18: this Codex chat adopts the final MCP after restart
+
+Actual loaded MCP now reports runtimeBuild==sourceBuild fcf484e3 and
+restartRequiredfalse. The same MCP reads the retained project parent and two
+archive children completed with exact native receipts; ProDevs remains
+unarchived+pinned. Both existing actors retain original live idle epochs and
+unexpired readiness/policy observations with no STOP or unresolved requests.
+Primary is fcf4, standby remains df52. Generic servingQualified remains false;
+these observations are scoped preconditions, not universal serving authority.
+No native effects/test rerun or failed-action replay. Private proof:
+pressure/actual-mcp-adoption-fcf4-20261018.json. The loaded-client gate is closed;
+full always-on/cold-start, natural pressure and person/UI gates remain explicit
+in completion-audit.md. Actual goal resumed ACTIVE; no further restart request.
+
 ## October 18: project request contexts are not recovery parent jobs
 
 A derived per-session project context identifies a native request but is not an

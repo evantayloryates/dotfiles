@@ -35,7 +35,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Pending | Actual loaded driver_status still reported e9dd31e4 with restartRequired:true. The existing request to restart Codex remains pending; fresh headless harnesses are separate proof. |
+| Loaded Codex chat adopts final MCP build | Verified | After Taylor restarted Codex, actual loaded driver_status reported runtimeBuild==sourceBuild==fcf484e3 and restartRequired:false. The same MCP independently read the completed project parent/two children and ProDevs unarchived+pinned state. No new target effect or native test was required. |
 
 ## Project child correction found during this audit
 
@@ -69,6 +69,11 @@ All paths below are under `.runtime/state/pressure/` and remain private:
   df52d791 both idle/ready/policy-qualified/unexpired/no STOP/unresolved[]. This is
   mixed-source qualified membership, not a claim both actors run current source.
 - `live-v2-2026-10-18T18-12-46-318Z.json`: previous-source df52 ordinary12.
+- `actual-mcp-adoption-fcf4-20261018.json`: actual post-restart MCP build equality,
+  retained parent/child receipts, ProDevs state and both original native epochs.
+  Primary remains fcf484e3 and standby df52d791, each unexpired/ready/policy
+  observed/no STOP/unresolved[]. Read-only preconditions do not authorize an
+  operation, prove instruction application or establish universal serving.
 
 No new cold-start, deletion, permission raise, UI automation or natural-pressure
 experiment was performed for this audit. No fixture cleanup remains. Working and
@@ -77,11 +82,16 @@ retained. Codex-driver and 1Password work remain separate.
 
 ## Next changed condition
 
-After Taylor restarts Codex, inspect actual loaded runtime/source equality and
-read back the retained project child jobs and ProDevs state through that MCP.
-No new target message or full native suite is needed for this adoption check.
+Loaded-client adoption is now closed. Taylor resumed the goal and its actual
+status is ACTIVE; the previous blocked audit does not carry over. There is no
+remaining Codex restart request and no test process or fixture cleanup pending.
 
 The remaining always-on startup, natural-pressure and person-gate requirements
 need a changed supported platform ingress or an independently resolved quarantine;
 they are not solved by more identical probes. Keep the full objective and its
 unproven requirements explicit. Do not weaken guards or mark the goal complete.
+The installed resume/deep-link and machine-tool boundary evidence remains the
+recorded source for this limitation: opening/importing is not qualified native
+startup, and machine tools require an existing desktop Code context. No new app
+restart, kill, permission change, native message or cold-start experiment is
+justified by the Codex MCP adoption alone.
