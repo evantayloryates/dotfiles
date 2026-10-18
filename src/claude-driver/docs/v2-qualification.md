@@ -2267,3 +2267,39 @@ busy stop now has native proof; don't repeat it or resend failures to show activ
 Any trust-approval-dependent continuation must use a new explicit request and keep
 original failed job unchanged. Target is currently LIVE IDLE (not dormant), control
 baseline preserved. Goal ACTIVE; no pending native job or human trust action.
+
+## October 17 created-session followups join ordinary routes
+
+Previous turn = progress (ordinary busy stop qualified; trust guidance published).
+Pair-bootstrap audit confirms its current live-peer guard refuses deliberate
+eligibility forcing. No actor archived/stopped, app restarted or outage simulated.
+Actual both-absent qualification remains open, not counted from a planner pass.
+
+Source audit found imported create_session followups still always used legacy
+TierB even with an enrolled independent controller. Added created-session-followups:
+for durable no-group/default-route imports, title lock and first_message now call
+public rename_session/send_message ordinary routes, under one recipient control
+lock. Each effect gets a distinct stable context ID derived from parent+operation;
+private parent ledger retains IDs/results/phase, not prompt text. Whole followup
+plan validates before any followup effect. Title must independently verify exact
+value/titleSource tool before sending. Failure/cancellation/unknown/record-write
+error stops later effects; no fallback/replay/recreation. Error retains the already
+CREATED session ID and child contexts, including native humanAction when present.
+Original followUps op/ok/result shape retained with additional contextId.
+
+Focused3 new orchestration checks + actual isolated MCP regression19 =22 PASS
+(~11.4sec); final narrow3 rerun after result-shape/ledger cleanup PASS. No native
+chat created, no message sent, no full suite repeated for this wiring change.
+This is implementation/synthetic evidence, NOT native create/fork qualification.
+The synchronous/no-parent, explicit alternate-route and grouped creation paths
+retain existing behavior. Existing bypass pool creation still has its own legacy
+configuration batch; THIS IS THE NEXT concrete integration gap, not closed here.
+Do not claim all create paths now independent. Permission gaps/native person-only
+trust remain authoritative and unchanged. No permissions/settings changed.
+
+NEXT code step: route durable approved pool claims through independent unarchive,
+configuration and optional send with distinct retained identities; preserve partial
+claim reservation on uncertainty and verified-before-first-message behavior.
+Then reassess one integrated creation/lifecycle gate (don't incidentally create new
+chats). Both-absent/bootstrap/natural pressure/window/person/final loaded-MCP gates
+remain open. Goal ACTIVE; no live job pending. Codex-driver work remains parked.

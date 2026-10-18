@@ -443,6 +443,10 @@ export const OPS = [
         out.permissionGap = `started in ${out.permissionMode}, not ${want}: ${want === BYPASS ? 'the bypass pool had no session parked in this folder and an import can never be bypass. Fill the pool with pool_release on finished bypass sessions (pool_status {suggest:true} lists candidates), or raise this one with set_session_config (Taylor approves a card).' : 'the app did not keep the requested mode on import.'}`
       }
       delete out.navigatedTo
+      if(ctx.jobId&&args.group===undefined&&args.via_broker===undefined&&(args.lock_title||args.first_message)&&sessionManagementController(result.sessionId)){
+        try{const follow=await withSessionControl(result.sessionId,()=>import('./created-session-followups.mjs').then(m=>m.routeCreatedSessionFollowups(result.sessionId,args,ctx)),{signal:ctx.signal});ctx.tier='A+independent';out.followUps=follow.results.map(r=>({op:r.operation==='rename_session'?'set_session_title':r.operation,ok:true,result:r.result,contextId:r.contextId}));out.followUpRouteFile=follow.routeFile;if(args.lock_title)out.titleLocked=follow.results.find(r=>r.operation==='rename_session')?.result?.titleSource==='tool';return out}
+        catch(error){throw new DriverError('session created; inspect followup outcome before another creation or send',{category:error.category??'created_followup_unresolved',detail:{...error.detail,sessionId:result.sessionId,created:true,retrySafe:false}})}
+      }
       const follow = []
       if (args.lock_title) follow.push({ op: 'set_session_title', args: { session_id: result.sessionId, title: args.title } })
       if (args.group) follow.push(...(await groupOps(args.group, [result.sessionId], ctx)))

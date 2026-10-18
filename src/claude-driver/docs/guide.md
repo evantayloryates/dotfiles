@@ -1768,3 +1768,13 @@ Native ordinary-send trust refusals include bounded humanAction metadata naming
 Claude Desktop Code, the exact existing session and workspace folder. This is a
 person-required trust step, not permission to replay the original message or proof
 of readiness. Preserve the failed job; any later authorized request gets a new ID.
+
+### Durable imported-session followups
+
+With an enrolled management controller, durable create_session imports without
+group or explicit alternate-route options use independent public rename/send
+followups. Title lock must verify before first_message dispatch. Stable per-effect
+contexts and a created-session-followups ledger retain partial outcomes. A followup
+error reports the already-created session ID; inspect it rather than creating or
+sending again. This does not yet cover the bypass pool's separate batch, grouped
+creation or native create/fork qualification.
