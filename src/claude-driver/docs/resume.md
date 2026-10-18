@@ -1,3 +1,34 @@
+## October 18 disposable pair installed; separate native loader input pending
+
+Taylor supplied both native Bypass permissions confirmations and ready turns.
+Current record readback confirms bypass for primaryaf930615/PID22668 and
+standbyd0ac9a3a/PID23690, original idle epochs unchanged before preparation.
+Sourcee9dd31e4. Prepared reciprocal archive-only roles, lifetime3600/capacity128:
+primaryjb24bac475f654e1689d97a9e866d78b6 and
+standbyjccf1bd1f4dc8424a834613d2fb57b7c4 completed with native candidate validation.
+Stable activationjdba3f065bee1409a830433e534c0df1d and
+ja22930cc1fa3471cb626a65a7c91701b completed, installed/settingsInstalledtrue;
+readinessfalse, servingfalse. Working serving pair and ProDevs untouched.
+
+One peer-direct loader-entry per test actor, jobsj89bec85affa5450cbf12ca3f2fbb81b9
+andjc7c8b96189634652affde33a645c3d77, exact native user receipts verified.
+Bounded metadata-only events show Skill tool invocation/result on each causal
+loader turn. Current independent statusverifiedtrue/readinessfalse,
+nativeInputRequiredtrue, native peerwaiting for both. Send receipts never treated
+as readiness. No deletion, retirement, family request or workload dispatched.
+
+Async person action requested: in Claude Code inspect BOTH exact deletion fixture
+titles; if Enable hot reloading for this session? appears, choose Enable for this
+session and Submit. Native personOnly consent remains separate from bypass. Do
+not repeat loader sends, fabricate card input or recreate actors. After response,
+inspect same epochs/readiness, one policy probe per generation, reciprocal reads,
+family and separate test-primary automatic enrollment before any native deletion.
+Private deleted-service-native-fixture-20261018.json retains every original job,
+result, status and metadata-only event cursor. Goal currently blocked in platform;
+Play/Resume is required for automatic continuation after the human gate. Current
+turn made real staging progress without changing the blocked status via an
+unsupported resume tool. No live shell observers or cleanup pending.
+
 ## October 18 disposable native loss fixture staged; native mode action pending
 
 Using existing create_session TierA path, staged two new task-owned sessions in
