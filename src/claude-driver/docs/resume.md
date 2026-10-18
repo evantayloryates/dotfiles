@@ -1,3 +1,37 @@
+## October 17 post-trust native retry exposes import-started epoch boundary
+
+Taylor manually archived transport scratch; independently archived:true,oldPID82655
+absent/nopeer,exact1aedf3 binding/actionrecover and qualified standby08b10. Submitted
+planned request ONCE: rootj3d706293f27c4f3e953779a2fe88202a,child
+jb866000fa10e4737b0a75ed20a753079. Root/child FAILED, never replay. Offline quiesce
+j8d5a48fc90ab4b3799d3654b535db5ea and retirej40fcaf24f6754271a8dbeebed38afd7d
+completed; primary9d62 now historical-retired/filesretired/STOP/0unknown.
+Import-only unarchivej681e0d0e29b946e79367ff8534d08c84 completed/deeplink/focusrestore.
+With trust now established, import itself started NEW native PID58199/start
+SunOct18 00:23:22UTC, exact transport cwd,CLI2.1.299,claude-desktop,idle,bypass.
+No human ready or trust prompt was required this time.
+
+Wakechildjb74f116c9a254673b9d640e237a510ab failed PREPARE with requestId:null,
+retrySafe:true in independent-service-jobs/rpeerb74...; no actor request/native
+receipt published. Current wakeTargetPreflightMatches requires no current peer,
+so imported live epoch is correctly refused by that narrower path. Original parent
+remains before-wake/failed. DO NOT repeat wake or claim recovery success.
+Primary is unarchived/live but SERVICE RETIRED, not serving. Standby08b10 still
+idle/readiness/policy/0unknown and original epoch90418. Binding1aedf3 stale toward
+retired primary. Automatic recovery disabled. No policy/auth/app/process changes.
+
+NEXT IMPLEMENTATION: distinguish independently verified new epoch started by the
+original import child from still-absent target. Do not weaken generic wake absence
+check. Recovery orchestration can skip a redundant wake only with exact verified
+import child + new owned idle epoch + oldPIDabsent, then still require restored
+role/settings/anchor, actual readiness/policy/native read and exact standby rebind.
+Need durable reconciliation for ORIGINAL failed root/import result (no replay of
+retire/unarchive/wake). Synthetic branch tests before native completion. Preserve
+all original jobs and distinguish no-wake import recovery from fixedwake reply.
+Private postTrustArchiveRecoveryTrial holds planned request/root; save final
+observation/cause there. Goal resumed/active by Taylor's reply; previous blocked
+state no longer describes frontier. No user action needed for this engineering step.
+
 ## October 17 blocked audit — manual accidental archive still pending
 
 Same exact primary-live blocker verified across three consecutive goal turns,
