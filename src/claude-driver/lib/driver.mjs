@@ -473,7 +473,7 @@ export const OPS = [
   {
     name: 'fork_session',
     title: 'Fork a session',
-    description: 'Fork a session with its full history into a new desktop session (default title "<title> (fork)"), in the source\'s folder. The fork gets one trivial extra turn.',
+    description: 'Fork a session with its full history into a new desktop session (default title "<title> (fork)"), in the source\'s folder. The fork gets one trivial extra turn. Saved model/effort/permission mode are reported; permission inheritance mismatch returns verified:false and never raises permissions automatically.',
     schema: { properties: { session: S, title: { type: 'string' }, focus: FOCUS }, required: ['session'] },
     navigates: true,
     run: async (args, ctx) => {

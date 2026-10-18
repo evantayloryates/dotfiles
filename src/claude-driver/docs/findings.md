@@ -1,3 +1,27 @@
+## October 17 fork permission inheritance is explicit
+
+Current audit found fork returned verified:true without exposing the imported
+permission mode. A bypass source could therefore appear fully qualified after an
+Accept edits import. Fork now reports actual saved model/effort/permission/title
+source and intended source permission mode; mismatches (including missing source
+mode) return verified:false with structured permissionGap, no auto-raise/card.
+This is a created fork needing reconciliation, never permission to recreate it.
+
+Creation and fork share reconcileTierAImport: exact title/cwd/CLI UUID predicate,
+one import, before-import navigation intent, preserved original failure/category,
+created identity/fork origin/importAttempted/retrySafe:false. Bounded existing
+UUID-filtered import log diagnostics survive verification failure; diagnostic
+failure never masks the original. Synthetic dependencies test import ordering,
+wrong identities/missing records, failed import/no replay, diagnostic failure and
+navigation registration failure. No new chat or native import/fork/message ran.
+
+Next lifecycle gate must use actual public create/fork entrypoints, independently
+read saved configuration/focus and retain mismatch identities. Do not run the old
+live script's Accept edits fixture as proof of Taylor's requested bypass setup.
+Use existing approved pool where available; otherwise record the native permission
+barrier, without automatic permission changes or duplicate creation. Keep final
+loaded-MCP refresh and outage/pressure/window gates separate. Goal active.
+
 ## October 17 creation/fork failure reconciliation and focus boundary
 
 Current-source audit found an import failure could omit the already-bootstrapped
@@ -1887,3 +1911,5 @@ Goal active; this is agent-executable investigation, not a user permission block
 Integrated synthetic gate on the same 034aee... source: 1/1 PASS in 39.0 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-34-54-384Z.json. This does not expand native or loaded-client qualification.
 
 Same-source cc707991544f36ebbe1abbc9d91a09368a560df1a270b56c704a3cd64e7a8699 integrated synthetic gate: 1/1 PASS, 34.2 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-36-27-652Z.json. No native creation/fork claim.
+
+Focused gate on source673aae502955f073ac7215f524417010cd65f57e5cf4c5cc01ed28f78331fa2d: 87/87 PASS in12.7sec (import/focus/creation followups/v2/MCP). Private log tiera-import-focused-20261017.log. No full-suite or native repeat for this interim gate.
