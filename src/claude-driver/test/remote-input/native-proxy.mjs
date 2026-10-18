@@ -2,7 +2,7 @@
 // metadata verbatim; it does not manufacture context or use private native RPCs.
 import {spawn} from 'node:child_process'
 import {createInterface} from 'node:readline'
-import {appendFileSync,readFileSync} from 'node:fs'
+import {appendFileSync,readFileSync,lstatSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {homedir,hostname} from 'node:os'
 import {join} from 'node:path'
@@ -12,6 +12,12 @@ if(homedir()!=='/Users/theo'||hostname().split('.')[0]!=='theo-air'||!run?.start
 const owner=JSON.parse(readFileSync(join(workspace,'owner.json'),'utf8'))
 if(owner.threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('native relay owner refused')
 const intent=JSON.parse(readFileSync(join(run,'native-intent.json'),'utf8'))
+if(intent.isolatedPipe){
+    if(!/^\/Users\/theo\/\.local\/state\/claude-driver\/input-teardown-20261018\/isolate\/run-[0-9]+\.sock$/.test(intent.isolatedPipe))throw Error('native relay isolated pipe scope refused')
+    const parent=lstatSync(join(workspace,'isolate')),socket=lstatSync(intent.isolatedPipe)
+    if(!parent.isDirectory()||parent.isSymbolicLink()||parent.uid!==process.getuid()||(parent.mode&0o077)!==0||
+       !socket.isSocket()||socket.isSymbolicLink()||socket.uid!==process.getuid())throw Error('native relay isolated pipe ownership refused')
+}
 const receiptPath=join(workspace,'evidence/acquire-1792351052633.request-1.response.json')
 const receipt=JSON.parse(readFileSync(receiptPath,'utf8'))
 const original=JSON.parse(readFileSync(receiptPath.replace('.response.json','.pending.json'),'utf8'))
@@ -20,6 +26,7 @@ const grant=p=>p.mode==='form'&&p.message==='Allow Computer Use to use "Claude D
 if(receipt.source!=='Taylor via current Codex chat'||receipt.action!=='accept'||receipt.requestSha256!==hash(JSON.stringify(original.params))||!grant(original.params))throw Error('fixture human grant refused')
 const runtime=join(workspace,'tools/cua_node')
 const env={HOME:homedir(),USER:'theo',LOGNAME:'theo',TMPDIR:join(workspace,'tmp'),PATH:join(runtime,'bin')+':/usr/bin:/bin:/usr/sbin:/sbin',CODEX_HOME:join(workspace,'codex-home'),CODEX_CLI_PATH:join(workspace,'tools/CodexCLI.app/Contents/MacOS/codex'),CUA_REPL_NODE_REPL_PATH:join(runtime,'bin/node_repl'),CUA_REPL_ENABLED_SURFACES:'computer',NODE_REPL_NODE_MODULE_DIRS:join(runtime,'lib/node_modules'),NODE_REPL_TRUSTED_CODE_PATHS:join(runtime,'lib/node_modules'),NODE_PATH:join(runtime,'lib/node_modules')}
+if(intent.isolatedPipe)env.SKY_CUA_SERVICE_NATIVE_PIPE_PATH=intent.isolatedPipe
 const child=spawn(join(runtime,'bin/node'),[join(runtime,'lib/node_modules/@oai/cua-repl/bin/cua-repl.mjs')],{cwd:workspace,env,stdio:['pipe','pipe','pipe']})
 const calls=new Map()
 const log=event=>appendFileSync(join(run,'native-events.jsonl'),JSON.stringify({at:new Date().toISOString(),...event})+'\n',{mode:0o600})

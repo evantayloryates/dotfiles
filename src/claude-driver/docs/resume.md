@@ -1,3 +1,52 @@
+## October 18 private helper native prototype passes alongside default client
+
+PROGRESS: the startup lead is real. Static ARM64 reference/dyld fixup tracing
+identifies NSProcessInfo.environment lookup, trimming and file-URL construction
+for the helper's pipe-path setting, before default app-group fallback. No binary
+executed locally and no private native RPC/auth code used. Exact helper SHAf21c31c0
+unchanged. This is an implementation setting, not a stable documented contract.
+
+Remote first attempt isolated-service-1792353281484 failed read-only acquisition
+with “codex app-server exited before returning a response”; preserved, no typing.
+Changed condition: explicitly supply the owned test CODEX_HOME and copied bundled
+CLI path/PATH to the private helper. Read-only run1792353360024 then passed:
+two distinct helpers, owned private socket verified by lsof, private helper2820
+normal exit0 after its client EOF, default helper2804/client still live.
+
+Actual host native run1792353419604 also PASSED. Host context
+run-1792353422299-91d58233, real thread01a15096-cd02-7392-8c29-30b12b292066,
+turn01a15096-cd09-7e63-bb52-4808f3777721. Exact one-attempt50-character delivery
+and stable hash, matching native metadata/Stop IDs. Both filters belonged to
+private helper2906. It exited normally0 on owned host/client EOF; immediate and
+1/5/15s inventories retained default helper2890 and zero filters. Default client
+stayed live. No helper signal or target-app quit obtained this passing result.
+
+New isolated-pipe options in remote diagnostic assets accept only the owned
+socket pattern, current uid/private parent/no symlinks. Full native run uses the
+final guarded source; earlier standalone runs preserve pre-hardening sources.
+Thirty-one files/346560 bytes mirrored/hash-verified in native-owner-20261018/
+isolation-evidence. Final remote inventory: no owned native process/helper/filter,
+original four non-helper taps, old repo0203e604 clean, Switchboard508/caffeinate510
+unchanged, no credentials copied. All native handles/fixture cleanup terminal.
+
+Production runtime remains4d2c654e; full191/focused5 proof unchanged. Only nested
+diagnostic assets/docs changed. Local quarantine remains blocked/hash9808e860;
+no local CUA/input, auth/permission edit, shared-helper kill or app restart.
+Do not relabel this prototype as real Claude, physical input, actual production
+worker isolation or full always-on startup. Broad Codex/1Password remain parked.
+Detailed evidence and limits: docs/native-helper-isolation.md. Goal stays ACTIVE.
+Candidate service memory5bd53e2f records the bounded passing result and open gates.
+
+NEXT changed-condition gate: cancellation/disconnection of this owned private
+helper with default client and fixture retained; then integrate into the existing
+private Tier C worker without a parallel bridge. The current bridge spawns its
+own app-server but the bundled plugin controls its MCP environment. The diagnostic
+explicit proxy environment is not proof that production plugin workers inherit
+the override. Qualify exact worker/configuration handoff, child exit before
+acknowledgement and independent audit; never fall back to the shared socket.
+Keep quarantine/person gates and retained failures. No further full suite until
+a relevant production change; no repeat of the unchanged shared-helper failure.
+
 ## October 18 native app lifetime narrowed; audit coverage improved
 
 PROGRESS: source4d2c654e adds secondary-target helper keyboard-filter evidence to

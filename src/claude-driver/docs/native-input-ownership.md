@@ -18,16 +18,14 @@ observations; no new native experiment was needed to establish the client path.
 
 Reviewed source SHA256:
 `60b3653f7ee052007b02a79e11416a89d424d73dac450e429a93b214839c267f`.
-Internal service/pipe environment overrides appear in that implementation, but
-no supported public isolation contract or alternate-server binding was
-established. They were not executed. Do not ship a per-worker helper design
-based only on changing CODEX_HOME, an internal environment variable or the
-helper's bundle path. A later read-only string inventory found the same pipe-path
-override name inside the native helper binary itself. This is a concrete lead
-for checking server-side startup configuration, not proof of a supported or safe
-multi-instance mode. It has not been executed. Verify its binding and instance
-semantics before proposing a remote isolation experiment; preserve current
-client, signature, permission and owner boundaries.
+The initial inspection found internal pipe/service settings but had not executed
+them or established alternate-server binding. The later
+[isolation experiment](native-helper-isolation.md) traced the helper's actual
+environment-to-socket branch, then qualified separate owned binding and normal
+exit alongside a default client. One real native typing run passed on that
+private helper. This remains an implementation-specific remote prototype;
+production worker handoff, cancellation and physical input are open. Do not ship
+isolation based merely on a changed CODEX_HOME or a string found in a binary.
 
 ## Native app lifetime is a separate boundary
 

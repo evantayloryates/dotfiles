@@ -6,7 +6,7 @@ import {EventEmitter,once} from 'node:events'
 import {createInterface} from 'node:readline'
 import {createServer} from 'node:http'
 import * as zlib from 'node:zlib'
-import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs'
+import {readFileSync,writeFileSync,mkdirSync,existsSync,lstatSync} from 'node:fs'
 import {createHash,randomUUID} from 'node:crypto'
 import {homedir,hostname} from 'node:os'
 import {join} from 'node:path'
@@ -32,6 +32,14 @@ const reviewPath=reviewIndex>=0?process.argv[reviewIndex+1]:null
 const nativeCatalogue=process.argv.includes('--catalogue-native')
 const execEntry=process.argv.includes('--exec-entry')
 const nativeTurn=process.argv.includes('--native-turn')
+const pipeIndex=process.argv.indexOf('--isolated-pipe')
+const isolatedPipe=pipeIndex>=0?process.argv[pipeIndex+1]:null
+if(pipeIndex>=0&&(!nativeTurn||!isolatedPipe||!/^\/Users\/theo\/\.local\/state\/claude-driver\/input-teardown-20261018\/isolate\/run-[0-9]+\.sock$/.test(isolatedPipe)))throw Error('native host isolated pipe scope refused')
+if(isolatedPipe){
+    const parent=lstatSync(join(workspace,'isolate')),socket=lstatSync(isolatedPipe)
+    if(!parent.isDirectory()||parent.isSymbolicLink()||parent.uid!==process.getuid()||(parent.mode&0o077)!==0||
+       !socket.isSocket()||socket.isSymbolicLink()||socket.uid!==process.getuid())throw Error('native host isolated pipe ownership refused')
+}
 if(execEntry&&(!reviewPath||nativeCatalogue))throw Error('exec entry requires reviewed hook')
 if(nativeTurn&&(!execEntry||!reviewPath||nativeCatalogue))throw Error('native turn requires reviewed exec entry')
 if(nativeCatalogue&&reviewPath)throw Error('catalogue-only fixture does not override hook trust')
@@ -44,18 +52,18 @@ if(reviewPath){
 }
 const report={run,startedAt:new Date().toISOString(),ephemeralRequested:true,provider:'localhost-deterministic-fixture',
     realModelCallsRequested:0,nativeComputerUseRequested:nativeTurn,hookTrustChanged:false,ok:false,
-    hookDefinitionSha256,oneOffHookTrustOverrideRequested:!!reviewPath,reviewPath,nativeMcpCatalogueRequested:nativeCatalogue,
+    hookDefinitionSha256,oneOffHookTrustOverrideRequested:!!reviewPath,reviewPath,nativeMcpCatalogueRequested:nativeCatalogue,isolatedPipe,
     sourceSha256:hash(readFileSync(new URL(import.meta.url))),observerSha256:hash(readFileSync(observer)),providerRequests:[],notifications:[],serverRequests:[]}
 writeFileSync(join(run,'host-context-source.mjs'),readFileSync(new URL(import.meta.url)),{flag:'wx',mode:0o600})
 writeFileSync(join(run,'hook-observer-source.mjs'),readFileSync(observer),{flag:'wx',mode:0o600})
 const proxy=new URL('./native-proxy.mjs',import.meta.url).pathname
 const payload='REMOTE_INPUT_HOST_'+randomUUID().replaceAll('-','')
-const intent={characters:payload.length,utf8Bytes:Buffer.byteLength(payload),sha256:hash(payload),attempts:1,
+const intent={characters:payload.length,utf8Bytes:Buffer.byteLength(payload),sha256:hash(payload),attempts:1,isolatedPipe,
     acquireCode:'var fixture = await cua.getApp('+JSON.stringify(join(workspace,'fixture/ClaudeDriverInputFixture.app'))+');',
     typeCode:'await fixture.typeText('+JSON.stringify(payload)+'); await fixture.getAXState();'}
 if(nativeTurn){
     report.before=audit(workspace)
-    if(!report.before.fixtureProcessCurrent||report.before.fixtureState.characters!==0||report.before.helperProcesses.length!==1||report.before.helperKeyboardFilters.length!==0)throw Error('native turn requires empty live fixture and clean held helper')
+    if(!report.before.fixtureProcessCurrent||report.before.fixtureState.characters!==0||report.before.helperProcesses.length!==(isolatedPipe?2:1)||report.before.helperKeyboardFilters.length!==0)throw Error('native turn requires empty live fixture and exact clean helper count')
     writeFileSync(join(run,'native-intent.json'),JSON.stringify(intent,null,2)+'\n',{flag:'wx',mode:0o600})
     for(const name of ['native-proxy.mjs','native-audit.mjs'])writeFileSync(join(run,name),readFileSync(new URL('./'+name,import.meta.url)),{flag:'wx',mode:0o600})
 }

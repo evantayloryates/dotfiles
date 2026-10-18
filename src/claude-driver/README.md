@@ -70,6 +70,9 @@ Those records aid diagnosis without treating another client's active filters as
 stale or changing the Claude health gate. [Actual-host tests](docs/host-turn-end-qualification.md)
 confirm retention despite successful Stop dispatch; [ownership findings](docs/native-input-ownership.md)
 rule out separate CODEX_HOME directories as sufficient helper isolation.
+An [owned private-helper prototype](docs/native-helper-isolation.md) now passes
+one actual remote host typing/cleanup run while a default client remains live.
+It is not yet integrated into the production worker or cleared for local UI.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

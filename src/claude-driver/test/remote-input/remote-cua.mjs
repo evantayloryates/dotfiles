@@ -3,7 +3,7 @@
 import {spawn,execFileSync} from 'node:child_process'
 import {EventEmitter} from 'node:events'
 import {createInterface} from 'node:readline'
-import {readFileSync,writeFileSync,existsSync} from 'node:fs'
+import {readFileSync,writeFileSync,existsSync,lstatSync} from 'node:fs'
 import {homedir,hostname} from 'node:os'
 import {join} from 'node:path'
 import {createHash,randomUUID} from 'node:crypto'
@@ -14,12 +14,19 @@ const option=name=>{const i=args.indexOf(name);return i<0?null:args[i+1]}
 const expectedHost=option('--expected-host'),workspace=option('--workspace'),phase=option('--phase')
 const relayApproval=args.includes('--relay-approval')
 const humanApproval=option('--human-approval')
+const isolatedPipe=option('--isolated-pipe')
 if(process.platform!=='darwin'||expectedHost!=='theo-air'||hostname().split('.')[0]!==expectedHost||
    homedir()!=='/Users/theo'||!process.env.SSH_CONNECTION||
    workspace!=='/Users/theo/.local/state/claude-driver/input-teardown-20261018'||
    !['catalogue','acquire','teardown','typing','hold'].includes(phase))throw Error('remote test identity/scope refused')
 const marker=JSON.parse(readFileSync(join(workspace,'owner.json'),'utf8'))
 if(marker.threadId!=='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d')throw Error('workspace owner refused')
+if(isolatedPipe&&(!isolatedPipe.startsWith(workspace+'/isolate/')||!/^\/Users\/theo\/\.local\/state\/claude-driver\/input-teardown-20261018\/isolate\/run-[0-9]+\.sock$/.test(isolatedPipe)))throw Error('isolated pipe scope refused')
+if(isolatedPipe){
+    const parent=lstatSync(join(workspace,'isolate')),socket=lstatSync(isolatedPipe)
+    if(!parent.isDirectory()||parent.isSymbolicLink()||parent.uid!==process.getuid()||(parent.mode&0o077)!==0||
+       !socket.isSocket()||socket.isSymbolicLink()||socket.uid!==process.getuid())throw Error('isolated pipe ownership refused')
+}
 if(humanApproval&&(!humanApproval.startsWith(join(workspace,'evidence')+'/')||
    !humanApproval.endsWith('.response.json')||humanApproval.includes('/../')))throw Error('human approval path refused')
 const target=join(workspace,'fixture','ClaudeDriverInputFixture.app')
@@ -31,6 +38,7 @@ const sourceEvidence=join(workspace,'evidence','source-'+harnessSha256+'.mjs')
 if(!existsSync(sourceEvidence))writeFileSync(sourceEvidence,source,{flag:'wx',mode:0o600})
 const lifecycle=['teardown','typing','hold'].includes(phase)
 const report={scope:'remote-input-teardown',phase,host:expectedHost,workspace,target,
+    isolatedPipe,
     harnessSha256,sourceEvidence,
     startedAt:new Date().toISOString(),modelCallsRequested:0,localDesktopAccessed:false,
     consentAnswered:false,nativeInputReleaseAssessed:false,ok:false}
@@ -66,7 +74,8 @@ const child=spawn(join(runtime,'bin','node'),[join(runtime,'lib','node_modules',
         CUA_REPL_ENABLED_SURFACES:'computer',
         NODE_REPL_NODE_MODULE_DIRS:join(runtime,'lib','node_modules'),
         NODE_REPL_TRUSTED_CODE_PATHS:join(runtime,'lib','node_modules'),
-        NODE_PATH:join(runtime,'lib','node_modules')
+        NODE_PATH:join(runtime,'lib','node_modules'),
+        ...(isolatedPipe?{SKY_CUA_SERVICE_NATIVE_PIPE_PATH:isolatedPipe}:{})
     }})
 let stderr='',exit
 child.stderr.on('data',b=>{stderr=(stderr+b).slice(-65536)})

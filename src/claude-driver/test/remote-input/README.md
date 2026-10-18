@@ -88,3 +88,16 @@ helper to make cleanup pass. Audit native tap/process metadata before/after
 each changed-condition experiment and preserve failures. Use the fixture's own
 metadata for any later synthetic-text verification; physical-key behavior and
 the real Claude target require separate evidence.
+
+`--isolated-pipe` accepts only the owned `isolate/run-<milliseconds>.sock` pattern.
+The socket must already exist with the current user's identity, a private parent
+and no symlinks. The client never starts, kills or repairs a shared helper. The
+owned orchestrator starts the signed helper with that socket plus the owned
+CODEX_HOME/bundled CLI path, independently verifies its PID/socket, and observes
+normal exit. The host harness forwards the socket through its scoped public MCP
+relay, preserving native context and ordinary app approvals. Its native baseline
+then requires two clean helpers; after its client ends only the held default
+helper may remain. See [isolation evidence](../../docs/native-helper-isolation.md)
+for retained failures and remaining gates. The actual typing run uses the final
+guarded source preserved in its report; earlier standalone read-only runs retain
+their own pre-hardening source hashes.

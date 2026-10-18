@@ -75,3 +75,14 @@ This packet does not establish the callback responsible for historical physical
 duplicate typing, claim a production Claude reproduction, or assert that every
 persistent filter is stale. It establishes the bounded cleanup and isolation
 gap above. Local UI remains quarantined pending safe native qualification.
+
+## Later experimental isolation result
+
+The [private-helper prototype](native-helper-isolation.md) subsequently passed a
+real owned typing turn: its helper owned both filters and exited normally on
+client EOF while the default helper/client stayed live. This is a potential
+workaround using the current runtime's implementation setting, not a documented
+public release API. Production handoff, interruption/cancellation, physical
+input and real Claude are unqualified. Include this finding in any future report;
+do not claim that no ownership workaround has been found. This packet is still
+prepared only and has not been sent.

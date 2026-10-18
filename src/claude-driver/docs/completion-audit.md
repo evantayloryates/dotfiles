@@ -108,8 +108,11 @@ then found app termination clears filters while another client/helper stays live
 and that separate CODEX_HOME directories still select a shared user socket.
 No supported owner-scoped release endpoint was found in the reviewed API. The
 [upstream reproduction packet](native-input-upstream-repro.md) is prepared,
-not sent. A supported native release contract or changed runtime is needed for
-the next cleanup qualification. No fabricated
+not sent. A later [private-helper prototype](native-helper-isolation.md) passed
+real host typing and cleanup while the default client stayed live, on the same
+runtime. Next qualify cancellation and the actual worker's MCP environment
+handoff before production integration. This is an implementation-specific
+prototype, not a global release or physical-input clearance. No fabricated
 metadata/private disposal route/shared-helper kill is authorized. All owned
 remote processes are stopped, Switchboard is preserved,
 and no fixture cleanup, local quarantine release or restart request is pending.
