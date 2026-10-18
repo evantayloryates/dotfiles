@@ -24,7 +24,7 @@ EDGE_PADDING = 15
 HEADER_HEIGHT = 38
 OMISSION_WIDTH = 24
 MIN_PAGE_SLOT = 100
-CELL_WIDTH = 9.5  # conservative logical-pixel estimate for Ghostty's default font
+CELL_WIDTH = 10.0  # Chafa's fallback pixel width per terminal column
 FONT = "/System/Library/Fonts/Supplemental/Arial.ttf"
 
 

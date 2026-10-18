@@ -1,3 +1,23 @@
+## October 18 no-import pair reactivation sequence
+
+Added runRestoredPairReactivation in restored-pair-reactivation.mjs. Exact plan/
+role hash preflight, prepare two distinct new generations (neither original),
+live quiesce/retire only surviving original, activate/readiness/policy both,
+reciprocal native reads, exact role/settings/epochs/no-unknown verification,
+family proof then enrollment/metadata/final verification. Before/after durable
+checkpoint and source/context guard callbacks bracket each step. No import or
+retained-step replay exists. Returned records distinguish all intermediate gates.
+Pair planner now explicitly retains original service IDs for exact retirement.
+
+Focused pair plan/reactivation6 PASS, both lost-role paths, every checkpoint and
+guard failure, changed preflight, recycled generation, wrong survivor, role drift
+and failed final pair verification. This is orchestration only: production durable
+scheduler adapter and exact enrollment transition proof are NOT wired yet; do not
+invoke as live recovery or claim unattended recovery. Next implement that adapter
+with exclusive restoration-root claim, child handles and immutable identity/settings
+snapshots, and enroll CAS anchored to verified two-sided transition. No live native
+changes or full-suite repeat. Goal active; no live jobs/cleanup pending.
+
 ## October 18 reciprocal restored-pair preparation plan
 
 Added restored-pair-plan.mjs and read-only restored-pair-plan-v2.mjs CLI taking

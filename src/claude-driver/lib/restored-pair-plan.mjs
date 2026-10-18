@@ -30,7 +30,7 @@ export function planRestoredPair({root,native,record,peer,selected,statuses,poli
    if(role==='primary'?!original.bindings.metadataTarget||original.bindings.archiveTarget:!original.bindings.archiveTarget||original.bindings.metadataTarget)throw Error('reciprocal role missing')
    roles[role]={...original,bindings:Object.fromEntries(Object.keys(original.bindings).map(k=>[k,epoch(current[target])]))}
   }
-  return {...result('prepare','same-identity-reciprocal-roles-qualified'),rootJobId:root.jobId,rootSha256:native.rootSha256,enrollmentSha256:root.expectedEnrollmentSha256,restoredRole:lost,currentEpochs:{primary:epoch(current.primary),standby:epoch(current.standby)},roles,rolesSha256:hash(roles),survivorExpired:s.expired===true,reciprocalServiceAssessed:true,continuationRequired:true}
+  return {...result('prepare','same-identity-reciprocal-roles-qualified'),rootJobId:root.jobId,rootSha256:native.rootSha256,enrollmentSha256:root.expectedEnrollmentSha256,restoredRole:lost,originalServiceIds:{primary:binding.primary.serviceId,standby:binding.standby.serviceId},currentEpochs:{primary:epoch(current.primary),standby:epoch(current.standby)},roles,rolesSha256:hash(roles),survivorExpired:s.expired===true,reciprocalServiceAssessed:true,continuationRequired:true}
  }catch{return result('inspect','reciprocal-role-evidence-unqualified')}
 }
 export async function inspectRestoredPair(rootJobId,expectedRootSha256,{signal}={},d={}){

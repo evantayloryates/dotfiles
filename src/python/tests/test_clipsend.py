@@ -639,13 +639,13 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
     def test_pdf_preview_page_selection_and_omission_marker(self):
         from PIL import Image
         from io import BytesIO
-        from terminal_pdf_preview import page_geometry, plan_pages
+        from terminal_pdf_preview import CELL_WIDTH, page_geometry, plan_pages
 
         pdf = self.root / 'pages.pdf'
         pdf.write_bytes(sample_pdf(9))
         aspects, _ = page_geometry(pdf)
         self.assertEqual(plan_pages(aspects, 80)[0], [1, 9])
-        self.assertEqual(plan_pages(aspects, 120)[0], [1, 2, 9])
+        self.assertEqual(plan_pages(aspects, 120)[0], [1, 2, 8, 9])
         self.assertEqual(plan_pages(aspects, 400)[0], list(range(1, 10)))
 
         for columns, scale in ((80, 1), (120, 2)):
@@ -657,19 +657,19 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 image = Image.open(BytesIO(result.stdout))
                 self.assertEqual(image.mode, 'RGBA')
-                self.assertLessEqual(image.width, int((columns - 1) * 9.5 * scale) + 8)
+                self.assertLessEqual(image.width, int((columns - 1) * CELL_WIDTH * scale) + 8)
                 self.assertEqual(image.getpixel((0, 0))[3], 0)
                 self.assertEqual(image.getpixel((14 * scale, 48 * scale))[3], 0)
                 self.assertEqual(image.getpixel((15 * scale, 48 * scale))[3], 255)
                 self.assertEqual(image.getpixel((image.width - 1, 48 * scale))[3], 0)
                 self.assertEqual(image.height, (height + 38) * scale)
                 self.assertGreaterEqual(height, 300)
-                self.assertIn(selected[-1], (9,))
+                self.assertEqual(selected[-1], 9)
 
     def test_pdf_mixed_page_shapes_and_narrow_width(self):
         from PIL import Image
         from io import BytesIO
-        from terminal_pdf_preview import page_geometry, plan_pages
+        from terminal_pdf_preview import CELL_WIDTH, page_geometry, plan_pages
 
         pdf = self.root / 'mixed & é.pdf'
         boxes = [(612, 792), (792, 612), (306, 792), (900, 500),
@@ -688,7 +688,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                      str(pdf), '1', str(columns)], capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 image = Image.open(BytesIO(result.stdout))
-                self.assertLessEqual(image.width, int((columns - 1) * 9.5) + 8)
+                self.assertLessEqual(image.width, int((columns - 1) * CELL_WIDTH) + 8)
                 self.assertEqual(image.getpixel((0, 0))[3], 0)
                 if columns == 180:
                     # Page 2 is landscape and should keep its width/height relationship.
@@ -713,18 +713,18 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
         self.assertGreater(image.width, 480)
 
     def test_pdf_width_planner_balances_size_and_page_count(self):
-        from terminal_pdf_preview import page_geometry, plan_pages, strip_width
+        from terminal_pdf_preview import CELL_WIDTH, page_geometry, plan_pages, strip_width
 
         pdf = self.root / 'seven.pdf'
         pdf.write_bytes(sample_pdf(7))
         aspects, _ = page_geometry(pdf)
-        self.assertEqual(plan_pages(aspects, 150), ([1, 2, 6, 7], 420))
-        self.assertEqual(plan_pages(aspects, 158), ([1, 2, 3, 6, 7], 352))
-        self.assertEqual(plan_pages(aspects, 180), ([1, 2, 3, 6, 7], 406))
-        for columns in (30, 80, 100, 150, 158, 180, 240, 400):
+        self.assertEqual(plan_pages(aspects, 145), ([1, 2, 6, 7], 428))
+        self.assertEqual(plan_pages(aspects, 150), ([1, 2, 3, 6, 7], 352))
+        self.assertEqual(plan_pages(aspects, 180), ([1, 2, 3, 6, 7], 429))
+        for columns in (30, 80, 100, 145, 150, 158, 180, 240, 400):
             pages, height = plan_pages(aspects, columns)
             self.assertLessEqual(strip_width(pages, aspects, height) + 30,
-                                 (columns - 1) * 9.5 + 1)
+                                 (columns - 1) * CELL_WIDTH + 1)
             self.assertLessEqual(height, 650)
             if columns >= 80:
                 self.assertGreaterEqual(height, 300)
