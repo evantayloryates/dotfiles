@@ -587,7 +587,7 @@ source "$DOTFILES_DIR/src/functions/aliases.sh"
 open() { print -r -- "OPEN:${1:t}"; }
 pdftotext() { print -u2 -- 'unexpected text extraction'; return 1; }
 chafa() { [[ "$1" == --probe=off ]] || return 1; local target="${@[-1]}"; [[ "$target" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${target:t}"; }
-mdcat() { [[ "$3" == --columns=100 ]] || return 1; print -r -- "PREVIEW:${4:t}"; }
+mdcat() { [[ "$3" == --columns=80 ]] || return 1; print -r -- "PREVIEW:${4:t}"; }
 __terminal_copy_file() { print -r -- "file:${1:t}" >> "$HOME/copy-log"; print -u2 -- 'file unavailable'; return 1; }
 __terminal_copy_png() { print -r -- "png:${1:t}" >> "$HOME/copy-log"; return 0; }
 __terminal_copy_paths() { print -r -- "path:${1:t}" >> "$HOME/copy-log"; return 0; }
