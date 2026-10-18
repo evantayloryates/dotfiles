@@ -40,3 +40,16 @@ export async function runRestoredPairChild(context,step,submission,{signal,run}=
  ledger.children[step].jobId=submitted.jobId;save()
  for(;;){if(signal?.aborted)throw Error('reactivation child may continue after cancellation');const observed=await call('driver_wait',{job_id:submitted.jobId,timeout_sec:10,include_result:true},{signal});ledger.children[step].observation=observed;save();if(observed.jobId!==submitted.jobId||observed.operation!==submission.operation)throw Error('reactivation child observation identity changed');if(observed.state==='completed')return observed.result;if(!['queued','running'].includes(observed.state))throw Error('reactivation child failed or uncertain')}
 }
+// Separate ownership of the remaining suffix. The original restoration claim
+// and failed reactivation root are never released, reassigned or overwritten.
+export function createRestoredPairReadinessLedger(checkpoint,jobId,{dir=join(STATE_DIR,'restored-pair-reactivations'),now=Date.now}={}){
+ const {root,proof}=checkpoint??{}
+ if(!job.test(jobId||'')||jobId===root?.jobId||proof?.qualified!==true||proof.originalJobId!==root.jobId||proof.originalRootSha256!==restoredPairPlanDigest(root)||root.phase!=='before-readiness-primary'||root.continuation!==undefined)throw Error('exact pair readiness continuation context required')
+ mkdirSync(dir,{recursive:true,mode:0o700});owned(dir);const claims=join(dir,'continuation-claims');mkdirSync(claims,{recursive:true,mode:0o700});owned(claims)
+ const claim={originalJobId:root.jobId,originalRootSha256:proof.originalRootSha256,continuationJobId:jobId,restorationJobId:root.plan.rootJobId,restorationRootSha256:root.plan.rootSha256,expectedPlanSha256:root.expectedPlanSha256,at:now()},claimFile=join(claims,root.jobId+'.json')
+ try{writeFileSync(claimFile,JSON.stringify(claim)+'\n',{flag:'wx',mode:0o600})}catch(e){if(e.code!=='EEXIST')throw e;const prior=JSON.parse(readReceiverFile(claimFile,4096));throw new DriverError('pair readiness continuation already claimed; inspect original continuation',{category:'restored_pair_continuation_claimed',detail:{originalJobId:job.test(prior.continuationJobId||'')?prior.continuationJobId:null,retrySafe:false}})}
+ const ledger=structuredClone(root);delete ledger.failure;ledger.jobId=jobId;ledger.runtimeBuild=RUNTIME_BUILD;ledger.continuation={originalJobId:root.jobId,originalRootSha256:proof.originalRootSha256,preparedBuild:root.runtimeBuild};ledger.at=now()
+ const file=join(dir,jobId+'.json');writeFileSync(file,JSON.stringify(ledger)+'\n',{flag:'wx',mode:0o600})
+ const save=()=>{if(!readReceiverFile(claimFile,4096).equals(Buffer.from(JSON.stringify(claim)+'\n')))throw Error('pair continuation claim changed');ledger.updatedAt=now();writeJsonAtomic(file,ledger)}
+ return {ledger,file,save,record:async(phase,results)=>{ledger.phase=phase;ledger.results=structuredClone(results);ledger.steps.push({phase,at:now()});save()},fail:e=>{ledger.failure={category:e.category??'restored-pair-continuation-unresolved',at:now()};save()}}
+}

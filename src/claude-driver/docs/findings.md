@@ -1,3 +1,58 @@
+## October 18 native deleted-record pair recovery completed with retained history
+
+Taylor completed recovered hot-reload consent. Independent primary successor
+status verifiedloaded/readinesstrue/nativeInputfalse, samePID41342/start17:16:23UTC.
+Added exact failed-before-readiness-primary checkpoint verifier: original failed
+parent/root/hash/claim, ordered13phase prefix and actual completed preparation/
+survivor-quiescence/retirement/primaryactivation jobs. Refuses ambiguous/later
+work, uncertain child, settings retirement and changed source/identity/grants.
+Separate continuation claim and journal retain original failed pair claim/root;
+remaining sequence skips preparation, retirement, import and primaryactivation.
+
+Production continuation verifies current exact bypass idle actors, original
+settings/role/metadata/enrollment, installedprimary readiness/noSTOP/no unknowns,
+historical-retired standby and its exact sealed candidate in its own service
+namespace. Read-only candidate subprocess avoids global release namespace mixups.
+Prepared packages remain source5ee1ea07; current host continuation source
+f13af418d01f4f3d507554a453e3eb15556b24d40493b58bc756a06bf541dfa4.
+Enrollment transition proof independently verifies both reactivation parent chains,
+original restoration/seeded continuation chains, actual old and new child jobs,
+original idempotency ownership, prepared source and unchanged claims after async
+reads. New explicit broker_service_pair_continuation_plan and durable experimental
+broker_service_continue_restored_pair; status kindpair reports originalJobId.
+
+Focused25 PASS incl existing adapter/refusal/enrollment gates;13 PASS overlapping
+new chain tests verify production adapter skips completed native effects, separate
+claim collision, exact suffix phases and originalchild tampering refusal at CAS.
+First integration failure was test harness reading original job during new CAS;
+preserved failure, corrected test to inspect actual supplied continuation ID.
+Actual read-only original checkpoint6e80819f... and current role/native/candidate
+plan qualified. One actual continuationjf71af09a078f47cb9c77c20bdc23da51 COMPLETED
+20.5sec, original prepared primarye6959ee1 and standby45ac0aba reused. Primary/
+standby policy probes9aaaabf8/5ad9b649, standbyactivationc43f7503, reciprocal native
+reads/family and enrollment CAS completed; no prefix/import replay. New enrollment
+1cd3649ee62093d78564a3070564f23c4309c4cc07efce0c7866f8e61cff4483 automatictrue.
+Independent final statuses both liveverified/readiness+policytrue/unexpired/
+noSTOP/unresolved[], primaryPID41342 and standbyPID23690. Original seed failure
+rootbff9ca42 and pair failure root6e80819f byte-hashes unchanged. Working ordinary
+controller binding3f6a.../ecd2... unchanged; ProDevs still unarchived, no messages.
+Private deleted-service-native-fixture-20261018.json finalRecoveryReadback.
+
+This qualifies ONE HUMAN-ASSISTED native deletion/reconstruction/reciprocal
+reactivation with original UUID/account/cwd, without deleted history replay. It
+does not qualify unattended recreation/permission/hot-reload consent or cold-app
+startup. No automatic ordinary route invokes experimental deletion rebuild yet.
+Full187 frozen-source PASS1/1,42.5sec/sourceChangedfalse:
+pressure/v2-2026-10-18T17-26-22-292Z.json. Fresh actual filtered Claude/Codex harnesses onf13 PASS10/10 each,22.6/18.5sec,
+source/config unchanged; pressure/harness-v2-{claude,codex}-2026-10-18T17-26-35-859Z.json. No native12 repetition after this change.
+
+NEXT: audit full original brief/DoD against current evidence, including unattended
+all-Code-processes-absent ingress, normal-chat routing, public entrypoints, cleanup
+and fresh loaded-client scope. Preserve actual human consent boundaries, prior
+failed/unknown work, legacy observer ownership and Codex/1Password separation.
+Goalactive. Disposable recovered pair deliberately retained ready for further
+qualified use; no cleanup yet. No human action pending. Native jobs terminal.
+
 ## October 18 recovered bypass confirmed; pair activation reached native loader gate
 
 Taylor supplied Desktop ref-1/ref-2 images showing actual Don't ask label and

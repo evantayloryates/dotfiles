@@ -2487,9 +2487,9 @@ After a verified seeded record exists, explicitly pass
 exact-hash `broker_service_reactivate_restored_pair`. The default kind `record`
 only accepts a surviving-transcript restoration root. Neither path grants bypass
 mode or clears trust/hot-reload cards. A restored record can still require a person
-before a new idle desktop process and reciprocal roles can be qualified. Actual
-native deleted-service recovery remains unqualified; ordinary routing does not
-automatically invoke these experimental rebuild operations.
+before a new idle desktop process and reciprocal roles can be qualified. One human-assisted native deleted-service reconstruction and reciprocal
+reactivation has qualified; unattended reconstruction remains unqualified. Ordinary
+routing does not automatically invoke these experimental rebuild operations.
 
 Missing-record restore/rebuild submissions require an exact `local_<UUID>`;
 mutable titles and `self` are refused. Explicit offline retirement children also
@@ -2522,7 +2522,8 @@ continuation with restoration status `kind:"seeded"`, and pass its job ID to
 restored pair planning with `restoration_kind:"seeded"`. Record restoration does
 not establish bypass mode, native startup or serving readiness. The Oct18 native
 fixture recreated the original UUID record, then correctly waited for human mode
-selection/startup; full reciprocal service recovery is still unqualified.
+selection/startup. The subsequent explicit pair continuation completed reciprocal
+service recovery with native reads and independent enrollment verification.
 
 
 The minimal recovery seed explicitly uses CLI `dontAsk` with all tools and MCP
@@ -2532,3 +2533,28 @@ denies calls which would prompt; it does not grant bypass authority. Select actu
 Bypass permissions through the native UI before service reactivation. Fresh native
 processes can separately require loader initialization and person-owned hot-reload
 consent. Installation and a saved bypass mode alone do not establish readiness.
+
+
+## Continue an installed-primary readiness checkpoint
+
+`broker_service_pair_continuation_plan` takes `original_job_id` and
+`expected_original_root_sha256` for a failed pair reactivation which completed
+both preparations, survivor retirement and primary activation, then timed out
+before primary readiness. It independently verifies original failed parent,
+claims and actual child receipts; current idle bypass actors/settings/roles;
+loaded primary readiness; and the unchanged sealed standby candidate. It grants
+no effects or retry authority.
+
+`broker_service_continue_restored_pair` requires those exact values,
+`experimental:true` and `driver_submit`. Its separate claim retains the original
+restoration/reactivation claims and failed root. It adopts the completed prefix,
+then verifies primary policy, activates the already prepared standby, verifies
+standby readiness/policy, reads both peers, checks family and commits the exact
+qualified enrollment transition. Original and continuation child identities and
+sealed source lineage are independently verified. No imports, preparation,
+retirement or primary activation repeat. Unknown suffix effects require their own
+inspection; they never authorize another continuation attempt.
+
+The October18 disposable fixture completed this path after human mode and loader
+consent. This is human-assisted recovery, not unattended always-on qualification.
+Inspect either pair attempt through restoration status `kind:"pair"`.

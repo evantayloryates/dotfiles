@@ -1115,6 +1115,18 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable restored pair reactivation required',{category:'bad_args'});return(await import('./restored-pair-execute.mjs')).reactivateRestoredPair(args.restoration_job_id,args.expected_root_sha256,args.expected_plan_sha256,{...ctx,restorationKind:args.restoration_kind??'record'})},
   },
   {
+    name:'broker_service_pair_continuation_plan',title:'Inspect a failed installed-primary reactivation checkpoint',readOnly:true,
+    description:'Read-only exact failed readiness-prefix root, original completed lifecycle children, current actor/settings/roles and sealed prepared standby successor inspection. Requires installed primary native readiness. No preparation, retirement, activation or retry effect.',
+    schema:{required:['original_job_id','expected_original_root_sha256'],properties:{original_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_original_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},
+    run:async(args,ctx)=>(await import('./restored-pair-readiness-continuation.mjs')).inspectPairReadinessContinuation(args.original_job_id,args.expected_original_root_sha256,ctx),
+  },
+  {
+    name:'broker_service_continue_restored_pair',title:'Continue one installed-primary reactivation checkpoint',readOnly:false,
+    description:'Experimental durable separate-claim continuation from an independently verified failed primary readiness checkpoint. Adopts exact prepared generations/installed primary, never repeats prefix lifecycle or import. Checks original source lineage, current actors and settings, then policy/readiness/native reads and proof-bound enrollment. Unknown suffix effects remain unreplayable.',
+    schema:{required:['original_job_id','expected_original_root_sha256','experimental'],properties:{original_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_original_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable pair continuation required',{category:'bad_args'});return(await import('./restored-pair-readiness-continuation.mjs')).continuePairReadiness(args.original_job_id,args.expected_original_root_sha256,ctx)},
+  },
+  {
     name:'broker_service_pair_bootstrap_status',title:'Inspect one retained pair bootstrap root',readOnly:true,
     description:'Read bounded root identity/hash, phase and attempted import roles. No process startup assessment, continuation authority, imports, effects or replay.',
     schema:{required:['root_job_id'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},

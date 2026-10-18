@@ -12,3 +12,8 @@ test('seeded continuation is explicitly hash-bound and durable, with no mutable 
  await assert.rejects(execute.run({experimental:true},{}),e=>e.category==='bad_args')
  await assert.rejects(execute.run({experimental:false},{jobId:'j'+'a'.repeat(32)}),e=>e.category==='bad_args')
 })
+test('installed-primary pair continuation requires an exact original root and durable explicit context',async()=>{
+ const plan=OPS.find(x=>x.name==='broker_service_pair_continuation_plan'),execute=OPS.find(x=>x.name==='broker_service_continue_restored_pair')
+ assert.equal(plan.readOnly,true);assert.equal(execute.readOnly,false);assert.deepEqual(execute.schema.required,['original_job_id','expected_original_root_sha256','experimental'])
+ assert.equal(execute.schema.properties.session,undefined);await assert.rejects(execute.run({experimental:true},{}),e=>e.category==='bad_args');await assert.rejects(execute.run({experimental:false},{jobId:'j'+'a'.repeat(32)}),e=>e.category==='bad_args')
+})

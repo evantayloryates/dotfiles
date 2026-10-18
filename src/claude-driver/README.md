@@ -40,13 +40,17 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The latest consolidated gate on source `e9dd31e4`
-passed all 185 isolated test files and both fresh harnesses (10/10 each). Actual
-headless seed flags produced the exact UUID/marker in one turn with no tools,
-MCP servers or desktop import; task-created CLI artifacts were cleaned. The
-restarted Codex-chat MCP and final twelve-check ordinary native profile passed on
-prior source `79619016`; seeded features still need loaded-client/native adoption.
-Live deleted-record recovery and unattended cold-app startup remain unqualified.
+execution remains unqualified. Current host source `f13af418` passes all 187
+isolated test files, with fresh Claude/Codex harness checks passing 10/10 each.
+One actual human-assisted native deletion test reaped the
+record and transcript, rebuilt the original UUID/account/workspace without replay,
+and restored both reciprocal receiver roles with native reads and verified
+enrollment. Original failed jobs and claims remain preserved through separately
+claimed continuations. Native packages retained their sealed source `5ee1ea07`.
+Unattended recreation/permission/loader consent and cold-app startup remain
+unqualified. The refreshed desktop MCP and final twelve-check ordinary profile
+passed on prior source `79619016`; new interfaces still need loaded-client adoption.
+
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
@@ -238,6 +242,7 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `broker_service_restoration_status` | A | bounded exact record-restoration or seeded-rebuild or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
 | `broker_service_seed_plan`, `broker_service_rebuild_missing_record` | A | explicit exact-identity no-history seed/import when record and all transcripts are absent; durable experimental execution only, native permission/readiness remain separate |
 | `broker_service_seed_continuation_plan`, `broker_service_continue_seeded_record` | A | exact failed pre-bootstrap retirement checkpoint; separately claimed durable continuation retains original failed root and claim; never repeats retirement or uncertain bootstrap/import |
+| `broker_service_pair_continuation_plan`, `broker_service_continue_restored_pair` | A | exact failed installed-primary readiness checkpoint; adopts verified sealed generations under separate claim, verifies native suffix and enrollment without prefix replay |
 
 `set_session_config` accepts `title`, `pinned`, `model`, `effort` and
 `permission_mode` together. It sends one native request and verifies each

@@ -14,9 +14,21 @@ export async function runRestoredPairReactivation(plan,d){
  if(result['prepare-primary'].serviceId===result['prepare-standby'].serviceId)throw Error('distinct prepared generations required')
  await step('quiesce-survivor',()=>d.quiesce(survivor),r=>r?.quiescent===true&&r.offline!==true&&r.terminalAttemptReviewComplete===true&&r.sessionId===plan.currentEpochs[survivor].sessionId&&r.serviceId===plan.originalServiceIds[survivor])
  await step('retire-survivor',()=>d.retire(survivor),r=>r?.filesRetired===true&&r.terminalAttemptReviewComplete===true&&r.sessionId===plan.currentEpochs[survivor].sessionId&&r.serviceId===result['quiesce-survivor'].serviceId)
+ return completeRestoredPair(plan,d,result,step)
+}
+// Internal tail only: the caller must independently qualify the failed original
+// root/claim/children and current actors before supplying these callbacks.
+export async function continueRestoredPairFromReadiness(checkpoint,d){
+ const {root,proof}=checkpoint??{},plan=root?.plan
+ if(proof?.qualified!==true||root?.phase!=='before-readiness-primary'||proof.originalJobId!==root.jobId||proof.originalRootSha256!==hash(root)||plan?.pairPreparationEligible!==true)throw Error('verified pair readiness checkpoint required')
+ const result=structuredClone(root.results)
+ const step=async(name,fn,check)=>{await d.guard(name,result);if(name!=='readiness-primary')await d.record('before-'+name,result);const value=await fn();result[name]=value;await d.record('after-'+name,result);if(!check(value))throw Error('restored pair '+name+' unqualified');return value}
+ return completeRestoredPair(plan,d,result,step,true)
+}
+async function completeRestoredPair(plan,d,result,step,primaryInstalled=false){
  for(const role of roles){
   const id=result['prepare-'+role].serviceId
-  await step('activate-'+role,()=>d.activate(role,id),r=>r?.installed===true&&r.sessionId===plan.currentEpochs[role].sessionId&&r.serviceId===id)
+  if(role!=='primary'||!primaryInstalled)await step('activate-'+role,()=>d.activate(role,id),r=>r?.installed===true&&r.sessionId===plan.currentEpochs[role].sessionId&&r.serviceId===id)
   await step('readiness-'+role,()=>d.readiness(role,id),r=>r?.verified===true&&r.sessionId===plan.currentEpochs[role].sessionId&&r.serviceId===id&&r.readinessObserved===true)
   await step('policy-'+role,()=>d.policy(role,id),r=>r?.terminalRefusalVerified===true&&r.policyInvocationObserved===true)
  }

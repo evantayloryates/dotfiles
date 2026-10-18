@@ -1,3 +1,26 @@
+## October 18 native human-assisted deletion recovery and final continuation gate
+
+Native deletion removed original record/process/all UUID transcripts; minimal seed
+and one import rebuilt original UUID/account/workspace without old history replay.
+After actual human bypass+loader consent, exact readiness-prefix continuation
+jf71af09a078f47cb9c77c20bdc23da51 completed20.5sec. Both original prepared
+source5ee1ea07 receivers now verifiedready/policy/unexpired/noSTOP/no unknowns;
+reciprocal native reads/family and enrollment CAS independently verified. Original
+seed/pair failed root hashes and claims remain unchanged, prefix not replayed.
+Final readback in deleted-service-native-fixture-20261018.json. Working ordinary
+controller binding and ProDevs unarchived state unchanged. Native deleted-record
+reconstruction/reciprocal recovery now HUMAN-ASSISTED qualified, n=1; unattended
+consent/recreation/cold-app startup remains unqualified.
+
+Current host sourcef13af418d01f4f3d507554a453e3eb15556b24d40493b58bc756a06bf541dfa4:
+full187 PASS42.5sec/sourceChangedfalse, pressure/v2-2026-10-18T17-26-22-292Z.json.
+Actual filtered Claude/Codexgpt-6-sol PASS10/10 each22.6/18.5sec/source+globalconfig
+unchanged: pressure/harness-v2-{claude,codex}-2026-10-18T17-26-35-859Z.json.
+Focused25 and13 gate sets overlap; do not add counts as distinct native scenarios.
+Prepared native source remains5ee1ea07, independently sealed/role/settings verified
+by currentf13 host. Fresh full ordinary12 and loaded-chat MCP onf13 are not claimed;
+prior actual loaded-client/native12 source79619016 remains separate evidence.
+
 ## October 18 fresh filtered harness adoption of continuation source
 
 Actual Claude and configured Codexgpt-6-sol PASS10/10 each,22.3/19.7sec on
