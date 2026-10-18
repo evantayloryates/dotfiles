@@ -1,3 +1,4 @@
+import {inspectInterruptedRenewalLineage,pairBootstrapSourceActors} from './interrupted-renewal-lineage.mjs'
 import {join} from 'node:path'
 import {standbyEnrollmentDigest,readStandbyEnrollment} from './standby-enrollment.mjs'
 import {getRecord,openPrs,liveProcesses} from './sessions.mjs'
@@ -14,14 +15,15 @@ const same=(a,b)=>!!a&&!!b&&['sessionId','cwd','pid','procStart'].every(k=>a[k]=
 const hash=/^[a-f0-9]{64}$/
 // A plan admits preparation only. It never authorizes importing, starting an
 // app, changing permissions, replacing actors, dropping STOP or replaying work.
-export function planPairBootstrap({binding,expectedSha256,actors,familyVerified,version}={}){
+export function planPairBootstrap({binding,expectedSha256,actors,familyVerified,version,renewalLineage}={}){
  const result=(action,reason)=>({action,reason,bootstrapPreparationEligible:action==='prepare',effectsPerformed:false,importAuthorized:false,processStartupAssessed:false,servingQualified:false,recoveryAttempted:false})
  let digest;try{digest=standbyEnrollmentDigest(binding)}catch{return result('inspect','enrollment-unqualified')}
  if(!hash.test(expectedSha256||'')||digest!==expectedSha256||binding.schemaVersion!==2||binding.automaticRecovery!==true)return result('inspect','explicit-automatic-enrollment-required')
  if(version?.app!=='2.42304.0'||version.cli!=='2.1.299')return result('inspect','installed-version-unqualified')
+ let sources;try{sources=pairBootstrapSourceActors(binding,renewalLineage)}catch{return result('inspect','interrupted-renewal-lineage-unqualified')}
  if(!Array.isArray(actors)||actors.length!==2)return result('inspect','exact-pair-required')
  for(let i=0;i<2;i++){
-  const old=i===0?binding.primary:binding.standby,a=actors[i],other=i===0?binding.standby:binding.primary,s=a?.status,r=a?.record,p=a?.policy,selection=a?.selection
+  const old=i===0?sources.primary:sources.standby,a=actors[i],other=i===0?binding.standby:binding.primary,s=a?.status,r=a?.record,p=a?.policy,selection=a?.selection
   if(a?.peerPresent===true)return result('wait','surviving-controller-present')
   if(a?.oldPidAbsent!==true||a?.sameHostAbsent!==true)return result('inspect','independent-pair-absence-unqualified')
   if(!r||r.sessionId!==old.sessionId||r.cwd!==old.cwd||r.sessionId!=='local_'+r.cliSessionId||r.permissionMode!=='bypassPermissions'||typeof r.isArchived!=='boolean'||r.worktreePath||a.registered!==true||a.openPrCount!==0||a.recordIdentityQualified!==true)return result('inspect','owned-importable-record-unqualified')
@@ -31,8 +33,8 @@ export function planPairBootstrap({binding,expectedSha256,actors,familyVerified,
   if(i===0&&!same(p.metadataTarget,s.metadataTarget))return result('inspect','pair-role-policy-unqualified')
   for(const k of ['metadataModelControl','metadataSendControl','metadataStopControl','sessionManagementControl','sessionMetadataControl','sessionSendControl','sessionArchiveControl','sessionStopControl'])if((s[k]===true)!==(p[k]===true)||i===1&&s[k]===true)return result('inspect','pair-role-grants-unqualified')
  }
- if(familyVerified!==true||!actors[0].status.settledRequestIds?.includes(binding.familyRequestId))return result('inspect','retained-empty-family-unqualified')
- return {...result('prepare','exact-owned-pair-absent-with-terminal-history'),enrollmentSha256:digest,rolesPreserved:true,unresolvedRequests:0,requiresNewNativeEpochs:true,requiresFreshPolicyAndReadiness:true,requiresControlledPairRebind:true,importMayRequireHumanTrust:true,absenceCause:'unclassified'}
+ if(familyVerified!==true||renewalLineage===undefined&&!actors[0].status.settledRequestIds?.includes(binding.familyRequestId))return result('inspect','retained-empty-family-unqualified')
+ return {...result('prepare','exact-owned-pair-absent-with-terminal-history'),enrollmentSha256:digest,...renewalLineage?{renewalLineage,sourceActors:sources}:{},rolesPreserved:true,unresolvedRequests:0,requiresNewNativeEpochs:true,requiresFreshPolicyAndReadiness:true,requiresControlledPairRebind:true,importMayRequireHumanTrust:true,absenceCause:'unclassified'}
 }
 export async function inspectPairBootstrap(primary,expectedSha256,{signal}={}){
  const binding=readStandbyEnrollment(primary)
@@ -42,8 +44,9 @@ export async function inspectPairBootstrap(primary,expectedSha256,{signal}={}){
  if(peers.some(Boolean))return {action:'wait',reason:'surviving-controller-present',bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}
  const actors=[]
  try{
+  const primarySelection=loadReceiverSelection(binding.primary.cwd),renewalLineage=primarySelection.selector.serviceId===binding.primary.serviceId?undefined:await inspectInterruptedRenewalLineage(primary,expectedSha256,{signal}),sources=pairBootstrapSourceActors(binding,renewalLineage)
   const currentProcesses=liveProcesses()
-  for(const [i,e]of [binding.primary,binding.standby].entries()){
+  for(const [i,e]of [sources.primary,sources.standby].entries()){
    if(signal?.aborted)throw Error('cancelled')
    const record=getRecord(e.sessionId),selection=loadReceiverSelection(e.cwd),absence=requireIndependentOfflineMutation({...e},e.sessionId,{processes:()=>currentProcesses}),status=await inspectIndependentService(e.sessionId,e.serviceId,{signal,offline:true}),policy=JSON.parse(readReceiverFile(join(e.cwd,'.claude-driver-services',e.serviceId,'broker','stop-rescue-policy.json'),65536))
    ordinarySessionBinding(record,(i===0?binding.standby:binding.primary).sessionId)
@@ -51,8 +54,8 @@ export async function inspectPairBootstrap(primary,expectedSha256,{signal}={}){
   }
   const receipt=JSON.parse(readReceiverFile(join(binding.primary.cwd,'.claude-driver-services',binding.primary.serviceId,'broker','results',binding.familyRequestId+'.native.json'),65536)),familyVerified=receipt.id===binding.familyRequestId&&receipt.source==='native-peer-service-result'&&receipt.results?.length===1&&receipt.results[0].op==='list_sessions'&&receipt.results[0].ok===true&&parseNativeFamilyMetadata(receipt.results[0].result,primary)?.length===0
   // Observe absence and selection again after potentially slow offline reviews.
-  for(const [i,e]of [binding.primary,binding.standby].entries()){requireIndependentOfflineMutation(e,e.sessionId);if(peerRecord(e.sessionId)||JSON.stringify(loadReceiverSelection(e.cwd))!==JSON.stringify(actors[i].selection))throw Error('pair changed')}
+  for(const [i,e]of [sources.primary,sources.standby].entries()){requireIndependentOfflineMutation(e,e.sessionId);if(peerRecord(e.sessionId)||JSON.stringify(loadReceiverSelection(e.cwd))!==JSON.stringify(actors[i].selection))throw Error('pair changed')}
   if(standbyEnrollmentDigest(readStandbyEnrollment(primary))!==expectedSha256)throw Error('enrollment changed')
-  return {...planPairBootstrap({binding,expectedSha256,actors,familyVerified,version:versions()}),primarySession:primary,standbySession:binding.standby.sessionId,observedAt:Date.now()}
+  return {...planPairBootstrap({binding,expectedSha256,actors,familyVerified,version:versions(),renewalLineage}),primarySession:primary,standbySession:binding.standby.sessionId,observedAt:Date.now()}
  }catch{return {action:'inspect',reason:'offline-pair-evidence-unqualified',bootstrapPreparationEligible:false,effectsPerformed:false,recoveryAttempted:false,enrollmentSha256:expectedSha256}}
 }

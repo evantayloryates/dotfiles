@@ -1,3 +1,47 @@
+## October 17 real both-absent governor recovery completed with renewal lineage
+
+Connected exact verified interrupted-renewal lineage to pair planning/execution,
+CAS transition proof and failed-import continuation. Root keeps ORIGINAL bindingd5ed
+and old842d generation/family for final CAS; separate sourceActors retires installed
+successor9d576 plus standby1da3. Session/cwd/old epoch cannot change. Original
+renewal ledger hash guarded throughout; source map rechecked at preflight and in
+transition/continuation proof. Unknown mutation/STOP/live peer/version/role/settings
+checks unchanged. Focused22 PASS; integrated synthetic1/1 PASS47.6sec sourceUnchanged
+pressure/v2-2026-10-18T03-49-54-331Z.json on
+ d423afe52e738858b6e35788793349d65de24dbe3d16ae7ff996bb4df960eaf8.
+
+Actual durable bootstrapjbd7c8134bfad421cbbca1a4d635c1eeb COMPLETED in20.3sec
+against the confirmed natural governor pressure eviction. Both existing actors
+quiesced/retired, imported ONCE, independently observed new idle epochs, prepared,
+activated, policy/read qualified, fresh family acquired and pair+public metadata
+bindings resealed. No person trust/ready step, app restart, kill, new session,
+permission change, keyboard/CUA or unknown operation replay during recovery.
+Primary89c7bbaf4e964fb7ac5b3d6e75b67857 PID13210/startSunOct18 03:50:04;
+standbyc4043124d2724f2b802201137b2d1da9 PID13521/start03:50:06.
+Independent plan wait/primary-live automaticRecoveryEnabledtrue; current binding
+94b6e1830c5db8e3335797289639ed89725c82bccd472fc0d0abb131317a61e8.
+Root qualifiedtrue but unattendedBootstrapQualifiedfalse: this is explicit API
+mechanism qualification, not automatic request-triggered dispatch or residency SLA.
+Original failed renewal/archive/read history and abandonment remain retained.
+Evidence .runtime/state/interrupted-pair-recovery-native-20261017.json.
+
+CLEANUP COMPLETE: original failed archive had no selected service and its exact
+request/intent/admission/result files absent in failed successor; verified this
+before changed-condition cleanup. New fork archivej7a4426b76ab54651b171d7b8b26dc3a5
+and source archivej26486a6c2c084e11aa2908b4042ef778 both passed native receipts and
+independent saved archivedtrue. Both owned records remain Accept edits as imported;
+no files deleted/permission raised. Fork cleanup saw a foreground app change and
+correctly left it untouched, focusVerifiedfalse/changed-unattributed; source cleanup
+focus endpoints unchanged. Do NOT call all cleanup focus preserved or hide the
+known bypass-import mismatch. Fresh import/fork record updated cleanupPendingfalse.
+
+Next: integrate eligible BOTH-ABSENT bootstrap into normal controller maintenance
+using durable child/recheck and exact recovery lineage (do not replay an original
+target operation after uncertainty); avoid manufacturing another outage/test now.
+Then current-source filtered cross-harness gate and one final loaded-MCP refresh;
+remaining group/window/person-only/appquit/sustained-pressure requirements stay
+in the full audit. Goal active; all current native/test handles terminal.
+
 ## October 17 interrupted renewal successor lineage independently verified
 
 Added read-only broker_service_renewal_lineage. It examines only deterministic

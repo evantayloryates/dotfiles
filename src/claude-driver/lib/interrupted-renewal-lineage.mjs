@@ -39,3 +39,13 @@ export async function inspectInterruptedRenewalLineage(primary,expectedSha256,{s
  if(signal?.aborted||standbyEnrollmentDigest(readStandbyEnrollment(primary))!==expectedSha256||JSON.stringify(loadReceiverSelection(binding.primary.cwd))!==JSON.stringify(selection)||hash(readReceiverFile(file,1048576))!==hash(body))throw Error('lineage changed during observation')
  return {...proof,enrollmentSha256:expectedSha256,renewalLedgerSha256:hash(body),observedAt:Date.now()}
 }
+
+// Retain the original enrollment for CAS. Only the primary's SERVICE generation
+// may differ in the offline source map; session, folder and native epoch cannot.
+export function pairBootstrapSourceActors(binding,lineage){
+ const actors={primary:{...binding.primary},standby:{...binding.standby}}
+ if(lineage===undefined)return actors
+ const successor=lineage?.successorServiceId,job='j'+successor,context='rpeer'+hash('standby-renewal-family:'+job).slice(0,32)
+ if(lineage.qualified!==true||lineage.primarySession!==binding.primary.sessionId||lineage.predecessorServiceId!==binding.primary.serviceId||!/^[a-f0-9]{32}$/.test(successor||'')||successor===binding.primary.serviceId||lineage.renewalJobId!==job||lineage.abandonedFamilyRequestId!==context||lineage.retainedFamilyRequestId!==binding.familyRequestId||lineage.enrollmentSha256!==standbyEnrollmentDigest(binding)||!/^[a-f0-9]{64}$/.test(lineage.renewalLedgerSha256||'')||lineage.rolesPreserved!==true||lineage.settingsPreserved!==true||lineage.outcomePreserved!=='unknown'||lineage.effectsPerformed!==false||lineage.recoveryAuthorized!==false)throw Error('pair source lineage unqualified')
+ actors.primary.serviceId=successor;return actors
+}

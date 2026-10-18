@@ -34,12 +34,15 @@ on ensurePanel()
 end ensurePanel
 
 on closePanel()
-    if not panelIsOpen() then return true
-    togglePanel()
-    -- The accessibility window can outlive the closing animation briefly.
-    repeat 20 times
+    -- A Clock click can be ignored while Notification Center is animating.
+    -- Recheck its window before each attempt so a delayed close is not undone.
+    repeat 3 times
         if not panelIsOpen() then return true
-        delay 0.1
+        togglePanel()
+        repeat 20 times
+            if not panelIsOpen() then return true
+            delay 0.1
+        end repeat
     end repeat
     return false
 end closePanel
