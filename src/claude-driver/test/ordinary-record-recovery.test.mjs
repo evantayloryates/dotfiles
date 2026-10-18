@@ -15,6 +15,9 @@ const {missingServicePlanDigest}=await import('../lib/missing-service-restoratio
 const {standbyEnrollmentDigest}=await import('../lib/standby-enrollment.mjs')
 const {RUNTIME_BUILD}=await import('../lib/build.mjs')
 const {observeOrdinaryRecordCheckpoint,inspectOrdinaryRecordRecovery}=await import('../lib/ordinary-record-checkpoint.mjs')
+const {pairReadinessFixture}=await import('./restored-pair-readiness-fixture.mjs')
+const {readPairReadinessCheckpoint,pairReadinessCheckpointDigest}=await import('../lib/restored-pair-readiness-checkpoint.mjs')
+const {restoredPairPlanDigest,restoredPairChildSubmission}=await import('../lib/restored-pair-ledger.mjs')
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex'),jid=()=> 'j'+randomUUID().replaceAll('-','')
 test.after(()=>rmSync(base,{recursive:true,force:true}))
 
@@ -159,4 +162,90 @@ test('a failed claimed suffix remains independently visible and is never submitt
  const status=await inspectOrdinaryRecordRecovery(f.primary.sessionId,f.primary.serviceId,f.digest,f.checkpointOptions)
  assert.equal(status.checkpointVerified,true);assert.equal(status.recoveryParentJobId,ctx.jobId);assert.equal(status.originalRecoveryParentJobId,f.ctx.jobId);assert.equal(status.suffixInspectionEligible,false);assert.equal(status.children.leafPair.state,'failed')
  const bytes=readFileSync(f.file(ctx.jobId));await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d),e=>e.detail.recoveryParentJobId===ctx.jobId);assert.equal(f.submissions.length,2);assert.deepEqual(readFileSync(f.file(ctx.jobId)),bytes);assert.deepEqual(readFileSync(f.file(f.ctx.jobId)),f.originalBytes)
+})
+
+// The adapter uses real ordinary/native checkpoint readers and private claims.
+// Current native package readiness and effects are simulated; the existing
+// native qualifier/continuation suites exercise those separate adapters.
+async function nativeReadinessFixture({build='8'.repeat(64),loseObservation=false}={}){
+ const f=await pendingFixture();f.clearGate()
+ const n=pairReadinessFixture(),r=n.root,p=r.plan,readinessOwner={jobId:jid()},nativeDir=join(f.d.base,'native-pair'),write=(path,value)=>{mkdirSync(dirname(path),{recursive:true,mode:0o700});writeFileSync(path,JSON.stringify(value),{mode:0o600})}
+ Object.assign(p,{rootJobId:f.root.jobId,rootSha256:hash(f.root),enrollmentSha256:f.digest,currentEpochs:structuredClone(f.epochs),originalServiceIds:{primary:f.primary.serviceId,standby:f.standby.serviceId},restorationKind:'record'})
+ p.roles.primary.bindings.metadataTarget=structuredClone(f.epochs.standby);p.roles.standby.bindings.archiveTarget=structuredClone(f.epochs.primary)
+ p.roles.primary.grants={sessionManagementControl:true,sessionMetadataControl:true,sessionArchiveControl:true};Object.assign(p.roles.primary.prepareArguments,{session_management_control:true,session_metadata_control:true,session_archive_control:true});p.rolesSha256=restoredPairPlanDigest(p.roles)
+ r.runtimeBuild=build;r.expectedPlanSha256=restoredPairPlanDigest(p);r.results.preflight=p
+ f.selected[f.standby.cwd]={selector:{...f.standby,build:RUNTIME_BUILD},pointer:{},policy:{}}
+ for(const role of ['primary','standby']){const actor=f.pair[role];r.snapshots[role].selection=structuredClone(f.selected[actor.cwd]);r.snapshots[role].identity={version:1,sessionId:actor.sessionId,cwd:actor.cwd,cliSessionId:actor.sessionId.slice(6),storeHash:f.identity.storeHash}}
+ for(const [step,c]of Object.entries(r.children)){
+  const role=step==='prepare-primary'||step==='activate-primary'?'primary':'standby'
+  c.submission=step==='activate-primary'?{operation:'broker_service_activate',arguments:{session:f.primary.sessionId,service_id:r.results['prepare-primary'].serviceId,experimental:true,stable_hook:true,cold_rebind:true},idempotency_key:'restored-pair:'+r.jobId+':'+step}:restoredPairChildSubmission(p,r.jobId,step)
+  if(step.startsWith('prepare-'))r.results[step].build=build
+  r.results[step].sessionId=f.pair[role].sessionId;c.observation={jobId:c.jobId,operation:c.submission.operation,args:c.submission.arguments,state:'completed',result:structuredClone(r.results[step])};f.jobs.set(c.jobId,structuredClone(c.observation))
+ }
+ Object.assign(n.claim,{restorationRootSha256:p.rootSha256,expectedPlanSha256:r.expectedPlanSha256});write(join(nativeDir,'claims',p.rootJobId+'.json'),n.claim)
+ f.d.pairPlan=async()=>structuredClone(p)
+ const previous=f.d.run
+ f.d.run=async(op,args)=>{
+  if(op==='driver_submit'&&args.operation==='broker_service_reactivate_restored_pair'){
+   f.submissions.push(structuredClone(args));const parent=structuredClone(n.parent);parent.runtimeBuild=build;parent.args=structuredClone(args.arguments);f.jobs.set(r.jobId,parent)
+   f.selected[f.primary.cwd]={selector:{...f.epochs.primary,serviceId:r.results['prepare-primary'].serviceId,build},pointer:r.plan.roles.primary.grants,policy:r.plan.roles.primary.grants}
+   return {jobId:r.jobId}
+  }
+  return previous(op,args)
+ }
+ let error;await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,readinessOwner,f.d),e=>{error=e;return e.category==='ordinary_controller_record_recovery_pending'})
+ f.jobs.set(readinessOwner.jobId,{jobId:readinessOwner.jobId,operation:'pin_session',args:structuredClone(f.args),state:'failed',error:{category:error.category,detail:error.detail}})
+ const ownerBytes=readFileSync(f.file(readinessOwner.jobId)),nativeBytes=Buffer.from(JSON.stringify(r)),nativeSha=pairReadinessCheckpointDigest(r)
+ f.d.readinessRoot=()=>structuredClone(r)
+ f.d.readinessCheckpoint=(id,sha)=>readPairReadinessCheckpoint(id,sha,{dir:nativeDir,read:()=>structuredClone(r),readRestoration:()=>f.d.readRoot(),inspect:f.d.job})
+ f.d.readinessPlan=async(id,sha)=>({continuationEligible:true,originalJobId:id,originalRootSha256:sha,restorationJobId:p.rootJobId,restorationKind:'record',preparedServiceIds:{primary:r.results['prepare-primary'].serviceId,standby:r.results['prepare-standby'].serviceId},prefixEffectsRepeated:false,replayAuthorized:false})
+ f.d.readinessContinuationClaim=()=>null
+ let binding=structuredClone(f.pair);f.d.pair=()=>structuredClone(binding)
+ f.d.status=async(session,id)=>{const a=session===f.primary.sessionId?binding.primary:binding.standby;return {sessionId:session,serviceId:id,build,verified:true,verificationMode:'live-native',sourceDisposition:'installed',nativeEpochAssessed:true,nativeEpoch:{pid:a.pid,procStart:a.procStart,status:'idle'},readinessObserved:true,nativePolicyObserved:true,expired:false,admissionStopped:false,nativeInputRequired:false,terminalAttemptReviewComplete:true,unresolvedRequestIds:[],...p.roles.primary.grants}}
+ f.d.run=async(op,args)=>{
+  if(op==='driver_submit'){
+   assert.equal(args.operation,'broker_service_continue_restored_pair');f.submissions.push(structuredClone(args));const id=jid()
+   binding={...binding,primary:{...binding.primary,...f.epochs.primary,serviceId:r.results['prepare-primary'].serviceId},standby:{...binding.standby,serviceId:r.results['prepare-standby'].serviceId}}
+   for(const role of ['primary','standby']){const a=binding[role];f.selected[a.cwd]={selector:{...a,build},pointer:p.roles.primary.grants,policy:p.roles.primary.grants}}
+   f.jobs.set(id,{jobId:id,operation:args.operation,args:structuredClone(args.arguments),state:'completed',result:{qualified:true,restorationJobId:p.rootJobId,reactivationJobId:id,primarySession:f.primary.sessionId,standbySession:f.standby.sessionId,serviceId:binding.primary.serviceId,standbyServiceId:binding.standby.serviceId,enrollmentSha256:standbyEnrollmentDigest(binding),importRepeated:false,replayAuthorized:false}})
+   return {jobId:id}
+  }
+  if(loseObservation)throw Error('simulated lost readiness suffix observation')
+  return structuredClone(f.jobs.get(args.job_id))
+ }
+ return {...f,native:r,nativeSha,readinessOwner,ownerBytes,nativeBytes}
+}
+test('ordinary admission composes the exact failed readiness prefix once and preserves old prepared source identity',async()=>{
+ for(const build of ['8'.repeat(64),RUNTIME_BUILD]){
+ const f=await nativeReadinessFixture({build}),ctx={jobId:jid()},r=await maybeRecoverOrdinaryControllerRecord('pin_session',f.args,ctx,f.d)
+ assert.equal(r.recovered,true);assert.equal(r.nativeBuild,build);assert.equal(r.currentSourceMatches,build===RUNTIME_BUILD);assert.equal(r.sourceMaintenanceRequired,build!==RUNTIME_BUILD);assert.equal(r.prefixEffectsRepeated,false);assert.equal(r.originalReactivationJobId,f.native.jobId)
+ assert.deepEqual(f.submissions.map(x=>x.operation),['broker_service_restore_missing_record','broker_service_reactivate_restored_pair','broker_service_continue_restored_pair']);assert.deepEqual(readFileSync(f.file(f.ctx.jobId)),f.originalBytes);assert.deepEqual(readFileSync(f.file(f.readinessOwner.jobId)),f.ownerBytes);assert.deepEqual(Buffer.from(JSON.stringify(f.native)),f.nativeBytes)
+ const root=JSON.parse(readFileSync(f.file(ctx.jobId)));assert.equal(root.children.restore,undefined);assert.equal(root.children.reactivate,undefined);assert.equal(root.pairReadinessOrigin.rootSha256,f.nativeSha);assert.equal(root.targetDispatched,false)
+ }
+})
+test('readiness remains pending without a new claim on closed eligibility, changed grants, wrong actual child or existing native claim',async()=>{
+ for(const mode of ['gate','grant','child','native-claim']){
+  const f=await nativeReadinessFixture()
+  if(mode==='gate')f.d.readinessPlan=async()=>({continuationEligible:false})
+  if(mode==='grant')f.native.plan.roles.primary.grants.sessionManagementControl=false
+  if(mode==='child')f.jobs.get(f.native.children['activate-primary'].jobId).result.installed=false
+  if(mode==='native-claim'){const id=jid();f.d.readinessContinuationClaim=()=>({originalJobId:f.native.jobId,originalRootSha256:f.nativeSha,restorationJobId:f.root.jobId,restorationRootSha256:f.native.plan.rootSha256,expectedPlanSha256:f.native.expectedPlanSha256,continuationJobId:id});f.jobs.set(id,{jobId:id,operation:'broker_service_continue_restored_pair',args:{original_job_id:f.native.jobId,expected_original_root_sha256:f.nativeSha,experimental:true},state:'running'})}
+  await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d),e=>e.category==='ordinary_controller_record_recovery_pending');assert.equal(f.submissions.length,2);assert.equal(existsSync(join(f.d.base,'pair-continuation-claims')),false)
+ }
+})
+test('concurrent callers submit a single readiness suffix and do not repeat activation or import',async()=>{
+ const f=await nativeReadinessFixture(),results=await Promise.allSettled([maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d),maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d)])
+ assert.equal(results.filter(x=>x.status==='fulfilled'&&x.value?.recovered).length,1);assert.equal(f.submissions.length,3);assert.equal(f.submissions.filter(x=>x.operation==='broker_service_continue_restored_pair').length,1)
+})
+test('unknown readiness suffix observation retains original scheduler handle and prevents another continuation',async()=>{
+ const f=await nativeReadinessFixture({loseObservation:true}),ctx={jobId:jid()};let error
+ await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,ctx,f.d),e=>{error=e;return e.category==='ordinary_controller_record_recovery_pending'&&!!e.detail.pairContinuationJobId})
+ f.jobs.set(ctx.jobId,{jobId:ctx.jobId,operation:'pin_session',args:f.args,state:'failed',error:{category:error.category,detail:error.detail}})
+ assert.equal(JSON.parse(readFileSync(f.file(ctx.jobId))).failure.name,'Error')
+ // Preserve pre-CAS enrollment to exercise pending lineage inspection rather
+ // than normal admission after an independently completed CAS.
+ f.d.pair=()=>structuredClone(f.pair)
+ const s=await inspectOrdinaryRecordRecovery(f.primary.sessionId,f.primary.serviceId,f.digest,f.checkpointOptions)
+ assert.equal(s.checkpointVerified,true);assert.equal(s.recoveryParentJobId,ctx.jobId);assert.equal(s.pairReadinessInspectionEligible,false);assert.equal(s.children.pairContinuation.jobId,error.detail.pairContinuationJobId)
+ const bytes=readFileSync(f.file(ctx.jobId));await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d));assert.equal(f.submissions.length,3);assert.deepEqual(readFileSync(f.file(ctx.jobId)),bytes)
 })

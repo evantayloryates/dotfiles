@@ -25,6 +25,7 @@ import {inspectJob} from './jobs.mjs'
 import {readOrdinaryRecordRecovery,observeOrdinaryRecordCheckpoint,assertOrdinaryRecordCheckpointStable} from './ordinary-record-checkpoint.mjs'
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex'),equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b)
 const job=/^j[a-f0-9]{32}$/,hex=/^[a-f0-9]{64}$/
+export const ordinaryRecoveryFailure=(error,fallback)=>({category:typeof error?.category==='string'&&/^[a-z][-a-z0-9_]{0,79}$/.test(error.category)?error.category:fallback,name:['Error','TypeError','ReferenceError','RangeError','SyntaxError'].includes(error?.name)?error.name:'Error',at:Date.now()})
 
 export async function runOrdinaryRecordRecovery(d){
  await d.guard();let kind='record',plan=await d.importPlan()
@@ -53,6 +54,23 @@ export async function finishOrdinaryRecordRecovery(kind,d){
  await d.record('recovered',result);return result
 }
 
+
+// Historical prepared packages are allowed only with an independently qualified
+// readiness checkpoint. Normal target maintenance still requires current source.
+export async function verifyOrdinaryRecoveredPair({activated,qualifiedPlan,dep,row,pair,binding,identity,version,capabilities,ctx,checkpoint,expectedBuild=RUNTIME_BUILD}){
+ if(!hex.test(expectedBuild||''))throw Error('exact verified native source required')
+     if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
+     if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(ordinarySessionBinding(dep.record(binding.sessionId),row.controllerSession),binding))throw Error('ordinary intent changed after reactivation')
+     const next=dep.pair(row.controllerSession)
+     if(next?.schemaVersion!==2||next.automaticRecovery!==true||activated.primarySession!==row.controllerSession||activated.standbySession!==pair.standby.sessionId||next.primary.sessionId!==row.controllerSession||next.standby.sessionId!==pair.standby.sessionId||next.primary.serviceId!==activated.serviceId||next.standby.serviceId!==activated.standbyServiceId||standbyEnrollmentDigest(next)!==activated.enrollmentSha256||['primary','standby'].some(role=>!['sessionId','cwd','pid','procStart'].every(k=>next[role][k]===qualifiedPlan.currentEpochs?.[role]?.[k])))throw Error('reactivated enrollment differs')
+     const selections={},actors={}
+     const savedActor=role=>{const actor=next[role],r=dep.record(actor.sessionId),b=ordinarySessionBinding(r,next[role==='primary'?'standby':'primary'].sessionId);if(b.storeHash!==identity.storeHash||r.cwd!==actor.cwd||r.cliSessionId!==actor.sessionId.slice(6)||r.permissionMode!=='bypassPermissions'||r.isArchived!==false)throw Error('reactivated account or native permissions changed');return b}
+     for(const role of ['primary','standby']){const actor=next[role],selected=dep.select(actor.cwd),s=await dep.status(actor.sessionId,actor.serviceId,{signal:ctx.signal});actors[role]=savedActor(role);selections[role]=selected;if(selected.selector.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==expectedBuild||s.sessionId!==actor.sessionId||s.serviceId!==actor.serviceId||s.build!==expectedBuild||s.verified!==true||s.verificationMode!=='live-native'||s.sourceDisposition!=='installed'||s.nativeEpochAssessed!==true||s.nativeEpoch?.pid!==actor.pid||s.nativeEpoch.procStart!==actor.procStart||s.nativeEpoch.status!=='idle'||s.readinessObserved!==true||s.nativePolicyObserved!==true||s.expired!==false||s.admissionStopped!==false||s.nativeInputRequired!==false||s.terminalAttemptReviewComplete!==true||!Array.isArray(s.unresolvedRequestIds)||s.unresolvedRequestIds.length||role==='primary'&&[s,selected.pointer,selected.policy].some(x=>capabilities.some(k=>x[k]!==true)))throw Error('reactivated service admission unqualified')}
+     if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(dep.pair(row.controllerSession),next)||['primary','standby'].some(role=>!equal(dep.select(next[role].cwd),selections[role])||!equal(savedActor(role),actors[role]))||!equal(ordinarySessionBinding(dep.record(binding.sessionId),row.controllerSession),binding))throw Error('reactivated evidence changed')
+     if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
+     return {qualified:true,controllerSession:row.controllerSession,serviceId:activated.serviceId,enrollmentSha256:activated.enrollmentSha256,nativeBuild:expectedBuild,currentSourceMatches:expectedBuild===RUNTIME_BUILD,sourceMaintenanceRequired:expectedBuild!==RUNTIME_BUILD}
+}
+
 // Freeze and validate metadata intent before any recovery effects. Epoch-bound
 // stop/interrupt and send admission keep their existing independent gates.
 export async function ordinaryRecordRecoveryCapabilities(name,args,record){
@@ -69,10 +87,12 @@ export async function ordinaryRecordRecoveryCapabilities(name,args,record){
  return ['sessionManagementControl',...ops.some(o=>['set_session_title','set_session_model','set_session_effort'].includes(o.operation))?['sessionMetadataControl']:[]]
 }
 const owned=dir=>{const s=lstatSync(dir);if(!s.isDirectory()||s.isSymbolicLink()||s.uid!==process.getuid()||s.mode&0o022)throw Error('record recovery directory unqualified')}
-function pendingError(controller,claim,root){
- const child=root?.children?.restore??root?.restorationOrigin,reactivation=root?.children?.reactivate
- return new DriverError('controller record recovery is pending; inspect original children before another attempt',{category:'ordinary_controller_record_recovery_pending',detail:{controllerSession:controller,recoveryParentJobId:root?.jobId??claim.jobId,...root?.origin?{originalRecoveryParentJobId:root.origin.jobId}:{},...job.test(child?.jobId||'')?{restorationJobId:child.jobId,restorationKind:root.kind}:{},...job.test(reactivation?.jobId||'')?{reactivationJobId:reactivation.jobId}:{},...root?.result?.restorationRootSha256?{restorationRootSha256:root.result.restorationRootSha256}:{},reason:root?.result?.reason??root?.failure?.category??'original-recovery-unresolved',targetDispatched:false,replayAuthorized:false,retrySafe:false}})
+export function ordinaryRecordPendingError(controller,claim,root){
+ const child=root?.children?.restore??root?.restorationOrigin,reactivation=root?.children?.reactivate,pairContinuation=root?.children?.['continue-pair']
+ return new DriverError('controller record recovery is pending; inspect original children before another attempt',{category:'ordinary_controller_record_recovery_pending',detail:{controllerSession:controller,recoveryParentJobId:root?.jobId??claim.jobId,...root?.origin?{originalRecoveryParentJobId:root.generationOwnerJobId??root.origin.jobId}:{},...job.test(child?.jobId||'')?{restorationJobId:child.jobId,restorationKind:root.kind}:{},...job.test(reactivation?.jobId||'')?{reactivationJobId:reactivation.jobId}:{},...job.test(pairContinuation?.jobId||'')?{pairContinuationJobId:pairContinuation.jobId}:{},...root?.result?.restorationRootSha256?{restorationRootSha256:root.result.restorationRootSha256}:{},reason:root?.result?.reason??root?.failure?.category??'original-recovery-unresolved',targetDispatched:false,replayAuthorized:false,retrySafe:false}})
 }
+
+const pendingError=ordinaryRecordPendingError
 
 export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},dependencies={}){
  if(!job.test(ctx.jobId||''))return null
@@ -99,8 +119,9 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
   const collision=prior();let checkpoint
   if(collision){
    try{checkpoint=await observeOrdinaryRecordCheckpoint(row.controllerSession,primary.serviceId,digest,{base,inspect:dep.job,signal:ctx.signal})}catch{throw pendingError(row.controllerSession,collision.claim,collision.root)}
-   if(!checkpoint?.suffixInspectionEligible||checkpoint.root.jobId===ctx.jobId)throw pendingError(row.controllerSession,collision.claim,collision.root)
+   if(!(checkpoint?.suffixInspectionEligible||checkpoint?.pairReadinessInspectionEligible)||checkpoint.root.jobId===ctx.jobId)throw pendingError(row.controllerSession,collision.claim,collision.root)
   }
+  if(checkpoint?.pairReadinessInspectionEligible)return (await import('./ordinary-pair-readiness.mjs')).continueOrdinaryPairReadiness({name,args,ctx,dep,row,pair,digest,base,capabilities,checkpoint,dependencies})
   if(dep.record(row.controllerSession)&&!checkpoint)return null
   let identity,binding,selection,version
   try{identity=dep.identity(primary.sessionId,primary.serviceId);binding=ordinarySessionBinding(target,row.controllerSession);selection=dep.select(primary.cwd);version=dep.version();validateServiceRecoveryIdentity(identity,{session:primary.sessionId,serviceId:primary.serviceId,...dependencies.probeRoot?{probeRoot:dependencies.probeRoot}:{}})}
@@ -134,18 +155,7 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
     },
     pairPlan:(kind,proof)=>dep.pairPlan(proof.rootJobId,proof.rootSha256,{signal:ctx.signal,restorationKind:kind}),
     reactivate:(kind,proof,plan)=>child('reactivate',{operation:'broker_service_reactivate_restored_pair',arguments:{restoration_job_id:proof.rootJobId,expected_root_sha256:proof.rootSha256,expected_plan_sha256:restoredPairPlanDigest(plan),restoration_kind:kind,experimental:true},idempotency_key:'ordinary-record:'+ctx.jobId+':reactivate',timeout_sec:240}),
-    verify:async(activated,qualifiedPlan)=>{
-     if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
-     if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(ordinarySessionBinding(dep.record(args.session),row.controllerSession),binding))throw Error('ordinary intent changed after reactivation')
-     const next=dep.pair(row.controllerSession)
-     if(next?.schemaVersion!==2||next.automaticRecovery!==true||activated.primarySession!==row.controllerSession||activated.standbySession!==pair.standby.sessionId||next.primary.sessionId!==row.controllerSession||next.standby.sessionId!==pair.standby.sessionId||next.primary.serviceId!==activated.serviceId||next.standby.serviceId!==activated.standbyServiceId||standbyEnrollmentDigest(next)!==activated.enrollmentSha256||['primary','standby'].some(role=>!['sessionId','cwd','pid','procStart'].every(k=>next[role][k]===qualifiedPlan.currentEpochs?.[role]?.[k])))throw Error('reactivated enrollment differs')
-     const selections={},actors={}
-     const savedActor=role=>{const actor=next[role],r=dep.record(actor.sessionId),b=ordinarySessionBinding(r,next[role==='primary'?'standby':'primary'].sessionId);if(b.storeHash!==identity.storeHash||r.cwd!==actor.cwd||r.cliSessionId!==actor.sessionId.slice(6)||r.permissionMode!=='bypassPermissions'||r.isArchived!==false)throw Error('reactivated account or native permissions changed');return b}
-     for(const role of ['primary','standby']){const actor=next[role],selected=dep.select(actor.cwd),s=await dep.status(actor.sessionId,actor.serviceId,{signal:ctx.signal});actors[role]=savedActor(role);selections[role]=selected;if(selected.selector.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==RUNTIME_BUILD||s.sessionId!==actor.sessionId||s.serviceId!==actor.serviceId||s.build!==RUNTIME_BUILD||s.verified!==true||s.verificationMode!=='live-native'||s.sourceDisposition!=='installed'||s.nativeEpochAssessed!==true||s.nativeEpoch?.pid!==actor.pid||s.nativeEpoch.procStart!==actor.procStart||s.nativeEpoch.status!=='idle'||s.readinessObserved!==true||s.nativePolicyObserved!==true||s.expired!==false||s.admissionStopped!==false||s.nativeInputRequired!==false||s.terminalAttemptReviewComplete!==true||!Array.isArray(s.unresolvedRequestIds)||s.unresolvedRequestIds.length||role==='primary'&&[s,selected.pointer,selected.policy].some(x=>capabilities.some(k=>x[k]!==true)))throw Error('reactivated service admission unqualified')}
-     if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(dep.pair(row.controllerSession),next)||['primary','standby'].some(role=>!equal(dep.select(next[role].cwd),selections[role])||!equal(savedActor(role),actors[role]))||!equal(ordinarySessionBinding(dep.record(args.session),row.controllerSession),binding))throw Error('reactivated evidence changed')
-     if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
-     return {qualified:true,controllerSession:row.controllerSession,serviceId:activated.serviceId,enrollmentSha256:activated.enrollmentSha256}
-    }
+    verify:(activated,qualifiedPlan)=>verifyOrdinaryRecoveredPair({activated,qualifiedPlan,dep,row,pair,binding,identity,version,capabilities,ctx,checkpoint})
    }
    let result
    if(checkpoint){
@@ -164,7 +174,7 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
    if(!result.recovered)throw pendingError(row.controllerSession,{jobId:ctx.jobId},context.ledger)
    return {...result,recoveryParentJobId:ctx.jobId,...checkpoint?{originalRecoveryParentJobId:checkpoint.original.jobId}:{}}
   }catch(error){
-   if(context){context.ledger.failure={category:error.category??'ordinary-record-recovery-unresolved',at:Date.now()};context.save();if(error.category==='ordinary_controller_record_recovery_pending')throw error;throw pendingError(row.controllerSession,{jobId:ctx.jobId},context.ledger)}
+   if(context){context.ledger.failure=ordinaryRecoveryFailure(error,'ordinary-record-recovery-unresolved');context.save();if(error.category==='ordinary_controller_record_recovery_pending')throw error;throw pendingError(row.controllerSession,{jobId:ctx.jobId},context.ledger)}
    if(error.category==='ordinary_controller_record_recovery_pending')throw error
    if(error.code==='EEXIST'){const collision=prior();if(collision)throw pendingError(row.controllerSession,collision.claim,collision.root)}
    throw new DriverError('ordinary controller record recovery not admitted; inspect retained evidence',{category:'ordinary_controller_record_recovery_unqualified',detail:{controllerSession:row.controllerSession,targetDispatched:false,recordRestorationAttempted:false,replayAuthorized:false,retrySafe:false}})

@@ -1,3 +1,64 @@
+## October 18 ordinary admission composes exact native pair-readiness continuation
+
+Previous goal turn was progress: 6ecadbf added post-import metadata suffix and
+pending-root health. Current source 6d0a911facac74b379cb9c4e29bb7102bd638038e6fb31d48f1d2a133e900ee2
+now composes the EXISTING reviewed failed-before-readiness-primary continuation.
+Ordinary checkpoint reads remain bounded to original owner, optional post-import
+metadata suffix, and at most one pair-readiness metadata suffix. Metadata parents
+must independently be failed with target-undispatched pending proof. Exact original
+pair child must be failed/restored_pair_unresolved at before-readiness-primary;
+other/unknown/later phases cannot enter this route. Health/status exposes
+pairReadinessInspectionEligible and candidate job only for separate inspection;
+no native calls or effects are added to health.
+
+New ordinary-pair-readiness adapter delegates native prefix validation to
+readPairReadinessCheckpoint (actual original pair/restoration jobs and all actual
+preparation/quiescence/retirement/primaryactivation children) and current native
+qualification to inspectPairReadinessContinuation. It ties source/epochs/roles/
+restoration/enrollment back to the exact failed ordinary lineage and checks new
+caller account/identity/intent/grants/version/source/self exclusions. Existing
+native continuation claim is observed and reported rather than duplicated.
+Readiness/grant/child/claim refusal creates no new metadata suffix claim.
+
+One separate pair-continuation-claims/<originalPairJob>.json/new metadata root
+retains original generation owner, ordinary roots/parents and failed native root.
+Only child broker_service_continue_restored_pair is submitted; existing native
+executor skips preparation/retirement/import/primaryactivation. Its exact result
+and both actors are independently verified. Shared verifyOrdinaryRecoveredPair
+accepts only checkpoint-qualified exact preparedBuild, exposes nativeBuild /
+currentSourceMatches / sourceMaintenanceRequired. Older sealed native packages
+are never relabeled current; subsequent normal ordinary maintenance still must
+renew to current host source before target dispatch. Original target is never
+replayed. One claimed readiness suffix remains retained after uncertainty; no
+repeat child, claim reassignment or unbounded retry chain.
+
+Focused41 PASS incl real ordinary/native checkpoint readers/private claims/jobs,
+old and current prepared-source cases, concurrent callers, closed eligibility,
+changed grants/actual child, existing native claim, unknown continuation observation
+and unchanged original root bytes. Positive native availability/effects are
+simulated; native qualifier/executor adapters retain their separate test scopes.
+Initial focused -1/-2 caught a real extraction regression: shared verifier used
+out-of-scope args; corrected it to frozen binding.sessionId. Failures retained in
+pressure/ordinary-pair-readiness-focused-{1,2}-20261018.log. Final -5 log PASS.
+New private failure entries retain sanitized JS error name (ReferenceError etc),
+category and timestamp without error text/stack/prompts, improving future diagnosis.
+Full188 PASS40.5sec/frozen source+suite+installed identity/sourceChangedfalse:
+pressure/v2-2026-10-18T17-57-49-370Z.json; log
+pressure/ordinary-pair-readiness-full-20261018.log. No new live loss/restart/message,
+permission/UI change, current-client reload, filtered harness or native12 test.
+Historical actual native deletion/continuation source5ee, harnessf13 and loaded
+MCP/native12 source796 remain separate evidence, not current automatic-route proof.
+
+NEXT: integrate record-loss send/stop/interrupt admission with appropriate frozen
+recipient epoch/intent and preserve uncertain target outcomes. Then strategic final
+harness/client adoption/native qualification and cleanup; keep full original brief
+scope/ordinary chats such as ProDevs. Prepared leases must still satisfy reviewed
+margins; expiry/unknown/later-prefix cases are not universally qualified. Cold-app
+all-Code-processes-absent startup still lacks changed supported ingress; do not
+repeat unchanged outage. Goalactive; no person action pending and no live test
+worker or task-owned cleanup remaining. Working/recovered disposable pairs and
+observer broker untouched; Codex bridge and1Password remain separate.
+
 ## October 18 post-import ordinary recovery suffix and pending health visibility
 
 Previous goal turn was progress: e2c7fd7 integrated single-attempt metadata record

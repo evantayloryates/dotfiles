@@ -40,7 +40,7 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `caf129d8` passes all 188
+execution remains unqualified. Current host source `6d0a911f` passes all 188
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on prior
 source `f13af418`; loaded-client adoption is a separate gate.
 One actual human-assisted native deletion test reaped the
@@ -103,10 +103,15 @@ seed/import. Once an original metadata parent has definitively failed before
 target dispatch and its restoration child independently completed, a later
 metadata request can claim only the never-attempted pair-reactivation suffix after
 its native gates clear. It preserves the original failure and never repeats
-restoration. An already-attempted or uncertain pair still needs its existing exact
-continuation/reconciliation path. Pending recovery remains visible in health even
+restoration. A pair that failed at the exact primary-readiness checkpoint can now
+compose its existing verified continuation once, preserving preparation,
+retirement and primary activation. Other attempted or uncertain prefixes require
+their exact reconciliation path. Pending recovery remains visible in health even
 after import recreates the saved chat record; use
 `broker_service_controller_record_status` for bounded parent/child handles.
+Prepared packages may retain an older sealed source; the recovery result reports
+that source separately, and ordinary maintenance must qualify current source
+before dispatching the target request.
 
 Qualification remains partial: unattended startup after app quit/restart,
 automatic deleted-service recovery and sustained availability

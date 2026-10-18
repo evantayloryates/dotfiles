@@ -56,18 +56,34 @@ gate clears, a later metadata request may adopt an independently completed
 restoration and claim only its never-attempted pair suffix. The original metadata
 parent must be definitively failed with target-undispatched evidence, and actual
 parent arguments, child jobs and immutable roots must still match. Active or
-unknown parents, changed intent, uncertain submissions and already-attempted pairs
-refuse. A separate suffix claim/root preserves original failures; concurrent
+unknown parents, changed intent and uncertain submissions refuse. A separate
+suffix claim/root preserves original failures; concurrent
 callers cannot start a second import or pair suffix. It does not replay the
-original target request. Failed pair prefixes still use their existing explicit
-continuation operations.
+original target request.
+
+For an actual failed pair at `before-readiness-primary`, ordinary metadata admission
+can compose the existing exact readiness continuation. It independently verifies
+the failed native root, original preparation/quiescence/retirement/primary-activation
+children, restored identity, scoped grants, immutable ordinary parents and current
+native readiness before claiming one remaining suffix. An existing native claim
+is reported rather than duplicated. No seed/import, preparation, retirement or
+primary activation is repeated. Later/ambiguous prefixes retain their explicit
+reconciliation paths. Unknown suffix observations preserve their handles and
+claims; a later caller cannot start another continuation.
+
+The prepared packages can retain their exact older sealed build. Recovery reports
+`nativeBuild`, `currentSourceMatches` and `sourceMaintenanceRequired`; those fields
+never relabel old packages as current. Normal ordinary maintenance still enforces
+the current runtime source before target dispatch.
 
 `broker_service_controller_record_status {session:<exact enrolled controller>}`
 is read-only and works when the saved record is missing or already restored.
 It reports original/current recovery-parent handles, phase, root hash and independently
 observed child states, without native reads or transcript/snapshot contents.
 `suffixInspectionEligible` permits inspecting the remaining suffix; it grants no
-effect or continuation authority. `driver_status` reports
+effect or continuation authority. `pairReadinessInspectionEligible` similarly
+identifies an actual failed pair for a separate exact native checkpoint inspection.
+`driver_status` reports
 `record-recovery-pending` before live-generation health, so a recreated record
 cannot hide an incomplete claimed recovery. Neither health entrypoint repairs or
 wakes anything. The CLI's current source and cached MCP adoption remain separate.
