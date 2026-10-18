@@ -1,3 +1,30 @@
+## October 18 blocked audit: native startup still absent
+
+Revalidated exact failed import continuation without effects: primary peer absent,
+inspectPairImportContinuation refuses attempted import still lacks qualified
+changed-condition native epoch. Private appquit-continuation-audit-20261018.json.
+Same prerequisite has persisted through original appquit gate and two consecutive
+continuations. No live job/process wait can advance it; all original jobs terminal.
+No supported input-free startup path is established after import only opens chat;
+UI/keyboard remains quarantined and native consent cannot be synthesized. Do not
+repeat import, parent pin or bootstrap, nor weaken epoch proof to unblock.
+
+Final current-source consolidated synthetic suite PASS1/1 round44.7sec,
+pressure/v2-2026-10-18T04-18-24-201Z.json, sourceChangedfalse. Focused14 tests
+previously pass. This does not qualify appquit recovery, native serving or cached
+MCP. Existing fresh harness passes remain3f2 source, not this diagnostic source.
+
+NEXT REQUIRED PERSON ACTION: in Claude Code open
+claude-driver-transport-scratch-2026-10-15 and send ready; resume this goal after
+native startup. Then independently observe exact idle epoch, inspect unchanged
+failed-root digest from previous checkpoint, submit one supported continuation
+only if qualified, never replay prior import/target. Second actor may still need
+native startup. Codex restart for actual loaded MCP remains separately pending.
+Deleted-service replacement/sustained availability remain incomplete, not waived.
+Both old services retired; bridge serving DOWN. No cleanup deletion, no running
+jobs. Mark goal BLOCKED after publication; resume requires user/external state
+change, not another automatic status loop. Codex bridge fixes remain parked.
+
 ## October 18 native import observation logging
 
 Primary/standby peers independently rechecked: both absent; requested person ready
