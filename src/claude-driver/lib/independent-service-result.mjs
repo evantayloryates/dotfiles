@@ -60,3 +60,11 @@ export async function inspectIndependentService(session,serviceId,{signal,histor
  try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-service-status.mjs',import.meta.url)),session,serviceId,...historical||offline?[offline?'--offline':'--historical',...(located?[located.record.cwd]:[])]:[]],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state,CLAUDE_DRIVER_CONTROL_STATE_DIR:STATE_DIR},signal,timeout:15000,maxBuffer:65536});return JSON.parse(stdout)}
  catch{throw new DriverError('independent service status unavailable; no recovery attempted',{category:'independent_service_status_unavailable'})}
 }
+
+// Retains unknown read history; no request/result is overwritten or replayed.
+export async function abandonIndependentRead(session,serviceId,requestId,{jobId,signal}={}){
+ const state=independentServiceState(session,serviceId,getRecord(session))
+ if(!/^rpeer[a-f0-9]{32}$/.test(requestId||'')||!/^j[a-f0-9]{32}$/.test(jobId||''))throw new DriverError('exact durable read abandonment required',{category:'bad_args'})
+ try{const {stdout}=await exec(process.execPath,[fileURLToPath(new URL('../scripts/independent-read-abandon.mjs',import.meta.url)),session,serviceId,requestId,jobId],{env:{...process.env,CLAUDE_DRIVER_STATE_DIR:state,CLAUDE_DRIVER_CONTROL_STATE_DIR:STATE_DIR},signal,timeout:20000,maxBuffer:65536});return JSON.parse(stdout)}
+ catch{throw new DriverError('offline read abandonment refused or checkpoint uncertain; inspect original job and marker',{category:'offline_read_abandonment_unresolved',detail:{jobId,serviceId,requestId,retrySafe:false}})}
+}

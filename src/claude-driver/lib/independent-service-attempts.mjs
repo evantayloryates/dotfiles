@@ -1,3 +1,4 @@
+import {offlineReadAbandonmentMatches} from './offline-read-abandonment.mjs'
 import {isMetadataOperation} from './native-metadata-control.mjs'
 import {screenNativeServiceResult} from './native-peer-service-evidence.mjs'
 import {screenNativeServiceRefusal,screenTerminalMissingRequestRefusal} from './native-service-refusal-evidence.mjs'
@@ -13,7 +14,7 @@ export function unresolvedAttemptDiagnostic(context,id){
  const request=objects.request,ops=request?.ops
  const known=new Set(['get_session','list_sessions','archive_session','send_message','stop_session','set_session_title','set_session_model','set_session_effort','set_pinned','unarchive_session'])
  const operation=Array.isArray(ops)&&ops.length===1&&known.has(ops[0]?.op)?ops[0].op:'unqualified'
- let runtimeBindingVerified=false;try{runtimeBindingVerified=nativeRequestBindingMatches(request,pointer)===true}catch{}
+ let runtimeBindingVerified=false;try{runtimeBindingVerified=pointer.nativeRequestBindingVersion===1&&nativeRequestBindingMatches(request,pointer)===true}catch{}
  return {requestId:id,operation,operationScope:runtimeBindingVerified&&['get_session','list_sessions'].includes(operation)?'metadata-read':'unqualified',runtimeBindingVerified,evidence,outcome:'unknown',replayAuthorized:false,retirementAuthorized:false}
 }
 // Read-only inventory. Missing, malformed and merely refused attempts remain
@@ -32,7 +33,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
   ids.add(id)
  }
  if(ids.size>256)throw Error('attempt inventory bound')
- const settledRequestIds=[],unresolvedRequestIds=[],unresolvedAttempts=[],callbackRefusalRequestIds=[],terminalRefusalRequestIds=[]
+ const settledRequestIds=[],abandonedReadRequestIds=[],unresolvedRequestIds=[],unresolvedAttempts=[],callbackRefusalRequestIds=[],terminalRefusalRequestIds=[]
  for(const id of [...ids].sort()){
   let settled=false
   try{
@@ -44,6 +45,7 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
    }
   }catch{/* Preserve the original evidence; absence is not a terminal outcome. */}
   if(settled){settledRequestIds.push(id);continue}
+  try{if(offlineReadAbandonmentMatches(context,id,read('.offline-read-abandoned-'+id+'.json'),now)){abandonedReadRequestIds.push(id);continue}}catch{}
   let terminal=false
   try{if(screenNativeServiceRefusal({config,ready:read('.native-service-'+config.id+'.ready.json'),intent:read('.native-service-'+id+'.intent.json'),marker:read('.native-service-'+id+'.no-dispatch.json'),now}).callbackRefusalObserved)callbackRefusalRequestIds.push(id)
    const absent=name=>{try{read(name);return false}catch(error){if(error.code==='ENOENT')return true;throw error}}
@@ -53,5 +55,5 @@ export function reviewIndependentAttempts({context,reservedRequestIds,names,now=
   }catch{}
   if(terminal)terminalRefusalRequestIds.push(id);else{unresolvedRequestIds.push(id);unresolvedAttempts.push(unresolvedAttemptDiagnostic(context,id))}
  }
- return {settledRequestIds,unresolvedRequestIds,unresolvedAttempts,callbackRefusalRequestIds,terminalRefusalRequestIds,attemptsReviewed:ids.size,terminalAttemptReviewComplete:unresolvedRequestIds.length===0,retirementAuthorized:false,scopedUnloadQualified:false}
+ return {settledRequestIds,abandonedReadRequestIds,unresolvedRequestIds,unresolvedAttempts,callbackRefusalRequestIds,terminalRefusalRequestIds,attemptsReviewed:ids.size,terminalAttemptReviewComplete:unresolvedRequestIds.length===0,retirementAuthorized:false,scopedUnloadQualified:false}
 }

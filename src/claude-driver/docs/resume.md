@@ -1,3 +1,32 @@
+## October 17 exact offline metadata-read result abandonment passed
+
+Added durable experimental broker_service_abandon_read for an exact offline owned
+generation/request. Only expired single generation+policy-bound get_session or
+linked-self list_sessions reads qualify, with finished worker, empty dispatch list
+and absent entry/admission/module/published result evidence. Exact old PID absence
+and no same-host peers checked before/after checkpoint under broker lock. Invalid,
+unreadable, changed, mixed, mutation and late-result evidence refuse. No request,
+control or result is overwritten; marker binds unchanged request hash and epoch.
+
+Review separates abandonedReadRequestIds from settledRequestIds: abandoned result
+retains outcome unknown, no native receipt, no replay. Terminal review may complete
+without fabricating a successful read; retirement still requires its own STOP and
+exact independent offline gates. Original request/job failure remains retained.
+Durable native-history operationj381542509fbf4db380c2b870125c91c4 completed against
+original9d576.../rpeerba99... after current absence verification. Offline readback:
+verifiedtrue/offline-installed, abandonedReads[ba99...], unresolved[], settled[],
+terminalAttemptReviewCompletetrue, retirementAuthorizedfalse. No native calls or
+wake/import/archive replay. Evidence .runtime/state/outage-read-abandonment-native-20261017.json.
+
+Focused13 passed first. Broader first run retained six runtime_stale refusals after
+agent changed a diagnostic legacy-binding fence during that run; not native failure.
+Repeat exact suite only after source stable; do not claim first run passed.
+Next: interrupted-renewal successor lineage842d->9d must be reconciled with retained
+d5ed enrollment using original ledger, retired predecessor family and exact roles;
+current pair planner still refuses predecessor history/selection. Do not rewrite
+binding or relax unknown mutation gates. BOTH owned fresh source8bab.../forkcbc...
+remain unarchived pending eligible pair recovery. Goal active; no live native jobs.
+
 ## October 17 offline unknown-attempt diagnostics verified
 
 Actual selected9d576... offline review now exposes unresolvedAttempts, bounded
@@ -9723,3 +9752,5 @@ Integrated synthetic gate on the same 034aee... source: 1/1 PASS in 39.0 seconds
 Same-source cc707991544f36ebbe1abbc9d91a09368a560df1a270b56c704a3cd64e7a8699 integrated synthetic gate: 1/1 PASS, 34.2 seconds, sourceUnchanged; pressure/v2-2026-10-18T03-36-27-652Z.json. No native creation/fork claim.
 
 Focused gate on source673aae502955f073ac7215f524417010cd65f57e5cf4c5cc01ed28f78331fa2d: 87/87 PASS in12.7sec (import/focus/creation followups/v2/MCP). Private log tiera-import-focused-20261017.log. No full-suite or native repeat for this interim gate.
+
+Stable-source91c5bbf9963effa2ab1a5a00699fb251c1c72372021ff1ffa1e23deb71ea3201 focused42/42 PASS12.8sec, offline-read-abandonment-stable-focused-20261017.log. First stale-source failure log preserved separately; full suite deferred to consolidated gate.
