@@ -1,22 +1,17 @@
-## Current frontier — October 17, recovery/rebind composition
+## Current frontier — October 17, automatic recovery/rebind/send native qualified
 
-See [resume.md](resume.md) for the latest exact services, enrollment digest,
-source fingerprints, durable jobs, reports and cleanup. The dated sections below
-retain historical evidence; their NEXT statements are not current instructions.
+See [resume.md](resume.md) for exact current services, binding, jobs and reports.
+Fresh one-shot cold recovery now passes after manual accidental archive with
+persisted workspace trust. An ordinary send also completed automatic recovery,
+exact standby rebind, native delivery and independently observed causal reply.
+The scoped scratch enrollment is enabled. A surviving qualified standby and exact
+retained family/epoch/binding evidence remain required; unknown effects fail closed.
+Original failures and explicit continuation evidence remain separate from these passes.
 
-Healthy native send/stop/steer and scoped control checks have prior native proof.
-The restored October17 pair now passes actual native-send MCP contracts in both
-Codex (23-32-50-846Z) and Claude (23-37-13-536Z),18checks each. These prove
-receipt and causal reply through the enrolled route, not unattended recovery.
-Exact standby enrollment, renewal refresh, cold routing, proof-bound rebind and
-automatic recovery/rebind composition now exist. Current enrollment still has
-automatic recovery disabled. A proof-bound continuation of the trusted import-started
-epoch now completes native service restoration and standard standby rebind; original
-failed jobs remain failed. Fresh whole one-shot cold recovery remains unqualified. Actual successful native cold recovery/rebind,
-app quit or both controllers lost, natural-pressure survival and the wider
-creation/fork/archive/window/person-only gates remain incomplete. Synthetic suite
-and filtered MCP checks establish only their named scope. The full goal remains
-active; these candidates do not establish always-on operation.
+Healthy send/stop/steer and scoped control have prior native proof. App quit or both
+controllers lost, natural-pressure survival and wider creation/fork/archive/window/
+person-only gates remain incomplete. This is bounded failover qualification, not
+proof of always-on operation. The full goal remains unfinished.
 
 ## October 17 durable standby enrollment refreshes across primary renewal
 

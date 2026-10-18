@@ -1,3 +1,58 @@
+## October 17 one-shot cold recovery and automatic recovery/rebind/send native PASS
+
+Previousbatch0b8228f. Taylor archived exacttransport; current aa9d02 binding/action
+recover/oldPID58199absent/nopeer/0unknown verified. Fresh default one-shot root
+j6dd2a6575b9b48d9bd2d8073c9900101 COMPLETED; childj71acad8c26044072a89fc5eb61a060c3
+COMPLETED (no continuation). Importjf4491d207fdb4507a65724582a9a430a started
+PID91314/startSunOct18 00:40:25UTC. Native branch verified import epoch, skipped wake,
+restored role/settings/anchor/readiness/policy/native read. Newprimary485f9c...;
+standard rebindjb6c93e23acd04c899605bc79cf8eda9a COMPLETED. Fresh Codex MCP native
+send report harness-native-native-send-codex-2026-10-18T00-40-46-818Z PASS18checks,
+both baseline settings match. Binding4158e1... prior aa9d02 retained.
+
+Enabled exact scratch request-triggered recovery with CAS enrollment
+j654520f5caaf4ce49d6d1c41205a716d -> v2binding6fd26c.../automaticRecoverytrue.
+Taylor archived exacttransport again for automatic test. Initial ordinary send
+jbb2dd6ca8cb848c7be3d54b551f1c820 FAILED native_controller_unqualified/dispatchedfalse,
+maintenance/recovery/send ledgers independently absent. No effects. Found real bug:
+maintenance entered recovery only on thrown inspection; offline inspection can
+return verifiedfalse instead. Added inspectNativeControllerOrRecover: non-live
+unqualified status OR thrown inspection can enter guarded recovery only when no
+current peer and no prior recovery; existing independent absence/binding/intent
+checks remain. Live peers never trigger fallback. Two focused regressions PASS.
+Original undispatched failure retained, not rewritten.
+
+Changed-source ordinary sendj65d64802d7c54730a71d3cfed00fc08f COMPLETED with actual
+AUTOMATIC recovery childj4316b69233d241fab9dae6ad37b9cc23 and exact rebind CONTEXT
+ja29c269d623b3aad51083276b3e6c217 (not scheduled driverjob). Same original send root
+continued once after recovery/rebind; native request rpeer65d648...receiptVerified,
+deliverydelivered,message0a619dd8-f075-4ebe-b714-5255bf1cf7fc,nativeAcceptedtrue,
+standbyRebindRequiredfalse,appliedfalse. Independent target session_events after
+savedcursor prove exact user message+causal AUTO_RECOVERY_OK_20261017 reply,hasMorefalse.
+Target and both full setting baselines independently match. No prompt/permission/
+apprestart/processsignal/CUA/legacywake. Manual archive provided test setup only;
+automatic request itself recovered/rebound/delivered with no human recovery action.
+
+CURRENTPRIMARY3c68be7da94f4ca785cc1b0d1361e07c PID96436/startSunOct18 00:42:30UTC.
+CURRENTSTANDBYa29c269d623b3aad51083276b3e6c217 SAMEPID90418/start21:37:26UTC;
+archiveTarget only currentprimary96436. Bothsealed FINALHOST
+be087a9666b625e17b93dc7152832f5cf2115d3ccf30262ff137fe42324bb6dd.
+CURRENT binding0f9550fc2fcd257671f290b970c2e24cfdd3a470690ad503b2a72680b8246fd3,
+familyrpeer9ba21abdb5275f84cd39c4e31c960468,automaticRecoveryEnabledtrue,
+actualstatuswaitprimarylive/noeffects. Bothidle/readiness/policy/notexpired/0unknown.
+Old6fd26c bytes retained by rebind. Native event/result evidence in private
+metadataControlTrial.automaticImportRecoveryTrial.fixedSourceAttempt; first failure
+still in trial root observation. No reuse of uncertain requests.
+
+Finalfull v2-2026-10-18T00-42-22-581Z PASS1/1/sourceunchanged; filtered
+Claude00-41-58-025Z/Codex00-41-59-214Z PASS10each. Final actual Claude MCP native-send
+harness-native-native-send-claude-2026-10-18T00-42-54-290Z PASS18checks. No runtime edits during native jobs.
+NEXT: remaining fullgoal gaps include appquit/bothcontrollerslost, natural governor
+pressure survival, wider creation/fork/archive/window/person-only scopes. Automatic
+qualification is only exact owned pair with surviving qualified standby/persisted
+trust; does not establish app-restart/bothgone recovery or always-on availability.
+Legacy observer retains legacy recovery; watcher paused; Codex-driver/1Password parked.
+
 ## October 17 fresh one-shot setup blocked audit
 
 Same primary-live/absent-primary-test-condition blocker verified in three consecutive

@@ -1479,8 +1479,8 @@ live controller and does not promise recovery after process or app loss.
 Cold recovery now derives the replacement role from verified terminal historical
 policy, preserving its exact target and model/send/stop grants. Changed targets,
 policy disagreement or unresolved effects refuse. Success requires final role
-preservation as well as settings, readiness and a native read. This change has
-unit/current-policy validation; a fresh native cold-recovery trial is still pending.
+preservation as well as settings, readiness and a native read. This path now has native one-shot cold recovery and exact standby rebind evidence
+on the owned scratch pair, plus automatic recovery/rebind/send qualification.
 
 `node scripts/residency-v2.mjs --live --session <controller> --service-id <generation> --duration-sec 240`
 observes an existing independent controller without native writes or wakes.
@@ -1507,7 +1507,10 @@ the prior bytes in history. `broker_service_standby_status` inspects the retaine
 binding without effects. Enrollment defaults to automatic recovery disabled.
 Explicit `automatic_recovery:true` opts into request-triggered recovery; changing
 an existing choice requires the exact prior digest. Renewal preserves that choice.
-The deployed scratch binding remains disabled pending native cold qualification.
+The exact deployed scratch binding now enables request-triggered recovery after
+native one-shot recovery/rebind and automatic send qualification. This requires
+a surviving qualified standby and persisted native trust; app quit or loss of both
+controllers remains unqualified.
 
 `broker_service_recover_enrolled` is an experimental durable one-shot operation
 requiring the exact binding digest. It and enabled control routing require actual
