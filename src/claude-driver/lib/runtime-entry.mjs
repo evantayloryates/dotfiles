@@ -6,6 +6,8 @@ import {createHash} from 'node:crypto'
 import {constants,openSync,closeSync,fstatSync,lstatSync,readFileSync,readdirSync,realpathSync,writeFileSync,renameSync,linkSync,unlinkSync} from 'node:fs'
 import {dirname,join,resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
+// Mirrored with releases.mjs; this bootstrap cannot trust mutable imports.
+export const PINNED_RELEASE_FILE_LIMIT=512,PINNED_RELEASE_BYTE_LIMIT=16*1024*1024
 const hex=/^[a-f0-9]{64}$/
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const refuse=(reason='integrity-unqualified')=>{const error=new Error('pinned broker runtime failed integrity admission; no work claimed ['+reason+']');error.code='PINNED_RUNTIME_ADMISSION';error.admissionReason=reason;throw error}
@@ -81,13 +83,14 @@ function pinnedRuntime(dir) {
  const state=dirname(resolve(dir)),releases=join(state,'releases'),root=join(releases,pointer.build)
  if(lstatSync(releases).isSymbolicLink()||realpathSync(root)!==join(realpathSync(state),'releases',pointer.build))refuse()
  owned(root,true);owned(join(root,'release.json'))
- const manifest=JSON.parse(readFileSync(join(root,'release.json'),'utf8')),files={}
+ const manifestPath=join(root,'release.json');if(lstatSync(manifestPath).size>1024*1024)refuse('release-manifest-size-limit')
+ const manifest=JSON.parse(readFileSync(manifestPath,'utf8')),files={};let totalBytes=0
  function visit(folder,prefix=''){
   owned(folder,true)
   for(const name of readdirSync(folder).sort()){
    const file=join(folder,name),rel=prefix+name,st=lstatSync(file)
    if(st.isDirectory())visit(file,rel+'/')
-   else {owned(file);if(st.size>4*1024*1024||Object.keys(files).length>=256)refuse();if(rel!=='release.json')files[rel]=hash(readFileSync(file))}
+   else {owned(file);if(rel==='release.json')continue;if(st.size>4*1024*1024)refuse('release-file-size-limit');if(Object.keys(files).length>=PINNED_RELEASE_FILE_LIMIT)refuse('release-file-count-limit');if(totalBytes+st.size>PINNED_RELEASE_BYTE_LIMIT)refuse('release-total-size-limit');totalBytes+=st.size;files[rel]=hash(readFileSync(file))}
   }
  }
  visit(root)

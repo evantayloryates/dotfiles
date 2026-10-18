@@ -1,3 +1,33 @@
+## October 18 consolidated gate exposed/fixed sealed package capacity
+
+Full suite168 files on stable source FAILED9 (747/756 pass), original report
+pressure/v2-2026-10-18T05-41-27-426Z.json retained. Root cause: current release
+inventory260 files/2,919,829bytes crossed hard-coded256-file maximum, no oversized
+file. Growing valid source was misreported as corruption. Initial staging fix
+cleared original staging errors but targeted36 left5 sealed-bootstrap failures:
+self-contained runtime-entry had duplicate256 cap. That failure is preserved in
+turn evidence; do not count initial partial fix as qualified.
+
+Stager and self-contained bootstrap now agree on512 files,16MiB aggregate and
+unchanged4MiB/file. Bootstrap manifest additionally bounded1MiB before JSON read.
+All per-file hashes, immutable/sealed mode, owner, symlink/path/epoch/settings
+checks remain. Aggregate byte cap tightens previously absent total-byte bound.
+Bound failures have fixed diagnostic reason/limit metadata, no file content.
+Parity and actual filesystem boundary tests enforce both copies stay matched;
+bootstrap still imports no mutable dependencies before admission.
+
+Targeted release/bootstrap/state-binding24 PASS. Full corrected suite169 files
+PASS1/1 round63.3sec, sourceChangedfalse, buildca823ee42c193c2657791c65e141c88903663d9f57b9b74a5264f10724e8ab2d,
+report pressure/v2-2026-10-18T05-44-01-236Z.json. Private bounded output
+pressure/release-budget-consolidated-20261018.log. No native receiver deployment,
+renewal, message, app restart, deletion/import or full native profile.
+
+Next: exact original restored-record proof/native readiness, then role-preserving
+service reactivation with reciprocal target verification. Last actual loaded-MCP/
+native source18ef is historical relative to currenthostca823; use current CLI
+while developing and defer refresh to final settled gate. Goal active; no live
+jobs/cleanup pending. Native loss/permission/startup gates still unqualified.
+
 ## October 18 filesystem restoration qualified; retirement ordering corrected
 
 Added isolated filesystem fixture covering real saved-record lookup, enrollment,

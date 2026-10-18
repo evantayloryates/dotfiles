@@ -15,15 +15,18 @@ export const RUNTIME_POINTER=join(BROKER_DIR,'runtime.json')
 export const HANDOFF_OWNER='claude-driver-qualified-runtime-handoff'
 const roots=['server.mjs','cli.mjs','broker-template','lib','scripts','docs','candidates']
 const hex=/^[a-f0-9]{64}$/
-const fail=()=>{throw new DriverError('broker release integrity check failed; preserve STOP and reconcile runtime.json',{category:'broker_runtime_invalid'})}
+const fail=detail=>{throw new DriverError('broker release integrity check failed; preserve STOP and reconcile runtime.json',{category:'broker_runtime_invalid',...detail?{detail}:{}})}
 function present(path){try{lstatSync(path);return true}catch(e){if(e.code==='ENOENT')return false;throw e}}
 function owned(path,{sealed=false,directory=false}={}) {
  const stat=lstatSync(path)
  if(stat.isSymbolicLink()||stat.uid!==process.getuid()||(directory?!stat.isDirectory():!stat.isFile())||sealed&&(stat.mode&0o222))fail()
  return stat
 }
-function inventory(root,{sealed=false}={}) {
- const out={}
+// Keep source growth bounded without conflating a larger valid package with
+// corruption. Total bytes also cap the aggregate read/hash work.
+export const RELEASE_FILE_LIMIT=512,RELEASE_BYTE_LIMIT=16*1024*1024
+export function inventoryRelease(root,{sealed=false}={}) {
+ const out={};let totalBytes=0
  function visit(dir,prefix='') {
   owned(dir,{sealed,directory:true})
   for(const name of readdirSync(dir).sort()) {
@@ -32,7 +35,10 @@ function inventory(root,{sealed=false}={}) {
    else {
     owned(path,{sealed})
     if(rel==='release.json')continue
-    if(stat.size>4*1024*1024||Object.keys(out).length>=256)fail()
+    if(stat.size>4*1024*1024)fail({reason:'release-file-size-limit',maxBytes:4*1024*1024})
+    if(Object.keys(out).length>=RELEASE_FILE_LIMIT)fail({reason:'release-file-count-limit',maxFiles:RELEASE_FILE_LIMIT})
+    if(totalBytes+stat.size>RELEASE_BYTE_LIMIT)fail({reason:'release-total-size-limit',maxBytes:RELEASE_BYTE_LIMIT})
+    totalBytes+=stat.size
     out[rel]=createHash('sha256').update(readFileSync(path)).digest('hex')
    }
   }
@@ -48,7 +54,7 @@ export function validateRelease(build) {
   owned(root,{sealed:true,directory:true})
   if(realpathSync(root)!==join(realpathSync(STATE_DIR),'releases',build))fail()
   owned(join(root,'release.json'),{sealed:true})
-  const manifest=json(join(root,'release.json')),files=inventory(root,{sealed:true})
+  const manifest=json(join(root,'release.json')),files=inventoryRelease(root,{sealed:true})
   if(manifest.schemaVersion!==1||manifest.build!==build||Object.hasOwn(manifest,'nativeRequestBindingVersion')&&manifest.nativeRequestBindingVersion!==1||!manifest.files||
      JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files).sort())||
      runtimeFingerprint(root)!==build)fail()
@@ -132,7 +138,7 @@ export async function stageRelease({evidence=[]}={}) {
     else copyFileSync(src,dst)
    }
    for(const name of roots)copy(join(SOURCE,name),join(temp,name))
-   const files=inventory(temp)
+   const files=inventoryRelease(temp)
    if(runtimeFingerprint()!==build||runtimeFingerprint(temp)!==build)throw new DriverError('source changed during release staging',{category:'runtime_stale'})
    writeFileSync(join(temp,'release.json'),JSON.stringify({schemaVersion:1,nativeRequestBindingVersion:1,nativeServiceStateBindingVersion:1,nativeMetadataTargetVersion:1,build,createdAt:new Date().toISOString(),status:'staged-not-active',scope:'broker wait/check dependency snapshot; host MCP launcher is not installed',source:SOURCE,files,evidence},null,2),{mode:0o600})
    function seal(path){const stat=lstatSync(path);if(stat.isDirectory()){for(const name of readdirSync(path))seal(join(path,name));chmodSync(path,0o555)}else chmodSync(path,0o444)}

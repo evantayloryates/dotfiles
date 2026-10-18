@@ -12,7 +12,8 @@ serialization also requires `/usr/bin/python3` with stdlib `fcntl`, invoked in
 isolated mode. Node retains the kernel-owned descriptor after that short helper
 exits, so paused or killed clients cannot lose ownership based on lock age.
 Persistent `locks/*.mutex` files must never be unlinked while clients may hold
-them. The directory guard remains for compatibility; full qualification requires
+them. Sealed releases are bounded to 512 files, 16 MiB total and 4 MiB
+per file, with matching limits in staging and the self-contained bootstrap. The directory guard remains for compatibility; full qualification requires
 fresh runtimes. Helper failure refuses the operation without a directory-only
 fallback. This reuses the kernel-lock pattern already used by the 1Password
 service, without changing that service.
