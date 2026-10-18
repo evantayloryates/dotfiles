@@ -1405,3 +1405,40 @@ proof (prior fixed-target proof is separate). Batch with final-source synthetic
 and harness gates when implementation settles; avoid per-edit desktop tests.
 Both-absent recovery/natural pressure/broader original brief/loaded MCP remain open.
 Goal ACTIVE. No live job pending. Codex-driver and 1Password remain separate.
+
+## October 17 combined ordinary archive/idle-stop native gate
+
+Previous turn = progress (ordinary epoch-bound stop implemented). Source
+2fdaaac4d40781d0bcdab2609f373e30fa70c8b54db1d8eefc7f11b74aa32bc9:
+one primary renewal with session_archive_control and session_stop_control true,
+job j6c9618ee44454c619033959897971e8a completed. CURRENT PRIMARY service
+6c9618ee44454c619033959897971e8a, same PID96436/startSunOct18 00:42:30.
+Native readiness/policy/read verified; standby refresh qualified with fresh family
+rpeer113dfbccf093497b2a36b49a1500952f. Existing grants retained.
+
+On the existing owned controltarget local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd:
+- Public stop j7f16bbf837534af8bf38466d7d995862 passed exact native already_idle
+  receipt, admitted recipient PID42813/startSatOct17 16:03:11, same-epoch idle.
+  This does NOT qualify stopping a busy turn.
+- Public archive jfaf5e9b0a57f46efb00b3e6c9c7518bd passed exact ordinary native
+  receipt and retained saved archived:true postcondition, with custom reason.
+- Public unarchive ja86a578cf3d84c64b11b3716a3ff5439 completed via TierA deep link.
+  Independent saved read matches original title/titleSource/model/effort/permission/
+  archive/pin baseline. Recipient has NO live peer afterward. This is restoration
+  of saved state, NOT proof of startup/readiness or ordinary native-unarchive path.
+
+Stop/archive before-after focus endpoints independently unchanged (Codex front,
+ProDevs main). Unarchive reports restoration; no claim of uninterrupted layout.
+Controller independently idle, both new grants true, unresolved IDs empty; native
+stop/archive/fresh-family requests settled. No ProDevs changes, new messages,
+app restarts, CUA/keyboard/auth/permission effects. Evidence
+.runtime/state/ordinary-archive-stop-native-20261017.json, scoped qualificationtrue.
+One integrated synthetic1/1 PASS36.7sec on SAME source, sourceUnchanged:
+pressure/v2-2026-10-18T03-03-37-898Z.json. No source edits during native/test jobs.
+
+NEXT: ordinary BUSY-stop/interrupt-steer qualification on the same owned target
+requires one deliberate controlled request, not repetitive smoke messages. Dormant
+target startup/trust remains a separate gate; do not assume unarchive starts it.
+Both-absent bootstrap/outage, natural pressure, broader creation/fork/window/person
+and final loaded-MCP adoption remain open. Choose next changed-condition gate;
+no repeat archive/idle-stop merely to appear active. Goal ACTIVE, no live job pending.

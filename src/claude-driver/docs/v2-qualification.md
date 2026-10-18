@@ -1,4 +1,4 @@
-## Current frontier — October 17, automatic recovery/rebind/send native qualified
+## Current frontier — October 17, ordinary archive and idle-stop native qualified
 
 See [resume.md](resume.md) for exact current services, binding, jobs and reports.
 Fresh one-shot cold recovery now passes after manual accidental archive with
@@ -8,8 +8,11 @@ The scoped scratch enrollment is enabled. A surviving qualified standby and exac
 retained family/epoch/binding evidence remain required; unknown effects fail closed.
 Original failures and explicit continuation evidence remain separate from these passes.
 
-Healthy send/stop/steer and scoped control have prior native proof. App quit or both
-controllers lost, natural-pressure survival and wider creation/fork/archive/window/
+Ordinary independent send, model configuration, archive and already-idle stop now
+have exact native evidence on named sources; ProDevs unarchive/pin also passed.
+Busy ordinary stop and resumed dormant serving remain unqualified.
+Healthy fixed-target send/stop/steer and scoped control have prior native proof. App quit or both
+controllers lost, natural-pressure survival and wider creation/fork/project-archive/window/
 person-only gates remain incomplete. This is bounded failover qualification, not
 proof of always-on operation. The full goal remains unfinished.
 
@@ -21,10 +24,10 @@ proof of always-on operation. The full goal remains unfinished.
 | Efficient concurrent requests | Four concurrent native reads on recovered3c68 pass exact receipts, idempotent reattachment, capacity delta4, no unknowns/model turn; p50 1801ms/p95 3062ms including queue time. Four samples are not an SLA. |
 | Controller failover with surviving standby | Actual ordinary sendj65d648... recovered, rebound and delivered; independent causal reply/baselines match; binding0f9550 automatic true. |
 | App quit or both controllers lost | Missing native qualification and a verified full bootstrap strategy; surviving-standby success does not prove this case. |
-| Stop, steer and executing cancellation | Prior scoped native stop/steer proof and synthetic uncertainty boundaries; broad executing-effect cancellation is not established by a cancellation flag. |
+| Stop, steer and executing cancellation | Ordinary already-idle stop now passed native receipt + exact-epoch idle on source2fdaa. Busy ordinary stop remains open. Prior scoped native stop/steer proof and synthetic uncertainty boundaries; broad executing-effect cancellation is not established by a cancellation flag. |
 | Model, effort, title and pin controls | Separate ordinary metadata grant now routes public rename/config by account/session identity; current-source public model change and restoration on owned control target passed exact native receipts/saved state. Title/effort callback/admission/poststate have focused synthetic coverage; prior fixed-scratch native proofs remain distinct. Permission changes remain separate. |
 | Create in folder/no folder and fork | Current full native end-to-end coverage remains missing; historical mechanism notes are not current qualification. |
-| Archive, unarchive and deletion | Imported scratch recovery proved. Ordinary native ProDevs public unarchive then pin now passed with exact native receipts and saved archived=false/pinned=true on source708034. Import-only remains ineligible for that target. Final-source/loaded-client qualification remains separate. Project archive, cleanup and deletion-card paths remain separate. |
+| Archive, unarchive and deletion | Ordinary public archive passed native receipt + saved archived postcondition on source2fdaa; public deep-link unarchive restored saved baseline (recipient dormant afterward). Imported scratch recovery proved. Ordinary native ProDevs public unarchive then pin now passed with exact native receipts and saved archived=false/pinned=true on source708034. Import-only remains ineligible for that target. Final-source/loaded-client qualification remains separate. Project archive, cleanup and deletion-card paths remain separate. |
 | Permissions and trust | Bypass preserved; actual trust refusal/human approval retained. Permission mode does not grant workspace trust or hot-reload consent. |
 | Focus and windows | Existing scoped navigation and recovery focus restoration evidence; full create/fork/window paths remain unqualified under input quarantine. |
 | Sustained residency under pressure | Current-generation read-only 180s/13samples same-PID idle survival verified; zero natural events, so pressure remains unqualified. |
@@ -2182,3 +2185,40 @@ proof (prior fixed-target proof is separate). Batch with final-source synthetic
 and harness gates when implementation settles; avoid per-edit desktop tests.
 Both-absent recovery/natural pressure/broader original brief/loaded MCP remain open.
 Goal ACTIVE. No live job pending. Codex-driver and 1Password remain separate.
+
+## October 17 combined ordinary archive/idle-stop native gate
+
+Previous turn = progress (ordinary epoch-bound stop implemented). Source
+2fdaaac4d40781d0bcdab2609f373e30fa70c8b54db1d8eefc7f11b74aa32bc9:
+one primary renewal with session_archive_control and session_stop_control true,
+job j6c9618ee44454c619033959897971e8a completed. CURRENT PRIMARY service
+6c9618ee44454c619033959897971e8a, same PID96436/startSunOct18 00:42:30.
+Native readiness/policy/read verified; standby refresh qualified with fresh family
+rpeer113dfbccf093497b2a36b49a1500952f. Existing grants retained.
+
+On the existing owned controltarget local_8f1d6d55-df3d-4b50-a96c-f4b61a7858bd:
+- Public stop j7f16bbf837534af8bf38466d7d995862 passed exact native already_idle
+  receipt, admitted recipient PID42813/startSatOct17 16:03:11, same-epoch idle.
+  This does NOT qualify stopping a busy turn.
+- Public archive jfaf5e9b0a57f46efb00b3e6c9c7518bd passed exact ordinary native
+  receipt and retained saved archived:true postcondition, with custom reason.
+- Public unarchive ja86a578cf3d84c64b11b3716a3ff5439 completed via TierA deep link.
+  Independent saved read matches original title/titleSource/model/effort/permission/
+  archive/pin baseline. Recipient has NO live peer afterward. This is restoration
+  of saved state, NOT proof of startup/readiness or ordinary native-unarchive path.
+
+Stop/archive before-after focus endpoints independently unchanged (Codex front,
+ProDevs main). Unarchive reports restoration; no claim of uninterrupted layout.
+Controller independently idle, both new grants true, unresolved IDs empty; native
+stop/archive/fresh-family requests settled. No ProDevs changes, new messages,
+app restarts, CUA/keyboard/auth/permission effects. Evidence
+.runtime/state/ordinary-archive-stop-native-20261017.json, scoped qualificationtrue.
+One integrated synthetic1/1 PASS36.7sec on SAME source, sourceUnchanged:
+pressure/v2-2026-10-18T03-03-37-898Z.json. No source edits during native/test jobs.
+
+NEXT: ordinary BUSY-stop/interrupt-steer qualification on the same owned target
+requires one deliberate controlled request, not repetitive smoke messages. Dormant
+target startup/trust remains a separate gate; do not assume unarchive starts it.
+Both-absent bootstrap/outage, natural pressure, broader creation/fork/window/person
+and final loaded-MCP adoption remain open. Choose next changed-condition gate;
+no repeat archive/idle-stop merely to appear active. Goal ACTIVE, no live job pending.

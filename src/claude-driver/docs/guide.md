@@ -4,12 +4,12 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Current audit (October17): fresh Claude/Codex MCP metadata reads, scoped archive/
-wake and durable cold recovery are qualified on their exact owned scratch targets.
-General rename/pin/config/groups still use legacy Tier B, whose broker is live
-but not resident serving. Historical native batch/concurrent control and direct
-queue/stop evidence does not qualify the complete current live suite. All four
-harness registrations are present; attached cached MCP and Cursor/OpenCode
+Current audit (October17): independent ordinary unarchive/pin, model configuration,
+send, archive and already-idle stop have named native receipt/saved-state evidence.
+Busy ordinary stop, dormant recipient startup, groups and wider lifecycle paths
+remain separate gates. Legacy broker health does not describe independent route
+health; the observer-owned legacy epoch remains unqualified. All four harness
+registrations exist, but current loaded-client adoption and Cursor/OpenCode
 execution remain separate gates. See [v2-qualification.md](v2-qualification.md).
 No quarantine, native consent or legacy admission bypass is authorized.
 
@@ -1746,8 +1746,9 @@ archive_session then uses exact same-account recipient binding and a retained
 receipt plus saved archived:true observation. The separate grant does not expand
 existing management, metadata or send generations. Optional reason is nonempty,
 at most 500 characters and contains no NUL. Native gates remain authoritative.
-Ordinary archive evidence does not assert process termination; fixed recovery-actor
-retirement retains its stronger separate proof. Native qualification is pending.
+Ordinary archive native receipt and saved-state qualification passed on source2fdaa.
+It does not assert process termination; fixed recovery-actor
+retirement retains its stronger separate proof.
 
 ### Ordinary native stop capability
 
@@ -1758,4 +1759,5 @@ bypass assumptions. The native hook rechecks that epoch before dispatch. Native
 requested/pending is not a completed stop. Success requires stopped/already_idle
 receipt plus subsequent idle observation on the original epoch; drift or uncertain
 receipt forbids automatic replay/replacement. Existing queued messages follow
-native stop semantics. This path awaits native qualification.
+native stop semantics. Native already-idle stop passed on source2fdaa; busy ordinary
+stop remains unqualified.
