@@ -27,13 +27,13 @@ export function restoredPairActorMatches(record,peer,epoch,identity,controller){
 }
 // Explicit durable operation only; missing records are never inferred as permission
 // to replay an import or to replace controller identities.
-export async function reactivateRestoredPair(restorationJobId,expectedRootSha256,expectedPlanSha256,{jobId,signal,progress}={},dependencies={}){
- const dep={readRoot:readRestoredRecordRoot,inspectPlan:inspectRestoredPair,caller:callerHostSession,select:loadReceiverSelection,record:getRecord,version:versions,fingerprint:runtimeFingerprint,enrollment:readStandbyEnrollment,metadata:inspectMetadataEnrollment,absent:requireIndependentEpochAbsent,peer:peerRecord,prs:openPrs,status:inspectIndependentService,nativeRead:readIndependentService,enroll:enrollStandby,...dependencies}
- if(!job.test(restorationJobId||'')||!job.test(jobId||'')||jobId===restorationJobId||!hex.test(expectedRootSha256||'')||!hex.test(expectedPlanSha256||''))throw new DriverError('exact durable restored pair context required',{category:'bad_args'})
+export async function reactivateRestoredPair(restorationJobId,expectedRootSha256,expectedPlanSha256,{jobId,signal,progress,restorationKind='record'}={},dependencies={}){
+ const dep={readRoot:id=>readRestoredRecordRoot(id,{kind:restorationKind}),inspectPlan:inspectRestoredPair,caller:callerHostSession,select:loadReceiverSelection,record:getRecord,version:versions,fingerprint:runtimeFingerprint,enrollment:readStandbyEnrollment,metadata:inspectMetadataEnrollment,absent:requireIndependentEpochAbsent,peer:peerRecord,prs:openPrs,status:inspectIndependentService,nativeRead:readIndependentService,enroll:enrollStandby,...dependencies}
+ if(!['record','seeded'].includes(restorationKind)||!job.test(restorationJobId||'')||!job.test(jobId||'')||jobId===restorationJobId||!hex.test(expectedRootSha256||'')||!hex.test(expectedPlanSha256||''))throw new DriverError('exact durable restored pair context required',{category:'bad_args'})
  const original=dep.readRoot(restorationJobId),primary=original.root.primary
  if(original.rootSha256!==expectedRootSha256)throw new DriverError('restoration root changed; no effects',{category:'restored_pair_unqualified'})
  return withLock('independent-route-'+primary,async()=>{
-  const plan=await dep.inspectPlan(restorationJobId,expectedRootSha256,{signal})
+  const plan=await dep.inspectPlan(restorationJobId,expectedRootSha256,{signal,restorationKind})
   if(plan.pairPreparationEligible!==true||restoredPairPlanDigest(plan)!==expectedPlanSha256)throw new DriverError('restored pair plan unqualified or changed; no effects',{category:'restored_pair_unqualified',detail:{reason:plan.reason,dispatched:false,retrySafe:true}})
   const binding=original.root.originalSnapshot.binding,lost=plan.restoredRole
   if(roles.some(role=>binding[role].sessionId===dep.caller()))throw new DriverError('reactivation cannot target caller',{category:'gate_self'})
@@ -58,7 +58,7 @@ export async function reactivateRestoredPair(restorationJobId,expectedRootSha256
   const scopedChild=(step,operation,args)=>child(step,{operation,arguments:args,idempotency_key:'restored-pair:'+jobId+':'+step,timeout_sec:120})
   const read=(role,id,family=false)=>dep.nativeRead(binding[role].sessionId,id,binding[family?role:role==='primary'?'standby':'primary'].sessionId,{family,signal,jobId:restoredPairReadJobId(jobId,family?'family':'read-'+role),timeoutMs:20000})
   try{
-   const result=await runRestoredPairReactivation(plan,{guard,record:context.record,preflight:()=>dep.inspectPlan(restorationJobId,expectedRootSha256,{signal}),
+   const result=await runRestoredPairReactivation(plan,{guard,record:context.record,preflight:()=>dep.inspectPlan(restorationJobId,expectedRootSha256,{signal,restorationKind}),
     prepare:async role=>{const r=await child('prepare-'+role,restoredPairChildSubmission(plan,jobId,'prepare-'+role));prepared[role]=r.serviceId;progress?.('prepared '+role);return r},
     quiesce:()=>child('quiesce-survivor',restoredPairChildSubmission(plan,jobId,'quiesce-survivor')),
     retire:()=>child('retire-survivor',restoredPairChildSubmission(plan,jobId,'retire-survivor')),

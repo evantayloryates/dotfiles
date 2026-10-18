@@ -1,3 +1,4 @@
+import {validateSeededRestoredRecordRoot} from './seeded-record-proof.mjs'
 import {createHash} from 'node:crypto'
 import {join} from 'node:path'
 import {STATE_DIR} from './state.mjs'
@@ -27,9 +28,18 @@ export function validateRestoredRecordRoot(root,parent,claim,{rootJobId,expected
  if(root.quiescence.quiescent!==true||root.quiescence.offline!==true||root.retirement.filesRetired!==true||result?.sessionId!==actor.sessionId||result.serviceId!==actor.serviceId||result.recordRestored!==true||result.originalIdentityVerified!==true||result.nativeEpochAssessed!==false||result.serviceRestored!==false||result.servingQualified!==false||result.importRepeated!==false||result.replayAuthorized!==false||result.retrySafe!==false)refuse()
  return {qualified:true,rootJobId,rootSha256:expectedRootSha256,sessionId:actor.sessionId,serviceId:actor.serviceId,importStartedAt:root.steps[6].at,recordRestored:true,nativeEpochAssessed:false,serviceRestored:false,activationAuthorized:false,importAuthorized:false,replayAuthorized:false,effectsPerformed:false}
 }
-export function readRestoredRecordRoot(rootJobId,{dir=join(STATE_DIR,'missing-service-restorations')}={}){
+export function readRestoredRecordRoot(rootJobId,{kind='record',dir}={}){
+ if(!['record','seeded'].includes(kind))throw Error('exact restoration root kind required')
+ dir??=join(STATE_DIR,kind==='seeded'?'seeded-service-restorations':'missing-service-restorations')
  if(!job.test(rootJobId||''))throw Error('exact restoration root required')
  const root=JSON.parse(readReceiverFile(join(dir,rootJobId+'.json'),1048576))
+ if(kind==='seeded'?root.kind!=='seeded-record-restoration':root.kind!==undefined)throw Error('restoration root kind differs')
  if(!/^[a-f0-9]{32}$/.test(root.plan?.serviceId||''))throw Error('exact restoration generation required')
  return {root,rootSha256:hash(root),claim:JSON.parse(readReceiverFile(join(dir,'claims',root.plan?.serviceId+'.json'),4096))}
+}
+
+export function validateRecoveryRecordRoot(root,parent,claim,{restorationKind='record',...options}={}){
+ if(restorationKind==='seeded')return validateSeededRestoredRecordRoot(root,parent,claim,options)
+ if(restorationKind!=='record'||root?.kind!==undefined)throw Error('restoration root kind differs')
+ return {...validateRestoredRecordRoot(root,parent,claim,options),restorationKind:'record'}
 }

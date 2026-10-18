@@ -1,3 +1,32 @@
+## October 18 seeded-root proof and explicit root-kind reactivation path
+
+Added seeded-record-proof.mjs: exact completed rebuild parent operation/arguments/
+source/result, seeded kind/schema, original enrollment/immutable identity, fixed
+recipe/digests, retained initial owner/status/policy role hash, ordered phases,
+one bootstrap intent/verified reply/new transcript, original exclusive claim,
+offline quiesce/retire child submissions/results and one import/account outcome.
+Returns record evidence only, no startup/permission/serving/replay authority.
+Retained original status added before claim; snapshot explicitly structuredClone'd
+so later observation mutation cannot rewrite historical authority.
+
+readRestoredRecordRoot now selects record|seeded namespace explicitly, rejects
+kind mismatch; validateRecoveryRecordRoot dispatches separate strict validators.
+Native readiness, reciprocal pair planning, execution and enrollment proof carry
+restorationKind through internal paths. Root/parent kind must match; no directory
+scan/autodetection or reinterpretation of a newly seeded transcript as old history.
+Existing record-root behavior preserved. Public driver schema/exposure remains
+record-only until next explicit integration step.
+
+Focused current native/pair/root/reader/seeded integration15 PASS; strengthened
+actual private seeded journal proof->native preparation path plus pair/execution7
+PASS (overlap). Seeded bypass path requires exact new idle peer; Accept edits waits
+at person-permission-required. Recipe/claim/child/state/phase/serving drift refuses,
+wrong record-root selection refuses. Native lifecycle/CLI/import remain simulated.
+No live session rebuilt or permission changed. Next expose exact seeded rebuild/
+root-kind/status interfaces and consolidate full source; native actual deletion
+and unattended startup still unqualified. Goal active, no live jobs/cleanup pending.
+Codex bridge remains parked.
+
 ## October 18 seeded restoration production adapter and filesystem gate
 
 Added seeded-restoration-execute.mjs internal adapter: exact durable context/plan,

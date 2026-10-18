@@ -26,6 +26,6 @@ export async function runServiceSeedProvision(recipe,expectedRecipeSha256,d){
  if(reply.is_error!==false||reply.session_id!==recipe.cliSessionId||reply.result!==marker||reply.num_turns!==1)throw new DriverError('minimal service bootstrap reply unverified; preserve original attempt',{category:'service_seed_unresolved'})
  await d.guard();const transcript=await d.verifyTranscript(recipe)
  if(transcript?.verified!==true||!/^[a-f0-9]{64}$/.test(transcript.fingerprint||''))throw Error('new service seed transcript unverified')
- const result={sessionId:recipe.sessionId,seedCreated:true,transcriptFingerprint:transcript.fingerprint,importAttempted:false,recordRestored:false,permissionRaiseAuthorized:false,nativeEpochAssessed:false,serviceRestored:false,servingQualified:false,replayAuthorized:false,retrySafe:false}
+ const result={sessionId:recipe.sessionId,seedCreated:true,bootstrapReplyVerified:true,recipeSha256:expectedRecipeSha256,transcriptFingerprint:transcript.fingerprint,importAttempted:false,recordRestored:false,permissionRaiseAuthorized:false,nativeEpochAssessed:false,serviceRestored:false,servingQualified:false,replayAuthorized:false,retrySafe:false}
  await d.record('seed-created',result);return result
 }

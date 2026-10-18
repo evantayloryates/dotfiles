@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto'
-import {readRestoredRecordRoot,validateRestoredRecordRoot} from './restored-record-proof.mjs'
+import {readRestoredRecordRoot,validateRecoveryRecordRoot} from './restored-record-proof.mjs'
 import {inspectJob} from './jobs.mjs'
 import {getRecord} from './sessions.mjs'
 import {peerRecord} from './peer-direct.mjs'
@@ -24,16 +24,16 @@ export function planRestoredNative({root,proof,record,peer,absence,selected,reti
   if(absence?.previousPid!==actor.pid||absence.previousProcStart!==actor.procStart||!pairImportEpochQualified({old:actor,record,peer,oldPidAbsent:absence.previousPidObservedAbsent,startedAt:proof.importStartedAt,observedAt}))return result('wait','fresh-idle-native-epoch-required')
   if(!equal(selected,root.originalSnapshot.selection))return result('inspect','original-selection-changed')
   if(retired?.verified!==true||retired.verificationMode!=='historical-retired'||retired.sourceDisposition!=='files-retired'||retired.sessionId!==actor.sessionId||retired.serviceId!==actor.serviceId||retired.nativeEpoch?.pid!==actor.pid||retired.nativeEpoch.procStart!==actor.procStart||retired.admissionStopped!==true||retired.stopMarkerMatchesGeneration!==true||retired.terminalAttemptReviewComplete!==true||!Array.isArray(retired.unresolvedRequestIds)||retired.unresolvedRequestIds.length)return result('inspect','retired-generation-unqualified')
-  return {...result('prepare','restored-native-epoch-qualified'),rootJobId:root.jobId,rootSha256:proof.rootSha256,role:root.role,sessionId:actor.sessionId,oldServiceId:actor.serviceId,nativeEpoch:{sessionId:actor.sessionId,cwd:actor.cwd,pid:peer.pid,procStart:peer.procStart},nativeEpochAssessed:true,reciprocalServiceAssessed:false,continuationRequired:true}
+  return {...result('prepare','restored-native-epoch-qualified'),rootJobId:root.jobId,rootSha256:proof.rootSha256,restorationKind:proof.restorationKind??'record',role:root.role,sessionId:actor.sessionId,oldServiceId:actor.serviceId,nativeEpoch:{sessionId:actor.sessionId,cwd:actor.cwd,pid:peer.pid,procStart:peer.procStart},nativeEpochAssessed:true,reciprocalServiceAssessed:false,continuationRequired:true}
  }catch{return result('inspect','restored-native-evidence-unqualified')}
 }
 // Re-read durable jobs independently; stored child observations alone are insufficient.
-export async function inspectRestoredNative(rootJobId,expectedRootSha256,{signal}={},d={}){
- const read=d.readRoot??readRestoredRecordRoot,job=d.job??(id=>inspectJob(id,{includeResult:true})),binding=d.binding??readStandbyEnrollment,record=d.record??getRecord,peer=d.peer??peerRecord,select=d.select??loadReceiverSelection,absent=d.absent??requireIndependentEpochAbsent,status=d.status??((a)=>inspectIndependentService(a.sessionId,a.serviceId,{historical:true,signal})),version=d.version??versions,account=d.account??(()=>createHash('sha256').update(activeStore().dir).digest('hex'))
+export async function inspectRestoredNative(rootJobId,expectedRootSha256,{signal,restorationKind='record'}={},d={}){
+ const read=d.readRoot??(id=>readRestoredRecordRoot(id,{kind:restorationKind})),job=d.job??(id=>inspectJob(id,{includeResult:true})),binding=d.binding??readStandbyEnrollment,record=d.record??getRecord,peer=d.peer??peerRecord,select=d.select??loadReceiverSelection,absent=d.absent??requireIndependentEpochAbsent,status=d.status??((a)=>inspectIndependentService(a.sessionId,a.serviceId,{historical:true,signal})),version=d.version??versions,account=d.account??(()=>createHash('sha256').update(activeStore().dir).digest('hex'))
  try{
   const first=read(rootJobId),{root,claim}=first
   if(first.rootSha256!==expectedRootSha256)throw Error('root changed')
-  const parent=await job(rootJobId),proof=validateRestoredRecordRoot(root,parent,claim,{rootJobId,expectedRootSha256})
+  const parent=await job(rootJobId),proof=validateRecoveryRecordRoot(root,parent,claim,{rootJobId,expectedRootSha256,restorationKind})
   for(const child of Object.values(root.children)){const current=await job(child.jobId),prior=child.observation;if(!['jobId','operation','state','args','result'].every(k=>equal(current[k],prior[k])))throw Error('child job changed')}
   const actor=root.originalSnapshot.binding[root.role]
   const check=()=>{const current=read(rootJobId);if(signal?.aborted||current.rootSha256!==expectedRootSha256||!equal(current.claim,claim)||standbyEnrollmentDigest(binding(root.primary))!==root.expectedEnrollmentSha256)throw Error('restoration context changed')}

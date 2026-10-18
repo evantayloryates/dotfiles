@@ -3,7 +3,7 @@ import {STATE_DIR} from './state.mjs'
 import {readReceiverFile} from './receiver-runtime-selection.mjs'
 import {standbyEnrollmentDigest} from './standby-enrollment.mjs'
 import {restoredPairPlanDigest,restoredPairChildSubmission} from './restored-pair-ledger.mjs'
-import {readRestoredRecordRoot,validateRestoredRecordRoot} from './restored-record-proof.mjs'
+import {readRestoredRecordRoot,validateRecoveryRecordRoot} from './restored-record-proof.mjs'
 import {inspectJob} from './jobs.mjs'
 const job=/^j[a-f0-9]{32}$/
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b)
@@ -11,7 +11,7 @@ const same=(a,b)=>!!a&&!!b&&['sessionId','cwd','pid','procStart'].every(k=>a[k]=
 export function restoredPairTransitionAllowed(before,after,root,rootJobId,restoration){
  try{
   const p=root?.plan,r=root?.results,lost=p?.restoredRole,survivor=lost==='primary'?'standby':'primary'
-  if(!job.test(rootJobId||'')||root.jobId!==rootJobId||root.schemaVersion!==1||root.phase!=='before-enroll'||root.failure||root.retrySafe!==false||!['primary','standby'].includes(lost)||restoredPairPlanDigest(p)!==root.expectedPlanSha256||p.pairPreparationEligible!==true||p.enrollmentSha256!==standbyEnrollmentDigest(before)||restoration?.qualified!==true||restoration.rootJobId!==p.rootJobId||restoration.rootSha256!==p.rootSha256||restoration.sessionId!==before[lost].sessionId||restoration.serviceId!==before[lost].serviceId)return false
+  if(!job.test(rootJobId||'')||root.jobId!==rootJobId||root.schemaVersion!==1||root.phase!=='before-enroll'||root.failure||root.retrySafe!==false||!['primary','standby'].includes(lost)||restoredPairPlanDigest(p)!==root.expectedPlanSha256||p.pairPreparationEligible!==true||p.enrollmentSha256!==standbyEnrollmentDigest(before)||restoration?.qualified!==true||(restoration.restorationKind??'record')!==(p.restorationKind??'record')||restoration.rootJobId!==p.rootJobId||restoration.rootSha256!==p.rootSha256||restoration.sessionId!==before[lost].sessionId||restoration.serviceId!==before[lost].serviceId)return false
   const ordered=['preflight','prepare-primary','prepare-standby','quiesce-survivor','retire-survivor','activate-primary','readiness-primary','policy-primary','activate-standby','readiness-standby','policy-standby','read-primary','read-standby','verifyPair','family'].flatMap(step=>['before-'+step,'after-'+step]).concat('before-enroll')
   if(!equal(root.steps?.map(s=>s.phase),ordered)||root.steps.some((s,i)=>!Number.isSafeInteger(s.at)||s.at<0||i>0&&s.at<root.steps[i-1].at))return false
   if(after.schemaVersion!==before.schemaVersion||after.automaticRecovery!==before.automaticRecovery||r?.verifyPair?.qualified!==true||r.verifyPair.rolesPreserved!==true||r.verifyPair.settingsPreserved!==true||r.verifyPair.noUnresolvedAttempts!==true||r.family?.receiptVerified!==true||r.family.state!=='completed'||r.family.requestId!==after.familyRequestId||before.familyRequestId===after.familyRequestId)return false
@@ -35,15 +35,15 @@ export function readRestoredPairRoot(jobId,{dir=join(STATE_DIR,'restored-pair-re
  if(!job.test(jobId||''))throw Error('exact reactivation root required')
  return JSON.parse(readReceiverFile(join(dir,jobId+'.json'),1048576))
 }
-export async function readRestoredPairTransitionProof(rootJobId,{read=readRestoredPairRoot,readRestoration=readRestoredRecordRoot,inspect=id=>inspectJob(id,{includeResult:true}),dir=join(STATE_DIR,'restored-pair-reactivations')}={}){
- const root=read(rootJobId),p=root.plan
+export async function readRestoredPairTransitionProof(rootJobId,{read=readRestoredPairRoot,readRestoration,inspect=id=>inspectJob(id,{includeResult:true}),dir=join(STATE_DIR,'restored-pair-reactivations')}={}){
+ const root=read(rootJobId),p=root.plan,kind=p?.restorationKind??'record',readOriginal=readRestoration??(id=>readRestoredRecordRoot(id,{kind}))
  if(!job.test(p?.rootJobId||''))throw Error('reactivation restoration owner unqualified')
  const claimFile=join(dir,'claims',p.rootJobId+'.json'),claimBytes=readReceiverFile(claimFile,4096),claim=JSON.parse(claimBytes)
  if(claim.reactivationJobId!==rootJobId||claim.restorationJobId!==p.rootJobId||claim.restorationRootSha256!==p.rootSha256||claim.expectedPlanSha256!==root.expectedPlanSha256)throw Error('reactivation claim unqualified')
  const owner=await inspect(rootJobId)
- if(owner?.jobId!==rootJobId||owner.operation!=='broker_service_reactivate_restored_pair'||owner.state!=='running'||owner.runtimeBuild!==root.runtimeBuild||owner.args?.restoration_job_id!==p.rootJobId||owner.args.expected_root_sha256!==p.rootSha256||owner.args.expected_plan_sha256!==root.expectedPlanSha256||owner.args.experimental!==true)throw Error('reactivation parent identity unqualified')
- const original=readRestoration(p.rootJobId),parent=await inspect(p.rootJobId),restoration=validateRestoredRecordRoot(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256})
+ if(owner?.jobId!==rootJobId||owner.operation!=='broker_service_reactivate_restored_pair'||owner.state!=='running'||owner.runtimeBuild!==root.runtimeBuild||(owner.args?.restoration_kind??'record')!==kind||owner.args?.restoration_job_id!==p.rootJobId||owner.args.expected_root_sha256!==p.rootSha256||owner.args.expected_plan_sha256!==root.expectedPlanSha256||owner.args.experimental!==true)throw Error('reactivation parent identity unqualified')
+ const original=readOriginal(p.rootJobId),parent=await inspect(p.rootJobId),restoration=validateRecoveryRecordRoot(original.root,parent,original.claim,{rootJobId:p.rootJobId,expectedRootSha256:p.rootSha256,restorationKind:kind})
  for(const c of [...Object.values(original.root.children),...Object.values(root.children??{})]){const actual=await inspect(c.jobId);if(!['jobId','operation','state','args','result'].every(k=>equal(actual[k],c.observation?.[k])))throw Error('durable child differs from retained observation')}
- if(!readReceiverFile(claimFile,4096).equals(claimBytes)||!equal(await inspect(rootJobId),owner)||!equal(read(rootJobId),root)||!equal(readRestoration(p.rootJobId),original))throw Error('transition roots changed')
+ if(!readReceiverFile(claimFile,4096).equals(claimBytes)||!equal(await inspect(rootJobId),owner)||!equal(read(rootJobId),root)||!equal(readOriginal(p.rootJobId),original))throw Error('transition roots changed')
  return {root,restoration}
 }
