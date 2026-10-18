@@ -1,3 +1,50 @@
+## October 17 resume request: ordinary user sessions now the implementation frontier
+
+Taylor explicitly resumes goal and requires ordinary Claude chats (including
+ProDevs class), not scratch-only success. Test cadence: strategic focused interim
+checks, ONE representative actual workflow at integrated boundary, full suite at
+final source. Do not repeat both full suites/harnesses after each small edit or ask
+for client reload on every interim revision. Actual goal API still blocked at start;
+there is no agent status=active operation. Continue authorized work in current turn,
+then ask Play/Resume only if actual control remains blocked.
+
+Implemented lib/ordinary-session-control.mjs: exact request binding version1,
+sessionId/cwd/cliSessionId/account-store SHA256 derived from authoritative record;
+no live target PID, driver-created probe registration, sibling folder or target
+bypass requirement for benign metadata management. Actor receiver remains owned/
+verified/bypass; target's workspace trust/platform permissions remain untouched.
+Initial allowlist ONLY unarchive_session and set_pinned. Native observation requires
+EXPLICIT sessionManagementControl:true in BOTH sealed policy and runtime pointer,
+exact operation args, same current record/account identity and expected archive
+state; mixed nativeMetadataTargetBinding, foreign/self/expired/extra op/args refuse.
+Pin requires unarchived state and postcondition independently checks actual pin.
+Store path omitted from request/log binding; only store hash retained. No arbitrary
+message, file edit, permission raise, process stop, archive or deletion capability.
+
+Native PreToolUse broker-stop-rescue now checks ordinary-session binding before
+loading target record and before consuming native admission. Records sessionTarget
+alongside actual tool-use ID; existing scratch metadata branch unchanged. THIS IS
+FOUNDATION ONLY: no service currently has the new flag, no module was activated,
+no public route redirected, no ProDevs native effect performed. Current sealedpair
+still independent. Host source changed during development; don't request another
+MCP reload until integration/final verification gate. Focused3 admission/poststate
+checks PASS (~67ms); native guard syntax check passed. No broad suite or new native
+workflow run at this interim gate, per Taylor's direction.
+
+NEXT integrate optional sessionManagementControl across package/config/policy/runtime
+pointer/inspection and preserve it across renewal+cold role reconstruction. Add
+ordinary request mode in existing independent read transaction, including immutable
+nativeSessionTargetBinding, exact policy admission and persisted postcondition/
+receipt observation/historical attempt review. Add explicit owned controller registry
+and public unarchive_session/pin_session routing to it (no stale legacy fallback).
+Keep fixed scratch target/grants/recovery enrollment intact; do not retarget primary
+metadataTarget to ProDevs or reinterpret archived native records as importable.
+Prepare/activate one successor generation only when integrated role is ready.
+Then one authorized public ProDevs unarchive->pin acceptance with persisted identity/
+archivefalse/pinnedtrue/focus verification; retain uncertain outcomes/no replay.
+Full final suite/harness gate at final source, not per edit. Broader original goal
+scope still applies. No new chats/CUA/restarts/permissions/legacy wakes were used.
+
 ## October 17 user-facing ProDevs unarchive/pin failure is a completion blocker
 
 Taylor supplied screenshot of another chat trying to unarchive and then pin ProDevs

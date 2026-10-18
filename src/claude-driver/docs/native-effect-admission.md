@@ -102,3 +102,15 @@ and did invoke the guard correctly. This is not desktop qualification or a claim
 about every error/timeout path; it is concrete evidence that policy installation
 alone cannot establish physical old-process fencing. Preserve unknown outcomes
 and require independently verified retirement before treating rollover as safe.
+
+## Ordinary user-session management candidate
+
+`ordinary-session-control.mjs` adds an identity/account-bound contract for dormant
+native chats. It is distinct from process-bound scratch metadata grants. Only
+unarchive and pin are currently defined; both need explicit sealed receiver grants
+and exact native PreToolUse evidence. Target identity and postconditions come from
+the app's records; target process, probe-folder and bypass assumptions are omitted.
+This admission foundation is wired into the guard but is not an activated public
+route. Package/policy grant plumbing, receipt settlement and public routing remain
+the next integration stage. Preserve existing grants and require real public
+unarchive→pin acceptance before calling ordinary chat support complete.
