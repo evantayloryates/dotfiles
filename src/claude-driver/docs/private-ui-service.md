@@ -118,10 +118,10 @@ JavaScript exit handler cannot guarantee cleanup after supervisor SIGKILL.
 
 The later [supervisor lock correction](ui-supervisor-lock.md) reproduces that
 gap in an owned synthetic rig, then makes the helper and worker retain the
-kernel lock. The signed helper's inherited-descriptor boundary is also verified
-remotely. Overlap is fenced, but automatic orphan cleanup remains unfinished.
-The next owner-loss cleanup must cover startup and cleanup-owner failure while
-retaining the fence. Successful archive alone does not cover supervisor death.
+kernel lock. The [lease owner](ui-lease-owner.md) now handles caller EOF before
+startup and while running, and its caller can reap its group after owner failure.
+Native caller-loss read-only cleanup passes. Double-owner orphan recovery is
+still unfinished and retains the fence. Archive alone does not cover owner loss.
 Preserve quarantine and separate physical-input/person gates. No typing repeats.
 Cold startup and the full completion audit remain open. Broad Codex bridge
 changes and 1Password work stay parked.

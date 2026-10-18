@@ -1,3 +1,61 @@
+## October 18 bounded lease owner cleanup passes; double-owner recovery remains
+
+PROGRESS: final sourcee3c3937e92f337ccf3da71d68aa9550b8ca3120f76c4521dfa85b07e6240b284.
+Tier C starts a private lease owner before helper startup, with inherited kernel
+lock and caller IPC lifetime. Owner verifies group leadership/lock identity and
+keeps helper/worker/backends in its one group. Caller EOF aborts and reaps its
+clients, closes helper and audits input. Surviving caller also reaps that tracked
+group if the owner dies. Bounded emergency cleanup cannot return success. The
+existing bridge worker remains executor; shared Codex/1Password stay parked.
+
+Actual-process synthetic cases pass normal completion, unknown residue refusal,
+caller loss before worker startup and while running, owner SIGKILL, cancellation,
+startup failure and both-owner loss. Sentinel preserved, lock reacquired only
+after resources exit. Both-owner loss is fenced but not automatically recovered;
+the fixture explicitly cleans that final case. Initial scanner counted its own
+ps and teardown exceptions could leave a child; these failures are retained.
+Scanner now excludes exact inspector PID/zombies; emergency paths remain failed.
+
+Remote native owner-normal1792356105921 passes exact read-only fixture/fresh AX,
+real turn/archive, owner3988 exit and helper3992 normal exit0. Thread
+01a150bf-c390-7d23-894d-2f8871debeda/turn01a150bf-c713-7603-a6fb-0fcdd4f23494.
+Remote caller-loss1792356135120 kills only caller4091 after exact acquisition;
+provider/fixture stay live. Owner4093 detects EOF, closes clients and audits;
+helper4097 normal exit0, no helper signal/filter remains. Caller SIGKILL and
+host completion/archive=false remain explicit. Actual saved thread
+01a150c0-35a4-7c62-be7d-63367806f741/turn01a150c0-370e-7b13-9e6f-3d75e1a4f910.
+These native cases use6c74bb46. Final policy-only Homebrew-bin extension is
+qualified by the additional real-Git controls, not falsely called identical source.
+
+Earlier native runs1792355978567/1792356020726 stay failed despite helper exit0:
+background owned Git children survived backend close. Added PID/path snapshots
+established that boundary. Cooperative recognized owned Git shutdown may follow
+normal worker/native completion; unknown commands, helper force and SIGKILL still
+fail. Final non-UI controls1792356351678/1792356352846 use actual Git hash-object
+on an empty private FIFO: cooperative accepted, SIGTERM-ignore/SIGKILL rejected.
+No network/repository access. Earlier control path/SIGSTOP failures are retained.
+
+Seventy-one focused checks pass. Final full195-file isolated suite passes once
+76.621s, frozen source/suite/installed identity:
+pressure/v2-2026-10-18T20-47-53-653Z.json. Earlier baseline6c74 full19565.620s
+remains separate. Service candidate memory2536b86f records final proof/limits.
+Docs: ui-lease-owner.md. Private mirrors ui-owner-evidence46 files/300143 bytes
+and ui-owner-ancillary-evidence31/63457, including failures/exact sources/contexts.
+Final remote: no owned helper/process/filter, original four non-helper taps,
+old repo0203e604 clean, uv/caffeinate508/510 unchanged, no auth copy/stop marker.
+Local quarantine remains blocked/hash9808e860. No typing, model inference, hook
+override, native permission edit or local CUA. All handles/cleanup terminal.
+
+NEXT changed condition: exact orphan recovery when caller and lease owner are
+both gone, preserving kernel fencing. Establish resource identity from current
+group/socket/descriptor/process-lifetime evidence; stale PID or old metadata alone
+cannot authorize a reap. Test successor lease and unrelated-process protection
+before one remote changed-condition gate. Native cleanup-owner crash is currently
+synthetic-only, while native caller loss has the bounded read-only proof above.
+Full computerUse focus/send, loaded adoption, physical input, concurrent active
+input, in-flight input cancellation, cold startup and the full audit remain open.
+Keep goal ACTIVE and avoid new typing/full-suite runs without relevant changes.
+
 ## October 18 supervisor-loss overlap reproduced and kernel ownership retained
 
 PROGRESS: current source8dfd7c77141948bc203cdaf83e45d0d8fbc7bb7b04863d951b16a44846f53312.

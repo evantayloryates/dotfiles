@@ -4,19 +4,29 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current source: `8dfd7c77141948bc203cdaf83e45d0d8fbc7bb7b04863d951b16a44846f53312`.
+Current source: `e3c3937e92f337ccf3da71d68aa9550b8ca3120f76c4521dfa85b07e6240b284`.
+The [private lease owner](ui-lease-owner.md) adds bounded caller/owner lifetime
+cleanup while retaining the kernel fence. Seventy-one focused checks and the
+full195-file suite pass once76.621s, frozen source/suite/installed identity
+(pressure/v2-2026-10-18T20-47-53-653Z.json). Native read-only normal completion and
+caller SIGKILL cleanup pass on6c74bb46, before a final Git-path-only extension;
+actual-Git cooperative/escalation controls qualify that extension on final source.
+Double-owner loss remains fenced, with automatic orphan recovery unfinished.
+Local quarantine, physical/input/full-scope and loaded-adoption gates remain.
+
+Earlier source8dfd7c77:
 The [supervisor lock correction](ui-supervisor-lock.md) now fences overlapping
 leases after parent loss by retaining kernel ownership in owned helper/worker
 processes. Actual lock/factory/worker synthetic SIGKILL cases pass; actual signed
-remote helper descriptor retention also passes. Automatic orphan cleanup remains
-unfinished. Full194 files pass once in71.139s with frozen source/suite/installed
+remote helper descriptor retention also passes. That checkpoint fenced overlap
+before the later owner cleanup above. Full194 files passed once in71.139s with frozen source/suite/installed
 identity (pressure/v2-2026-10-18T20-31-54-446Z.json). Previous native/harness proof
 retains its own recorded source; no quarantine release or adoption is inferred.
 The [private input service](private-ui-service.md) now integrates owned helper
 and socket lifecycle with the existing UI worker. Actual worker/config handoff
 through a harmless MCP and actual factory/native read-only lifecycle passed as
 separate gates. Later combined actual worker/native read-only completion,
-worker-group SIGKILL and pending-provider timeout pass on the same source.
+worker-group SIGKILL and pending-provider timeout pass on recorded5fea8859.
 These do not qualify supervisor loss or in-flight input cancellation. Full193
 isolated files pass once in68.023s, unchanged source/suite/installed identity
 (pressure/v2-2026-10-18T20-21-08-552Z.json). Local quarantine remains enabled.
@@ -43,7 +53,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | MCP registered in Claude Code, Codex, Cursor and OpenCode | Verified configuration | All four enabled commands resolve to the same current launcher. Two spellings use the dotfiles symlink; these are not different installations. Registration does not prove executable/auth access. |
 | Actual cross-harness operation | Partial | Fresh actual Claude and Codex MCP contracts each passed 10/10 on fcf484e3, before the narrow input-cleanup correction. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
 | Global skill and shared guidance | Verified installation | Claude skill is a real directory with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory. |
-| Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 194-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
+| Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 195-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
 | Queue, stop and interrupt | Native evidence | Ordinary12 on df52d791 passed busy queue, native stop/replacement, preserved queued turn and unique causal replies. Current full suite passes frozen recipient and uncertainty cases. Recipient receipt is not instruction application; reply evidence is assessed separately. |
 | Ordinary chats, including ProDevs | Native evidence | df52d791 same-state ProDevs pin completed through the ordinary native route; readback after current project gate still verifies unarchived and pinned. No test task message was sent to ProDevs. |
 | Named-folder creation with exact title/model and requested Bypass | Historical native proof | Approved pool claim j1ba6ae5c4913451d8d3ead7aa4134212 completed on 673aae50; saved title/model/BYPASS and unchanged focus endpoints were independently verified. Pool member was restored and archived. This does not prove arbitrary fresh imports start in Bypass. |
@@ -62,7 +72,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source 8dfd7c77 has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source e3c3937e has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 

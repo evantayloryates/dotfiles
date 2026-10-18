@@ -35,6 +35,19 @@ must exit normally without a signal. Each new run preserves its harness source;
 earlier pre-snapshot source hashes are recovered from owned orchestration assets.
 Supervisor SIGKILL and in-flight input cancellation are not covered by these modes.
 
+`owner-native.mjs normal|caller-loss` exercises the new lease owner, actual
+worker/backend/MCP/helper, inherited lock receipt and owner-side native audit.
+The provider/fixture outlive the caller-loss test. It validates exact fresh AX
+state before killing only the caller, then observes owner/group/helper exit.
+The test owner entry explicitly selects the already staged signed runtime and
+owned helper home; no user config/auth copy or native hook override is used.
+
+`owner-ancillary.mjs cooperative|escalated` is non-UI: real kernel/owner/worker/Git
+with a synthetic socket/backend. Git hash-object waits on an empty private FIFO,
+with no network or repository access. Cooperative Git retirement may be accepted
+after normal fake-helper exit; SIGTERM-ignore/SIGKILL must fail the lease. These
+controls do not substitute for native cleanup or physical-key evidence.
+
 `host-context.mjs` adds actual ephemeral Codex host turns through a deterministic
 localhost Responses fixture, without inference or account credentials. Default
 app-server mode preserves normal hook trust. `--exec-entry --review-receipt`

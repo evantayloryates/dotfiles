@@ -67,12 +67,11 @@ earlier source and are not relabeled as current native adoption.
 
 ## Next ownership step
 
-Automatic cleanup after supervisor loss remains unfinished. A retained orphan
-may keep the mutex unavailable; do not call that universal recovery or readiness.
-The next fix must provide an owned lifetime channel/reaper that is established
-before helper startup, retains kernel ownership throughout cleanup, and observes
-termination of only its own resources. Account for loss of the cleanup owner too;
-do not solve parent death by moving the same gap into an unchecked child.
+The later [lease owner](ui-lease-owner.md) adds a lifetime channel established
+before helper startup. Caller loss now triggers owned cleanup; a surviving caller
+also reaps the group if that cleanup owner crashes. The retained lock fences the
+case where both die. Automatic double-owner orphan recovery remains unfinished;
+do not call these bounded results universal recovery or readiness.
 
 First reuse the synthetic rig to qualify supervisor loss with the provider kept
 alive, normal cancellation, startup failure and cleanup-owner failure. Then use

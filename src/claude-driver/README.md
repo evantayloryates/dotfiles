@@ -440,7 +440,9 @@ worker-group loss and pending-provider timeout pass. Supervisor loss, physical
 input and in-flight input cancellation remain open; UI fallback stays quarantined.
 The [supervisor lock correction](docs/ui-supervisor-lock.md) now retains kernel
 ownership in the helper and worker, fencing overlap after parent loss. Automatic
-orphan cleanup remains a separate unfinished recovery step.
+cleanup now uses a [private lease owner](docs/ui-lease-owner.md) with an IPC
+lifetime channel and reciprocal group cleanup. Double-owner orphan recovery
+remains unfinished; retained descriptors still fence that case.
 
 ## Focus policy
 
