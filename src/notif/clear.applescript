@@ -6,11 +6,24 @@ on panelIsOpen()
     try
         tell application "System Events"
             tell process "NotificationCenter"
-                return exists window "Notification Center"
+                if not (exists window "Notification Center") then return false
+                set panel to first window whose name is "Notification Center"
+                set scroller to UI element 1 of UI element 1 of UI element 1 of panel
+                if value of attribute "AXRole" of scroller is not "AXScrollArea" then error "Notification Center layout changed."
+                repeat with elementRef in UI elements of scroller
+                    set elementIdentifier to missing value
+                    try
+                        set elementIdentifier to value of attribute "AXIdentifier" of elementRef
+                    end try
+                    -- A floating banner also owns a window named "Notification Center".
+                    -- The widget controls are present only when its panel is open.
+                    if elementIdentifier is "widget-editor-button" or elementIdentifier is "xmark" then return true
+                end repeat
+                return false
             end tell
         end tell
     on error errorMessage number errorNumber
-        if errorNumber is -1728 then return false
+        if errorNumber is -1728 or errorNumber is -1719 then return false
         error errorMessage number errorNumber
     end try
 end panelIsOpen
