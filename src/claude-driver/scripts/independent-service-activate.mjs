@@ -30,7 +30,7 @@ try{
  phase='candidate';const release=validateRelease(prep.build),pkg=await buildSealedIndependentPackage(prep.build,config),candidate=join(STATE_DIR,'module-candidate')
  verifyNativeServiceDirectory(candidate,pkg.hashes)
  const policyFactory=stableHook?(await import(pathToFileURL(join(release.root,'lib/native-service-policy.mjs')).href)).buildNativeServicePolicy:buildNativeServicePolicy
- const policy=policyFactory({binding:config.serviceStateBinding,sessionManagementControl:config.sessionManagementControl,sessionMetadataControl:config.sessionMetadataControl,sessionSendControl:config.sessionSendControl,sessionArchiveControl:config.sessionArchiveControl,metadataTarget:config.metadataTarget,metadataModelControl:config.metadataModelControl,metadataSendControl:config.metadataSendControl,metadataStopControl:config.metadataStopControl,epoch:prep.epoch,brokerDir:BROKER_DIR,scriptSha256:hash(bytes(join(release.root,'scripts/broker-stop-rescue.mjs'))),stableHook})
+ const policy=policyFactory({binding:config.serviceStateBinding,sessionManagementControl:config.sessionManagementControl,sessionMetadataControl:config.sessionMetadataControl,sessionSendControl:config.sessionSendControl,sessionArchiveControl:config.sessionArchiveControl,sessionStopControl:config.sessionStopControl,metadataTarget:config.metadataTarget,metadataModelControl:config.metadataModelControl,metadataSendControl:config.metadataSendControl,metadataStopControl:config.metadataStopControl,epoch:prep.epoch,brokerDir:BROKER_DIR,scriptSha256:hash(bytes(join(release.root,'scripts/broker-stop-rescue.mjs'))),stableHook})
  if(stableHook&&!policy.receiverHook)throw Error('sealed stable hook capability')
  phase='destination';const modRoot=join(process.env.CLAUDE_CONFIG_DIR||join(homedir(),'.claude'),'dev-mods'),sessionMods=join(modRoot,session.slice(6)),dest=join(sessionMods,'desktop-bridge-native-peer-service'),settingsDir=join(record.cwd,'.claude'),settingsFile=join(settingsDir,'settings.json')
  // Existing settings/modules need an explicit predecessor transition. Never
@@ -48,7 +48,7 @@ try{
  mkdirSync(BROKER_DIR,{recursive:true,mode:0o700})
  const result=await runIndependentActivation({guard,record:nextPhase=>{phase=nextPhase;ledger.phase=nextPhase;ledger.updatedAt=Date.now();writeJsonAtomic(activation,ledger)},
  policy:()=>writeFileSync(policy.policyPath,JSON.stringify(policy.policy),{flag:'wx',mode:0o600}),
- pointer:()=>commitRelease(prep.build,{sessionId:session,pid:Number(pid),procStart:start,nonce:randomUUID(),serviceStateBinding:config.serviceStateBinding,sessionManagementControl:config.sessionManagementControl??false,sessionMetadataControl:config.sessionMetadataControl??false,sessionSendControl:config.sessionSendControl??false,sessionArchiveControl:config.sessionArchiveControl??false},()=> 'Independent native service state. No model-driven broker loop is installed here.\n'),
+ pointer:()=>commitRelease(prep.build,{sessionId:session,pid:Number(pid),procStart:start,nonce:randomUUID(),serviceStateBinding:config.serviceStateBinding,sessionManagementControl:config.sessionManagementControl??false,sessionMetadataControl:config.sessionMetadataControl??false,sessionSendControl:config.sessionSendControl??false,sessionArchiveControl:config.sessionArchiveControl??false,sessionStopControl:config.sessionStopControl??false},()=> 'Independent native service state. No model-driven broker loop is installed here.\n'),
  settings:async()=>{
   if(stableHook){
    const pointer=activeRelease().pointer,artifact=policy.receiverHook

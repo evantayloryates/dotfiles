@@ -5,6 +5,7 @@ import {nativePolicyPeerMatches,nativePolicySettingsPath,serviceStateBindingMatc
 import {isMetadataOperation} from '../lib/native-metadata-control.mjs'
 import {nativeMetadataTargetObservation} from '../lib/native-metadata-admission.mjs'
 import {ordinarySessionTargetObservation,ordinarySessionBindingValid,ordinarySessionBindingRequired} from '../lib/ordinary-session-control.mjs'
+import {peerRecord} from '../lib/peer-direct.mjs'
 import {getRecord} from '../lib/sessions.mjs'
 import {inspectNativeResourcePid} from '../lib/native-resource-process.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
@@ -169,7 +170,7 @@ async function main(){
    let metadataTarget,sessionTarget
    if(ordinarySessionBindingRequired(request,pointer,index)){
     if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
-    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId)})
+    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId),peer:request.ops[index].op==='stop_session'?peerRecord(request.nativeSessionTargetBinding?.sessionId):undefined})
     if(!sessionTarget)throw Error('ordinary session target identity or grant')
    }else if(isMetadataOperation(request.ops[index].op)||Object.hasOwn(request,'nativeMetadataTargetBinding')){
     if(manifest?.nativeMetadataTargetVersion!==1||pointer.nativeMetadataTargetVersion!==1)throw Error('metadata target capability')

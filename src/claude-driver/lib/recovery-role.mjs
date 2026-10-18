@@ -1,15 +1,16 @@
 import {archiveTargetValid} from './native-archive-control.mjs'
 const same=(a,b)=>!!(a&&b&&['sessionId','cwd','pid','procStart'].every(k=>a[k]===b[k]))
-const flags=[['metadataModelControl','metadata_model_control'],['metadataSendControl','metadata_send_control'],['metadataStopControl','metadata_stop_control'],['sessionManagementControl','session_management_control'],['sessionMetadataControl','session_metadata_control'],['sessionSendControl','session_send_control'],['sessionArchiveControl','session_archive_control']]
+const flags=[['metadataModelControl','metadata_model_control'],['metadataSendControl','metadata_send_control'],['metadataStopControl','metadata_stop_control'],['sessionManagementControl','session_management_control'],['sessionMetadataControl','session_metadata_control'],['sessionSendControl','session_send_control'],['sessionArchiveControl','session_archive_control'],['sessionStopControl','session_stop_control']]
 // Authority comes only from independently verified old generation evidence.
 // A fresh process identity never implies permission to add or drop a role.
 export function recoveryRoleFromHistory(status,policy,{sessionId,receiverCwd,admitTarget}={}){
  if(!status?.verified||status.sessionId!==sessionId||!['live-native','offline-installed','offline-retired','historical-retired'].includes(status.verificationMode)||!['installed','files-retired'].includes(status.sourceDisposition)||status.terminalAttemptReviewComplete!==true||!Array.isArray(status.unresolvedRequestIds)||status.unresolvedRequestIds.length||policy?.sessionId!==sessionId||policy.build!==status.build||policy.pid!==status.nativeEpoch?.pid||policy.procStart!==status.nativeEpoch.procStart)throw Error('historical recovery role unqualified')
+ if(status.sessionStopControl===true&&status.sessionManagementControl!==true)throw Error('ordinary stop role requires management')
  if(status.sessionArchiveControl===true&&status.sessionManagementControl!==true)throw Error('ordinary archive role requires management')
  if(status.sessionSendControl===true&&status.sessionManagementControl!==true)throw Error('ordinary send role requires management')
  if(status.sessionMetadataControl===true&&status.sessionManagementControl!==true)throw Error('ordinary metadata role requires management')
  const metadata=status.metadataTarget,archive=status.archiveTarget,grants=Object.fromEntries(flags.map(([k])=>[k,status[k]===true])),prepareArguments={},bindings={}
- if(metadata&&archive||metadata&&!same(metadata,policy.metadataTarget)||!metadata&&policy.metadataTarget||flags.some(([k])=>(status[k]===true)!==(policy[k]===true))||!metadata&&flags.some(([k])=>!['sessionManagementControl','sessionMetadataControl','sessionSendControl','sessionArchiveControl'].includes(k)&&grants[k]))throw Error('historical role authority mismatch')
+ if(metadata&&archive||metadata&&!same(metadata,policy.metadataTarget)||!metadata&&policy.metadataTarget||flags.some(([k])=>(status[k]===true)!==(policy[k]===true))||!metadata&&flags.some(([k])=>!['sessionManagementControl','sessionMetadataControl','sessionSendControl','sessionArchiveControl','sessionStopControl'].includes(k)&&grants[k]))throw Error('historical role authority mismatch')
  for(const [key,binding,arg]of [['metadataTarget',metadata,'metadata_target'],['archiveTarget',archive,'archive_target']])if(binding){if(!archiveTargetValid(binding,{sessionId,receiverCwd})||typeof admitTarget!=='function'||admitTarget(binding)!==true)throw Error('historical role target epoch unqualified');bindings[key]={...binding};prepareArguments[arg]=binding.sessionId}
  for(const [key,arg]of flags)if(grants[key])prepareArguments[arg]=true
  return {version:1,bindings,grants,prepareArguments}

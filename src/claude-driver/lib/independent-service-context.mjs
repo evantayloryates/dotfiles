@@ -49,6 +49,7 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  for(const[name,expected]of Object.entries(pkg.hashes))if(hash(bytes(join(module,name)))!==expected)refuse()
  if(retirement&&JSON.stringify(ordered(snapshotIndependentModule(module,pkg.hashes)))!==JSON.stringify(ordered(retirement.inventory)))refuse()
  const policy=json(join(BROKER_DIR,'stop-rescue-policy.json')),settings=nativePolicySettingsPath({pointer,policy,dir:BROKER_DIR})
+ if([config,policy,pointer].some(x=>x.sessionStopControl!==undefined)&&(![config,policy,pointer].every(x=>x.sessionStopControl===true)||config.sessionManagementControl!==true))refuse()
  if([config,policy,pointer].some(x=>x.sessionArchiveControl!==undefined)&&(![config,policy,pointer].every(x=>x.sessionArchiveControl===true)||config.sessionManagementControl!==true))refuse()
  if([config,policy,pointer].some(x=>x.sessionSendControl!==undefined)&&(![config,policy,pointer].every(x=>x.sessionSendControl===true)||config.sessionManagementControl!==true))refuse()
  if([config,policy,pointer].some(x=>x.sessionMetadataControl!==undefined)&&(![config,policy,pointer].every(x=>x.sessionMetadataControl===true)||config.sessionManagementControl!==true))refuse()

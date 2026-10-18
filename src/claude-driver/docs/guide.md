@@ -1748,3 +1748,14 @@ existing management, metadata or send generations. Optional reason is nonempty,
 at most 500 characters and contains no NUL. Native gates remain authoritative.
 Ordinary archive evidence does not assert process termination; fixed recovery-actor
 retirement retains its stronger separate proof. Native qualification is pending.
+
+### Ordinary native stop capability
+
+Prepare/renew the enrolled controller with session_stop_control:true. Default
+durable stop_session can then stop a distinct ordinary recipient on its exact
+verified native PID/start identity, without fixed scratch enrollment or recipient
+bypass assumptions. The native hook rechecks that epoch before dispatch. Native
+requested/pending is not a completed stop. Success requires stopped/already_idle
+receipt plus subsequent idle observation on the original epoch; drift or uncertain
+receipt forbids automatic replay/replacement. Existing queued messages follow
+native stop semantics. This path awaits native qualification.

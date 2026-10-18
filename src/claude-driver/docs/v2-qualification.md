@@ -2139,3 +2139,46 @@ NEXT implementation: ordinary stop with separate authority and exact recipient
 epoch, preserving requested/pending stop semantics. Both-absent recovery, natural
 pressure, broader original brief and final loaded-MCP/source suite remain open.
 Goal ACTIVE. No live test job remains; Codex-driver/1Password work stay separate.
+
+## October 17 ordinary epoch-bound stop implementation
+
+Previous turn = progress (ordinary archive published). Added separately explicit
+sessionStopControl/public session_stop_control:true requiring management and exact
+sealed config/policy/pointer agreement; package0.14.0. Preparation, activation,
+status, renewal, maintenance and cold/pair roles preserve the new right without
+expanding old grants. Health advertises stop only with matching explicit grants.
+Public stop_session uses ordinary route when no fixed metadata route exists;
+existing fixed-target and self/broker protections remain. No permission changes.
+
+ordinary-stop-control binds recipient PID/procStart, host/CLI identity, cwd,
+entrypoint and supported CLI version. Busy/idle/waiting peers qualify; dormant,
+ambiguous/changed/starting/foreign peers refuse. Request carries exact separate
+nativeSessionStopEpoch and ordinary identity. Host preflight AND actual native
+PreToolUse independently observe the peer/process; retained admission includes the
+matched stopEpoch. Missing ordinary binding cannot fall through fixed admission.
+Native callback calls only stop_session with exact session_id once. No caller
+text can add native arguments, consent, a different target or arbitrary tools.
+
+Durable ordinary-stop-routes ledger retains original intent/epoch/native receipt.
+Native stopped/already_idle acceptance is not success until SAME recipient epoch
+is independently idle. Native requested remains outcome_unknown and prevents the
+steer replacement; unknown/error/timeout/identity drift/write failure never replay.
+Queue behavior remains native (already queued messages preserved). Ordinary stop
+uses stop receipt review rather than a saved metadata postcondition; historical
+attempt review retains that distinction and fixed scratch receipts remain valid.
+
+Focused72 PASS, ordinary-stop-focused-20261017.log; changed JS syntax/diff checks
+pass. Covers grants/native callback/receipt/pending state/epoch changes/admission/
+no-replay orchestration/recovery/maintenance/history. No full rerun or native
+message/stop/archive/generation activation for this interim gate. The integrated
+archive report is earlier-source proof only. Both new archive AND stop grants are
+implemented but NOT native activated/qualified yet. ProDevs unchanged.
+
+NEXT strategic native gate: renew primary once with archive+stop grants, qualify
+ordinary already-idle stop and archive/unarchive on the existing owned control
+target, checking saved baseline/focus and exact terminal settlement. No ProDevs
+messages or archive test. Busy ordinary stop still needs actual controlled native
+proof (prior fixed-target proof is separate). Batch with final-source synthetic
+and harness gates when implementation settles; avoid per-edit desktop tests.
+Both-absent recovery/natural pressure/broader original brief/loaded MCP remain open.
+Goal ACTIVE. No live job pending. Codex-driver and 1Password remain separate.
