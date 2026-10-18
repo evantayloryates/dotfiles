@@ -40,12 +40,12 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The consolidated gate on source `79619016`
-passed all 180 isolated test files and both fresh harnesses (10/10 each).
-The restarted Codex-chat MCP now matches that source, and an actual MCP ordinary
-no-op renewed both expired controller leases with a verified receipt. Both
-controllers run that source on their original native processes. The final ordinary
-native profile passed all twelve checks and restored the owned fixture baseline.
+execution remains unqualified. The latest consolidated gate on source `e9dd31e4`
+passed all 185 isolated test files and both fresh harnesses (10/10 each). Actual
+headless seed flags produced the exact UUID/marker in one turn with no tools,
+MCP servers or desktop import; task-created CLI artifacts were cleaned. The
+restarted Codex-chat MCP and final twelve-check ordinary native profile passed on
+prior source `79619016`; seeded features still need loaded-client/native adoption.
 Live deleted-record recovery and unattended cold-app startup remain unqualified.
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

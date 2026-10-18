@@ -1,3 +1,29 @@
+## October 18 actual headless seed CLI and fresh harness gate
+
+One actual bundled CLI2.1.299 contract, task-created UUID2043db15-e320-468b-8a8d-24079d85bd1a
+and unique probe folder, fixed no-tools/no-MCP/setting-sources-empty/dontAsk/max-turns1
+seed arguments. PASS1.7sec: exit0, JSONis_errorfalse, exact UUID/marker, num_turns1,
+permission_denials0, private transcript metadata verified; no desktop record or
+import. No fabricated original missing-service ownership was used: scope is CLI
+flags/seed artifact only, not deleted-record recovery. Report
+pressure/seed-cli-contract-20261018.json. Verified no prior UUID artifacts before
+launch; afterward removed only task-created transcript/new project directory and
+empty task probe folder. Remaining CLI artifacts0, desktop record absent. Sanitized
+evidence retained. No desktop session/process/permission mutation or messages.
+
+Fresh actual filtered Claude/Codex10/10 each on sourcee9dd31e4,24.1/16.7sec,
+harness-v2-{claude,codex}-2026-10-18T07-30-17-964Z.json. Globalconfigs/source unchanged.
+Full185 gate remains same e9dd31e4. Last actual cached MCP/native12 source79619016
+is historical for seed feature; no repeated refresh or native12 after each helper.
+
+Next concrete gate: stage a disposable two-session native recovery fixture, preserve
+working controller pair and ProDevs, then native person-owned permission/trust/hot
+reload/deletion cards only where actually required. Do not delete serving actors,
+spoof consent, overwrite app records or call a headless seed a restored service.
+Actual record+transcript delete/rebuild/native-role proof still missing, as is
+supported unattended all-Code-processes-absent startup. Goal active; no live jobs
+or cleanup pending. Codex bridge remains parked.
+
 ## October 18 seeded public interfaces and consolidated185 gate
 
 Registered read-only broker_service_seed_plan and durable experimental
