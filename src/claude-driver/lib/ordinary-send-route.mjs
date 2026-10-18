@@ -1,3 +1,4 @@
+import {nativeTrustRecoveryAction} from './native-delivery-failure.mjs'
 import {createHash} from 'node:crypto'
 import {join} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -38,5 +39,5 @@ export async function routeOrdinarySend(target,args,{jobId,signal,progress}={}){
    send:()=>readIndependentService(controller,ledger.serviceId,target,{jobId,signal,progress,timeoutMs:20000,ordinaryControl:{binding,operation:'send_message',value:args.message}})
   })
   return {sessionId:target,delivery:result.delivery,messageId:result.messageId,nativeAccepted:true,receiptVerified:true,verified:true,applied:false,causalReplyAssessed:false,requestId,serviceId:ledger.serviceId,controllerSession:controller,route:'independent-session-send',routeFile:file,...ledger.maintenanceJobId?{maintenanceJobId:ledger.maintenanceJobId}:{},...ledger.coldRecoveryJobId?{coldRecoveryJobId:ledger.coldRecoveryJobId}:{},retrySafe:false,verification:'Exact native delivery acceptance only; observe recipient events/reply separately.'}
- }catch(error){ledger.failure={category:error.category??'ordinary_send_unresolved',at:Date.now()};save('unresolved');throw new DriverError('ordinary send stopped; inspect its exact request and native receipt before retrying',{category:error.category??'ordinary_send_unresolved',detail:{jobId,requestId,serviceId:ledger.serviceId??null,routeFile:file,nativeFailure:error.detail?.nativeFailure,retrySafe:false}})}
+ }catch(error){const humanAction=nativeTrustRecoveryAction(error.detail?.nativeFailure,record,target);ledger.failure={category:error.category??'ordinary_send_unresolved',at:Date.now(),...humanAction?{humanAction}:{}};save('unresolved');throw new DriverError('ordinary send stopped; inspect its exact request and native receipt before retrying',{category:error.category??'ordinary_send_unresolved',detail:{jobId,requestId,serviceId:ledger.serviceId??null,routeFile:file,nativeFailure:error.detail?.nativeFailure,...humanAction?{humanAction}:{},retrySafe:false}})}
 }

@@ -1442,3 +1442,47 @@ target startup/trust remains a separate gate; do not assume unarchive starts it.
 Both-absent bootstrap/outage, natural pressure, broader creation/fork/window/person
 and final loaded-MCP adoption remain open. Choose next changed-condition gate;
 no repeat archive/idle-stop merely to appear active. Goal ACTIVE, no live job pending.
+
+## October 17 ordinary busy-stop and dormant-trust boundary
+
+Previous turn = progress (native archive/idle-stop + integrated source2fdaa pass).
+Dormant controltarget send j08509ad4dc79426bb9cda794a938d412 failed with exact
+verified workspace_trust_required / undelivered receipt. No peer/new events; saved
+baseline unchanged. Failure settled, not replayed; old failed record retained.
+Taylor then explicitly sent ready and approved exact target workspace trust.
+New recipient epoch PID19357/startSunOct18 03:05:05, independently idle.
+
+Changed-condition send j74db349e96784960a4001f75a45d569c delivered a bounded text
+response. Busy was observed, but stop jdb226e0ed55f47fab2e30c6abe0450d5 returned
+already_idle; this race is NOT busy-stop proof. A changed timed Bash wait request
+jd02ac6db65ea499187f0abd4c2e1c8a8 was delivered, but target's OWN historical
+sealed receiver policy rejected Bash before execution. Stopj8d1d090df4b145c09ae3ba30bca6f301
+again already_idle. Read-only target settings confirm old local serviced5e108...;
+this is not general ordinary-chat hook inheritance. No hook/settings weakened.
+
+Final changed condition: longer TEXT-ONLY response, with host immediately issuing
+stop after exact delivery and busy observation. Sendjbd75c09c36ed4aca94e6f9b8692cb1ce,
+stopj6a792e9745a4429f8fbb941d4a3d751d: actual native stopped receipt, SAME exact
+PID/start independently idle, baseline unchanged, focus endpoints unchanged,
+controller idle and unresolved requestIDs empty. Qualificationtrue scoped to
+ordinary busy stop AFTER person-approved startup. No unattended startup claim.
+Evidence .runtime/state/ordinary-busy-stop-native-20261017.json retains ALL attempts.
+Native sealed source2fdaaac4d40781d0bcdab2609f373e30fa70c8b54db1d8eefc7f11b74aa32bc9;
+host6a29218c49dc80b5cbb5fe013d790b7e9487cd9c01a754881719bebd6cadc7b7.
+No app restart, process kill, CUA/keyboard, new chat or ProDevs mutation.
+
+Added bounded humanAction metadata for exact native trust failures in ordinary-send
+errors AND durable route failure: app/view/existing session title+ID/exact folder,
+personRequired, replayOriginalRequest:false, servingReadinessAssessed:false. No
+message text/raw native error copied into guidance; foreign/malformed targets or
+unclassified failures do not generate instructions. Focused8 pass. This new error
+projection is synthetically tested; original native failure predates projection.
+No full suite repeated for this diagnostics-only change; prior2fdaa integrated pass
+is not final host-source blanket proof.
+
+NEXT substantial gap: both-absent bootstrap/outage qualification, natural pressure,
+broader creation/fork/window/person gates and final loaded-MCP adoption. Ordinary
+busy stop now has native proof; don't repeat it or resend failures to show activity.
+Any trust-approval-dependent continuation must use a new explicit request and keep
+original failed job unchanged. Target is currently LIVE IDLE (not dormant), control
+baseline preserved. Goal ACTIVE; no pending native job or human trust action.

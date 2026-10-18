@@ -7,3 +7,10 @@ export function nativeDeliveryFailure(result,target){
  if(!error.endsWith('): "Workspace requires trust approval before starting a session.". (delivery: undelivered; message_id: '+delivery[1]+')'))return undefined
  return {category:'workspace_trust_required',delivery:'undelivered',messageId:delivery[1],humanActionRequired:true,retrySafe:false}
 }
+
+// Recovery guidance is metadata for a person, never permission to replay the
+// original message. Use the exact target record already bound by the host route.
+export function nativeTrustRecoveryAction(failure,record,target){
+ if(failure?.category!=='workspace_trust_required'||failure.delivery!=='undelivered'||failure.humanActionRequired!==true||failure.retrySafe!==false||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(target||'')||record?.sessionId!==target||typeof record.cwd!=='string'||!record.cwd.startsWith('/')||record.cwd.length>4096||/[\0\r\n]/.test(record.cwd)||typeof record.title!=='string'||!record.title.trim()||record.title.length>200||/[\0\r\n]/.test(record.title))return undefined
+ return {kind:'native-workspace-trust',app:'Claude Desktop',view:'Code',sessionId:target,title:record.title,workspace:record.cwd,steps:['Open the existing session','Send ready','Approve workspace trust for this folder'],personRequired:true,replayOriginalRequest:false,servingReadinessAssessed:false}
+}

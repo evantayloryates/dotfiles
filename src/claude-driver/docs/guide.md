@@ -6,7 +6,8 @@ mechanisms and evidence.
 
 Current audit (October17): independent ordinary unarchive/pin, model configuration,
 send, archive and already-idle stop have named native receipt/saved-state evidence.
-Busy ordinary stop, dormant recipient startup, groups and wider lifecycle paths
+Ordinary busy stop passed after person-approved startup; unattended dormant
+recipient startup, groups and wider lifecycle paths
 remain separate gates. Legacy broker health does not describe independent route
 health; the observer-owned legacy epoch remains unqualified. All four harness
 registrations exist, but current loaded-client adoption and Cursor/OpenCode
@@ -1760,4 +1761,10 @@ requested/pending is not a completed stop. Success requires stopped/already_idle
 receipt plus subsequent idle observation on the original epoch; drift or uncertain
 receipt forbids automatic replay/replacement. Existing queued messages follow
 native stop semantics. Native already-idle stop passed on source2fdaa; busy ordinary
-stop remains unqualified.
+stop passed after person-approved startup; unattended dormant startup remains
+unqualified.
+
+Native ordinary-send trust refusals include bounded humanAction metadata naming
+Claude Desktop Code, the exact existing session and workspace folder. This is a
+person-required trust step, not permission to replay the original message or proof
+of readiness. Preserve the failed job; any later authorized request gets a new ID.
