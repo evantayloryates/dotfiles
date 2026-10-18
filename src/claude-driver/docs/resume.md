@@ -1,3 +1,41 @@
+## October 18 actual app-quit gate failed at native startup
+
+Strategic test after independent pair preconditions: both exact peers idle,
+readiness/policy verified, no unresolved requests; ordinary fixture bypass,
+unarchived/unpinned. Explicit user-authorized osascript Claude quit recorded
+before effect, both old peers independently absent. Cause is planned app quit,
+NOT crash/governor/update. Versions remain app2.42304.0/CLI2.1.299.
+
+One durable no-op pinfalse parentj3d2f6f23abbc451c8d3ad8965e603f7a automatically
+submitted pair childjfebd09b9631e4da5bceea4ece86b0b98. Child verified offline
+quiescence/retirement of both old generations, attempted primary import ONCE,
+then failed before-import-primary after30sec without native peer startup. App
+main.log proves import of exact existing CLI identity, already imported saved
+chat and focused session; these do NOT establish receiver startup/trust refusal.
+Both peers still absent. Parent failed before selecting target service (null),
+route unresolved; target remains unpinned. No target operation replay authorized.
+
+Private app-restart-qualification-20261018.json retains preconditions, known cause,
+exact root/parent, phase and current peer/baseline observations. Original failed
+root hash83f86cb0b39ff49d9d55fcb6a64557c4900e7b06ac9cbdb545c429ee576e6150,
+enrollment9aebc5d47bc7c30046197611decc5c8f206a04c7d313fc3db6f0881472bcc0e2.
+Original root and failures not modified. Both old services now retired; serving
+is DOWN pending continuation, not healthy/no-cleanup. No jobs left running.
+
+Requested person: in Claude Code open claude-driver-transport-scratch-2026-10-15
+and send ready. Do not infer trust refusal or answer any native consent. NEXT:
+observe exact new idle epoch, call read-only inspectPairImportContinuation for
+original root+digest, then one durable broker_service_continue_pair_bootstrap if
+qualified. Never repeat primary import, bootstrap root or original pin request.
+Second actor import is not yet attempted and continuation may attempt it once.
+If changed-condition proof fails, preserve reason and continue diagnosis.
+
+Deleted-service replacement audit: generic approved pool preserves bypass but
+cannot silently inherit exact service role/cwd/identity or replace enrollment.
+Requires separate controlled authority rebind, remains unimplemented. Codex app
+restart request for stale loaded MCP also pending. Goal active; this is first
+native-startup gate requiring human intervention in this audit, not blocked.
+
 ## October 18 missing-service recovery diagnosis
 
 Audit confirmed archived retained actors are admissible for exact re-import, but
