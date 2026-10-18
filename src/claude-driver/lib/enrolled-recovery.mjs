@@ -1,3 +1,4 @@
+import {ordinarySessionBinding,ordinarySessionBindingValid} from './ordinary-session-control.mjs'
 import {renewIndependentService} from './independent-service-renew.mjs'
 import {createHash} from 'node:crypto'
 import {rebindEnrolledStandby} from './standby-rebind.mjs'
@@ -39,7 +40,7 @@ export async function runEnrolledRecoveryAndRebind(d){
  if(rebound?.verified!==true||rebound.standbyRebindRequired!==false||rebound.primarySession!==recovered.primarySession||rebound.enrollment?.verified!==true||rebound.enrollment.automaticRecoveryEnabled!==true||rebound.enrollment.primaryServiceId!==recovered.serviceId||!/^[a-f0-9]{64}$/.test(rebound.enrollment.enrollmentSha256||'')||!/^j[a-f0-9]{32}$/.test(rebound.contextId||''))throw Error('standby rebind not verified for recovered primary')
  return {...recovered,standbyRebindRequired:false,standbyRebindContextId:rebound.contextId,enrollmentSha256:rebound.enrollment.enrollmentSha256}
 }
-export async function recoverEnrolledController(primary,{jobId,signal,expectedSha256,automatic=false,intendedTarget,capabilities=[],idleTarget=false,routeLockHeld=false}={}){
+export async function recoverEnrolledController(primary,{jobId,signal,expectedSha256,automatic=false,intendedTarget,capabilities=[],idleTarget=false,ordinaryBinding,routeLockHeld=false}={}){
  if(!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(primary||'')||!/^j[a-f0-9]{32}$/.test(jobId||''))throw new DriverError('enrolled recovery requires exact durable primary',{category:'bad_args'})
  let row=readStandbyEnrollment(primary),digest=row&&standbyEnrollmentDigest(row)
  if(!automatic&&!/^[a-f0-9]{64}$/.test(expectedSha256||''))throw new DriverError('exact enrollment digest required',{category:'bad_args'})
@@ -49,7 +50,8 @@ export async function recoverEnrolledController(primary,{jobId,signal,expectedSh
  const guard=async({allowStandbyMaintenance=false}={})=>{
   if(signal?.aborted||standbyEnrollmentDigest(readStandbyEnrollment(primary))!==digest)throw Error('recovery cancelled or enrollment changed')
   const plan=await inspectEnrolledStandby(primary,{signal,allowStandbyMaintenance});if(!(plan.action==='recover'&&plan.coldRecoveryEligible)&&!(allowStandbyMaintenance&&plan.action==='renew-standby'))throw Error('primary is live or recovery evidence changed')
-  if(intendedTarget){const selected=loadReceiverSelection(row.primary.cwd),t=selected.policy.metadataTarget,r=getRecord(intendedTarget),peer=peerRecord(intendedTarget);if(t?.sessionId!==intendedTarget||capabilities.some(k=>!['metadataModelControl','metadataSendControl','metadataStopControl'].includes(k)||selected.policy[k]!==true)||!nativeSendTargetMatches({target:t,record:r,peer,registered:metadataTargetRegistered(t,{controlStateDir:STATE_DIR}),openPrCount:r?openPrs(r).length:null})||idleTarget&&peer.status!=='idle')throw Error('original control intent does not match retained role')}
+  if(intendedTarget&&ordinaryBinding){const selected=loadReceiverSelection(row.primary.cwd);if(!ordinarySessionBindingValid(ordinaryBinding,primary)||ordinaryBinding.sessionId!==intendedTarget||JSON.stringify(ordinarySessionBinding(getRecord(intendedTarget),primary))!==JSON.stringify(ordinaryBinding)||[selected.policy,selected.pointer].some(x=>x.sessionManagementControl!==true)||capabilities.some(k=>k!=='sessionManagementControl'||selected.policy[k]!==true))throw Error('ordinary control intent does not match retained role')}
+  if(intendedTarget&&!ordinaryBinding){const selected=loadReceiverSelection(row.primary.cwd),t=selected.policy.metadataTarget,r=getRecord(intendedTarget),peer=peerRecord(intendedTarget);if(t?.sessionId!==intendedTarget||capabilities.some(k=>!['metadataModelControl','metadataSendControl','metadataStopControl'].includes(k)||selected.policy[k]!==true)||!nativeSendTargetMatches({target:t,record:r,peer,registered:metadataTargetRegistered(t,{controlStateDir:STATE_DIR}),openPrCount:r?openPrs(r).length:null})||idleTarget&&peer.status!=='idle')throw Error('original control intent does not match retained role')}
  }
  const record=async(phase,result)=>{if(!ledger){const initial={schemaVersion:1,parentJobId:jobId,primary,enrollmentSha256:digest,phase,steps:[],at:Date.now(),retrySafe:false};writeFileSync(file,JSON.stringify(initial),{flag:'wx',mode:0o600});ledger=initial}ledger.phase=phase;ledger.steps.push({phase,at:Date.now()});if(result)ledger.result=result;save()}
  try{

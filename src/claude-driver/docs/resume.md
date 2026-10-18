@@ -1,3 +1,60 @@
+## October 17 ordinary ProDevs public workflow qualified; goal remains active
+
+Implemented explicit sessionManagementControl across sealed package, policy, runtime
+pointer, preparation, activation, inspection, renewal and cold-role reconstruction.
+Request-bound ordinary identity (account-store hash/cwd/session/CLI identity) is used
+instead of a scratch target live PID. Existing fixed metadataTarget/grants remain.
+Dedicated ordinary worker mode uses durable native request IDs, target serialization,
+PreToolUse admission, exact receipt plus retained independently observed postcondition,
+and historical attempt review. Explicit controller enrollment routes public unarchive
+and pin calls through the new controller without legacy fallback. Durable driver_submit
+required. Cold controller maintenance preserves ordinary intent and original role.
+
+Native source7080340b2facdd69007674bdecb0a254a3949c48172ce7a93e0038a9da12c0a7:
+primary service29b4ba0b3e8547efb6c28f6768a19a2a, same PID96436/start00:42:30;
+renew parentj29b4ba0b3e8547efb6c28f6768a19a2a. Session management enrollment
+jc47af30b2e44413c9e307b58b2661c54 verified native readiness/policy/idle/no unknowns.
+ONE public real ordinary target workflow succeeded: ProDevs
+local_437775cb-d113-4cc5-9497-62f3196a1fbd unarchive
+jf43c5c63628c4e2788c121d9e3adb177 then pinj9fe4bd44e00a4189859a7d0f6de50cef.
+Both native receipts and persisted postconditions independently verified; final disk
+archivedfalse,pinnedtrue. NO messages sent to ProDevs, no permission changes or CUA.
+Focus actionnone/verifiednull: native metadata result did not report navigation;
+do not claim independent window focus preservation proof.
+Evidence .runtime/state/ordinary-session-acceptance-20261017.json.
+
+Both leases had expired: primary renewal family refresh initially refused because
+standby expired. Standby renewedja3a811e613274980b931ae984a82f3e7 -> service
+a3a811e613274980b931ae984a82f3e7 (same PID90418), then explicit exact-digest
+CAS enrollmentj510d8c635f724e31bd976e52479b02c8 succeeded using original fresh
+family rpeerc2834cd5adf142f407520d7052646f1f. New enrollment digest
+056e78ab5352d5ccd5a353260a61d8683b9aedeea6f51f514865b8ef14ab6a58,
+automaticRecoverytrue. Planner wait/primary-live, no effects. Initial renewal
+refresh failures retained, not rewritten as success.
+
+Strategic checks: focused68 pass; full synthetic pressure1/1 PASS36.7sec on708034;
+report pressure/v2-2026-10-18T02-21-45-862Z.json. Actual filtered Claude/Codex
+headless MCP contract harnesses BOTH PASS (~26/27sec) on708034, reports
+harness-v2-{claude,codex}-2026-10-18T02-21-{53-532,54-692}Z.json.
+After that native evidence, tightened native hook to REQUIRE ordinary binding for
+unarchive on a management-capable receiver (absence must not fall through generic
+admission). Focused actual-hook/ordinary8 PASS; no repeat native workflow for this
+narrow hardening, per Taylor test cadence. Current host source therefore differs
+from708034 sealed native pair. Do not overstate final-source native qualification.
+
+Current chat loaded MCP78678a25... remains stale; actual driver_status returned
+restartRequiredtrue vs708034 before final guard edit. Do not ask repeated reloads;
+one final loaded-client connection gate remains. CLI native acceptance above is
+real public routing, not proof current chat loaded MCP adopted new source.
+
+NEXT: finish public ordinary capability coverage required by original brief (only
+unarchive+pin newly qualified here); independent focus-preservation evidence;
+final-source native/harness qualification at final batch, not per edit. General
+app-quit/both-controller-gone bootstrap, natural pressure and broader original gates
+remain open. Keep goal active; no user action needed for next engineering step.
+No native/test jobs running at checkpoint. Do not repeat ProDevs metadata workflow
+just to prove activity. Resume from this changed-condition frontier.
+
 ## October 17 resume request: ordinary user sessions now the implementation frontier
 
 Taylor explicitly resumes goal and requires ordinary Claude chats (including

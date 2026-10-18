@@ -1254,3 +1254,15 @@ record confirms archived and unpinned. No pin request was proven executed. Curre
 MCP and independent scratch pair readiness do not qualify general user-session
 unarchive/pin. This full public workflow must pass with persisted target readback
 before goal completion; manual UI workaround is not the service's acceptance test.
+
+## October 17 ordinary user-session integration
+
+Public ProDevs unarchive then pin succeeded through identity-bound independent
+session management; native receipts plus final saved archived=false/pinned=true
+verified. Explicit sessionManagementControl grant required in sealed config/policy/
+runtime; fixed scratch role preserved. Retained postcondition observations drive
+historical settlement. Only unarchive_session/set_pinned added; no target bypass,
+live PID, scratch enrollment or worktree restrictions required for these metadata
+actions. Unknown outcomes remain pending, never replayed. See docs/resume.md for
+exact jobs, source revisions, passing focused/full synthetic/filtered harness
+evidence and remaining final-source/focus/loaded-MCP qualification gaps.

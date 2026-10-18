@@ -1,3 +1,4 @@
+import {sessionManagementController} from './session-management-controller.mjs'
 // The op layer shared by the MCP server and the CLI. Every op: validate →
 // pick a tier (A disk/CLI/deep link, B broker ccd_* tools, C computer use) →
 // act under the focus policy → verify against disk → one ledger row.
@@ -508,6 +509,7 @@ export const OPS = [
         ctx.notes.push('deep-link unarchive did not take; falling back to Tier B')
       }
       if(args.import_only===true)throw new DriverError('import-only unarchive unavailable or unverified; no broker fallback attempted',{category:'unarchive_import_unverified',detail:{brokerFallback:false,retrySafe:false}})
+      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus(focusArg(args),()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'unarchive_session',undefined,ctx))));return {...result,focus:focus.action,focusVerified:focus.verified}}
       const b = await tierB(ctx, [{ op: 'unarchive_session', args: { session_id: rec.sessionId } }], 'isArchived false')
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.isArchived === false, { timeoutMs: 8000 })
@@ -541,6 +543,7 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const metadataController=enrolledMetadataController(rec.sessionId,args)
       if(metadataController){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,{...args,metadata_controller:metadataController},ctx)}
+      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';return (await import('./ordinary-session-route.mjs')).routeOrdinarySession(rec.sessionId,'set_pinned',args.pinned,ctx)}
       if(rec.isArchived)throw new DriverError('unarchive this session before changing its pin state',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const b = await tierB(ctx, [{ op: 'set_pinned', args: { session_id: rec.sessionId, pinned: !!args.pinned } }], `pinned ${!!args.pinned}`)
       if (b.handback) return b.handback
@@ -954,14 +957,14 @@ export const OPS = [
   {
     name:'broker_service_renew',title:'Renew one owned stable receiver generation',readOnly:false,
     description:'Experimental durable one-shot renewal: prepare successor, quiesce and terminally review predecessor, preserve retired module/selector, activate on unchanged stable settings, await bounded native readiness, run one durable negative policy probe and verify read admission. Requires installed stable predecessor, same idle native epoch and a durable driver_submit job. Consumes one successor slot for the policy probe. No model message, restart, permission change, uncertain replay or positive serving claim from installation. Failed phases require original-job inspection.',
-    schema:{required:['session','service_id','experimental'],properties:{session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:2,maximum:128}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent renewal requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-renew.mjs')).renewIndependentService(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8})},
+    schema:{required:['session','service_id','experimental'],properties:{session_management_control:{type:'boolean',enum:[true]},session:{type:'string'},service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:2,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent renewal requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-renew.mjs')).renewIndependentService(args.session,args.service_id,{jobId:ctx.jobId,signal:ctx.signal,lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,sessionManagementControl:args.session_management_control})},
   },
   {
     name:'broker_service_prepare',title:'Prepare an independent native receiver generation',readOnly:false,
     description:'Experimental preparation only in an idle driver-owned bypass scratch receiver. Creates a fresh private namespace, sealed release and native-validated candidate. Never publishes/replaces a module, changes settings, sends, wakes or raises permissions. Reattach durable jobs with the same key.',
-    schema:{required:['session','experimental'],properties:{metadata_stop_control:{type:'boolean',enum:[true]},metadata_send_control:{type:'boolean',enum:[true]},metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
-    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control,metadataSendControl:args.metadata_send_control,metadataStopControl:args.metadata_stop_control})},
+    schema:{required:['session','experimental'],properties:{session_management_control:{type:'boolean',enum:[true]},metadata_stop_control:{type:'boolean',enum:[true]},metadata_send_control:{type:'boolean',enum:[true]},metadata_model_control:{type:'boolean',enum:[true]},metadata_target:{type:'string',description:'Optional distinct owned idle bypass scratch UUID for explicit title/pin/effort control (model requires metadata_model_control:true); mutually exclusive with archive_target.'},archive_target:{type:'string',description:'Optional exact distinct owned idle bypass scratch UUID to seal as the sole archive target for a scoped recovery controller.'},session:{type:'string'},experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('independent preparation requires experimental opt-in',{category:'bad_args'});return (await import('./independent-service-prepare.mjs')).prepareIndependentService(args.session,{lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal,jobId:ctx.jobId,archiveTargetSession:args.archive_target,metadataTargetSession:args.metadata_target,metadataModelControl:args.metadata_model_control,metadataSendControl:args.metadata_send_control,metadataStopControl:args.metadata_stop_control,sessionManagementControl:args.session_management_control})},
   },
   {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,
@@ -1000,6 +1003,12 @@ export const OPS = [
     description:'Explicit controlled same-controller/same-target rebind after original PID absence and current sealed ready metadata capability. Requires exact prior enrollment digest, retains immutable old binding before atomic replacement and serializes enrollment writers. No native effects, process restart, permission change or silent retargeting.',
     schema:{required:['session','session_id','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},session_id:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
     run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('metadata rebind requires explicit opt-in',{category:'bad_args'});return (await import('./metadata-controller-index.mjs')).rebindMetadataController(args.session,args.session_id,args.expected_enrollment_sha256,{signal:ctx.signal})},
+  },
+  {
+    name:'broker_service_enroll_session_management',title:'Enroll ordinary session management controller',readOnly:false,
+    description:'Explicitly enroll an already qualified owned receiver with sealed ordinary-session capability for public unarchive and pin calls. Preserves fixed scratch roles; no native effects, discovery or permission changes.',
+    schema:{required:['session','experimental'],properties:{session:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true)throw new DriverError('session management enrollment requires opt-in',{category:'bad_args'});return (await import('./session-management-controller.mjs')).enrollSessionManagementController(args.session,{signal:ctx.signal})},
   },
   {
     name:'broker_service_enroll_metadata',title:'Enroll an existing sealed metadata controller',readOnly:false,

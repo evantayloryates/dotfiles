@@ -199,3 +199,15 @@ test('stop requires its own sealed capability, exact target, no consent injectio
  for(const args of [{session_id:target,_consent:true},{session_id:config.brokerSession},{session_id:target,message:'extra'}]){const bad=setup({configPatch:{...base,metadataStopControl:true},checkpoint:{...checkpoint,args}});await bad.send(r1);assert.equal(bad.counts().reads,0)}
  assert.throws(()=>setup({configPatch:{...base,metadataStopControl:false}}),/invalid native stop/)
 })
+
+test('ordinary capability admits exact unarchive and pin checkpoints without fixed target and rejects other effects',async()=>{
+ const receiverCwd='/owned/probe/controller',serviceStateBinding={version:1,id:config.id,receiverCwd,sessionId:config.brokerSession,build:config.build},configPatch={serviceStateBinding,brokerCwd:receiverCwd+'/.claude-driver-services/'+config.id+'/broker',sessionManagementControl:true}
+ for(const [op,args,server]of [['unarchive_session',{session_id:target},'ccd_session_mgmt'],['set_pinned',{session_id:target,pinned:true},'ccd_sidebar']]){
+  const s=setup({configPatch,checkpoint:{dispatch:true,op,args}});let calls=0;s.$.mcp.call=async(actualServer,actualOp,actualArgs)=>{calls++;assert.equal(actualServer,server);assert.equal(actualOp,op);assert.equal(JSON.stringify(actualArgs),JSON.stringify(args));return {isError:false,content:[{type:'text',text:'ok'}]}}
+  assert.equal((await s.send(r1)).consumed,'service-read-result-captured');await s.send(r1);assert.equal(calls,1)
+  for(const badArgs of [{...args,session_id:config.brokerSession},{...args,_consent:true},{...args,session_id:'foreign'}]){const denied=setup({configPatch,checkpoint:{dispatch:true,op,args:badArgs}});await denied.send(r1);assert.equal(denied.counts().reads,0)}
+  const {sessionManagementControl,...withoutGrant}=configPatch;const ungranted=setup({configPatch:withoutGrant,checkpoint:{dispatch:true,op,args}});await ungranted.send(r1);assert.equal(ungranted.counts().reads,0)
+ }
+ for(const op of ['delete_session','archive_session','send_message','set_session_model']){const denied=setup({configPatch,checkpoint:{dispatch:true,op,args:{session_id:target}}});await denied.send(r1);assert.equal(denied.counts().reads,0)}
+ assert.throws(()=>buildNativePeerServicePackage({...config,sessionManagementControl:true}))
+})

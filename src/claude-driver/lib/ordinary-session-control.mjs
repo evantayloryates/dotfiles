@@ -35,3 +35,10 @@ export function ordinarySessionEvidenceMatches(request,admission){
 export function ordinarySessionStateMatches(binding,record,pinned,operation,args,controller){
  try{const current=ordinarySessionBinding(record,controller);return ['version','sessionId','cwd','cliSessionId','storeHash'].every(k=>current[k]===binding[k])&&record.isArchived===false&&(operation==='unarchive_session'?Object.keys(args).join(',')==='session_id'&&args.session_id===binding.sessionId:operation==='set_pinned'&&args.session_id===binding.sessionId&&typeof args.pinned==='boolean'&&pinned===args.pinned)}catch{return false}
 }
+// Retained postcondition is tied to the exact native receipt, not a later read.
+export function ordinarySessionObservationMatches(o,{config,request,receipt,now}){
+ const b=request?.nativeSessionTargetBinding,op=request?.ops?.[0]
+ if(!exact(o,'binding,nativeTextSha256,observedAt,operation,postcondition,requestId,schemaVersion,serviceId')||o.schemaVersion!==1||o.serviceId!==config.id||o.requestId!==request.id||!ordinarySessionBindingValid(b,config.brokerSession)||!exact(o.binding,'cliSessionId,cwd,sessionId,storeHash,version')||!Object.keys(b).every(k=>o.binding[k]===b[k])||o.operation!==op?.op||!Number.isSafeInteger(o.observedAt)||o.observedAt<Date.parse(receipt.receivedAt)||o.observedAt>now||!Array.isArray(receipt.content)||receipt.content.some(x=>x.type!=='text'||typeof x.text!=='string'))return false
+ if(o.nativeTextSha256!==createHash('sha256').update(receipt.content.map(x=>x.text).join('\n')).digest('hex'))return false
+ return op.op==='unarchive_session'?exact(o.postcondition,'archived')&&o.postcondition.archived===false:op.op==='set_pinned'&&exact(o.postcondition,'archived,pinned')&&o.postcondition.archived===false&&typeof op.args?.pinned==='boolean'&&o.postcondition.pinned===op.args.pinned
+}

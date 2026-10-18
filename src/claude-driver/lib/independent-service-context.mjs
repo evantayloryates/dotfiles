@@ -49,6 +49,7 @@ export async function loadIndependentServiceContext(session,serviceId,{requireId
  for(const[name,expected]of Object.entries(pkg.hashes))if(hash(bytes(join(module,name)))!==expected)refuse()
  if(retirement&&JSON.stringify(ordered(snapshotIndependentModule(module,pkg.hashes)))!==JSON.stringify(ordered(retirement.inventory)))refuse()
  const policy=json(join(BROKER_DIR,'stop-rescue-policy.json')),settings=nativePolicySettingsPath({pointer,policy,dir:BROKER_DIR})
+ if([config,policy,pointer].some(x=>x.sessionManagementControl!==undefined)&&![config,policy,pointer].every(x=>x.sessionManagementControl===true))refuse()
  let settingsEvidencePath=settings,settingsEvidence='current-settings'
  if(retirement){try{const retained=join(STATE_DIR,'retired-settings.json');bytes(retained);if(!['before-move','retained'].includes(retirement.settingsPhase)||retirement.settingsSha256!==policy.settingsHash)refuse();settingsEvidencePath=retained;settingsEvidence=retirement.settingsPhase==='retained'?'retained-settings':'retained-settings-uncheckpointed'}catch(error){if(error.code!=='ENOENT')throw error}}
  if(policy.schemaVersion!==1||policy.nativeEffectAdmissionVersion!==1||policy.nativeRequestBindingVersion!==1||policy.maximumRescuesPerRequest!==0||!settings||policy.script!==join(release.root,'scripts/broker-stop-rescue.mjs')||hash(bytes(policy.script))!==policy.sha256||hash(bytes(settingsEvidencePath))!==policy.settingsHash)refuse()

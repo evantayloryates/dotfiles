@@ -167,7 +167,7 @@ async function main(){
    const tools=Object.fromEntries([...body.toString().matchAll(/^\| (\w+) \| (mcp__\w+) \|$/gm)].map(m=>[m[1],m[2]])),index=nativeAdmissionIndex({input,pointer,entry,request,control,tools})
    if(index<0)throw Error('checkpoint')
    let metadataTarget,sessionTarget
-   if(Object.hasOwn(request,'nativeSessionTargetBinding')){
+   if(Object.hasOwn(request,'nativeSessionTargetBinding')||pointer.sessionManagementControl===true&&request.ops[index].op==='unarchive_session'){
     if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
     sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId)})
     if(!sessionTarget)throw Error('ordinary session target identity or grant')

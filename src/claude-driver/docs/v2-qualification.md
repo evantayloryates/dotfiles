@@ -2030,3 +2030,15 @@ Cancellation propagation through actual shared stdio MCP and the production read
 transaction is verified with private fixture stores: before-publication cancellation
 consumes no capacity; after one simulated send it preserves uncertainty/capacity,
 cleans up once and never retries. Native effect cancellation remains unqualified.
+
+## October 17 ordinary user-session integration
+
+Public ProDevs unarchive then pin succeeded through identity-bound independent
+session management; native receipts plus final saved archived=false/pinned=true
+verified. Explicit sessionManagementControl grant required in sealed config/policy/
+runtime; fixed scratch role preserved. Retained postcondition observations drive
+historical settlement. Only unarchive_session/set_pinned added; no target bypass,
+live PID, scratch enrollment or worktree restrictions required for these metadata
+actions. Unknown outcomes remain pending, never replayed. See docs/resume.md for
+exact jobs, source revisions, passing focused/full synthetic/filtered harness
+evidence and remaining final-source/focus/loaded-MCP qualification gaps.
