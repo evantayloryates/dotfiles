@@ -108,3 +108,58 @@ changed-condition gate is an actual-host, input-free routing trace with both
 recording endpoints and the already reviewed scoped Stop hook; retain real host
 metadata and reject native capabilities. Do not add global hooks or change
 plugin toggles based only on this transport comparison.
+
+## Actual host routes Stop by server name
+
+The next input-free gate uses the actual copied Codex0.163.0-alpha.10.2 host,
+a deterministic localhost Responses provider, two recording endpoints and the
+exact previously human-reviewed Stop -> cua_repl.turn_ended hook. Both endpoints
+use real NodeREPL entrypoints with Sky/browser replaced by the recording service
+and empty bootstrap. No inference, account token, native app/input, saved trust
+change or native permission is involved. The one-invocation review override is
+bound to the unchanged hook SHAfbf85b86 and existing remote review receipt.
+
+Run1792364763693-a7ef690e admits both MCPs and registers the probe through each.
+Thread01a15143-da76-73f1-b596-d1fab170a143/turn
+01a15143-da7e-7423-b768-cb5e821ad125 are supplied by the real host, forwarded
+unchanged and matched against the Stop arguments. Each JS call succeeds; only
+cua_repl receives Stop once and its result succeeds. node_repl receives no Stop.
+There is no observed automatic broadcast to both servers in this configuration.
+
+Countercheck1792364832692-b897f64c swaps only the executable mapping: packaged
+CUA under node_repl, direct NodeREPL under cua_repl. Stop still goes only to
+cua_repl, now reaching the direct executable. Actual thread
+01a15144-e7fb-7843-a8d5-86f4189d1436/turn
+01a15144-e803-7b22-8b44-77ad2d24737b match both calls and the successful hook.
+This demonstrates name-bound lifecycle ownership for the matched hook; it does
+not establish a particular executable incapable of receiving cleanup.
+
+Original overall reports remain FAILED. First4692488-3417b499 admitted neither
+server: the fixture's child guard required an SSH marker filtered from MCP child
+environment. Parent SSH admission and exact child host/user/owner/run guards are
+now separate; no trust or native permission was weakened. Second4763693 lacks
+normal proxy-exit callbacks because host shutdown ended those processes first.
+Swapped4832692 additionally observed ancillary Git descendants immediately after
+host exit. A later independent inventory shows all three owned groups and copied
+helpers absent without signals; no missing normal-exit receipt is invented.
+Separate routing-analysis.json derives routing qualification from retained calls,
+results and actual IDs while retaining those failed cleanup/admission verdicts.
+
+Private wrapper-host-routing-evidence/manifest.json verifies25 files/112910 bytes,
+including exact source/config/hook snapshots, original reports, host events and
+both MCP traces. Final uv508/caffeinate510 survive. No test has been replayed just
+to produce a green overall result. Local config/source/quarantine are unchanged.
+
+The demonstrated integration risk is that the existing plugin hook targets the
+named cua_repl server while custom UI work can run through a separate node_repl
+server. The native notify command's effect and the live desktop's effective
+dispatch still need their own evidence. This is not proof that the historical
+physical-key failure came from a missed callback; the native Sky service has no
+literal JS turn-end registration in the earlier bounded source review.
+
+Next prepare a single-endpoint custom-services candidate under the expected
+lifecycle name in the isolated rig, and trace native notify ownership without
+executing it. Do not rename live servers, remove hooks, disable plugins or
+declare native safety from this recording-only gate. Consolidating lifecycle
+ownership is an in-scope candidate, not a shipped global configuration change or
+a fix for the independent-private-helper native delivery failure.

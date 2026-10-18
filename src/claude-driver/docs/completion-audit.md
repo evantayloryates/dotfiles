@@ -4,14 +4,18 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current disposition: **blocked after three consecutive impasse turns**. The
-reviewed signed native runtime and source are unchanged, no new recovery report
-exists, and the retained independent-client delivery failure has no qualified
-supported cleanup/coordination fix. No native input was repeated. The runtime
-maintainer owns that dependency; the prepared reproduction packet remains
-unsent. Resume after a changed safe runtime/contract, retaining every incomplete
-requirement below. No local quarantine release, signed-runtime patch, broker
-wake, authentication change or external communication is implied.
+Current disposition: **active integration investigation, full goal incomplete**.
+The previous native safety impasse remains, but the custom-deployment audit
+opened a concrete source/metadata investigation on our side. Recording-only
+actual host traces show the reviewed Stop hook targets the server named
+cua_repl, regardless of direct/packaged executable; the separate node_repl server
+receives no notification in that matched configuration. Our lifecycle
+orchestration is not fully ruled out, so upstream-only attribution was too
+strong. See [custom wrapper audit](custom-cua-wrapper-audit.md). No native input
+was repeated or native safety established. The reproduction packet remains
+unsent; every incomplete requirement below is retained. No local quarantine
+release, signed-runtime patch, broker wake, authentication change or external
+communication is implied.
 
 Current source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
 The [private lease owner](ui-lease-owner.md) now establishes a checked live

@@ -1,3 +1,28 @@
+## October 18 actual-host cleanup routing follows the server name
+
+Recording-only actual Codex host traces4763693/4832692 use the exact approved
+Stop -> cua_repl hook and real matching host thread/turn IDs. Both endpoints
+execute one successful probe. Stop reaches only cua_repl once, not node_repl.
+Swapping direct/packaged executables leaves the destination unchanged: direct
+NodeREPL receives cleanup when named cua_repl. This is name-bound routing under
+the matched isolated config, not a claim about the live desktop notifier.
+
+Original reports remain failed: first4692488 admitted neither MCP due a test
+child guard expecting filtered SSH environment;4763693 lacks normal proxy exit
+receipts;4832692 initially sees ancillary Git descendants. Later independent
+inventory has empty owned groups/helpers without signals, uv508/caffeinate510
+preserved. No missing normal-exit receipt or native cleanup is invented. Derived
+routing-analysis.json keeps routing proof separate from those failures. Mirror
+wrapper-host-routing-evidence25 files/112910 bytes verifies exact sources,
+configs/hook, host/provider metadata and both traces. No Sky/browser/bootstrap,
+app/input/inference/auth or saved trust change. Local quarantine/source unchanged.
+
+NEXT changed condition: prepare a single-endpoint custom-services candidate with
+aligned lifecycle ownership in the isolated rig; statically trace native notify
+ownership without invoking it. Do not alter global settings or add an unreviewed
+hook, and do not infer historical physical-key cause or release native UI. Goal
+is active/incomplete; broader Codex fixes remain parked. See custom wrapper audit.
+
 ## October 18 input-free wrapper lifecycle comparison passes
 
 New diagnostic wrapper-lifecycle-1792364475276 runs only on the owned remote
