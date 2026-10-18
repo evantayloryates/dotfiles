@@ -1,3 +1,32 @@
+## October 18 final source isolated/harness gate and standby deployment
+
+Source79619016d6fa309f9619ba89606049a3d8aa34f9b1d7f8dd30ca78b6f1d73e5f:
+full180 test files PASS1/1 round36.4sec/sourceChangedfalse,
+pressure/v2-2026-10-18T06-00-15-258Z.json. Fresh filtered actual Claude/Codex10/10
+each,21.8/15.3sec, harness-v2-{claude,codex}-2026-10-18T05-59-38-856Z.json.
+No further source edits planned before final loaded-client/native gate.
+
+Explicit one-time standby source migration j2a4ef1d7f3d540bcb0be12a3462382ad
+COMPLETED32.7sec. Activation was early but readiness delayed; repeated original
+wait only, no retry/restart/wake. Before readiness loaded notification was unknown,
+not failure. Native readiness/policy/read-admission and reciprocal enrollment
+refresh all verified. Same nativePID89119/startSunOct18 04:26:26; new service
+2a4ef1d7f3d540bcb0be12a3462382ad source79619016. Primary remains service9ff8...
+source0c8a/nativePID87665/start04:25:46. BOTH verified/readiness/policytrue, unexpired,
+unresolved[], immutable recovery identity snapshot present. Artifact
+restoration-final-source-gate-20261018.json retains source/suite/binding/readback.
+No test messages/imports/deletions, no permission or focus changes.
+
+Requested final Codex quit/reopen via async question; this-chat cached MCP18ef
+needs final adoption. Do not start a long native12 run while that requested app
+restart may interrupt its observer. Once Taylor replies/restarts: verify actual
+MCP runtime==796/source unchanged and schema, then one final existing input-free
+ordinary12 profile with owned fixture8f1d/controllerc0a; it may source-renew primary.
+Do not repeat another no-op/native profile before that condition changes.
+Actual native deleted-record recovery and unattended app startup remain open;
+no silent completion/scope waiver. Goal active; no live process/job/cleanup pending.
+Codex bridge remains parked.
+
 ## October 18 bounded recovery status operation
 
 Added broker_service_restoration_status {root_job_id,kind:record|pair}: exact

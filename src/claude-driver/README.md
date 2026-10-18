@@ -40,13 +40,13 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. The last consolidated gate on source `0c8a57a5`
-passed all 178 isolated test files and both fresh harnesses (10/10 each). One
+execution remains unqualified. The last consolidated gate on source `79619016`
+passed all 180 isolated test files and both fresh harnesses (10/10 each). One
 current-CLI ordinary no-op verified a native receipt and renewed the primary
-controller to that source, preserving its native process. The standby remained
-healthy on `18ef4d44`. This chat's loaded MCP still runs `18ef4d44` and reports
-refresh required; its earlier restart/adoption proof is historical. Development
-since that gate adds stronger restoration-proof checks and needs final adoption.
+controller to `0c8a57a5`, preserving its native process. The standby subsequently
+renewed to `79619016` on its existing process; both generations now retain recovery
+identity snapshots. This chat's loaded MCP still runs `18ef4d44` and reports
+refresh required; its earlier restart/adoption proof is historical. Final loaded-client adoption and the final native profile remain pending.
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
