@@ -63,9 +63,10 @@ something setup should do behind your back.
 | `mdcat` | Styled terminal previews for Markdown files |
 
 PDF previews also use Pillow from the dotfiles Python environment. Pages are
-composed on a transparent canvas at a maximum height of 380 logical pixels,
-with 40 pixels between pages. The preview selects pages to fit the active
-terminal width and shows a vertical count when pages are omitted.
+composed on a transparent canvas with 15 logical pixels at each edge and
+between items. The width planner aims for 400-pixel pages, adjusting within
+300–650 pixels to use the active terminal width and show additional pages when
+they fit. A vertical count marks omitted pages.
 
 `libtiff` and `webp` would arrive anyway as dependencies of the other two; listing
 them keeps a future `brew autoremove` from taking them back out.

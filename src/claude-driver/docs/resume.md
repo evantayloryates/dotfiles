@@ -1,3 +1,24 @@
+## October 18 reciprocal restored-pair preparation plan
+
+Added restored-pair-plan.mjs and read-only restored-pair-plan-v2.mjs CLI taking
+exact restoration job/root hash. Composes native proof with exact same-account
+survivor UUID/cwd/CLI/PID/start, idle desktop/version, retained selector/build,
+verified installed service/readiness/native policy and no STOP/unresolved work.
+Both original policy grants/targets are independently checked with existing
+recoveryRoleFromHistory; only same-session reciprocal target native epochs change.
+No authority added/dropped. Lost history must remain retired/STOP-correlated.
+Expired survivor is explicitly reported and preparation-only, never serving.
+Rechecks both native inspection and survivor/selection/account/enrollment/policies
+after async work. No activation, import, replay or app state write.
+
+Focused role/root/native/pair16 PASS; added async survivor-drift check then pair3
+PASS (overlapping tests). Both primary-lost and standby-lost paths covered. No live
+native/deletion/import/test message performed; positive native loss restoration
+still unqualified. Next implement durable two-sided prepare/quiesce-survivor/
+retire-survivor/activate/verify/enroll transition anchored to exact restored root,
+without repeat import. Final full suite and client adoption remain consolidated
+gates. Goal active, no live job/cleanup pending. Codex bridge work stays parked.
+
 ## October 18 restored native preparation inspection
 
 Added restored-native-plan.mjs and read-only CLI:

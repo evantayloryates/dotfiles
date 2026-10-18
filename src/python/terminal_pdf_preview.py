@@ -16,8 +16,11 @@ import termios
 from PIL import Image, ImageDraw, ImageFont
 
 
-PAGE_HEIGHT = 380  # logical pixels; multiply by the current display scale
-PAGE_GAP = 40
+TARGET_HEIGHT = 400  # logical pixels; multiply by the current display scale
+MIN_HEIGHT = 300
+MAX_HEIGHT = 650
+PAGE_GAP = 15
+EDGE_PADDING = 15
 HEADER_HEIGHT = 38
 OMISSION_WIDTH = 24
 MIN_PAGE_SLOT = 100
@@ -71,38 +74,64 @@ def terminal_cell_width(scale):
     return CELL_WIDTH
 
 
+def max_fitting_height(selected, aspects, budget):
+    if strip_width(selected, aspects, MIN_HEIGHT) > budget:
+        return None
+    low, high = MIN_HEIGHT, MAX_HEIGHT
+    while low < high:
+        middle = (low + high + 1) // 2
+        if strip_width(selected, aspects, middle) <= budget:
+            low = middle
+        else:
+            high = middle - 1
+    return low
+
+
 def plan_pages(aspects, columns, cell_width=CELL_WIDTH):
     count = len(aspects)
-    budget = max(1, columns - 2) * cell_width
-    height = PAGE_HEIGHT
-    selected = {1}
-    if count > 1:
-        pair = {1, count}
-        if strip_width(pair, aspects, height) > budget:
-            # Prefer legible pages in a narrow pane. The last page is added
-            # when both can fit at no less than roughly half the normal height.
-            for trial in range(height - 1, 159, -1):
-                if strip_width(pair, aspects, trial) <= budget:
-                    height = trial
-                    break
-            else:
-                reserved = OMISSION_WIDTH + PAGE_GAP
-                height = min(height, max(1, int((budget - reserved) / aspects[1])))
-        if strip_width(pair, aspects, height) <= budget:
-            selected = pair
-    elif strip_width(selected, aspects, height) > budget:
-        height = max(1, int(budget / aspects[1]))
-    if count > 2 and count in selected:
-        for page in (2, count - 1):
-            if page not in selected and strip_width(selected | {page}, aspects, height) <= budget:
-                selected.add(page)
+    # One spare terminal cell prevents the Kitty placement from wrapping.
+    budget = max(1, columns - 1) * cell_width - 2 * EDGE_PADDING
+    if count == 1:
+        height = max_fitting_height({1}, aspects, budget)
+        return [1], height if height is not None else min(
+            MAX_HEIGHT, max(1, int(budget / aspects[1])))
+    first_and_last = {1, count}
+    if max_fitting_height(first_and_last, aspects, budget) is None:
+        # Narrow panes cannot show both ends legibly. Keep the first page and
+        # its omission marker; only go below 300 when even that cannot fit.
+        selected = {1}
+        height = max_fitting_height(selected, aspects, budget)
+        if height is None:
+            height = max(1, int((budget - OMISSION_WIDTH - PAGE_GAP)
+                                / aspects[1]))
+        return [1], min(height, MAX_HEIGHT)
+
+    selected = first_and_last
+    candidates = [(sorted(selected), max_fitting_height(selected, aspects, budget))]
+    for page in (2, count - 1):
+        if page not in selected:
+            trial = selected | {page}
+            height = max_fitting_height(trial, aspects, budget)
+            if height is not None:
+                selected = trial
+                candidates.append((sorted(selected), height))
+    if 2 in selected:
         for page in range(3, count - 1):
             if page in selected:
                 continue
-            if strip_width(selected | {page}, aspects, height) > budget:
+            trial = selected | {page}
+            height = max_fitting_height(trial, aspects, budget)
+            if height is None:
                 break
-            selected.add(page)
-    return sorted(selected), height
+            selected = trial
+            candidates.append((sorted(selected), height))
+
+    # Each candidate uses its largest fitting pages, so right-side slack is
+    # minimized. Favor the 400-pixel guide, with a modest reward for an extra
+    # page when its size remains comparable.
+    return min(candidates, key=lambda candidate: (
+        abs(candidate[1] - TARGET_HEIGHT) - 12 * min(len(candidate[0]), 6),
+        -candidate[1], -len(candidate[0])))
 
 
 def render_page(source, page, height_px, rotated, folder):
@@ -139,12 +168,13 @@ def compose(source, selected, rotations, count, height, scale):
             pieces.append(("omitted", count - selected[-1]))
         slot_widths = {page: max(image.width, MIN_PAGE_SLOT * scale)
                        for page, image in images.items()}
-        width = sum(slot_widths[value] if kind == "page" else marker_width
-                    for kind, value in pieces) + gap * (len(pieces) - 1)
+        width = (sum(slot_widths[value] if kind == "page" else marker_width
+                     for kind, value in pieces) + gap * (len(pieces) - 1)
+                 + 2 * EDGE_PADDING * scale)
         max_height = max(image.height for image in images.values())
         canvas = Image.new("RGBA", (width, header + max_height), (0, 0, 0, 0))
         draw = ImageDraw.Draw(canvas)
-        x = 0
+        x = EDGE_PADDING * scale
         for kind, value in pieces:
             if kind == "page":
                 page_image = images[value]

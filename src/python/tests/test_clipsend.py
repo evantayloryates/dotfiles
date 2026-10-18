@@ -650,15 +650,21 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
 
         for columns, scale in ((80, 1), (120, 2)):
             with self.subTest(columns=columns, scale=scale):
+                selected, height = plan_pages(aspects, columns)
                 result = subprocess.run(
                     [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
                      str(pdf), str(scale), str(columns)], capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 image = Image.open(BytesIO(result.stdout))
                 self.assertEqual(image.mode, 'RGBA')
-                self.assertLessEqual(image.width, int((columns - 2) * 9.5 * scale) + 8)
+                self.assertLessEqual(image.width, int((columns - 1) * 9.5 * scale) + 8)
                 self.assertEqual(image.getpixel((0, 0))[3], 0)
-                self.assertEqual(image.height, (380 + 38) * scale)
+                self.assertEqual(image.getpixel((14 * scale, 48 * scale))[3], 0)
+                self.assertEqual(image.getpixel((15 * scale, 48 * scale))[3], 255)
+                self.assertEqual(image.getpixel((image.width - 1, 48 * scale))[3], 0)
+                self.assertEqual(image.height, (height + 38) * scale)
+                self.assertGreaterEqual(height, 300)
+                self.assertIn(selected[-1], (9,))
 
     def test_pdf_mixed_page_shapes_and_narrow_width(self):
         from PIL import Image
@@ -672,7 +678,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
         aspects, _ = page_geometry(pdf)
         self.assertAlmostEqual(aspects[2], 792 / 612)
         self.assertEqual(plan_pages(aspects, 30)[0], [1])
-        self.assertEqual(plan_pages(aspects, 100)[0], [1, 8, 9])
+        self.assertEqual(plan_pages(aspects, 100)[0], [1, 2, 9])
         self.assertEqual(plan_pages(aspects, 180)[0], [1, 2, 3, 8, 9])
 
         for columns in (180, 240):
@@ -682,7 +688,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                      str(pdf), '1', str(columns)], capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 image = Image.open(BytesIO(result.stdout))
-                self.assertLessEqual(image.width, int((columns - 2) * 9.5) + 8)
+                self.assertLessEqual(image.width, int((columns - 1) * 9.5) + 8)
                 self.assertEqual(image.getpixel((0, 0))[3], 0)
                 if columns == 180:
                     # Page 2 is landscape and should keep its width/height relationship.
@@ -691,7 +697,7 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
     def test_pdf_rotated_page_preserves_target_height(self):
         from PIL import Image
         from io import BytesIO
-        from terminal_pdf_preview import page_geometry
+        from terminal_pdf_preview import page_geometry, plan_pages
 
         pdf = self.root / 'rotated.pdf'
         pdf.write_bytes(sample_pdf(1, rotations=[90]))
@@ -703,8 +709,25 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
              str(pdf), '1', '100'], capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr.decode())
         image = Image.open(BytesIO(result.stdout))
-        self.assertEqual(image.height, 380 + 38)
+        self.assertEqual(image.height, plan_pages(aspects, 100)[1] + 38)
         self.assertGreater(image.width, 480)
+
+    def test_pdf_width_planner_balances_size_and_page_count(self):
+        from terminal_pdf_preview import page_geometry, plan_pages, strip_width
+
+        pdf = self.root / 'seven.pdf'
+        pdf.write_bytes(sample_pdf(7))
+        aspects, _ = page_geometry(pdf)
+        self.assertEqual(plan_pages(aspects, 150), ([1, 2, 6, 7], 420))
+        self.assertEqual(plan_pages(aspects, 158), ([1, 2, 3, 6, 7], 352))
+        self.assertEqual(plan_pages(aspects, 180), ([1, 2, 3, 6, 7], 406))
+        for columns in (30, 80, 100, 150, 158, 180, 240, 400):
+            pages, height = plan_pages(aspects, columns)
+            self.assertLessEqual(strip_width(pages, aspects, height) + 30,
+                                 (columns - 1) * 9.5 + 1)
+            self.assertLessEqual(height, 650)
+            if columns >= 80:
+                self.assertGreaterEqual(height, 300)
 
     def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
         self.payload.write_bytes(b'\xff\0binary\x80')
