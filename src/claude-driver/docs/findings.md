@@ -1,3 +1,30 @@
+## October 18 original-scope entrypoint audit
+
+Reconciled brief requirements against saved evidence, without new native tests.
+Control-target trust reply is historical setup already followed by the successful
+ordinary twelve-check profile; no further trust prompt or ready message needed.
+README current qualification corrected: ordinary routes are independent, native12
+passed on f874, explicit natural-governor pair recovery and late-readiness native
+continuation passed; automatic composition remains synthetic-only. Fresh import
+Bypass mismatch and final loaded-MCP adoption remain explicit gaps.
+
+Entrypoint audit found lib/probe.mjs still calls assertUiAvailable before any
+probe, requests old Haiku4.5/Accept edits, exercises legacy broker/groups and
+queues deletion candidates. Do NOT run it to satisfy the brief while quarantine
+is active. preflight --no-probe is read-only installation evidence but describes
+legacy broker, not ordinary-controller readiness. smoke.mjs defaults t0+t1
+(creation), --all adds t2-t4; cleanup errors only print and do not fail scenario.
+Thus old smoke success cannot establish cleanup or whole v2 acceptance. Installation
+code configures four harnesses; actual execution remains Claude/Codex proven,
+Cursor authentication-gated, OpenCode unqualified. No config/auth changes made.
+
+Next changed-condition step: make an explicit input-free qualification entrypoint
+that reuses existing ordinary preflight/profile and reports legacy/UI/person-only
+checks as unqualified, preserving original probe rather than weakening quarantine.
+Then choose the final consolidated current-source synthetic/harness batch, and
+request one Codex app restart only after source settles for actual MCP adoption.
+No native jobs started; no cleanup pending. Goal active, not complete.
+
 ## October 18 automatic late-readiness continuation before ordinary dispatch
 
 Ordinary preflight now detects a selected generation that differs from retained

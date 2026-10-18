@@ -76,12 +76,35 @@ on notificationElements()
             if firstIdentifier is "AXNotificationListItems" then
                 return UI elements of firstElement
             end if
-            -- With one alert left, macOS promotes it directly under the scroll
-            -- area instead of wrapping it in AXNotificationListItems.
-            return UI elements of scroller
+            -- A remaining alert may be promoted directly under the scroll area.
+            -- Keep the widget provider and panel controls out of the search.
+            if value of attribute "AXRole" of firstElement is "AXGroup" then return {firstElement}
+            return {}
         end tell
     end tell
 end notificationElements
+
+on hasCloseAction(itemRef, shouldClose, depth)
+    tell application "System Events"
+        tell process "NotificationCenter"
+            -- Snapshot actions before dismissal: their live collection changes
+            -- while Notification Center removes an alert.
+            set actionNames to (get name of every action of itemRef) as list
+            repeat with actionText in actionNames
+                set actionName to contents of actionText as text
+                if actionName is "AXClose" or actionName starts with "Name:Close" then
+                    if shouldClose then perform action actionName of itemRef
+                    return true
+                end if
+            end repeat
+            if depth is 0 then return false
+            repeat with childRef in UI elements of itemRef
+                if my hasCloseAction(childRef, shouldClose, depth - 1) then return true
+            end repeat
+            return false
+        end tell
+    end tell
+end hasCloseAction
 
 on hasClosableNotification(shouldClose)
     try
@@ -90,16 +113,7 @@ on hasClosableNotification(shouldClose)
         tell application "System Events"
             tell process "NotificationCenter"
                 repeat with itemRef in candidateElements
-                    -- Snapshot values before iterating: System Events' live action
-                    -- collection can change while a notification is animating out.
-                    set actionNames to (get name of every action of itemRef) as list
-                    repeat with actionText in actionNames
-                        set actionName to contents of actionText as text
-                        if actionName is "AXClose" or actionName starts with "Name:Close" then
-                            if shouldClose then perform action actionName of itemRef
-                            return true
-                        end if
-                    end repeat
+                    if my hasCloseAction(itemRef, shouldClose, 3) then return true
                 end repeat
                 return false
             end tell
@@ -112,18 +126,41 @@ on hasClosableNotification(shouldClose)
     end try
 end hasClosableNotification
 
+on clearVisibleNotifications()
+    set visibleCount to 0
+    set emptyChecks to 0
+    repeat 500 times
+        if panelIsOpen() then exit repeat
+        set didClose to hasClosableNotification(true)
+        if didClose is missing value then exit repeat
+        if didClose then
+            set visibleCount to visibleCount + 1
+            set emptyChecks to 0
+            delay 0.05
+        else
+            set emptyChecks to emptyChecks + 1
+            if emptyChecks is 2 then exit repeat
+            delay 0.2
+        end if
+    end repeat
+    return visibleCount
+end clearVisibleNotifications
+
 set clearedCount to 0
 try
+    -- Floating alerts on the primary display can be separate from the panel
+    -- opened by the Clock on another display. Dismiss them where they appear.
+    if not panelIsOpen() then set clearedCount to clearVisibleNotifications()
     ensurePanel()
 
     set transientFailures to 0
     set emptyChecks to 0
     repeat 500 times
-        ensurePanel()
         set didClose to hasClosableNotification(true)
         if didClose is missing value then
             set transientFailures to transientFailures + 1
             if transientFailures > 5 then error "Notification Center kept disappearing while clearing notifications."
+            ensurePanel()
             delay 0.1
         else if didClose then
             set transientFailures to 0
@@ -156,4 +193,6 @@ end try
 if not closePanel() then
     error "Cleared " & clearedCount & " notification(s), but Notification Center did not close."
 end if
+set clearedCount to clearedCount + clearVisibleNotifications()
+if hasClosableNotification(false) is true then error "Notifications remained after clearing."
 return "Cleared " & clearedCount & " notification(s)."

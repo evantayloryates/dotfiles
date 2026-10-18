@@ -33,39 +33,51 @@ Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 [docs/findings.md](docs/findings.md). Original research and decisions:
 [docs/brief.md](docs/brief.md).
 
-## Current qualification — October 17, 2026
+## Current qualification — October 18, 2026
 
 The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
-incremental observations and service memory. All four harness registrations are
-present. Current-source Claude and configured Codex harness contracts pass;
-Cursor's last execution stopped at authentication, and OpenCode execution has
-not been qualified. An already-running Codex-chat MCP remains stale: use the
-fresh CLI or verified fresh harnesses. Refreshing that binding remains separate.
+incremental observations and service memory. All four harness registrations have
+been recorded. Fresh Claude and configured Codex harness contracts passed on the
+recorded source; Cursor's last execution stopped at authentication, and OpenCode
+execution remains unqualified. The existing Codex-chat MCP binding still needs
+one refresh after source settles. Fresh harness evidence does not prove adoption
+by an already-running MCP client.
 
-On Claude Desktop2.42304.0/CLI2.1.299, independent sealed scratch receivers now
-serve native metadata reads with actual admission and receipts through both
-fresh MCP harnesses. Stable same-process renewal, scoped native archive/exit,
-one fixed native cold wake, independently observed reply/new process, and durable
-cold recovery have passed. Default cold recovery preserves retired history;
-explicit cycle mode performs the intentional scratch archive first. Repeated
-parent submission reattaches without repeating children. Initial workspace trust
-and hot-reload consent remain human gates; bypass mode does not remove them.
+On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
+handles ordinary session management, metadata, sends, stop and interruption under
+explicit scoped grants. The combined ordinary profile passed all twelve checks
+on source `f8745320`: causal replies, durable reuse, pre-dispatch cancellation,
+concurrent controls, batched metadata, busy queue, interruption with replacement,
+preserved queued turn, unique replies, baseline restoration and input audits.
+This uses an owned ordinary fixture; earlier ProDevs unarchive/pin verification
+covers a real ordinary chat without sending it test messages.
 
-This is partial qualification. General rename/pin/configuration/groups and the
-full original live suite still use the legacy Tier B path, whose broker process
-is live but resident serving and pinned dependency admission are unqualified.
-Its observer owns recovery; do not launch duplicate wakes. General native CRUD,
-batched/concurrent metadata mutations, full current-source queue/interrupt,
-distinct-build rollback, natural governor residency, global app restart and
-deleted-session replacement remain acceptance gaps. Native stop/queue evidence
-on earlier source hashes is retained as historical proof, not a full-suite pass.
-UI automation remains quarantined. Codex bridge fixes and1Password stay separate.
+A natural governor eviction removed both controller peers. Exact offline read
+abandonment and explicit pair bootstrap recovered them, preserving the original
+unknown outcome and failed renewal history without replaying the target request.
+A separate native late-readiness continuation completed only the never-attempted
+renewal steps. Automatic composition of these mechanisms has focused synthetic
+coverage; its new branches have not been promoted to native outage proof.
 
-See the current [requirements audit](docs/v2-qualification.md) and
+Approved-pool creation/configuration, fresh no-project import, fork and scoped
+archive cleanup have native evidence. Fresh import can still yield Accept edits
+when Bypass was requested: this is reported unverified and follow-ups are deferred.
+Workspace trust, hot-reload consent, permission raises and delete cards remain
+human gates. Bypass mode does not remove them.
+
+Qualification remains partial: final current-source suite/harness consolidation,
+actual cached MCP adoption, app quit/restart, deleted-service replacement and
+sustained availability remain open. Groups retain the legacy route; window/UI
+operations remain quarantined. The old `probe` entrypoint requires UI availability
+and cannot currently qualify this input-free implementation. `preflight --no-probe`
+checks installation but still reports legacy-broker state; neither is a substitute
+for independent controller qualification. Codex bridge fixes and 1Password remain
+separate. The observer owns legacy-broker recovery; do not launch duplicate wakes.
+
+See the [requirements audit](docs/v2-qualification.md) and
 [continuity checkpoint](docs/resume.md) for exact sources, jobs, receipts and gaps.
-The original eleven live-v2 gates have not been replaced by the narrower native
-read/recovery checks. Its create branch still requests Accept edits and must be
-reconciled with Taylor's required Bypass mode before another full run.
+Original creation/focus/archive requirements remain separate from the twelve-check
+ordinary profile; a pass in one profile does not qualify the whole interface.
 
 <details>
 <summary>Historical broker, direct-transport and input-incident observations</summary>
