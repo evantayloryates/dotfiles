@@ -1,4 +1,5 @@
 import {ordinaryStopEpochValid,ordinaryStopPeerMatches} from './ordinary-stop-control.mjs'
+import {ordinaryRecipientValid,ordinaryRecipientMatches} from './ordinary-recipient-binding.mjs'
 import {createHash} from 'node:crypto'
 import {dirname,isAbsolute,normalize} from 'node:path'
 const sid=/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/
@@ -9,7 +10,13 @@ export const ORDINARY_SESSION_OPERATIONS=Object.freeze(['unarchive_session','set
 export const ordinarySessionField=op=>({set_pinned:'pinned',set_session_title:'title',set_session_model:'model',set_session_effort:'effort',send_message:'message',archive_session:'reason'})[op]
 // Ordinary effects must not fall through into the fixed recovery-role admission.
 export function ordinarySessionBindingRequired(request,pointer,index=0){
- return Object.hasOwn(request,'nativeSessionTargetBinding')||pointer?.sessionStopControl===true&&request.ops?.[index]?.op==='stop_session'||pointer?.sessionArchiveControl===true&&request.ops?.[index]?.op==='archive_session'||pointer?.sessionManagementControl===true&&['unarchive_session','set_session_title','set_session_model','set_session_effort','send_message'].includes(request.ops?.[index]?.op)&&!Object.hasOwn(request,'nativeMetadataTargetBinding')
+ return Object.hasOwn(request,'nativeSessionTargetBinding')||Object.hasOwn(request,'nativeSessionSendRecipient')||pointer?.sessionStopControl===true&&request.ops?.[index]?.op==='stop_session'||pointer?.sessionArchiveControl===true&&request.ops?.[index]?.op==='archive_session'||pointer?.sessionManagementControl===true&&['unarchive_session','set_session_title','set_session_model','set_session_effort','send_message'].includes(request.ops?.[index]?.op)&&!Object.hasOwn(request,'nativeMetadataTargetBinding')
+}
+// New general sends bind an observed recipient; interrupt replacement sends
+// keep the older, stricter idle-epoch contract. Never combine the two forms.
+export function ordinaryControlShapeValid(c){
+ if(!c||!exact(c,Object.hasOwn(c,'expectedEpoch')?'binding,expectedEpoch,operation,value':Object.hasOwn(c,'recipient')?'binding,operation,recipient,value':'binding,operation,value'))return false
+ return (!Object.hasOwn(c,'expectedEpoch')||c.operation==='send_message'&&ordinaryStopEpochValid(c.expectedEpoch))&&(!Object.hasOwn(c,'recipient')||c.operation==='send_message'&&ordinaryRecipientValid(c.recipient))&&(c.operation!=='stop_session'||ordinaryStopEpochValid(c.value))
 }
 export function ordinarySessionBindingValid(b,controller){
  return !!(exact(b,'cliSessionId,cwd,sessionId,storeHash,version')&&b.version===1&&sid.test(b.sessionId)&&sid.test(controller||'')&&b.sessionId!==controller&&typeof b.cwd==='string'&&b.cwd.length<=4096&&!/[\0\r\n]/.test(b.cwd)&&isAbsolute(b.cwd)&&normalize(b.cwd)===b.cwd&&(b.cliSessionId===null||uuid.test(b.cliSessionId))&&/^[a-f0-9]{64}$/.test(b.storeHash))
@@ -35,20 +42,23 @@ export function ordinarySessionArguments(operation,binding,value){
  if(operation==='send_message'&&typeof value==='string'&&value.length>0&&value.length<=16000&&value===value.trim()&&!value.includes('\0'))return {session_id:binding.sessionId,message:value}
  throw Error('ordinary session operation or arguments unqualified')
 }
-export function ordinarySessionTargetObservation({request,policy,pointer,record,controllerRecord,peer,now=Date.now()}={}){
+export function ordinarySessionTargetObservation({request,policy,pointer,record,controllerRecord,peer,processes,now=Date.now()}={}){
  try{
   const binding=request?.nativeSessionTargetBinding,operation=request?.ops?.[0]
+  if(Object.hasOwn(request??{},'nativeSessionSendRecipient')&&(operation?.op!=='send_message'||Object.hasOwn(request,'nativeSessionSendEpoch')||!ordinaryRecipientMatches(binding,request.nativeSessionSendRecipient,peer,processes)))return null
   if(Object.hasOwn(request??{},'nativeMetadataTargetBinding')||Object.hasOwn(request??{},'nativeSessionSendEpoch')&&operation?.op!=='send_message'||policy?.sessionManagementControl!==true||pointer?.sessionManagementControl!==true||!ordinarySessionBindingValid(binding,pointer.sessionId)||!ordinarySessionsSameStore(record,controllerRecord,pointer.sessionId)||Object.hasOwn(request,'nativeSessionControllerStoreHash')&&request.nativeSessionControllerStoreHash!==binding.storeHash||!Number.isSafeInteger(now)||!Number.isSafeInteger(request.expiresAt)||now>=request.expiresAt||!Number.isFinite(Date.parse(request.createdAt))||now<Date.parse(request.createdAt)||request.ops.length!==1||!ORDINARY_SESSION_OPERATIONS.includes(operation?.op)||operation?.op==='stop_session'&&(policy.sessionStopControl!==true||pointer.sessionStopControl!==true||!ordinaryStopPeerMatches(binding,request.nativeSessionStopEpoch,peer))||operation?.op==='archive_session'&&(policy.sessionArchiveControl!==true||pointer.sessionArchiveControl!==true)||operation?.op==='send_message'&&(policy.sessionSendControl!==true||pointer.sessionSendControl!==true||Object.hasOwn(request,'nativeSessionSendEpoch')&&(!ordinaryStopPeerMatches(binding,request.nativeSessionSendEpoch,peer)||peer.status!=='idle'))||ORDINARY_METADATA_OPERATIONS.includes(operation?.op)&&(policy.sessionMetadataControl!==true||pointer.sessionMetadataControl!==true))return null
   const expected=ordinarySessionArguments(operation.op,binding,operation.args?.[ordinarySessionField(operation.op)]),current=ordinarySessionBinding(record,pointer.sessionId)
   if(JSON.stringify(Object.entries(expected).sort())!==JSON.stringify(Object.entries(operation.args??{}).sort())||!['version','sessionId','cwd','cliSessionId','storeHash'].every(k=>current[k]===binding[k])||typeof record.isArchived!=='boolean'||(operation.op==='unarchive_session'?!record.isArchived:record.isArchived))return null
-  return {...binding,observedAt:now,...Object.hasOwn(request,'nativeSessionControllerStoreHash')?{controllerStoreHash:binding.storeHash}:{},...operation.op==='stop_session'?{stopEpoch:request.nativeSessionStopEpoch}:{},...operation.op==='send_message'&&Object.hasOwn(request,'nativeSessionSendEpoch')?{sendEpoch:request.nativeSessionSendEpoch}:{}}
+  return {...binding,observedAt:now,...Object.hasOwn(request,'nativeSessionControllerStoreHash')?{controllerStoreHash:binding.storeHash}:{},...operation.op==='stop_session'?{stopEpoch:request.nativeSessionStopEpoch}:{},...operation.op==='send_message'&&Object.hasOwn(request,'nativeSessionSendEpoch')?{sendEpoch:request.nativeSessionSendEpoch}:{},...Object.hasOwn(request,'nativeSessionSendRecipient')?{sendRecipient:request.nativeSessionSendRecipient}:{}}
  }catch{return null}
 }
 export function ordinarySessionEvidenceMatches(request,admission){
  const b=request?.nativeSessionTargetBinding,o=admission?.sessionTarget,op=request?.ops?.[0]?.op
  if(!b||!o)return false
  const account=Object.hasOwn(request,'nativeSessionControllerStoreHash'),send=op==='send_message'&&Object.hasOwn(request,'nativeSessionSendEpoch'),stop=op==='stop_session'
- const keys=['cliSessionId','cwd','observedAt','sessionId','storeHash','version',...account?['controllerStoreHash']:[],...send?['sendEpoch']:[],...stop?['stopEpoch']:[]].sort().join(',')
+ const recipient=Object.hasOwn(request,'nativeSessionSendRecipient')
+ if(recipient&&(op!=='send_message'||send||!ordinaryRecipientValid(request.nativeSessionSendRecipient)||!ordinaryRecipientValid(o.sendRecipient)||JSON.stringify(request.nativeSessionSendRecipient)!==JSON.stringify(o.sendRecipient)))return false
+ const keys=['cliSessionId','cwd','observedAt','sessionId','storeHash','version',...account?['controllerStoreHash']:[],...send?['sendEpoch']:[],...stop?['stopEpoch']:[],...recipient?['sendRecipient']:[]].sort().join(',')
  const epochMatches=(a,c)=>ordinaryStopEpochValid(a)&&ordinaryStopEpochValid(c)&&a.pid===c.pid&&a.procStart===c.procStart
  return exact(o,keys)&&(!account||request.nativeSessionControllerStoreHash===b.storeHash&&o.controllerStoreHash===b.storeHash)&&(!stop||epochMatches(request.nativeSessionStopEpoch,o.stopEpoch))&&(!send||epochMatches(request.nativeSessionSendEpoch,o.sendEpoch))&&(!Object.hasOwn(request,'nativeSessionSendEpoch')||send)&&['version','sessionId','cwd','cliSessionId','storeHash'].every(k=>o[k]===b[k])&&Number.isSafeInteger(o.observedAt)&&o.observedAt>=Date.parse(request.createdAt)&&o.observedAt<=admission.at&&admission.at<request.expiresAt
 }

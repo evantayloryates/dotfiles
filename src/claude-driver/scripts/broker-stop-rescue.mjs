@@ -6,7 +6,7 @@ import {isMetadataOperation} from '../lib/native-metadata-control.mjs'
 import {nativeMetadataTargetObservation} from '../lib/native-metadata-admission.mjs'
 import {ordinarySessionTargetObservation,ordinarySessionBindingValid,ordinarySessionBindingRequired} from '../lib/ordinary-session-control.mjs'
 import {peerRecord} from '../lib/peer-direct.mjs'
-import {getRecord} from '../lib/sessions.mjs'
+import {getRecord,liveProcesses} from '../lib/sessions.mjs'
 import {inspectNativeResourcePid} from '../lib/native-resource-process.mjs'
 import {nativeRequestBindingMatches} from '../lib/native-request-binding.mjs'
 import {constants,openSync,closeSync,fstatSync,readFileSync,readSync,existsSync,writeFileSync,lstatSync,renameSync,unlinkSync} from 'node:fs'
@@ -170,7 +170,7 @@ async function main(){
    let metadataTarget,sessionTarget
    if(ordinarySessionBindingRequired(request,pointer,index)){
     if(!pointer.serviceStateBinding||!ordinarySessionBindingValid(request.nativeSessionTargetBinding,pointer.sessionId))throw Error('ordinary session receiver binding')
-    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId),controllerRecord:getRecord(pointer.sessionId),peer:request.ops[index].op==='stop_session'||request.nativeSessionSendEpoch?peerRecord(request.nativeSessionTargetBinding?.sessionId):undefined})
+    sessionTarget=ordinarySessionTargetObservation({request,pointer,policy,record:getRecord(request.nativeSessionTargetBinding?.sessionId),controllerRecord:getRecord(pointer.sessionId),peer:request.ops[index].op==='stop_session'||request.nativeSessionSendEpoch||request.nativeSessionSendRecipient?peerRecord(request.nativeSessionTargetBinding?.sessionId):undefined,...request.nativeSessionSendRecipient?{processes:liveProcesses()}:{}})
     if(!sessionTarget)throw Error('ordinary session target identity or grant')
    }else if(isMetadataOperation(request.ops[index].op)||Object.hasOwn(request,'nativeMetadataTargetBinding')){
     if(manifest?.nativeMetadataTargetVersion!==1||pointer.nativeMetadataTargetVersion!==1)throw Error('metadata target capability')

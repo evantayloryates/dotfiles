@@ -1,3 +1,74 @@
+## October 18 frozen ordinary recipient actions and final current-source gates
+
+Previous turn was progress (aa38f20): exact pair-readiness continuation. Current
+source df52d7916cdca325ee5a331d3e5190da521b055072d53bf7a431db010b4bd772 now freezes ordinary
+send/queue/stop/interrupt recipient identity at durable submission, after alias
+resolution and idempotency reattachment. Snapshot binds account/store, workspace,
+CLI identity, controller enrollment, operation/private argument digest, message
+hash and qualified native PID/start or a bounded observed no-peer state. No text
+enters the additional snapshot. Missing snapshots cannot be recaptured by workers.
+Workers and recovery/maintenance/dispatch guards refuse changed or ambiguous
+recipients or routing scope. Busy sends retain queue behavior; stop/interrupt
+require an original live epoch and replacement send retains its strict idle rule.
+Native sendRecipient admission checks the same live registry observation and
+retains it in exact receipt evidence. This does not claim atomic same-process
+turn identity or universal OS absence, crash cause, instruction application or
+safe replay after uncertainty.
+
+Existing record restoration, post-import suffix and exact failed-readiness suffix
+now admit these action kinds under appropriate unchanged send/stop grants. Each
+new recovery root retains only its own frozen action intent. Original failed
+parents, claims, imported identity, native prefix and target outcomes remain
+untouched; no original action replay. Actual inspected jobs compute
+operationIntentSha256 from private raw arguments and validate the public sanitized
+snapshot; checkpoint validation never hashes a redacted message placeholder.
+Queue steering uses its own ordinary route, preserving the outer durable intent.
+
+Isolated production-adapter tests cover initial repair, both suffixes, absent/busy
+recipients, recipient changes before claim/after import/during final pair checks,
+changed digest/snapshot/actual job, insufficient prepared grants and no duplicate
+prefix. Real delayed scheduler/worker test proves alias/recipient changes refuse
+while idempotent reattachment preserves the old snapshot. Positive native effects
+in these new record-loss tests are simulated; no second deletion/outage test.
+Focused -3 retained one obsolete fixture expectation (actions without frozen
+snapshot expected null); updated to assert rejection, no guard weakened. -4 all68
+PASS, final recovery -5 all27 PASS. Full190 isolated files PASS48.6sec, source,
+suite and installed identity frozen: pressure/v2-2026-10-18T18-11-06-883Z.json;
+log ordinary-action-binding-full-1-20261018.log. All failures preserved.
+
+Actual filtered Claude and Codex(gpt-6-sol) harnesses each10/10 PASS on current
+source, configs unchanged: harness-v2-claude-2026-10-18T18-11-10-880Z.json and
+harness-v2-codex-2026-10-18T18-11-17-348Z.json. ProDevs same-state pin job
+j070f118a4c8b4c67ae1972a5061482dd completed via ordinary route with verified native
+receipt, no message. It renewed the expired pair to current source via child
+j0ed54f0cbc7c44c58d0dfa634aef1e21, preserving original epochs.
+
+One strategic final ordinary native profile ALL12 PASS on current source:
+pressure/live-v2-2026-10-18T18-12-46-318Z.json; log
+ordinary-action-native-profile-1-20261018.log. Causal delivery, durable reuse,
+pre-dispatch cancellation, concurrent controls, batch, busy queue, interruption
+and replacement, preserved queued turn, unique replies, cleanup and both input
+resource audits passed. No new chats, permission changes, UI automation, app
+restart, archive or deletion. Readback pressure/ordinary-action-final-readback-
+20261018.json verifies primary0ed54f0c PID87665 and standby263d0710 PID89119 both
+current-source/idle/readiness+policytrue/unexpired/noSTOP/unresolved[]. Fixture8f1
+restored tool title/Haiku5.5/high/bypass/unarchived/unpinned. ProDevs remains
+unarchived+pinned. Recovered deletion fixture and observer broker untouched.
+
+NEXT: final loaded-chat MCP adoption and concise full original scope/DoD audit.
+Actual loaded tool reports runtimee9dd31e4/sourcedf52d791/restartRequiredtrue;
+fresh actual harness MCPs and current CLI are qualified separately. A Codex
+restart is required to load this build into this chat; individual-server toggling
+was already ineffective and Codex reload-API work was explicitly deferred.
+No person action or test worker remains pending in Claude. Cold-app/all-Code-
+processes-absent startup still lacks a changed supported ingress; do not repeat
+unchanged outage tests or remove person gates. Cursor execution remains auth-
+gated and OpenCode execution unavailable; groups/windows/full UI scope remains
+separate from input-free profile. Automatic record-loss composition has isolated
+proof; prior actual human-assisted deletion source5ee remains distinct evidence.
+Goal active. No cleanup remaining from this gate; retain owned working/recovered
+fixtures, immutable failures and claims. Codex-driver and1Password stay separate.
+
 ## October 18 ordinary admission composes exact native pair-readiness continuation
 
 Previous goal turn was progress: 6ecadbf added post-import metadata suffix and

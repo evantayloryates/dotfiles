@@ -6,12 +6,17 @@ import {STATE_DIR} from './state.mjs'
 import {readReceiverFile} from './receiver-runtime-selection.mjs'
 import {inspectJob} from './jobs.mjs'
 import {ordinarySessionBindingValid} from './ordinary-session-control.mjs'
+import {ordinaryActionKind,ordinaryActionIntentValid} from './ordinary-action-intent.mjs'
 import {missingServicePlanDigest} from './missing-service-restoration.mjs'
 import {serviceSeedPlanDigest} from './seeded-record-restoration.mjs'
 const job=/^j[a-f0-9]{32}$/,hex=/^[a-f0-9]{64}$/
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b)
 export const ordinaryRecordCheckpointDigest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex')
-const operations=['pin_session','rename_session','set_session_config','archive_session','unarchive_session']
+const operations=['pin_session','rename_session','set_session_config','archive_session','unarchive_session','send_message','stop_session','steer_session']
+function actionMatchesRoot(root){
+ const action=['send_message','stop_session','steer_session'].includes(root.operation),i=root.actionIntent
+ return action?ordinaryActionIntentValid(i)&&i.operation===root.operation&&i.intentSha256===root.intentSha256&&i.controllerSession===root.controllerSession&&equal(i.binding,root.binding):i===undefined
+}
 export const ordinaryRecordRecoveryBase=()=>join(STATE_DIR,'ordinary-record-recoveries')
 const parse=(read,file,limit)=>JSON.parse(read(file,limit))
 export function readOrdinaryRecordRecovery(controller,serviceId,enrollmentSha256,{base=ordinaryRecordRecoveryBase(),read=readReceiverFile}={}){
@@ -19,7 +24,7 @@ export function readOrdinaryRecordRecovery(controller,serviceId,enrollmentSha256
  const claimFile=join(base,'claims',serviceId+'.json');let claim
  try{claim=parse(read,claimFile,4096)}catch(e){if(e.code==='ENOENT')return null;throw e}
  if(claim.schemaVersion!==1||claim.controllerSession!==controller||claim.serviceId!==serviceId||claim.enrollmentSha256!==enrollmentSha256||!job.test(claim.jobId||''))throw Error('ordinary recovery generation claim differs')
- const readRoot=id=>{const r=parse(read,join(base,id+'.json'),1048576);if(r.schemaVersion!==1||r.jobId!==id||r.controllerSession!==controller||r.serviceId!==serviceId||r.enrollmentSha256!==enrollmentSha256||!['record','seeded'].includes(r.kind)||!hex.test(r.runtimeBuild||'')||typeof r.phase!=='string'||!/^[-a-z]{1,80}$/.test(r.phase)||r.targetDispatched!==false||r.replayAuthorized!==false||!ordinarySessionBindingValid(r.binding,controller)||r.binding.sessionId!==r.target||!operations.includes(r.operation)||!hex.test(r.intentSha256||'')||!r.children||Object.keys(r.children).some(k=>!['restore','reactivate','continue-pair'].includes(k)))throw Error('ordinary recovery root differs');return r}
+ const readRoot=id=>{const r=parse(read,join(base,id+'.json'),1048576);if(r.schemaVersion!==1||r.jobId!==id||r.controllerSession!==controller||r.serviceId!==serviceId||r.enrollmentSha256!==enrollmentSha256||!['record','seeded'].includes(r.kind)||!hex.test(r.runtimeBuild||'')||typeof r.phase!=='string'||!/^[-a-z]{1,80}$/.test(r.phase)||r.targetDispatched!==false||r.replayAuthorized!==false||!ordinarySessionBindingValid(r.binding,controller)||r.binding.sessionId!==r.target||!operations.includes(r.operation)||!hex.test(r.intentSha256||'')||!actionMatchesRoot(r)||!r.children||Object.keys(r.children).some(k=>!['restore','reactivate','continue-pair'].includes(k)))throw Error('ordinary recovery root differs');return r}
  let original
  try{original=readRoot(claim.jobId)}catch(e){if(e.code==='ENOENT')return {claim,root:null,base,claimFile};throw e}
  if(original.origin!==undefined||original.restorationOrigin!==undefined||original.pairReadinessOrigin!==undefined||original.children['continue-pair']!==undefined)throw Error('generation owner cannot be a continuation')
@@ -43,7 +48,10 @@ export function readOrdinaryRecordRecovery(controller,serviceId,enrollmentSha256
  return {claim,root,original,originalRootSha256,continuation,recordSuffix,pairOwner,pairContinuation,base,claimFile,continuationFile,pairContinuationFile}
 }
 function validateParent(root,parent){
- if(parent?.jobId!==root.jobId||parent.operation!==root.operation||parent.args?.session!==root.target||ordinaryRecordCheckpointDigest({operation:parent.operation,arguments:parent.args})!==root.intentSha256)throw Error('ordinary recovery actual parent differs')
+ // Inspection computes the digest and validates the snapshot against private raw
+ // job arguments. Never hash redacted message text into a continuation intent.
+ const action=['send_message','stop_session','steer_session'].includes(root.operation),digest=parent?.operationIntentSha256??(!action?ordinaryRecordCheckpointDigest({operation:parent?.operation,arguments:parent?.args}):null)
+ if(parent?.jobId!==root.jobId||parent.operation!==root.operation||parent.args?.session!==root.target||digest!==root.intentSha256||!actionMatchesRoot(root)||action&&(!equal(parent.ordinaryActionIntent,root.actionIntent)||ordinaryActionKind(parent.operation,parent.args)!==root.actionIntent.action))throw Error('ordinary recovery actual parent differs')
  return parent.state==='failed'&&parent.error?.category==='ordinary_controller_record_recovery_pending'&&parent.error.detail?.recoveryParentJobId===root.jobId&&parent.error.detail.targetDispatched===false
 }
 export async function observeOrdinaryRecordCheckpoint(controller,serviceId,enrollmentSha256,{base=ordinaryRecordRecoveryBase(),read=readReceiverFile,inspect=id=>inspectJob(id,{includeResult:true}),signal}={}){

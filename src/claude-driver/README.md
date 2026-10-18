@@ -40,27 +40,29 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `6d0a911f` passes all 188
-isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on prior
-source `f13af418`; loaded-client adoption is a separate gate.
+execution remains unqualified. Current host source `df52d791` passes all 190
+isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on this
+source. This desktop chat still loads `e9dd31e4` and correctly reports
+`restartRequired:true`; loaded-client adoption is a separate gate.
 One actual human-assisted native deletion test reaped the
 record and transcript, rebuilt the original UUID/account/workspace without replay,
 and restored both reciprocal receiver roles with native reads and verified
 enrollment. Original failed jobs and claims remain preserved through separately
 claimed continuations. Native packages retained their sealed source `5ee1ea07`.
 Unattended recreation/permission/loader consent and cold-app startup remain
-unqualified. The refreshed desktop MCP and final twelve-check ordinary profile
-passed on prior source `79619016`; new interfaces still need loaded-client adoption.
+unqualified. The final twelve-check ordinary profile passed on current source `df52d791`.
+This desktop MCP still needs loaded-client adoption.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now
 handles ordinary session management, metadata, sends, stop and interruption under
 explicit scoped grants. The combined ordinary profile passed all twelve checks
-on source `79619016`: causal replies, durable reuse, pre-dispatch cancellation,
+on source `df52d791`: causal replies, durable reuse, pre-dispatch cancellation,
 concurrent controls, batched metadata, busy queue, interruption with replacement,
 preserved queued turn, unique replies, baseline restoration and input audits.
 This uses an owned ordinary fixture; earlier ProDevs unarchive/pin verification
-covers a real ordinary chat without sending it test messages.
+covers a real ordinary chat without sending it test messages. A current-source
+same-state ProDevs pin also passed; it remains unarchived and pinned.
 
 A natural governor eviction removed both controller peers. Exact offline read
 abandonment and explicit pair bootstrap recovered them, preserving the original
@@ -82,8 +84,12 @@ recovery passed once with human permission and loader consent. Durable ordinary
 rename, pin, configuration, archive and broker-needed unarchive now compose a
 single guarded record restoration and pair reactivation under retained automatic
 enrollment. This composition has isolated adapter/worker evidence; its native
-automatic-loss gate remains unqualified. Send, stop and interruption retain their
-existing admission paths.
+automatic-loss gate remains unqualified. Send, queued follow-up, stop and
+interruption now compose the same recovery with submission-time recipient
+snapshots. A replacement recipient process or changed account/context refuses
+the pending action. Busy sends remain queue-eligible; an interrupt replacement
+still requires the original process to be idle. No observed peer is a bounded
+registry observation, not proof of universal process absence or a crash.
 Installed app deletion can also reap the CLI transcript after ownership/liveness
 checks. The current same-identity path requires a surviving exact transcript and
 fails closed otherwise. An explicit minimal-seed rebuild path handles missing

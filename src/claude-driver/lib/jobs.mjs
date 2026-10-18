@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { DriverError, sleep } from './paths.mjs'
 import { STATE_DIR, ensureDir, readJson, redactArgs, withLock, writeJsonAtomic } from './state.mjs'
 import {RUNTIME_BUILD} from './build.mjs'
+import {ordinaryActionKind,captureOrdinaryActionIntent,validateOrdinaryActionIntent,ordinaryOperationIntentSha256} from './ordinary-action-intent.mjs'
 
 export const JOB_DIR = join(STATE_DIR, 'jobs')
 export const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'outcome_unknown', 'handed_back', 'unverified'])
@@ -52,10 +53,11 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
       } else boundArgs.session = resolveSession(boundArgs.session).sessionId
     }
     if (Array.isArray(boundArgs.sessions)) boundArgs.sessions = boundArgs.sessions.map(s => resolveSession(s).sessionId)
+    const actionSnapshot=ordinaryActionKind(operation,boundArgs)?{ordinaryActionIntent:captureOrdinaryActionIntent(operation,boundArgs)}:{}
     let projectArchiveSnapshot
     if(operation==='archive_project'){const plan=await runOp('archive_project',{...args,dry_run:true},{harness:ctx.harness});projectArchiveSnapshot=(await import('./project-archive-control.mjs')).freezeProjectArchivePlan(plan);boundArgs.folder=projectArchiveSnapshot.folder}
     const callerSession = callerHostSession()
-    const job = { id, operation, args: boundArgs,...projectArchiveSnapshot?{projectArchiveSnapshot}:{}, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
+    const job = { id, operation, args: boundArgs,...actionSnapshot,...projectArchiveSnapshot?{projectArchiveSnapshot}:{}, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
     writeJsonAtomic(jobFile(id), job)
     writeJsonAtomic(index, { jobId: id, fingerprint })
     const child = spawn(process.execPath, [fileURLToPath(new URL('../scripts/job-worker.mjs', import.meta.url)), id], {
@@ -82,7 +84,8 @@ export async function inspectJob(id, { includeResult = false } = {}) {
       j = { ...j, state: j.startedAt ? 'outcome_unknown' : 'cancelled', finishedAt: Date.now(), error: { category: 'worker_lost', message: 'worker lost; reconcile before resubmitting' } }
       writeJsonAtomic(jobFile(id), j)
     }
-    return { jobId: id, operation: j.operation, state: j.state, runtimeBuild:j.runtimeBuild, args: redactArgs(j.args), createdAt: j.createdAt, startedAt: j.startedAt, finishedAt: j.finishedAt,
+    const actionSnapshot=Object.hasOwn(j,'ordinaryActionIntent')?{ordinaryActionIntent:j.ordinaryActionIntent===null?null:validateOrdinaryActionIntent(j.ordinaryActionIntent,j.operation,j.args)}:{}
+    return { jobId: id, operation: j.operation, state: j.state, runtimeBuild:j.runtimeBuild, args: redactArgs(j.args),operationIntentSha256:ordinaryOperationIntentSha256(j.operation,j.args),...actionSnapshot, createdAt: j.createdAt, startedAt: j.startedAt, finishedAt: j.finishedAt,
       cancelRequested: !!j.cancelRequestedAt, progress: j.progress || [], error: j.error,
       ...(includeResult && j.result !== undefined ? { result: j.result } : {}) }
   })

@@ -1,3 +1,25 @@
+## October 18: freeze recipients before queuing or repairing the controller
+
+Source df52d791 stores a sanitized action snapshot at durable submission,
+never on idempotent reattachment. Preserve that PID/start or observed no-peer
+state through worker admission, ordinary record recovery and both continuation
+forms, maintenance, native send admission and receipt evidence. Busy sends can
+queue; interrupt replacement still requires original-epoch idle. Raw job intent
+hashing must happen before message redaction. A redacted message placeholder is
+not the submitted intent. Missing snapshots or changed routing/identity refuse.
+Same-process turn changes and guard-to-SDK races are not atomic guarantees.
+
+Full190 isolated files passed with frozen source+suite+installed identity. Fresh
+Claude/Codex harnesses each10/10 and current native ordinary12 passed. ProDevs
+same-state pin also passed through the actual ordinary route, with no test
+message. Final reciprocal roles are current-source, idle, unexpired, ready and
+policy-qualified with no unresolved requests; fixture baseline restored. Evidence
+and exact handles: resume.md top and pressure/ordinary-action-final-readback-
+20261018.json. Loaded desktop MCP still e9dd31e4 and correctly requires restart;
+do not present fresh harness/CLI proof as loaded-client adoption. New automatic
+record-loss positive effects remain simulated; historical human-assisted native
+deleted-record proof retains its separate source and person gates.
+
 ## October 18 ordinary admission composes exact native pair-readiness continuation
 
 Previous goal turn was progress: 6ecadbf added post-import metadata suffix and

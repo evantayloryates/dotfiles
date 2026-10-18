@@ -7,7 +7,10 @@ import {writeFileSync,lstatSync} from 'node:fs'
 import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
 import {RUNTIME_BUILD,runtimeFingerprint} from './build.mjs'
 import {DriverError,versions,activeStore} from './paths.mjs'
-import {getRecord,callerHostSession} from './sessions.mjs'
+import {getRecord,callerHostSession,liveProcesses} from './sessions.mjs'
+import {peerRecord} from './peer-direct.mjs'
+import {readMetadataControllerEnrollment} from './metadata-controller-index.mjs'
+import {ordinaryActionKind,validateOrdinaryActionIntent,assertOrdinaryActionRecipient} from './ordinary-action-intent.mjs'
 import {readSessionManagementEnrollment} from './session-management-controller.mjs'
 import {readStandbyEnrollment,standbyEnrollmentDigest} from './standby-enrollment.mjs'
 import {readServiceRecoveryIdentity,validateServiceRecoveryIdentity} from './service-recovery-identity.mjs'
@@ -59,6 +62,7 @@ export async function finishOrdinaryRecordRecovery(kind,d){
 // readiness checkpoint. Normal target maintenance still requires current source.
 export async function verifyOrdinaryRecoveredPair({activated,qualifiedPlan,dep,row,pair,binding,identity,version,capabilities,ctx,checkpoint,expectedBuild=RUNTIME_BUILD}){
  if(!hex.test(expectedBuild||''))throw Error('exact verified native source required')
+     assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
      if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
      if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(ordinarySessionBinding(dep.record(binding.sessionId),row.controllerSession),binding))throw Error('ordinary intent changed after reactivation')
      const next=dep.pair(row.controllerSession)
@@ -68,13 +72,16 @@ export async function verifyOrdinaryRecoveredPair({activated,qualifiedPlan,dep,r
      for(const role of ['primary','standby']){const actor=next[role],selected=dep.select(actor.cwd),s=await dep.status(actor.sessionId,actor.serviceId,{signal:ctx.signal});actors[role]=savedActor(role);selections[role]=selected;if(selected.selector.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==expectedBuild||s.sessionId!==actor.sessionId||s.serviceId!==actor.serviceId||s.build!==expectedBuild||s.verified!==true||s.verificationMode!=='live-native'||s.sourceDisposition!=='installed'||s.nativeEpochAssessed!==true||s.nativeEpoch?.pid!==actor.pid||s.nativeEpoch.procStart!==actor.procStart||s.nativeEpoch.status!=='idle'||s.readinessObserved!==true||s.nativePolicyObserved!==true||s.expired!==false||s.admissionStopped!==false||s.nativeInputRequired!==false||s.terminalAttemptReviewComplete!==true||!Array.isArray(s.unresolvedRequestIds)||s.unresolvedRequestIds.length||role==='primary'&&[s,selected.pointer,selected.policy].some(x=>capabilities.some(k=>x[k]!==true)))throw Error('reactivated service admission unqualified')}
      if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||dep.account()!==identity.storeHash||!equal(dep.enrollment(),row)||!equal(dep.pair(row.controllerSession),next)||['primary','standby'].some(role=>!equal(dep.select(next[role].cwd),selections[role])||!equal(savedActor(role),actors[role]))||!equal(ordinarySessionBinding(dep.record(binding.sessionId),row.controllerSession),binding))throw Error('reactivated evidence changed')
      if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
+     assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
      return {qualified:true,controllerSession:row.controllerSession,serviceId:activated.serviceId,enrollmentSha256:activated.enrollmentSha256,nativeBuild:expectedBuild,currentSourceMatches:expectedBuild===RUNTIME_BUILD,sourceMaintenanceRequired:expectedBuild!==RUNTIME_BUILD}
 }
 
-// Freeze and validate metadata intent before any recovery effects. Epoch-bound
-// stop/interrupt and send admission keep their existing independent gates.
+// Target actions require the scheduler's original recipient snapshot in addition
+// to these scoped capabilities. Recovery never dispatches or replays the target.
 export async function ordinaryRecordRecoveryCapabilities(name,args,record){
- if(args.via_broker!==undefined||args.metadata_controller!==undefined||args.controller_session!==undefined||args.permission_mode!==undefined||args.transport!==undefined||args.import_only===true)return null
+ if(args.via_broker!==undefined||args.metadata_controller!==undefined||args.controller_session!==undefined||args.permission_mode!==undefined||args.transport!==undefined&&args.transport!=='native'||args.import_only===true)return null
+ const action=ordinaryActionKind(name,args)
+ if(action){if(record.isArchived)throw new DriverError('unarchive the ordinary target before requesting action recovery',{category:'session_archived',detail:{dispatched:false}});if(action!=='stop')(await import('./ordinary-session-control.mjs')).ordinarySessionArguments('send_message',{sessionId:record.sessionId},args.message);return ['sessionManagementControl',...action!=='send'?['sessionStopControl']:[],...action!=='stop'?['sessionSendControl']:[]]}
  const {ordinaryConfigOperations}=await import('./ordinary-session-route.mjs')
  if(name==='unarchive_session')return record.isArchived?['sessionManagementControl']:null
  if(!['pin_session','rename_session','set_session_config','archive_session'].includes(name))return null
@@ -96,9 +103,10 @@ const pendingError=ordinaryRecordPendingError
 
 export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},dependencies={}){
  if(!job.test(ctx.jobId||''))return null
- if(!['pin_session','rename_session','set_session_config','archive_session','unarchive_session'].includes(name)||args.via_broker!==undefined||args.metadata_controller!==undefined||args.controller_session!==undefined||args.permission_mode!==undefined||args.transport!==undefined||args.import_only===true)return null
- const dep={enrollment:readSessionManagementEnrollment,pair:readStandbyEnrollment,identity:readServiceRecoveryIdentity,record:getRecord,select:loadReceiverSelection,account:()=>createHash('sha256').update(activeStore().dir).digest('hex'),caller:callerHostSession,fingerprint:runtimeFingerprint,version:versions,importPlan:inspectMissingServiceImport,seedPlan:inspectServiceSeedPlan,readRoot:readRestoredRecordRoot,job:id=>inspectJob(id,{includeResult:true}),pairPlan:inspectRestoredPair,status:inspectIndependentService,...dependencies}
+ if(!['pin_session','rename_session','set_session_config','archive_session','unarchive_session','send_message','stop_session','steer_session'].includes(name)||args.via_broker!==undefined||args.metadata_controller!==undefined||args.controller_session!==undefined||args.permission_mode!==undefined||args.transport!==undefined&&args.transport!=='native'||args.import_only===true)return null
+ const dep={enrollment:readSessionManagementEnrollment,metadata:readMetadataControllerEnrollment,peer:peerRecord,processes:liveProcesses,pair:readStandbyEnrollment,identity:readServiceRecoveryIdentity,record:getRecord,select:loadReceiverSelection,account:()=>createHash('sha256').update(activeStore().dir).digest('hex'),caller:callerHostSession,fingerprint:runtimeFingerprint,version:versions,importPlan:inspectMissingServiceImport,seedPlan:inspectServiceSeedPlan,readRoot:readRestoredRecordRoot,job:id=>inspectJob(id,{includeResult:true}),pairPlan:inspectRestoredPair,status:inspectIndependentService,...dependencies}
  const row=dep.enrollment();if(!row||args.session===row.controllerSession)return null
+ if(ordinaryActionKind(name,args)){validateOrdinaryActionIntent(ctx.ordinaryActionIntent,name,args);assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)}
  const pair=dep.pair(row.controllerSession)
  if(!pair)return null
  const digest=standbyEnrollmentDigest(pair),primary=pair.primary,base=dependencies.base??join(STATE_DIR,'ordinary-record-recoveries'),claimFile=join(base,'claims',primary.serviceId+'.json')
@@ -111,6 +119,7 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
  if(!target)return null
  const capabilities=await ordinaryRecordRecoveryCapabilities(name,args,target);if(!capabilities)return null
  return withLock('ordinary-record-recovery-'+row.controllerSession,async()=>{
+  assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
   // A caller waiting on this lock may observe another caller's completed CAS.
   // It may enter normal admission against that new generation, never the old
   // recovery prefix or somebody else's target request.
@@ -127,8 +136,10 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
   try{identity=dep.identity(primary.sessionId,primary.serviceId);binding=ordinarySessionBinding(target,row.controllerSession);selection=dep.select(primary.cwd);version=dep.version();validateServiceRecoveryIdentity(identity,{session:primary.sessionId,serviceId:primary.serviceId,...dependencies.probeRoot?{probeRoot:dependencies.probeRoot}:{}})}
   catch{throw new DriverError('ordinary controller record recovery lacks retained owner evidence; no restoration attempted',{category:'ordinary_controller_record_recovery_unqualified',detail:{controllerSession:row.controllerSession,targetDispatched:false,recordRestorationAttempted:false,replayAuthorized:false,retrySafe:true}})}
   const guard=async()=>{
+   assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
    if(checkpoint)await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
    if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||!equal(dep.enrollment(),row)||standbyEnrollmentDigest(dep.pair(row.controllerSession))!==digest||pair.schemaVersion!==2||pair.automaticRecovery!==true||primary.sessionId!==row.controllerSession||primary.cwd!==row.receiverCwd||identity.cwd!==primary.cwd||identity.storeHash!==binding.storeHash||dep.account()!==identity.storeHash||!equal(dep.identity(primary.sessionId,primary.serviceId),identity)||!equal(dep.select(primary.cwd),selection)||!equal(ordinarySessionBinding(dep.record(args.session),row.controllerSession),binding)||[args.session,row.controllerSession,pair.standby.sessionId].includes(dep.caller())||[row.controllerSession,pair.standby.sessionId].includes(args.session)||[selection.pointer,selection.policy].some(p=>capabilities.some(k=>p[k]!==true)))throw Error('ordinary recovery source/account/intent/grants changed')
+   assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
   }
   let context
   const record=async(phase,result)=>{context.ledger.phase=phase;context.ledger.steps.push({phase,at:Date.now()});if(result)context.ledger.result=structuredClone(result);context.save()}
@@ -141,7 +152,7 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
      const claims=ensureDir(join(base,'claims'));owned(base);owned(claims)
      const claim={schemaVersion:1,jobId:ctx.jobId,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,at:Date.now()}
      writeFileSync(claimFile,JSON.stringify(claim)+'\n',{flag:'wx',mode:0o600})
-     const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:hash({operation:name,arguments:args}),kind,plan:structuredClone(plan),phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
+     const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:hash({operation:name,arguments:args}),...ctx.ordinaryActionIntent?{actionIntent:structuredClone(ctx.ordinaryActionIntent)}:{},kind,plan:structuredClone(plan),phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
      const file=join(base,ctx.jobId+'.json');writeFileSync(file,JSON.stringify(ledger)+'\n',{flag:'wx',mode:0o600})
      context={ledger,file,save:()=>{if(!equal(JSON.parse(readReceiverFile(claimFile,4096)),claim))throw Error('ordinary recovery claim changed');writeJsonAtomic(file,ledger)}}
     },record,
@@ -166,7 +177,7 @@ export async function maybeRecoverOrdinaryControllerRecord(name,args,ctx={},depe
     const claims=ensureDir(join(base,'continuation-claims'));owned(base);owned(claims)
     const claim={schemaVersion:1,jobId:ctx.jobId,originalJobId:checkpoint.original.jobId,originalRootSha256:checkpoint.originalRootSha256,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,at:Date.now()},path=join(claims,checkpoint.original.jobId+'.json')
     writeFileSync(path,JSON.stringify(claim)+'\n',{flag:'wx',mode:0o600})
-    const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:hash({operation:name,arguments:args}),kind:checkpoint.root.kind,plan:structuredClone(checkpoint.root.plan),origin:{jobId:checkpoint.original.jobId,rootSha256:checkpoint.originalRootSha256},restorationOrigin:{kind:checkpoint.root.kind,jobId:proof.rootJobId,rootSha256:proof.rootSha256},phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
+    const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:hash({operation:name,arguments:args}),...ctx.ordinaryActionIntent?{actionIntent:structuredClone(ctx.ordinaryActionIntent)}:{},kind:checkpoint.root.kind,plan:structuredClone(checkpoint.root.plan),origin:{jobId:checkpoint.original.jobId,rootSha256:checkpoint.originalRootSha256},restorationOrigin:{kind:checkpoint.root.kind,jobId:proof.rootJobId,rootSha256:proof.rootSha256},phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
     const file=join(base,ctx.jobId+'.json');writeFileSync(file,JSON.stringify(ledger)+'\n',{flag:'wx',mode:0o600})
     context={ledger,file,save:()=>{if(!equal(JSON.parse(readReceiverFile(path,4096)),claim)||!equal(prior()?.original,checkpoint.original))throw Error('ordinary continuation ownership changed');writeJsonAtomic(file,ledger)}}
     result=await finishOrdinaryRecordRecovery(ledger.kind,callbacks)

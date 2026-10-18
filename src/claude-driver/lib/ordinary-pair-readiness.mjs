@@ -2,6 +2,7 @@
 // only a new maintenance suffix; it cannot seed/import, activate the primary a
 // second time, or replay the original metadata target operation.
 import {join} from 'node:path'
+import {assertOrdinaryActionRecipient} from './ordinary-action-intent.mjs'
 import {writeFileSync,lstatSync} from 'node:fs'
 import {STATE_DIR,ensureDir,writeJsonAtomic} from './state.mjs'
 import {RUNTIME_BUILD} from './build.mjs'
@@ -31,8 +32,10 @@ export async function continueOrdinaryPairReadiness({name,args,ctx,dep,row,pair,
   const identity=dep.identity(pair.primary.sessionId,pair.primary.serviceId),binding=ordinarySessionBinding(dep.record(args.session),row.controllerSession),version=dep.version()
   validateServiceRecoveryIdentity(identity,{session:pair.primary.sessionId,serviceId:pair.primary.serviceId,...dependencies.probeRoot?{probeRoot:dependencies.probeRoot}:{}})
   const guard=async()=>{
+   assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
    await assertOrdinaryRecordCheckpointStable(checkpoint,{inspect:dep.job,signal:ctx.signal})
    if(ctx.signal?.aborted||dep.fingerprint()!==RUNTIME_BUILD||!equal(dep.version(),version)||!equal(version,native.root.versions)||!equal(dep.enrollment(),row)||standbyEnrollmentDigest(dep.pair(row.controllerSession))!==digest||pair.schemaVersion!==2||pair.automaticRecovery!==true||pair.primary.cwd!==row.receiverCwd||identity.cwd!==row.receiverCwd||identity.storeHash!==binding.storeHash||dep.account()!==identity.storeHash||!equal(dep.identity(pair.primary.sessionId,pair.primary.serviceId),identity)||!equal(ordinarySessionBinding(dep.record(args.session),row.controllerSession),binding)||[row.controllerSession,pair.standby.sessionId].includes(args.session)||[args.session,row.controllerSession,pair.standby.sessionId].includes(dep.caller())||capabilities.some(k=>p.roles?.primary?.grants?.[k]!==true)||!equal(readNative(pairJobId),nativeRoot)||!equal(await readCheckpoint(pairJobId,nativeSha256),native))throw Error('ordinary readiness source/account/intent/prefix changed')
+   assertOrdinaryActionRecipient(ctx.ordinaryActionIntent,{},dep)
    const claim=nativeClaim(pairJobId)
    if(claim){
     const error=pending()
@@ -48,7 +51,7 @@ export async function continueOrdinaryPairReadiness({name,args,ctx,dep,row,pair,
   const claims=ensureDir(join(base,'pair-continuation-claims'));owned(base);owned(claims)
   const owner=checkpoint.pairOwner,ownerSha256=ordinaryRecordCheckpointDigest(owner),claim={schemaVersion:1,jobId:ctx.jobId,originalJobId:owner.jobId,originalRootSha256:ownerSha256,pairJobId,pairRootSha256:nativeSha256,preparedBuild:expectedBuild,controllerSession:row.controllerSession,serviceId:pair.primary.serviceId,enrollmentSha256:digest,at:Date.now()},claimPath=join(claims,pairJobId+'.json')
   writeFileSync(claimPath,JSON.stringify(claim)+'\n',{flag:'wx',mode:0o600})
-  const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:pair.primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:ordinaryRecordCheckpointDigest({operation:name,arguments:args}),kind:checkpoint.original.kind,plan:structuredClone(checkpoint.original.plan),origin:{jobId:owner.jobId,rootSha256:ownerSha256},generationOwnerJobId:checkpoint.original.jobId,restorationOrigin:{kind:checkpoint.original.kind,jobId:p.rootJobId,rootSha256:p.rootSha256},pairReadinessOrigin:{jobId:pairJobId,rootSha256:nativeSha256,preparedBuild:expectedBuild},phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
+  const ledger={schemaVersion:1,jobId:ctx.jobId,runtimeBuild:RUNTIME_BUILD,controllerSession:row.controllerSession,serviceId:pair.primary.serviceId,enrollmentSha256:digest,target:args.session,binding,operation:name,intentSha256:ordinaryRecordCheckpointDigest({operation:name,arguments:args}),...ctx.ordinaryActionIntent?{actionIntent:structuredClone(ctx.ordinaryActionIntent)}:{},kind:checkpoint.original.kind,plan:structuredClone(checkpoint.original.plan),origin:{jobId:owner.jobId,rootSha256:ownerSha256},generationOwnerJobId:checkpoint.original.jobId,restorationOrigin:{kind:checkpoint.original.kind,jobId:p.rootJobId,rootSha256:p.rootSha256},pairReadinessOrigin:{jobId:pairJobId,rootSha256:nativeSha256,preparedBuild:expectedBuild},phase:'claimed',children:{},steps:[],at:Date.now(),targetDispatched:false,replayAuthorized:false}
   const file=join(base,ctx.jobId+'.json');writeFileSync(file,JSON.stringify(ledger)+'\n',{flag:'wx',mode:0o600})
   const save=()=>{const raw=readOrdinaryRecordRecovery(row.controllerSession,pair.primary.serviceId,digest,{base});if(!equal(JSON.parse(readReceiverFile(claimPath,4096)),claim)||!equal(raw?.original,checkpoint.original)||checkpoint.recordSuffix&&!equal(raw?.recordSuffix,checkpoint.recordSuffix)||!equal(readNative(pairJobId),nativeRoot))throw Error('ordinary readiness suffix ownership changed');writeJsonAtomic(file,ledger)}
   context={ledger,file,save};const record=(phase,result)=>{ledger.phase=phase;ledger.steps.push({phase,at:Date.now()});if(result)ledger.result=structuredClone(result);save()}

@@ -18,6 +18,8 @@ const {observeOrdinaryRecordCheckpoint,inspectOrdinaryRecordRecovery}=await impo
 const {pairReadinessFixture}=await import('./restored-pair-readiness-fixture.mjs')
 const {readPairReadinessCheckpoint,pairReadinessCheckpointDigest}=await import('../lib/restored-pair-readiness-checkpoint.mjs')
 const {restoredPairPlanDigest,restoredPairChildSubmission}=await import('../lib/restored-pair-ledger.mjs')
+const {captureOrdinaryActionIntent,ordinaryOperationIntentSha256}=await import('../lib/ordinary-action-intent.mjs')
+const {redactArgs}=await import('../lib/state.mjs')
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex'),jid=()=> 'j'+randomUUID().replaceAll('-','')
 test.after(()=>rmSync(base,{recursive:true,force:true}))
 
@@ -85,7 +87,8 @@ test('foreign account, changed original grants, disabled enrollment and actual c
 })
 test('invalid or explicitly selected alternate routes do not initiate automatic record recovery',async()=>{
  const f=adapterFixture()
- for(const [name,args]of [['send_message',{session:f.target,message:'test'}],['stop_session',{session:f.target}],['pin_session',{...f.args,metadata_controller:f.standby.sessionId}],['set_session_config',{session:f.target,permission_mode:'bypassPermissions'}]])assert.equal(await maybeRecoverOrdinaryControllerRecord(name,args,f.ctx,f.d),null)
+ for(const [name,args]of [['send_message',{session:f.target,message:'test'}],['stop_session',{session:f.target}]])await assert.rejects(maybeRecoverOrdinaryControllerRecord(name,args,f.ctx,f.d),/ordinary action intent differs/)
+ for(const [name,args]of [['send_message',{session:f.target,message:'test',transport:'peer-direct'}],['pin_session',{...f.args,metadata_controller:f.standby.sessionId}],['set_session_config',{session:f.target,permission_mode:'bypassPermissions'}]])assert.equal(await maybeRecoverOrdinaryControllerRecord(name,args,f.ctx,f.d),null)
  await assert.rejects(ordinaryRecordRecoveryCapabilities('rename_session',{title:''},f.records[f.target]));await assert.rejects(ordinaryRecordRecoveryCapabilities('set_session_config',{},f.records[f.target]));assert.equal(f.submissions.length,0)
 })
 test('final independent read rejects wrong service, lowered actual mode, unknown work and source/account/selection races',async()=>{
@@ -167,12 +170,12 @@ test('a failed claimed suffix remains independently visible and is never submitt
 // The adapter uses real ordinary/native checkpoint readers and private claims.
 // Current native package readiness and effects are simulated; the existing
 // native qualifier/continuation suites exercise those separate adapters.
-async function nativeReadinessFixture({build='8'.repeat(64),loseObservation=false}={}){
+async function nativeReadinessFixture({build='8'.repeat(64),loseObservation=false,actionGrants=false}={}){
  const f=await pendingFixture();f.clearGate()
  const n=pairReadinessFixture(),r=n.root,p=r.plan,readinessOwner={jobId:jid()},nativeDir=join(f.d.base,'native-pair'),write=(path,value)=>{mkdirSync(dirname(path),{recursive:true,mode:0o700});writeFileSync(path,JSON.stringify(value),{mode:0o600})}
  Object.assign(p,{rootJobId:f.root.jobId,rootSha256:hash(f.root),enrollmentSha256:f.digest,currentEpochs:structuredClone(f.epochs),originalServiceIds:{primary:f.primary.serviceId,standby:f.standby.serviceId},restorationKind:'record'})
  p.roles.primary.bindings.metadataTarget=structuredClone(f.epochs.standby);p.roles.standby.bindings.archiveTarget=structuredClone(f.epochs.primary)
- p.roles.primary.grants={sessionManagementControl:true,sessionMetadataControl:true,sessionArchiveControl:true};Object.assign(p.roles.primary.prepareArguments,{session_management_control:true,session_metadata_control:true,session_archive_control:true});p.rolesSha256=restoredPairPlanDigest(p.roles)
+ p.roles.primary.grants={sessionManagementControl:true,sessionMetadataControl:true,sessionArchiveControl:true,...actionGrants?{sessionSendControl:true,sessionStopControl:true}:{}};Object.assign(p.roles.primary.prepareArguments,{session_management_control:true,session_metadata_control:true,session_archive_control:true,...actionGrants?{session_send_control:true,session_stop_control:true}:{}});p.rolesSha256=restoredPairPlanDigest(p.roles)
  r.runtimeBuild=build;r.expectedPlanSha256=restoredPairPlanDigest(p);r.results.preflight=p
  f.selected[f.standby.cwd]={selector:{...f.standby,build:RUNTIME_BUILD},pointer:{},policy:{}}
  for(const role of ['primary','standby']){const actor=f.pair[role];r.snapshots[role].selection=structuredClone(f.selected[actor.cwd]);r.snapshots[role].identity={version:1,sessionId:actor.sessionId,cwd:actor.cwd,cliSessionId:actor.sessionId.slice(6),storeHash:f.identity.storeHash}}
@@ -248,4 +251,77 @@ test('unknown readiness suffix observation retains original scheduler handle and
  const s=await inspectOrdinaryRecordRecovery(f.primary.sessionId,f.primary.serviceId,f.digest,f.checkpointOptions)
  assert.equal(s.checkpointVerified,true);assert.equal(s.recoveryParentJobId,ctx.jobId);assert.equal(s.pairReadinessInspectionEligible,false);assert.equal(s.children.pairContinuation.jobId,error.detail.pairContinuationJobId)
  const bytes=readFileSync(f.file(ctx.jobId));await assert.rejects(maybeRecoverOrdinaryControllerRecord('pin_session',f.args,{jobId:jid()},f.d));assert.equal(f.submissions.length,3);assert.deepEqual(readFileSync(f.file(ctx.jobId)),bytes)
+})
+
+function attachAction(f,name,{mode='interrupt',absent=false,addGrants=true}={}){
+ let peer=absent?null:{pid:444,procStart:'original recipient',hostSessionId:f.target,sessionId:f.target.slice(6),cwd:f.records[f.target].cwd,entrypoint:'claude-desktop',version:'2.1.299',status:'busy'}
+ f.d.peer=()=>peer;f.d.processes=()=>peer?[{...peer}]:[];f.d.metadata=()=>null
+ const grants={sessionSendControl:true,sessionStopControl:true}
+ if(addGrants){Object.assign(f.root.originalSnapshot.selection.pointer,grants);Object.assign(f.root.originalSnapshot.selection.policy,grants)}
+ const status=f.d.status;f.d.status=async(...args)=>({...await status(...args),...grants})
+ f.name=name;f.args={session:f.target,...name!=='stop_session'?{message:'private action body'}:{},...name==='steer_session'?{mode}:{}}
+ f.fresh=()=>({jobId:jid(),ordinaryActionIntent:captureOrdinaryActionIntent(name,f.args,f.d)})
+ f.ctx=f.fresh();f.replace=()=>{peer={...peer,pid:445,procStart:'replacement recipient'}}
+ return f
+}
+async function pendingActionFixture(name){
+ const f=attachAction(adapterFixture(),name);let error
+ await assert.rejects(maybeRecoverOrdinaryControllerRecord(name,f.args,f.ctx,f.d),e=>{error=e;return e.category==='ordinary_controller_record_recovery_pending'})
+ f.jobs.set(f.ctx.jobId,{jobId:f.ctx.jobId,operation:name,args:redactArgs(f.args),operationIntentSha256:ordinaryOperationIntentSha256(name,f.args),ordinaryActionIntent:structuredClone(f.ctx.ordinaryActionIntent),state:'failed',error:{category:error.category,detail:error.detail}})
+ f.originalBytes=readFileSync(f.file(f.ctx.jobId));f.digest=standbyEnrollmentDigest(f.pair)
+ f.checkpointOptions={base:f.d.base,inspect:f.d.job};f.clearGate=()=>{f.records[f.primary.sessionId].permissionMode='bypassPermissions';f.d.pairPlan=async()=>({pairPreparationEligible:true,currentEpochs:f.epochs})}
+ return f
+}
+test('record-loss send, queued send, stop and interrupt keep frozen recipient intent through verified repair',async()=>{
+ for(const [name,options] of [['send_message',{}],['send_message',{absent:true}],['stop_session',{}],['steer_session',{}],['steer_session',{mode:'queue'}]]){
+  const f=attachAction(adapterFixture({ready:true}),name,options),r=await maybeRecoverOrdinaryControllerRecord(name,f.args,f.ctx,f.d)
+  assert.equal(r.recovered,true);assert.equal(r.targetDispatched,false);assert.equal(f.submissions.length,2)
+  const root=JSON.parse(readFileSync(f.file(f.ctx.jobId)));assert.deepEqual(root.actionIntent,f.ctx.ordinaryActionIntent);assert.equal(JSON.stringify(root).includes('private action body'),false);assert.equal(root.intentSha256,ordinaryOperationIntentSha256(name,f.args))
+ }
+})
+test('changed original recipient at planning, restored-record or final pair verification stops further admission without replay',async()=>{
+ for(const phase of ['plan','restored','verify']){
+  const f=attachAction(adapterFixture({ready:true}),'steer_session')
+  if(phase==='plan'){const plan=f.d.importPlan;f.d.importPlan=async()=>{const p=await plan();f.replace();return p}}
+  if(phase==='restored'){const run=f.d.run;f.d.run=async(op,args)=>{const r=await run(op,args);if(op==='driver_wait'&&args.job_id===f.root.jobId)f.replace();return r}}
+  if(phase==='verify'){const status=f.d.status;f.d.status=async(...args)=>{const r=await status(...args);f.replace();return r}}
+  await assert.rejects(maybeRecoverOrdinaryControllerRecord(f.name,f.args,f.ctx,f.d));assert.equal(f.submissions.length,phase==='plan'?0:phase==='restored'?1:2)
+  if(phase!=='plan'){const root=JSON.parse(readFileSync(f.file(f.ctx.jobId)));assert.equal(root.targetDispatched,false);assert.deepEqual(root.actionIntent,f.ctx.ordinaryActionIntent);assert.notEqual(root.phase,'recovered')}
+ }
+})
+test('post-consent action suffix validates actual private intent digest rather than redacted message and never replays original',async()=>{
+ for(const name of ['send_message','stop_session','steer_session']){
+  const f=await pendingActionFixture(name);f.clearGate()
+  const observed=await observeOrdinaryRecordCheckpoint(f.primary.sessionId,f.primary.serviceId,f.digest,f.checkpointOptions);assert.equal(observed.suffixInspectionEligible,true)
+  const ctx=f.fresh(),r=await maybeRecoverOrdinaryControllerRecord(name,f.args,ctx,f.d);assert.equal(r.recovered,true);assert.equal(r.targetDispatched,false);assert.equal(r.originalRecoveryParentJobId,f.ctx.jobId);assert.equal(f.submissions.length,2);assert.deepEqual(readFileSync(f.file(f.ctx.jobId)),f.originalBytes)
+  const root=JSON.parse(readFileSync(f.file(ctx.jobId)));assert.deepEqual(root.actionIntent,ctx.ordinaryActionIntent);assert.equal(root.children.restore,undefined)
+ }
+})
+test('forged actual action snapshot/digest and recipient change during suffix planning cannot claim a new suffix',async()=>{
+ for(const mode of ['digest','snapshot','scope','plan-race']){
+  const f=await pendingActionFixture('send_message');f.clearGate();const ctx=f.fresh(),parent=f.jobs.get(f.ctx.jobId)
+  if(mode==='digest')parent.operationIntentSha256='f'.repeat(64)
+  if(mode==='snapshot')parent.ordinaryActionIntent.recipient.epoch.pid++
+  if(mode==='scope')parent.args.session=f.standby.sessionId
+  if(mode==='plan-race'){const plan=f.d.pairPlan;f.d.pairPlan=async(...args)=>{const r=await plan(...args);f.replace();return r}}
+  await assert.rejects(maybeRecoverOrdinaryControllerRecord(f.name,f.args,ctx,f.d));assert.equal(f.submissions.length,1);assert.equal(existsSync(join(f.d.base,'continuation-claims')),false);assert.deepEqual(readFileSync(f.file(f.ctx.jobId)),f.originalBytes)
+ }
+})
+test('native readiness suffix refuses action authority absent from the exact prepared prefix',async()=>{
+ const f=await nativeReadinessFixture({build:RUNTIME_BUILD})
+ // Native prepared grants must independently include the requested action.
+ // A historical metadata-only native prefix cannot gain action authority.
+ attachAction(f,'send_message',{addGrants:false});const ctx=f.ctx
+ await assert.rejects(maybeRecoverOrdinaryControllerRecord('send_message',f.args,ctx,f.d),e=>e.category==='ordinary_controller_record_recovery_pending')
+ assert.equal(f.submissions.length,2);assert.equal(existsSync(join(f.d.base,'pair-continuation-claims')),false);assert.deepEqual(readFileSync(f.file(f.readinessOwner.jobId)),f.ownerBytes)
+})
+test('action-capable native readiness suffix verifies new recipient through exact continuation and final actor checks',async()=>{
+ for(const changed of [false,true]){
+  const f=await nativeReadinessFixture({build:RUNTIME_BUILD,actionGrants:true}),originalBytes=f.originalBytes,ownerBytes=f.ownerBytes,originalId=f.ctx.jobId
+  attachAction(f,'steer_session',{addGrants:false});const ctx=f.ctx
+  if(changed){const plan=f.d.readinessPlan;f.d.readinessPlan=async(...args)=>{const r=await plan(...args);f.replace();return r}}
+  if(changed){await assert.rejects(maybeRecoverOrdinaryControllerRecord(f.name,f.args,ctx,f.d));assert.equal(f.submissions.length,2);assert.equal(existsSync(join(f.d.base,'pair-continuation-claims')),false)}
+  else{const r=await maybeRecoverOrdinaryControllerRecord(f.name,f.args,ctx,f.d);assert.equal(r.recovered,true);assert.equal(r.targetDispatched,false);assert.equal(f.submissions.length,3);const root=JSON.parse(readFileSync(f.file(ctx.jobId)));assert.deepEqual(root.actionIntent,ctx.ordinaryActionIntent);assert.equal(root.children.restore,undefined);assert.equal(root.children.reactivate,undefined)}
+  assert.deepEqual(readFileSync(f.file(originalId)),originalBytes);assert.deepEqual(readFileSync(f.file(f.readinessOwner.jobId)),ownerBytes)
+ }
 })

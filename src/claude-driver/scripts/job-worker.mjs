@@ -3,6 +3,7 @@ import { jobFile, lockedJob } from '../lib/jobs.mjs'
 import { readJson, writeJsonAtomic } from '../lib/state.mjs'
 import { OPS, runOp } from '../lib/driver.mjs'
 import {RUNTIME_BUILD} from '../lib/build.mjs'
+import {ordinaryActionKind} from '../lib/ordinary-action-intent.mjs'
 const id = process.argv[2]
 const controller = new AbortController()
 let timer
@@ -26,7 +27,8 @@ if (initial) {
     try { const j = readJson(jobFile(id), null); if (j?.cancelRequestedAt || Date.now() >= initial.expiresAt) controller.abort() } finally { watching = false }
   }, 100)
   try {
-    const result = await runOp(initial.operation, initial.args, { harness: `job:${initial.harness}`, jobId:id,projectArchiveSnapshot:initial.projectArchiveSnapshot, signal: controller.signal,
+    if(ordinaryActionKind(initial.operation,initial.args)&&!Object.hasOwn(initial,'ordinaryActionIntent'))throw Object.assign(Error('action job lacks its submission-time routing snapshot; no target action admitted'),{category:'ordinary_action_snapshot_missing',detail:{dispatched:false,targetDispatched:false,retrySafe:true}})
+    const result = await runOp(initial.operation, initial.args, { harness: `job:${initial.harness}`, jobId:id,projectArchiveSnapshot:initial.projectArchiveSnapshot,ordinaryActionIntent:initial.ordinaryActionIntent, signal: controller.signal,
       progress: message => { progressWrites = progressWrites.then(() => update(j=>({ ...j, progress: [...(j.progress || []).slice(-19), { at: Date.now(), message }] }))) } })
     await progressWrites
     await update(j => ({ ...j, state: result?.handedBack ? 'handed_back' : result?.verified === false ? 'unverified' : 'completed', result, finishedAt: Date.now() }))

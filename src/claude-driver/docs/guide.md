@@ -22,7 +22,7 @@ independently observed child handles without exposing snapshots or transcript
 text. `submission-unconfirmed` requires original-handle reconciliation; it is not
 permission to submit again. A completed child does not erase a failed parent or
 prove service readiness. Missing-record plan/import/reactivation retain explicit
-experimental entrypoints. Durable ordinary metadata/archive admission can compose
+experimental entrypoints. Durable ordinary metadata/archive and frozen-recipient action admission can compose
 them when its retained pair explicitly enables automatic recovery. One native
 deleted-record rebuild and reciprocal pair reactivation passed with human
 permission and hot-reload consent; unattended recreation is unqualified.
@@ -36,24 +36,42 @@ before choosing an explicit restoration path. A hint does not prove process abse
 terminal history, a surviving transcript, permission or native readiness. Health
 does not run restoration, seed rebuilds, consent steps or target replay.
 
-Durable rename, pin, configuration, archive and broker-needed unarchive can
-restore one missing controller record before target dispatch. They require exact
+Durable rename, pin, configuration, archive, broker-needed unarchive, send,
+queued follow-up, stop and interrupt can restore one missing controller record
+before target dispatch. They require exact
 same-account retained ownership, unchanged scoped grants and no STOP/unknowns.
 The pipeline chooses a surviving-transcript import or independently qualified
 minimal seed before claiming a single attempt; it never falls back after an
 attempted effect. It verifies original restoration jobs, then current reciprocal
 pair readiness, actual bypass modes, source, account and enrollment before the
 target operation proceeds. Existing successful Tier A/no-op routes do not trigger
-this maintenance. Send, stop and interrupt retain their existing admission gates.
+this maintenance.
+
+Action jobs freeze the resolved recipient account/workspace/CLI identity, the
+controller enrollment, the private argument digest and either the qualified
+native PID/start epoch or an observed no-peer state at submission. Idempotent
+reattachment never recaptures it. The worker, recovery continuations, maintenance
+and native admission preserve that snapshot; an observed replacement or ambiguous
+registry refuses the action. Busy sends may queue; no-peer sends may start the
+recipient only after native admission. Stop/interrupt require an original live
+epoch. Interrupt replacement retains its separate strict idle-epoch check.
+Snapshot loss cannot silently recapture routing in a delayed worker.
+
+`driver_job` keeps message bodies redacted. `operationIntentSha256` is computed
+from the private raw operation/arguments; the validated `ordinaryActionIntent`
+contains identity and hashes only. Recovery checkpoints compare those independent
+values, never a digest of the redacted message placeholder. Neither a receipt nor
+these admission guards prove that the recipient applied the instruction. Epoch
+checks do not claim atomic protection against a new turn in the same process.
 
 `ordinary_controller_record_recovery_pending` means the target was not dispatched.
 Retain `recoveryParentJobId`, `restorationJobId`/`restorationKind` and any
 `reactivationJobId` from its detail. Inspect these original jobs and
 `broker_service_restoration_status`; use the existing exact continuation plans
-for a supported failed prefix. Later metadata requests preserve the first claim
+for a supported failed prefix. Later requests preserve the first claim
 and report those handles rather than starting another seed/import. After a native
-gate clears, a later metadata request may adopt an independently completed
-restoration and claim only its never-attempted pair suffix. The original metadata
+gate clears, a later request may adopt an independently completed
+restoration and claim only its never-attempted pair suffix. The original
 parent must be definitively failed with target-undispatched evidence, and actual
 parent arguments, child jobs and immutable roots must still match. Active or
 unknown parents, changed intent and uncertain submissions refuse. A separate
@@ -61,7 +79,7 @@ suffix claim/root preserves original failures; concurrent
 callers cannot start a second import or pair suffix. It does not replay the
 original target request.
 
-For an actual failed pair at `before-readiness-primary`, ordinary metadata admission
+For an actual failed pair at `before-readiness-primary`, ordinary admission
 can compose the existing exact readiness continuation. It independently verifies
 the failed native root, original preparation/quiescence/retirement/primary-activation
 children, restored identity, scoped grants, immutable ordinary parents and current

@@ -226,7 +226,7 @@ export const OPS = [
       if(args.operation_id!==undefined||args.receipt_timeout_sec!==undefined)throw new DriverError('direct recipient options require transport:peer-direct',{category:'bad_args'})
       const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
       if(controller){ctx.tier='independent-native-steer';if(args.mode==='interrupt')return (await import('./native-steer-route.mjs')).routeNativeSteer(rec.sessionId,controller,args,ctx);return {...await (await import('./native-send-route.mjs')).routeNativeSend(rec.sessionId,controller,args,ctx),steeringMode:'queue',stopped:false,applied:false}}
-      if(args.mode==='interrupt'&&sessionManagementController(rec.sessionId)){ctx.tier='independent-session-interrupt';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-steer-route.mjs').then(m=>m.routeOrdinarySteer(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('steer_session',args,ctx)){ctx.tier=args.mode==='interrupt'?'independent-session-interrupt':'independent-session-send';const {result,focus}=await withFocus('restore',()=>args.mode==='interrupt'?import('./ordinary-steer-route.mjs').then(m=>m.routeOrdinarySteer(rec.sessionId,args,ctx)):import('./ordinary-send-route.mjs').then(m=>m.routeOrdinarySend(rec.sessionId,args,ctx)),{observeUnchanged:true});return {...result,...args.mode==='queue'?{steeringMode:'queue',stopped:false,applied:false}:{},focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
@@ -248,7 +248,7 @@ export const OPS = [
       const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
       if(controller){ctx.tier='independent-native-stop';return (await import('./native-stop-route.mjs')).routeNativeStop(rec.sessionId,controller,args,ctx)}
       if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to stop the broker or caller', { category: 'gate' })
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-stop';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-stop-route.mjs').then(m=>m.routeOrdinaryStop(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('stop_session',args,ctx)){ctx.tier='independent-session-stop';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-stop-route.mjs').then(m=>m.routeOrdinaryStop(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       const before = peerRecord(rec.sessionId)
       if (!before || before.sessionId !== (rec.cliSessionId || rec.sessionId.replace(/^local_/, ''))) throw new DriverError('stop requires a verified native recipient epoch', { category: 'verify_mismatch' })
       const b = await tierB(ctx, [{ op: 'stop_session', args: { session_id: rec.sessionId } }])
@@ -655,7 +655,7 @@ export const OPS = [
       if (rec.isArchived) throw new DriverError('session is archived; unarchive it first', { category: 'bad_state' })
       const controller=enrolledMetadataController(rec.sessionId,{metadata_controller:args.controller_session})
       if(controller){ctx.tier='independent-native-send';return (await import('./native-send-route.mjs')).routeNativeSend(rec.sessionId,controller,args,ctx)}
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-send';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-send-route.mjs').then(m=>m.routeOrdinarySend(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('send_message',args,ctx)){ctx.tier='independent-session-send';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-send-route.mjs').then(m=>m.routeOrdinarySend(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       const b = await tierB(ctx, [{ op: 'send_message', args: { session_id: rec.sessionId, message: args.message } }])
       if (b.handback) return b.handback
       const res = txt(b.results[0].result)
@@ -1421,7 +1421,7 @@ export function validateOp(name, args) {
 export async function runOp(name,args={},options={}){
  return withLifecycleContext({operationId:randomUUID(),operation:name,build:RUNTIME_BUILD},()=>runOpInner(name,args,options))
 }
-async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId,projectArchiveSnapshot } = {}) {
+async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId,projectArchiveSnapshot,ordinaryActionIntent } = {}) {
   if(jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid operation job context',{category:'bad_args'})
   const op = validateOp(name, args)
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
@@ -1447,7 +1447,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
       const boundArgs = { ...args, session }
       ctx.args = boundArgs
       row.targetSession = session
-      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
+      out = await withSessionControl(session, async () => {checkRuntime();ctx.ordinaryActionIntent=(await import('./ordinary-action-intent.mjs')).prepareOrdinaryActionIntent(name,boundArgs,ordinaryActionIntent);return op.run(boundArgs, ctx)}, { signal,...(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
     } else out = await op.run(args, ctx)
     if(ctx.controllerRecordRecovery&&out&&typeof out==='object')out={...out,controllerRecordRecovery:ctx.controllerRecordRecovery}
     trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})

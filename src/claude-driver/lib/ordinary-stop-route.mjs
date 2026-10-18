@@ -9,21 +9,23 @@ import {maintainNativeController} from './native-controller-maintenance.mjs'
 import {readIndependentService,independentServiceRequestId} from './independent-service-result.mjs'
 import {sessionManagementController} from './session-management-controller.mjs'
 import {DriverError,sleep} from './paths.mjs'
+import {assertOrdinaryActionRecipient} from './ordinary-action-intent.mjs'
 export async function runOrdinaryStop(d){
  await d.guard();await d.maintain();await d.guard();await d.record('before-native-request')
  const result=await d.stop();await d.record('after-native-request',result)
  if(result?.receiptVerified!==true||result.state!=='completed'||result.nativeAccepted!==true||!['stopped','already_idle'].includes(result.stopState))throw new DriverError('native stop pending or unresolved; do not send replacement',{category:'outcome_unknown'})
  await d.observeIdle();await d.record('idle-verified',result);return result
 }
-export async function routeOrdinaryStop(target,args,{jobId,signal,progress}={}){
+export async function routeOrdinaryStop(target,args,{jobId,signal,progress,ordinaryActionIntent}={}){
+ assertOrdinaryActionRecipient(ordinaryActionIntent,{action:'stop',target})
  const controller=sessionManagementController(target)
  if(!controller||!/^j[a-f0-9]{32}$/.test(jobId||'')||[target,controller].includes(callerHostSession())||args.via_broker!==undefined||args.controller_session!==undefined)throw new DriverError('ordinary stop requires durable exact enrolled controller',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
- const record=getRecord(target),binding=ordinarySessionBinding(record,controller),peer=peerRecord(target),epoch={pid:peer?.pid,procStart:peer?.procStart}
+ const record=getRecord(target),binding=ordinarySessionBinding(record,controller),peer=peerRecord(target),epoch=ordinaryActionIntent?.recipient?.epoch??{pid:peer?.pid,procStart:peer?.procStart}
  if(record.isArchived||!ordinaryStopPeerMatches(binding,epoch,peer))throw new DriverError('ordinary stop requires a verified native recipient epoch',{category:'verify_mismatch',detail:{dispatched:false,retrySafe:true}})
  const requestId=independentServiceRequestId(jobId),file=join(ensureDir(join(STATE_DIR,'ordinary-stop-routes')),jobId+'.json'),ledger={schemaVersion:1,jobId,controller,target,binding,epoch,requestId,phase:'prepared',steps:[],at:Date.now(),retrySafe:false}
  writeFileSync(file,JSON.stringify(ledger),{flag:'wx',mode:0o600})
  const save=phase=>{ledger.phase=phase;ledger.steps.push({phase,at:Date.now()});writeJsonAtomic(file,ledger)}
- const guard=async()=>{const r=getRecord(target),p=peerRecord(target);if(signal?.aborted||r.isArchived||JSON.stringify(ordinarySessionBinding(r,controller))!==JSON.stringify(binding)||!ordinaryStopPeerMatches(binding,epoch,p))throw Error('ordinary stop recipient changed or cancelled');return p}
+ const guard=async()=>{assertOrdinaryActionRecipient(ordinaryActionIntent,{action:'stop',target});const r=getRecord(target),p=peerRecord(target);if(signal?.aborted||r.isArchived||JSON.stringify(ordinarySessionBinding(r,controller))!==JSON.stringify(binding)||!ordinaryStopPeerMatches(binding,epoch,p))throw Error('ordinary stop recipient changed or cancelled');return p}
  try{
   const result=await runOrdinaryStop({guard,
    maintain:async()=>{save('before-maintenance');const m=await maintainNativeController(controller,target,{jobId,signal,capabilities:['sessionManagementControl','sessionStopControl'],ordinaryBinding:binding});ledger.serviceId=m.status.serviceId;ledger.maintenanceJobId=m.maintenanceJobId;ledger.coldRecoveryJobId=m.coldRecoveryJobId;ledger.pairRecoveryJobId=m.pairRecoveryJobId;ledger.lateReadinessContinuationJobId=m.lateReadinessContinuationJobId;save('after-maintenance')},
