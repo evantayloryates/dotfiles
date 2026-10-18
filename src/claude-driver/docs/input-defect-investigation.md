@@ -50,6 +50,43 @@ was checked; it supplied no duplicate-key or scoped-filter teardown resolution.
 The local incident evidence and exact installed source hashes are the basis of
 this investigation, rather than a claim of a documented upstream fix.
 
+## Native cleanup path and subscription boundary
+
+Further static inspection of the same hashed helper found compiled
+`AccessibilitySupport.EventTap.startMonitoring`, `stopMonitoring` and destructor
+symbols. Exact symbol addresses from nm and bounded ARM64 disassembly show a
+conditional call to CFMachPortInvalidate plus stored-reference release in the
+stop/destructor paths. The imported CFMachPortInvalidate stub was independently
+resolved from the Mach-O indirect-symbol table. This establishes that native
+cleanup code exists. It does not show whether connection loss, JS reset or thread
+archive reaches that code, or establish the callback/reference ownership that
+caused the historical incident. No native method was invoked or patched.
+
+The next causal question is which owner keeps each per-app filter alive and
+whether that owner's teardown actually runs. Symbol names or destructor code
+alone cannot answer it. Do not convert this into a claim that the historical
+helper is fixed: its binary identity was not retained.
+
+The official [app-server lifecycle contract](https://learn.chatgpt.com/docs/app-server#unsubscribe-from-a-loaded-thread)
+also rules out unsubscribe as an immediate-cleanup substitute. After its last
+subscriber leaves, an inactive thread can remain loaded for 30 minutes before
+`thread/closed`; the [SessionEnd documentation](https://learn.chatgpt.com/docs/hooks#sessionend)
+likewise says unsubscribe does not end a session immediately. Archive log
+persistence, thread unload and native filter release must remain distinct
+observations. No hook, new RPC, subscriber change or live app-server operation
+was installed or invoked for this finding.
+
+Private evidence: `native-symbols-v2.json`, `eventtap-stop-addressed.txt`,
+`eventtap-deinit-addressed.txt`, and `eventtap-cleanup-imports.txt` under the
+existing input-investigation directory. The first symbol-display artifact had
+truncated labels; v2 explicitly supersedes it. Initial name-based disassembly
+lookups failed and remain preserved; only the address-bounded evidence is used.
+
+Taylor has been asked whether an isolated macOS VM or spare Mac is available
+for a future native teardown test. The current desktop remains excluded by the
+existing disabled-UI instruction. No response or authorization is inferred from
+elapsed time or a preselected answer.
+
 ## Reproduced local cleanup defect and correction
 
 The private worker previously tested an English closeSession response with

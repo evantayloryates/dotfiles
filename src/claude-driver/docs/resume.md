@@ -1,3 +1,29 @@
+## October 18 native input cleanup boundary narrowed without UI
+
+Previous turn was progress9545b1f: strict acknowledgement correction, full191
+and focused12 pass. Current worktree/source remains5d15b13f. No tests repeated.
+Current helper SHA unchangedf21c31c0. Static nm/Swift-demangle inventory and bounded
+ARM64 disassembly establish EventTap startMonitoring/stopMonitoring/deinit;
+stop/destructor code conditionally calls resolved CFMachPortInvalidate and
+releases stored references. No native helper code executed, connected or patched.
+Compiled cleanup exists; next causal question is owner/reference lifetime and
+whether actual client/thread teardown reaches it. No historical-binary-fix claim.
+Original report parser truncated symbol display names; v2 corrects labels and
+supersedes that artifact. Failed name-based disassembly retained; authoritative
+address-bounded stop/deinit files and resolved import table are private evidence.
+
+Official app-server/hooks docs rule out thread/unsubscribe as immediate cleanup:
+last-subscriber inactivity grace30minutes, SessionEnd not immediate. No RPC/hook
+installed or invoked; archive ack/unload/native release remain separate facts.
+Details and citations: docs/input-defect-investigation.md. No extra source patch,
+MCP reload experiment, native test, helper kill, app restart or quarantine change.
+
+NEXT requires isolated macOS dynamic proof to trace native filter owner lifetime
+and physical keys. A concise pending question asks whether Taylor has an isolated
+macOS VM/spare Mac. No answer/permission inferred; this desktop remains UI-disabled.
+Goal ACTIVE; no live diagnostic process, native request or cleanup pending.
+Native physical/cold-start barrier persists; no narrower completion claim.
+
 ## October 18 input investigation: narrow cleanup acknowledgement corrected
 
 Taylor answered "Investigate the input defect" while UI remains disabled.
