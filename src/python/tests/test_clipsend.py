@@ -641,9 +641,10 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
         pdf = self.root / 'pages.pdf'
         script = r'''
 source "$DOTFILES_DIR/src/lib/terminal-file.sh"
+__terminal_pdf_display_scale() { print -r -- "$DISPLAY_SCALE"; }
 pdfinfo() { print -r -- "Pages: $PAGE_COUNT"; }
 pdftoppm() {
-  [[ "$*" == *'-scale-to 500'* ]] || return 1
+  [[ "$*" == *"-scale-to $((500 * DISPLAY_SCALE))"* ]] || return 1
   while (( $# )); do
     if [[ "$1" == -f ]]; then print -rn -- "$2"; return 0; fi
     shift
@@ -653,11 +654,14 @@ pdftoppm() {
 chafa() { print -r -- "PAGE:$(cat)"; }
 __terminal_preview "$PDF"
 '''
-        for count, expected in ((1, [1]), (2, [1, 2]), (6, list(range(1, 7))),
-                                (7, [1, 2, 3, 6, 7]), (8, [1, 2, 3, 7, 8])):
+        for count, expected, scale in ((1, [1], 1), (2, [1, 2], 2),
+                                       (6, list(range(1, 7)), 1),
+                                       (7, [1, 2, 3, 6, 7], 1),
+                                       (8, [1, 2, 3, 7, 8], 1)):
             with self.subTest(pages=count):
                 pdf.write_bytes(sample_pdf(count))
-                env = dict(os.environ, DOTFILES_DIR=str(REPO), PDF=str(pdf), PAGE_COUNT=str(count))
+                env = dict(os.environ, DOTFILES_DIR=str(REPO), PDF=str(pdf),
+                           PAGE_COUNT=str(count), DISPLAY_SCALE=str(scale))
                 result = subprocess.run(['zsh', '-f', '-c', script], env=env,
                                         capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, result.stderr)

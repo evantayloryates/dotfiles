@@ -19,6 +19,10 @@ __terminal_file_kind() {
   esac
 }
 
+__terminal_pdf_display_scale() {
+  /usr/bin/swift "$DOTFILES_DIR/src/lib/terminal-display-scale.swift" 2>/dev/null
+}
+
 __terminal_preview() {
   local kind
   kind="$(__terminal_file_kind "$1")" || return 2
@@ -28,10 +32,14 @@ __terminal_preview() {
       chafa --probe=off --size=50x24 "$1" ;;
     pdf)
       command -v pdfinfo >/dev/null 2>&1 && command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 || return 1
-      local pages page previous=0
+      local pages page previous=0 display_scale=1 raster_size detected_scale
       local -a selected=()
       pages="$(pdfinfo "$1" 2>/dev/null | /usr/bin/awk '/^Pages:/ { print $2; exit }')"
       [[ "$pages" =~ '^[0-9]+$' ]] && (( pages > 0 )) || return 1
+      if detected_scale="$(__terminal_pdf_display_scale)" && [[ "$detected_scale" =~ '^[1-3]$' ]]; then
+        display_scale="$detected_scale"
+      fi
+      raster_size="$((500 * display_scale))"
       if (( pages <= 6 )); then
         for (( page = 1; page <= pages; page++ )); do selected+=("$page"); done
       else
@@ -44,7 +52,7 @@ __terminal_preview() {
           print -r -- ''
         fi
         # One page at a time streams PNG bytes; no temporary images are saved.
-        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to 500 -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
+        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to "$raster_size" -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
         previous="$page"
       done ;;
     markdown)
