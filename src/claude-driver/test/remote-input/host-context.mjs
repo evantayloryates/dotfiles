@@ -32,6 +32,7 @@ const reviewPath=reviewIndex>=0?process.argv[reviewIndex+1]:null
 const nativeCatalogue=process.argv.includes('--catalogue-native')
 const execEntry=process.argv.includes('--exec-entry')
 const nativeTurn=process.argv.includes('--native-turn')
+const abortAfterTyping=process.argv.includes('--abort-after-typing')
 const pipeIndex=process.argv.indexOf('--isolated-pipe')
 const isolatedPipe=pipeIndex>=0?process.argv[pipeIndex+1]:null
 if(pipeIndex>=0&&(!nativeTurn||!isolatedPipe||!/^\/Users\/theo\/\.local\/state\/claude-driver\/input-teardown-20261018\/isolate\/run-[0-9]+\.sock$/.test(isolatedPipe)))throw Error('native host isolated pipe scope refused')
@@ -42,6 +43,7 @@ if(isolatedPipe){
 }
 if(execEntry&&(!reviewPath||nativeCatalogue))throw Error('exec entry requires reviewed hook')
 if(nativeTurn&&(!execEntry||!reviewPath||nativeCatalogue))throw Error('native turn requires reviewed exec entry')
+if(abortAfterTyping&&(!nativeTurn||!isolatedPipe))throw Error('abrupt-owner test requires native private-helper turn')
 if(nativeCatalogue&&reviewPath)throw Error('catalogue-only fixture does not override hook trust')
 if(reviewIndex>=0&&!reviewPath)throw Error('hook review receipt path missing')
 if(reviewPath){
@@ -52,7 +54,7 @@ if(reviewPath){
 }
 const report={run,startedAt:new Date().toISOString(),ephemeralRequested:true,provider:'localhost-deterministic-fixture',
     realModelCallsRequested:0,nativeComputerUseRequested:nativeTurn,hookTrustChanged:false,ok:false,
-    hookDefinitionSha256,oneOffHookTrustOverrideRequested:!!reviewPath,reviewPath,nativeMcpCatalogueRequested:nativeCatalogue,isolatedPipe,
+    hookDefinitionSha256,oneOffHookTrustOverrideRequested:!!reviewPath,reviewPath,nativeMcpCatalogueRequested:nativeCatalogue,isolatedPipe,abortAfterTyping,
     sourceSha256:hash(readFileSync(new URL(import.meta.url))),observerSha256:hash(readFileSync(observer)),providerRequests:[],notifications:[],serverRequests:[]}
 writeFileSync(join(run,'host-context-source.mjs'),readFileSync(new URL(import.meta.url)),{flag:'wx',mode:0o600})
 writeFileSync(join(run,'hook-observer-source.mjs'),readFileSync(observer),{flag:'wx',mode:0o600})
@@ -67,6 +69,7 @@ if(nativeTurn){
     writeFileSync(join(run,'native-intent.json'),JSON.stringify(intent,null,2)+'\n',{flag:'wx',mode:0o600})
     for(const name of ['native-proxy.mjs','native-audit.mjs'])writeFileSync(join(run,name),readFileSync(new URL('./'+name,import.meta.url)),{flag:'wx',mode:0o600})
 }
+let ownedHost
 const http=createServer(async(req,res)=>{
     const chunks=[]
     for await(const chunk of req){chunks.push(chunk);if(chunks.reduce((n,b)=>n+b.length,0)>2*1024*1024){res.writeHead(413).end();return}}
@@ -81,6 +84,23 @@ const http=createServer(async(req,res)=>{
     }catch(error){entry.toolInventoryError=error.message.slice(0,150)}
     report.providerRequests.push(entry)
     if(req.method!=='POST'||req.url!=='/v1/responses'||report.providerRequests.length>(nativeTurn?3:2)){res.writeHead(404).end();return}
+    if(abortAfterTyping&&report.providerRequests.length===3){
+        const eventsPath=join(run,'native-events.jsonl')
+        const events=existsSync(eventsPath)?readFileSync(eventsPath,'utf8').trim().split('\n').map(line=>JSON.parse(line)):[]
+        const last=events.at(-1),snapshot=last?.snapshot,state=snapshot?.fixtureState
+        if(last?.event!=='result'||last.name!=='js'||last.isError||!snapshot.fixtureProcessCurrent||
+           state.characters!==intent.characters||state.sha256!==intent.sha256||snapshot.helperKeyboardFilters.length!==2||!ownedHost?.pid){
+            report.abortAdmissionFailure='exact typed effect and active filters not verified; no kill requested'
+            res.writeHead(503).end();return
+        }
+        report.beforeIntentionalAbort=snapshot
+        report.intentionalHostAbort={signal:'SIGKILL',ownedProcessGroup:ownedHost.pid,afterTypedEffect:true}
+        // Only this detached fixture CLI and its descendants. The native helper
+        // is a separately owned child of the orchestrator, outside this group.
+        process.kill(-ownedHost.pid,'SIGKILL')
+        res.destroy()
+        return
+    }
     const id='resp_fixture_'+report.providerRequests.length,itemId='msg_fixture_'+report.providerRequests.length
     const text='Deterministic host lifecycle fixture completed.'
     let item={id:itemId,type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text,annotations:[]}]}
@@ -129,6 +149,7 @@ if(execEntry){
     report.entryPoint='exec'
     const args=['exec','--dangerously-bypass-hook-trust','--strict-config','--ephemeral','--skip-git-repo-check','--ignore-rules','--sandbox','read-only','--json','Deterministic local lifecycle fixture only; no UI, files or shell actions.']
     const child=spawn(cli,args,{cwd:run,detached:true,stdio:['ignore','pipe','pipe'],env:{HOME:homedir(),USER:'theo',LOGNAME:'theo',PATH:join(runtime,'bin')+':/usr/bin:/bin:/usr/sbin:/sbin',TMPDIR:join(workspace,'tmp'),CODEX_HOME:home}})
+    ownedHost=child
     let stderr='',exit
     const events=[]
     createInterface({input:child.stdout}).on('line',line=>{try{events.push(JSON.parse(line))}catch{report.invalidJsonLines=(report.invalidJsonLines??0)+1}})
@@ -163,6 +184,15 @@ if(execEntry){
     report.turnIdEvidence='native hook payload; exec JSON does not independently expose a turn id'
     report.ok=exit?.code===0&&events.some(e=>e.type==='turn.completed')&&report.providerRequests.length===(nativeTurn?3:1)&&report.hookDispatchVerified
     if(nativeTurn)report.ok=report.ok&&report.syntheticInputVerified&&report.syntheticInputStable&&report.nativeFiltersReleased&&!report.nativeAdmissionFailure&&report.nativeEvents.some(e=>e.event==='result'&&e.name==='turn_ended'&&!e.isError)
+    if(abortAfterTyping){
+        const metadata=report.nativeEvents.filter(e=>e.event==='call'&&e.name==='js').map(e=>e.metadata?.['x-codex-turn-metadata'])
+        report.turnId=metadata[0]?.turn_id
+        report.turnIdEvidence='native tool metadata; abrupt owner test does not require a Stop event'
+        report.hostTurnCompleted=events.some(e=>e.type==='turn.completed')
+        report.abruptOwnerLossVerified=exit?.signal==='SIGKILL'&&!!report.intentionalHostAbort&&!report.hostTurnCompleted
+        report.ok=report.abruptOwnerLossVerified&&metadata.length===2&&metadata.every(m=>m?.thread_id===report.threadId&&m.turn_id===report.turnId)&&
+            report.providerRequests.length===3&&report.syntheticInputVerified&&report.syntheticInputStable&&report.nativeFiltersReleased&&!report.abortAdmissionFailure
+    }
     report.exit=exit??{outcome:'unverified'}
     report.stderr=stderr
     report.finishedAt=new Date().toISOString()

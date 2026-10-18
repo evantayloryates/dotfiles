@@ -1,3 +1,50 @@
+## October 18 abrupt private-owner cleanup passes; worker process group corrected
+
+PROGRESS: changed-condition abrupt native test1792353698562 passed cleanup.
+Real host run-1792353701250-421be2da, thread01a1509b-0ea7-78c2-85aa-24ce4fad5a57,
+turn01a1509b-0ebb-79c2-bd02-bb9277d9fe6c. Exact50-character effect and two private
+filters were verified before killing ONLY the detached fixture CLI group. Private
+helper3065 was outside that group and received no signal; it exited normally0
+on connection loss. Default client/helper stayed live with zero filters through
+1/5/15s; the target fixture remained alive until final cleanup. Host SIGKILL,
+hostTurnCompleted=false and Stop=false are retained. Cleanup success does not
+relabel host completion or roll back the typed effect.
+
+Found a production ownership gap: TierC's detached worker spawned a second
+detached backend group, so a hard worker failure could leave its backend alive.
+New actual-worker/synthetic-backend regression failed before the fix, preserving
+worker-process-group-before.log. The worker now opts into inherited backend/MCP
+group ownership. Core defaults stay detached; inherited close targets only its
+own child. No shared daemon/restart or unrelated Codex behavior changed. This is
+the authorized narrow input-cleanup correction; broader Codex work stays parked.
+
+Eleven focused and12 bridge checks pass. Full192-file isolated suite passes once
+in39.99s, frozen source/suite/installed identity unchanged, source d0d9525c
+(pressure/v2-2026-10-18T20-05-14-581Z.json). Separate sibling source hashes saved
+in worker-ownership-source.json because driver fingerprint excludes them.
+Detailed boundaries: docs/ui-worker-process-ownership.md.
+Candidate service memory248e07c3 records evidence and remaining integration gates.
+
+Thirteen remote files/165148 bytes mirrored/hash-verified in native-owner-20261018/
+abrupt-owner-evidence. Remote final state: no owned process/helper/filter, original
+four non-helper taps, repo0203e604 clean and Switchboard508/caffeinate510 unchanged.
+Local quarantine stays blocked/hash9808e860, no local CUA/native input, permissions,
+auth change, shared-helper kill or app restart. All native handles/cleanup terminal.
+Actual production/private-helper/physical/real-Claude claims are still unqualified.
+Current loaded-client adoption remains a future gate; no restart requested now.
+
+NEXT: integrate exact private helper/socket lifecycle into the existing TierC
+supervisor and qualify actual worker MCP handoff. Current plugin environment
+inheritance is NOT proven by the diagnostic proxy. Retain the supervisor's child
+handle, pin runtime identity, verify owned socket/current PID, wait for resource
+exit before acknowledgement, and fail instead of falling back to shared startup.
+Check helper idle/startup failure and timeout. A possible fail-closed startup
+setting is the existing service-path override pointing at a deliberately missing
+owned sentinel app, but this has NOT been tested; do not ship or assume it.
+Reuse existing bridge and scoped public thread/start configuration; avoid global
+config edits, parallel bridge, private native RPCs or quarantine release. No full
+suite repetition until relevant production edits. Keep goal ACTIVE.
+
 ## October 18 private helper native prototype passes alongside default client
 
 PROGRESS: the startup lead is real. Static ARM64 reference/dyld fixup tracing

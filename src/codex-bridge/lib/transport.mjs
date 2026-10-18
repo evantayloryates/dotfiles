@@ -9,14 +9,14 @@ import { createInterface } from 'node:readline'
 
 import { WsUnixClient } from './ws-unix.mjs'
 
-// A private app-server child. Spawned in its own process group so the whole
-// tree (app-server plus the MCP servers it starts) dies with the bridge:
-// a killed client otherwise leaves the app-server running forever.
-export function spawnStdioTransport(bin, { log = () => {}, stderrPath } = {}) {
+// A private app-server child. Normally it owns a process group for bridge
+// cleanup. A private UI worker can instead inherit its supervisor-owned group
+// so hard worker loss also reaps the backend and its MCP descendants.
+export function spawnStdioTransport(bin, { log = () => {}, stderrPath, detached = true } = {}) {
   const t = new EventEmitter()
   const child = spawn(bin, ['app-server', '--listen', 'stdio://'], {
     stdio: ['pipe', 'pipe', stderrPath ? 'pipe' : 'ignore'],
-    detached: true,
+    detached,
   })
   if (stderrPath) {
     mkdirSync(dirname(stderrPath), { recursive: true })
@@ -34,6 +34,10 @@ export function spawnStdioTransport(bin, { log = () => {}, stderrPath } = {}) {
     child.stdin.write(text + '\n')
   }
   t.close = () => {
+    // A private UI worker can keep descendants in its supervisor-owned group.
+    // That group belongs to the supervisor, so close only our child here; the
+    // supervisor also reaps the whole group after normal or hard worker exit.
+    if (!detached) { child.kill('SIGTERM'); return }
     try {
       process.kill(-child.pid, 'SIGTERM')
     } catch {

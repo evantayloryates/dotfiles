@@ -41,7 +41,7 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `4d2c654e` passes all 191
+execution remains unqualified. Current host source `d0d9525c` passes all 192
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on
 `fcf484e3`. After Taylor restarted Codex, this desktop chat adopted `fcf484e3`.
 The later input-cleanup and diagnostic corrections require a future loaded-client refresh;
@@ -73,6 +73,10 @@ rule out separate CODEX_HOME directories as sufficient helper isolation.
 An [owned private-helper prototype](docs/native-helper-isolation.md) now passes
 one actual remote host typing/cleanup run while a default client remains live.
 It is not yet integrated into the production worker or cleared for local UI.
+Abrupt owner-loss cleanup also passed remotely. The
+[UI worker ownership fix](docs/ui-worker-process-ownership.md) keeps its backend
+in the parent's owned group so a hard worker failure cannot leave that backend
+behind; ordinary bridge transports retain their original default.
 
 
 On Claude Desktop 2.42304.0 / CLI 2.1.299, the independent sealed controller now

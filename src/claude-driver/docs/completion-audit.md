@@ -4,15 +4,19 @@ The full goal is **not complete**. This audit preserves the original build brief
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current source: `4d2c654e092301b6369f1027a87267ac539543287ea22934ba31d41123e1e17a`.
+Current source: `d0d9525c504a933becff0ab24e1a37a69b3f69acadc8850d70d3fb0eda7fe776`.
 The [input investigation](input-defect-investigation.md) added a narrow cleanup
 acknowledgement correction after the fcf484e3 adoption checkpoint. Full191 and
 twelve focused checks pass on the new code. Native, actual harness and loaded
 MCP proofs retain their separately recorded earlier sources. The later
 [ownership/audit change](native-input-ownership.md) retains secondary-target
 filter metadata without changing the Claude gate. Five focused tests and the
-full 191-file isolated suite pass on current source (47.9 seconds,
+full 191-file isolated suite pass on recorded4d2c654e (47.9 seconds,
 pressure/v2-2026-10-18T19-47-35-408Z.json).
+The later [UI worker ownership fix](ui-worker-process-ownership.md) also passes
+11 focused and12 bridge contract checks plus the full192-file isolated suite
+in39.99s (pressure/v2-2026-10-18T20-05-14-581Z.json). Its remote abrupt-owner
+cleanup proof remains distinct from production private-helper integration.
 The original [brief](brief.md) remains unchanged (SHA256
 `a7c74940d24e40877a04bea392a64406b2f9b79068012d6ae8082c8588fc7af7`).
 
@@ -24,7 +28,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | MCP registered in Claude Code, Codex, Cursor and OpenCode | Verified configuration | All four enabled commands resolve to the same current launcher. Two spellings use the dotfiles symlink; these are not different installations. Registration does not prove executable/auth access. |
 | Actual cross-harness operation | Partial | Fresh actual Claude and Codex MCP contracts each passed 10/10 on fcf484e3, before the narrow input-cleanup correction. Cursor remains unqualified after the recorded auth gate; OpenCode is not available in PATH. No auth/config changes were made. |
 | Global skill and shared guidance | Verified installation | Claude skill is a real directory with SKILL.md, MEMORY.md and memories/. Both MCP and CLI expose the shared guide and service memory. |
-| Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 191-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
+| Persistent operation IDs, inspect/wait/cancel | Verified within contract | Current 192-file suite includes actual isolated workers, idempotent reattachment, cancellation, uncertainty and stale-source gates. Cancellation does not guarantee undo or stop a committed effect. |
 | Queue, stop and interrupt | Native evidence | Ordinary12 on df52d791 passed busy queue, native stop/replacement, preserved queued turn and unique causal replies. Current full suite passes frozen recipient and uncertainty cases. Recipient receipt is not instruction application; reply evidence is assessed separately. |
 | Ordinary chats, including ProDevs | Native evidence | df52d791 same-state ProDevs pin completed through the ordinary native route; readback after current project gate still verifies unarchived and pinned. No test task message was sent to ProDevs. |
 | Named-folder creation with exact title/model and requested Bypass | Historical native proof | Approved pool claim j1ba6ae5c4913451d8d3ead7aa4134212 completed on 673aae50; saved title/model/BYPASS and unchanged focus endpoints were independently verified. Pool member was restored and archived. This does not prove arbitrary fresh imports start in Bypass. |
@@ -43,7 +47,7 @@ The original [brief](brief.md) remains unchanged (SHA256
 | Generous logging and service-level memory | Verified implementation/evidence | Private durable jobs, per-request native evidence, retained failure roots, sanitized error categories/names, diagnostic reports, hashes and candidate lessons are shared across harnesses. Added recipient snapshots contain hashes and identities, not message bodies. |
 | Default preflight/probe and full original smoke scope | Partial | The explicit input-free profile passed native12 on df52. Legacy/UI/person-only paths are separate, and cannot be declared covered by that narrower profile. |
 | Docs and publication | Verified checkpoint | README, guide, findings, resume and qualification records are maintained and published through dotfiles-publish. This audit is committed with the current child-job change. |
-| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source 4d2c654e has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
+| Loaded Codex chat adopts final MCP build | Prior adoption verified; current correction pending | Actual MCP adopted fcf484e3 after restart and independently read completed project jobs/ProDevs. Last actual readback reported runtime fcf484e3/source 5d15b13f/restartRequired:true. Current source d0d9525c has isolated proof; actual adoption is not relabeled. No further restart is requested during disabled-UI investigation. |
 
 ## Project child correction found during this audit
 
@@ -110,8 +114,10 @@ No supported owner-scoped release endpoint was found in the reviewed API. The
 [upstream reproduction packet](native-input-upstream-repro.md) is prepared,
 not sent. A later [private-helper prototype](native-helper-isolation.md) passed
 real host typing and cleanup while the default client stayed live, on the same
-runtime. Next qualify cancellation and the actual worker's MCP environment
-handoff before production integration. This is an implementation-specific
+runtime. Abrupt-owner cleanup then passed with the default client retained; the
+actual worker's backend group was corrected and isolated-tested. Next qualify
+private-helper lifecycle and the worker's MCP environment handoff before
+production integration. This is an implementation-specific
 prototype, not a global release or physical-input clearance. No fabricated
 metadata/private disposal route/shared-helper kill is authorized. All owned
 remote processes are stopped, Switchboard is preserved,

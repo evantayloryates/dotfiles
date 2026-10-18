@@ -71,8 +71,9 @@ real context, intent/hash, socket ownership, tap inventories and final readback.
 
 ## Next production boundary
 
-Pressure-test cancellation/disconnection of the isolated owner while retaining
-the default client and fixture. Then integrate ownership into the existing
+The [abrupt-owner test](ui-worker-process-ownership.md) now qualifies forced CLI
+loss with the default client and fixture retained. The worker's separate backend
+group was also corrected and isolated-tested. Next integrate ownership into the existing
 private Tier C worker: exact private helper/socket binding, observed child exit
 before acknowledgement, independent tap audit, and no shared-helper fallback.
 Reuse the existing bridge and leave unrelated Codex work parked. Do not enable
@@ -84,6 +85,6 @@ this override. Qualify that handoff through the actual worker/configuration path
 do not assume process environment inheritance or add a parallel bridge.
 
 Physical typing, simultaneous active input by another caller, real Claude,
-cancellation/timeout teardown and unattended cold startup remain unqualified.
+production-worker timeout teardown and unattended cold startup remain unqualified.
 No production isolation, universal always-on behavior or full-goal completion
 is claimed from this single owned native run.

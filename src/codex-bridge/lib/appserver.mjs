@@ -191,11 +191,12 @@ export class AppServer extends EventEmitter {
 
   // daemonOps, daemonBusy and markers exist for tests; the defaults drive
   // the real CLI, the real daemon and the state dir.
-  constructor({ log = () => {}, mode = process.env.CODEX_BRIDGE_TRANSPORT || 'auto', stderrPath, daemonOps, daemonBusy, markers } = {}) {
+  constructor({ log = () => {}, mode = process.env.CODEX_BRIDGE_TRANSPORT || 'auto', stderrPath, daemonOps, daemonBusy, markers, stdioDetached = true } = {}) {
     super()
     this.log = log
     this.mode = mode
     this.stderrPath = stderrPath
+    this.stdioDetached = stdioDetached
     this.daemonOps = daemonOps
     this.daemonBusy = daemonBusy || (() => this.#daemonBusyCount())
     this.markers = markers || upgradeMarkers()
@@ -219,7 +220,7 @@ export class AppServer extends EventEmitter {
         this.log(`daemon unavailable (${err.message}); falling back to a private app-server child`)
       }
     }
-    if (!transport) transport = spawnStdioTransport(this.bin, { log: this.log, stderrPath: this.stderrPath })
+    if (!transport) transport = spawnStdioTransport(this.bin, { log: this.log, stderrPath: this.stderrPath, detached: this.stdioDetached })
     this.transportKind = transport.kind
     this.#removeCleanup?.()
     this.#removeCleanup = onExitCleanup(() => transport.close())

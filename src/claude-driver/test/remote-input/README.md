@@ -101,3 +101,13 @@ helper may remain. See [isolation evidence](../../docs/native-helper-isolation.m
 for retained failures and remaining gates. The actual typing run uses the final
 guarded source preserved in its report; earlier standalone read-only runs retain
 their own pre-hardening source hashes.
+
+`host-context.mjs --abort-after-typing` requires the reviewed native/private-pipe
+case. After independent typed-effect and active-filter verification, it kills
+only its own detached CLI group before the final provider response. The native
+helper is an externally owned orchestrator child outside that group. The report
+keeps SIGKILL, absent turn completion and absent Stop dispatch explicit, and
+passes only the intended cleanup/resource condition. It uses actual native tool
+metadata for the turn ID. This never rolls back typed text or retries it. See
+[worker ownership](../../docs/ui-worker-process-ownership.md) for exact evidence
+and the distinction from production worker qualification.
