@@ -1,3 +1,26 @@
+## October 18 integrated restored-pair execution fixture
+
+Production adapter now has internal-only dependency injection for native/account/
+scheduler boundaries (not exposed in MCP arguments). New isolated integration
+fixture executes real adapter, kernel route lock, private policy files, exclusive
+claim, durable phase/child ledger and exact enrollment transition verifier. Both
+primary-lost and standby-lost traverse prepare/live survivor retirement/stable
+activation/readiness/policy/read/family/enrollment/metadata rebind/final guard.
+Native processes, receipts and scheduler effects explicitly simulated; no live
+Claude activity. Guard field receiverCwd exercised with real selector shape.
+
+Integrated success2 PASS initially; expanded integrated/execution/driver7 PASS
+(integration3). Post-effect activation observation loss retains actual child job
+and before-activate phase, blocks second root without new submission. Version,
+account or epoch drift after first prepare halts before later effects and retains
+completed child. Three read identities distinct/stable; no import operation.
+Prior full177/source95f9 gate predates internal dependency seam/new fixture. No
+repeat full native test. Next consolidate current full suite and filtered harness
+adoption, then one strategic native gate as available. Positive actual missing
+record recovery and unattended app startup remain unqualified; automatic routing
+still refuses missing actor until qualification. Goal active; no live job/cleanup
+pending. Codex bridge changes remain parked.
+
 ## October 18 restored pair driver entrypoints and consolidated gate
 
 Registered broker_service_restored_pair_plan (read-only exact restoration job;
