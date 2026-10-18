@@ -1,3 +1,30 @@
+## October 18 current-source consolidated/harness/native routing gate
+
+Full178 isolated files PASS1/1 round37.2sec, sourceChangedfalse,
+build0c8a57a51f0eabd9554e346cc62c642c2b270b9f0454c485e454af0ba03dd667,
+pressure/v2-2026-10-18T05-56-41-054Z.json. Fresh filtered actual Claude and Codex
+harnesses10/10 each same source; reports harness-v2-claude-2026-10-18T05-56-10-662Z
+and harness-v2-codex-2026-10-18T05-56-11-814Z (.json),27.1/17.7sec. Configs unchanged.
+Codex configured gpt-6-sol preserved. These harnesses access synthetic stores only.
+
+One strategic actual current-CLI pin false on exact owned control fixture:
+j261f50301f8b4ea2b112402155d451b9 completed5.9sec with native receipt and independent
+persisted unpinned/unarchived/bypass readback; focus endpoints unchanged. Automatic
+primary source maintenance j9ff8e284d4f34a71976a63fa3ec3c94a renewed primary to current
+0c8a build, same PID87665/startSunOct18 04:25:46, deadline1792306610009. New primary
+service9ff8e284d4f34a71976a63fa3ec3c94a. Standby remains historical18ef service7adb...
+PID89119/startSunOct18 04:26:26, deadline1792304958708. BOTH independent status verified,
+readiness/nativePolicy true, no STOP/expiry/unresolved attempts. No messages/imports/
+restarts/deletions. Evidence restored-pair-native-gate-readback-20261018.json.
+
+Actual this-chat MCP still18ef, restartRequirestrue vs current0c8a, correctly refuses
+current-source ordinary preconditions until adoption. No refresh request repeated.
+Current CLI serves; no claim loaded MCP adopted. Positive actual deleted-record
+recovery and unattended app startup remain UNQUALIFIED. Next audit remaining scope
+and loss-root verification gaps before a settled final client refresh/native suite;
+do not equate above ordinary maintenance with destructive-loss qualification.
+Goal active; no live job/cleanup pending. Codex bridge remains parked.
+
 ## October 18 integrated restored-pair execution fixture
 
 Production adapter now has internal-only dependency injection for native/account/
