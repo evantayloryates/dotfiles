@@ -19,7 +19,7 @@ gl      () { git_log_local_pretty                                               
 gp      () { git push "$@"                                                                                ;} # 
 gs      () { git status "$@"                                                                              ;} # Note: this will overwrite /opt/homebrew/bin/gs (Ghostscript) interactively only; scripts/ImageMagick still resolve it from PATH, and `command gs` reaches it
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
-mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} # interactive convenience: -pv prints the path. Scripts/hooks in src must call `command mkdir`.
+mkdir   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -pv "$1" && __copy_created_path "$1" Directory ready; else /bin/mkdir "$@"; fi ;} # Note: one path → creates parents, prints and copies the resolved path. Scripts/hooks in src must call `command mkdir`.
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; elif [ $# -eq 1 ] && [[ "$1" != -* ]]; then __o_preview_and_copy "$1"; else open "$@"; fi ;} # Preview supported images, PDFs, and Markdown; copy file, then applicable fallback. Other inputs use macOS open.
 path    () { clear ; python3 "$DOTFILES_DIR/src/python/path.py"                                           ;} # 
 pip3    () { pip "$@"                                                                                     ;} # 
@@ -29,7 +29,7 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { clear; __alias_nudge rl; source "$HOME/dotfiles/src/index.sh"                                  ;} # Note: `src` is the ~/src pathfunc; nudges toward rl when typed in full (alias_nudge.sh)
 rl      () { reload "$@"                                                                                  ;} # 
-touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1" && __touch_copy "$1"; else /usr/bin/touch "$@"; fi ;} # Note: one path → creates parent dirs, copies the resolved path (touch.sh)
+touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1" && __copy_created_path "$1" File touched; else /usr/bin/touch "$@"; fi ;} # Note: one path → creates parent dirs, copies the resolved path (touch.sh)
 
 
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
