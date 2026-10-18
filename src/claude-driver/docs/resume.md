@@ -1,3 +1,58 @@
+## October 17 continuation: failed-import continuation without replay
+
+Previous turn = progress (durable absent-pair executor + real live-actor refusal).
+Added pair-bootstrap-continuation.mjs, pair-bootstrap-claim.mjs and tools
+broker_service_pair_bootstrap_status / broker_service_continue_pair_bootstrap.
+Continuation requires exact original failed root/hash/enrollment, failed terminal
+scheduler parent at before-import-primary/standby, no later/unknown effects, original
+completed fresh quiescence/retirement children re-read from scheduler, unchanged
+retired histories/owned STOP/account/selector/policy/grants/metadata binding, old
+OS PIDs absent. Every ATTEMPTED import must now have a qualified idle native epoch;
+previously verified epochs must match. Unattempted actor must be absent. Rechecks
+after review. Parent running/cancelled/outcome_unknown, altered source records or
+later-effect failures refuse. No historical account identity is inferred beyond
+original root's captured binding.
+
+New root retains original failed record unchanged, old snapshots and completed
+prefix; records retained-* evidence and skips those effect callbacks entirely.
+An unattempted second import can execute once. New current host source is allowed
+on explicit continuation, while installed versions, original snapshots and failure
+hash remain checked. New preparation uses current source; source may not change
+within this job. New native startup after a trust/person step is labelled
+changed-condition-observation, not causally attributed to original import or called
+unattended. Original timestamps/parent links survive chained import continuations.
+No effect/unknown history is relabelled success.
+
+Claims are one effectful owner per original root. Publication flag is saved BEFORE
+new child submission or import intent. Terminal failed/no-new-effects owners may
+CAS-reassign claim only with unchanged old children/import intents and no later
+results; old claim bytes retained in *.retained.json, no audit deletion. Running/
+unknown/effectful owners remain claimed with returned ownerjob for reattachment.
+Claim directories/records bounded and owned. Public metadata index now also guarded
+before continuation claim and every root phase; exact controlled rebind result is
+the only accepted change.
+
+Focused13 continuation/runner/claim tests PASS final code (log
+.runtime/state/pair-continuation-focused-20261017.log): skip effect prefix, no
+attempted-import replay, original failure immutability, parent/hash/identity/later
+phase refusals, exact chained imports, metadata guard, claim no-new-publication
+CAS/history and running/unknown owner refusal. Full synthetic1/1 PASS30.9sec
+pressure/v2-2026-10-18T02-36-49-843Z.json at interim source BEFORE final metadata
+and claim-reassignment guards. Do not claim that as final-source broad proof.
+No actual native import/restart/outage or scratch/user-chat test ran this turn.
+No native/job/test work remains running at checkpoint.
+
+NEXT: final code audit of root/continuation against actual retired module/native
+startup behaviour, then integrated native outage gate at final source, not another
+per-edit message test. Need deliberate safe way to make BOTH existing actors absent
+without unsupported kills, new chats or disrupting unrelated work; do not conflate
+read-only plan refusal with native recovery qualification. Root/continuation are
+still experimental and not wired into automatic public routing; enable only after
+native evidence. Final-source synthetic/filtered harness + loaded-MCP refresh at
+end of integrated batch. Original full brief (wider ordinary controls, creation/
+fork/no-folder/window/person/deletion gates, natural pressure) remains open. Goal
+active. Legacy observer owns its broker. Codex-driver/1Password parked.
+
 ## October 17 continuation: durable absent-pair executor implemented, native outage still pending
 
 Previous turn = progress (absent-pair plan + installed-source contract). Implemented

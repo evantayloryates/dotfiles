@@ -17,3 +17,8 @@ export function pairBootstrapTransitionAllowed(before,after,root,rootJobId){
  return true
 }
 export function readPairBootstrapRoot(jobId){if(!job.test(jobId||''))throw Error('exact pair bootstrap root required');return JSON.parse(readReceiverFile(join(STATE_DIR,'pair-bootstraps',jobId+'.json'),1048576))}
+export function pairMetadataEnrollmentMatches(original,current,refreshed){
+ if(typeof original?.enrolled!=='boolean'||typeof current?.enrolled!=='boolean')return false
+ if(refreshed!==undefined){if(refreshed.qualified!==true)return false;if(refreshed.enrolled===false)return original.enrolled===false&&current.enrolled===false;return original.enrolled===true&&current.enrolled===true&&refreshed.rebound===true&&refreshed.verified===true&&/^[a-f0-9]{64}$/.test(refreshed.enrollmentSha256||'')&&current.enrollmentSha256===refreshed.enrollmentSha256}
+ return JSON.stringify(original)===JSON.stringify(current)
+}

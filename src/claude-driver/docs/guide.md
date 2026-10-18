@@ -1688,5 +1688,19 @@ It refuses before effects if any actor survives. It does not yet run automatical
 on public operations. This path has synthetic transaction and live refusal proof;
 native outage qualification remains pending. If an import does not produce a
 verified native epoch, inspect the original root/children. Do not submit a new root
-or replay the import; changed-condition continuation is still an implementation
-frontier. Human trust and hot-reload gates remain intact.
+or replay the import; use the exact continuation contract below after its changed-condition evidence
+qualifies. Human trust and hot-reload gates remain intact.
+
+
+For a failed bootstrap import only, call `broker_service_pair_bootstrap_status`
+with the exact failed `root_job_id` to obtain its hash. Then use a new driver_submit
+job for `broker_service_continue_pair_bootstrap` with `session` (primary),
+`expected_enrollment_sha256`, `original_root_job_id`, `expected_root_sha256` and
+`experimental:true`. Use a whole-operation budget such as360seconds. This does not
+repeat the attempted import: it requires fresh native idle startup evidence first.
+Missing evidence, changed account/role/selector/binding, a running or uncertain
+parent, and failures after imports refuse. A not-yet-attempted second import may
+run once. Keep the original failure and reattach the returned continuation job.
+A claimed root returns its existing continuation job ID; do not bypass it with a
+new key. Only a terminal continuation that published no new effects can safely
+reassign its claim, retaining prior claim history. Native outage proof is pending.

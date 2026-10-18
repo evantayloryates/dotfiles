@@ -83,12 +83,31 @@ trust/hot-reload/person-only consent remains a real platform gate; preserve it a
 record human-assisted recovery separately from unattended proof.
 
 
-Failed import/startup is intentionally not retried. The original root, import
-intent and any completed children are retained. A proof-bound changed-condition
-continuation is still required before the integrated native outage test; rerunning
-the root with a new ID is not that continuation. A full root refuses when a peer
-is present or old generations have already retired. Successful-import metadata
-and bounded startup-window observation are recorded separately from serving.
+Failed import/startup is intentionally not retried. A terminal failed root at
+`before-import-primary` or `before-import-standby` can now use the explicit
+`broker_service_continue_pair_bootstrap` operation. Obtain its immutable root hash
+from `broker_service_pair_bootstrap_status`. The continuation requires that hash,
+old enrollment digest, original root job ID, exact primary and experimental opt-in.
+It must itself run as a new durable job.
+
+Admission re-reads the failed parent and original completed quiesce/retire jobs,
+retired native histories/owned STOP, account identities, selectors, policy/grants,
+public metadata enrollment and current epochs. Every already-attempted import must
+now have an independently verified native idle epoch. The original failure stays
+unchanged; new observations live only in the continuation. A previously verified
+import epoch must remain identical. An unattempted second actor must remain absent
+and may be imported once. No attempted import, quiescence or retirement is replayed.
+Continuation chains retain original attempt timestamps and exact parent links;
+cancelled, running, worker-lost/unknown, later-effect or changed roots refuse.
+
+Claims serialize continuation of an original root. An active/effectful/uncertain
+owner is reattached, never replaced. A terminal failed owner can release its claim
+only if `newEffectsStarted:false`, children/import intents are unchanged from the
+original and no later results exist. Retain the old claim bytes before CAS to a
+new owner; never delete the audit. Set the publication flag before any new child
+submission or import intent. This avoids consuming the recovery path when a guard
+fails before any new effects. Native qualification and automatic public-route
+integration remain pending.
 
 Synthetic transaction failure coverage exercises every before/after boundary,
 failed effect, unqualified result and changed guard. Pair CAS additionally requires

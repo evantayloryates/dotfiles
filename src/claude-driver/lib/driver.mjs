@@ -1041,6 +1041,18 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw Error('explicit durable import continuation required');return (await import('./enrolled-import-continuation.mjs')).continueEnrolledImport(args.session,args.original_recovery_parent_job_id,args.expected_enrollment_sha256,ctx)},
   },
   {
+    name:'broker_service_pair_bootstrap_status',title:'Inspect one retained pair bootstrap root',readOnly:true,
+    description:'Read bounded root identity/hash, phase and attempted import roles. No process startup assessment, continuation authority, imports, effects or replay.',
+    schema:{required:['root_job_id'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'}}},
+    run:async args=>(await import('./pair-bootstrap-continuation.mjs')).pairBootstrapContinuationStatus(args.root_job_id),
+  },
+  {
+    name:'broker_service_continue_pair_bootstrap',title:'Continue one failed pair import from changed-condition evidence',readOnly:false,
+    description:'Experimental durable one-use continuation of an exact terminal failed bootstrap root at an import boundary. Retains original failure, completed quiescence/retirement and import intents. Requires fresh exact native idle epochs for every already-attempted import, unchanged old retired terminal histories, account identities, selectors, grants and enrollment. Never replays an attempted import; an unattempted second import may run once. No trust/permission override. Claims the original root before later effects; reattach existing continuation after uncertainty.',
+    schema:{required:['session','expected_enrollment_sha256','original_root_job_id','expected_root_sha256','experimental'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},original_root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_root_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('pair continuation requires experimental durable submission',{category:'bad_args'});return (await import('./pair-bootstrap.mjs')).bootstrapIndependentPair(args.session,args.expected_enrollment_sha256,{...ctx,originalRootJobId:args.original_root_job_id,expectedRootSha256:args.expected_root_sha256})},
+  },
+  {
     name:'broker_service_bootstrap_pair',title:'Bootstrap an independently absent owned controller pair',readOnly:false,
     description:'Experimental durable root for an exact enrolled automatic pair after BOTH old epochs and all same-host peers are independently absent. Retains original histories and account identity, quiesces/retires old generations, imports each existing actor once, independently observes new epochs, restores exact pair roles, qualifies native readiness/policy/reads and CAS rebinds. Live peers, STOP, unknown effects, trust/input gates or uncertainty stop the original root without retries. Never kills processes, creates chats, changes permissions or treats import success as startup. Native outage qualification remains pending.',
     schema:{required:['session','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
