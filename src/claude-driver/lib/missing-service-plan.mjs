@@ -11,23 +11,28 @@ import {requireIndependentOfflineMutation} from './independent-offline-review.mj
 import {transcriptPath} from './peer-direct.mjs'
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex')
 const same=(a,b)=>['sessionId','cwd','pid','procStart'].every(k=>a?.[k]===b?.[k])
+export function validateMissingServiceOwnerEvidence({binding,expectedSha256,role,record,identity,accountStoreHash,absence,status,selected,version,retiredByRoot=false}={}){
+ const fail=reason=>{throw Object.assign(Error('missing-service owner unqualified'),{reason})}
+  if(!['primary','standby'].includes(role)||standbyEnrollmentDigest(binding)!==expectedSha256||binding.schemaVersion!==2||binding.automaticRecovery!==true)fail('exact-automatic-pair-required')
+  if(record)fail('saved-service-record-present')
+  const actor=binding[role],other=binding[role==='primary'?'standby':'primary']
+  if(version?.app!=='2.42304.0'||version.cli!=='2.1.299')fail('installed-version-unqualified')
+  if(!identity)fail('retained-recovery-identity-missing')
+  validateServiceRecoveryIdentity(identity,{session:actor.sessionId,serviceId:actor.serviceId})
+  if(identity.cwd!==actor.cwd||identity.storeHash!==accountStoreHash)fail('retained-account-identity-mismatch')
+  if(absence?.previousPidObservedAbsent!==true||absence.previousPid!==actor.pid||absence.previousProcStart!==actor.procStart)fail('independent-absence-unqualified')
+  if(!status?.verified||status.verificationMode!==(retiredByRoot?'offline-retired':'offline-installed')||status.sourceDisposition!==(retiredByRoot?'files-retired':'installed')||status.sessionId!==actor.sessionId||status.serviceId!==actor.serviceId||status.nativeEpoch?.pid!==actor.pid||status.nativeEpoch.procStart!==actor.procStart||status.admissionStopped!==retiredByRoot||retiredByRoot&&status.stopMarkerMatchesGeneration!==true||status.terminalAttemptReviewComplete!==true||!Array.isArray(status.unresolvedRequestIds)||status.unresolvedRequestIds.length)fail('terminal-history-or-stop-unqualified')
+  if(selected?.selector?.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==status.build)fail('retained-generation-mismatch')
+  if(role==='primary'?!same(status.metadataTarget,other)||status.archiveTarget!==undefined:!same(status.archiveTarget,other)||status.metadataTarget!==undefined)fail('retained-role-unqualified')
+ return {actor,other}
+}
 export function planMissingServiceImport({binding,expectedSha256,role,record,identity,accountStoreHash,absence,status,selected,transcript,version,retiredByRoot=false}={}){
  const result=(action,reason)=>({action,reason,importPreparationEligible:action==='prepare',importAuthorized:false,replacementAuthorized:false,permissionRaiseAuthorized:false,replayAuthorized:false,effectsPerformed:false,servingQualified:false})
  try{
-  if(!['primary','standby'].includes(role)||standbyEnrollmentDigest(binding)!==expectedSha256||binding.schemaVersion!==2||binding.automaticRecovery!==true)return result('inspect','exact-automatic-pair-required')
-  if(record)return result('wait','saved-service-record-present')
-  const actor=binding[role],other=binding[role==='primary'?'standby':'primary']
-  if(version?.app!=='2.42304.0'||version.cli!=='2.1.299')return result('inspect','installed-version-unqualified')
-  if(!identity)return result('inspect','retained-recovery-identity-missing')
-  validateServiceRecoveryIdentity(identity,{session:actor.sessionId,serviceId:actor.serviceId})
-  if(identity.cwd!==actor.cwd||identity.storeHash!==accountStoreHash)return result('inspect','retained-account-identity-mismatch')
-  if(absence?.previousPidObservedAbsent!==true||absence.previousPid!==actor.pid||absence.previousProcStart!==actor.procStart)return result('inspect','independent-absence-unqualified')
-  if(!status?.verified||status.verificationMode!==(retiredByRoot?'offline-retired':'offline-installed')||status.sourceDisposition!==(retiredByRoot?'files-retired':'installed')||status.sessionId!==actor.sessionId||status.serviceId!==actor.serviceId||status.nativeEpoch?.pid!==actor.pid||status.nativeEpoch.procStart!==actor.procStart||status.admissionStopped!==retiredByRoot||retiredByRoot&&status.stopMarkerMatchesGeneration!==true||status.terminalAttemptReviewComplete!==true||!Array.isArray(status.unresolvedRequestIds)||status.unresolvedRequestIds.length)return result('inspect','terminal-history-or-stop-unqualified')
-  if(selected?.selector?.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==status.build)return result('inspect','retained-generation-mismatch')
-  if(role==='primary'?!same(status.metadataTarget,other)||status.archiveTarget!==undefined:!same(status.archiveTarget,other)||status.metadataTarget!==undefined)return result('inspect','retained-role-unqualified')
+  const {actor}=validateMissingServiceOwnerEvidence({binding,expectedSha256,role,record,identity,accountStoreHash,absence,status,selected,version,retiredByRoot})
   if(transcript?.verified!==true||!/^[a-f0-9]{64}$/.test(transcript.fingerprint||''))return result('inspect','exact-transcript-unavailable')
   return {...result('prepare','same-identity-import-evidence-qualified'),role,sessionId:actor.sessionId,serviceId:actor.serviceId,enrollmentSha256:expectedSha256,identitySha256:hash(identity),transcriptFingerprint:transcript.fingerprint,requiresFreshNativeEpoch:true,requiresActualBypassMode:true,mayRequireHumanPermission:true,originalOutcomePreserved:true}
- }catch{return result('inspect','missing-service-evidence-unqualified')}
+ }catch(error){return result(error.reason==='saved-service-record-present'?'wait':'inspect',error.reason??'missing-service-evidence-unqualified')}
 }
 function transcriptMetadata(identity){
  const path=transcriptPath({cwd:identity.cwd,sessionId:identity.cliSessionId}),dir=lstatSync(dirname(path)),s=lstatSync(path)

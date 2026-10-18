@@ -1,3 +1,31 @@
+## October 18 retained-role/account service seed plan
+
+Extracted validateMissingServiceOwnerEvidence from existing missing-record import
+planner, retaining exact pair/automatic opt-in, immutable identity/current account,
+original absent PID/start, selector/build, terminal/no-unknown history, reciprocal
+role and STOP rules. Existing import transcript semantics unchanged. New
+service-seed-plan.mjs composes those checks with full UUID metadata absence, exact
+installed version and recoveryRoleFromHistory policy/grant agreement. Returns
+seed/role/identity/absence hashes only, no bootstrap/import/permission/replay/serving
+authority. Default installed original must have no STOP. Private owning-root
+retired mode alone accepts exact offline-retired/STOP-correlated original and marks
+oldGenerationRetiredtrue, as required by seed provision primitive.
+
+Read-only inspector rechecks record, binding, identity, selector, policy, account,
+UUID inventory and old PID after async history read. Focused seedplan/absence/seed/
+existing missing-import17 PASS; adjacent existing filesystem/import8 PASS earlier.
+Both roles, policy escalation, account mismatch, incomplete/foreign inventory,
+STOP/unknown/record-presence and drift refuse. No live bootstrap or public exposure.
+
+Next durable seed root must claim before retirement, preserve quiesce/retire job
+handles and one bootstrap intent, then bind new transcript fingerprint for the
+single import. Generic missing-record import currently refuses already-retired
+original; do not skip that by pretending seed was old surviving transcript or
+repeating retirement. Seeded restoration needs an explicitly anchored proof path
+through root/parent/claim before reusing pair reactivation. Keep human actual mode/
+trust/hot reload gates and no history replay. Goal active, no live jobs/cleanup
+pending; Codex bridge remains parked.
+
 ## October 18 exact service UUID absence inventory
 
 Added service-seed-absence.mjs: bounded metadata-only inventory across up to4096
