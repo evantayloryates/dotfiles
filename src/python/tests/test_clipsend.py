@@ -15,17 +15,22 @@ import clipsend
 REPO = Path(__file__).resolve().parents[3]
 
 
-def sample_pdf():
-    """A two-page PDF small enough to generate without a PDF dependency."""
-    streams = [b'BT /F1 18 Tf 72 700 Td (First preview page) Tj ET',
-               b'BT /F1 18 Tf 72 700 Td (Second page) Tj ET']
+def sample_pdf(page_count=2):
+    """A small PDF with numbered pages, generated without a PDF dependency."""
+    streams = [f'BT /F1 18 Tf 72 700 Td (Page {page}) Tj ET'.encode()
+               for page in range(1, page_count + 1)]
+    page_refs = ' '.join(f'{4 + page} 0 R' for page in range(page_count))
     objects = [
         b'<< /Type /Catalog /Pages 2 0 R >>',
-        b'<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>',
-        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 6 0 R >>',
+        f'<< /Type /Pages /Kids [{page_refs}] /Count {page_count} >>'.encode(),
         b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 7 0 R >>',
     ]
+    for page in range(page_count):
+        stream_ref = 4 + page_count + page
+        objects.append(
+            f'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] '
+            f'/Resources << /Font << /F1 3 0 R >> >> /Contents {stream_ref} 0 R >>'.encode()
+        )
     objects += [f'<< /Length {len(stream)} >>\nstream\n'.encode() + stream + b'\nendstream'
                 for stream in streams]
     data = bytearray(b'%PDF-1.4\n')
@@ -578,7 +583,7 @@ source "$DOTFILES_DIR/src/functions/aliases.sh"
 open() { print -r -- "OPEN:${1:t}"; }
 pdfinfo() { print -r -- 'Pages:          2'; }
 pdftoppm() { print -rn -- 'fake png'; }
-pdftotext() { print -r -- 'First preview page'; }
+pdftotext() { print -u2 -- 'unexpected text extraction'; return 1; }
 chafa() { [[ "$1" == --probe=off ]] || return 1; [[ "$2" == - ]] && cat >/dev/null; print -r -- "PREVIEW:${2:t}"; }
 mdcat() { print -r -- "PREVIEW:${3:t}"; }
 __terminal_copy_file() { print -r -- "file:${1:t}" >> "$HOME/copy-log"; print -u2 -- 'file unavailable'; return 1; }
@@ -594,8 +599,10 @@ o "$IMPOSTOR"
                    IMPOSTOR=str(impostor))
         result = subprocess.run(['zsh', '-f', '-c', script], env=env, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('PDF preview: page 1 of 2', result.stdout)
-        self.assertIn('Text (page 1):\nFirst preview page', result.stdout)
+        self.assertEqual(result.stdout.count('PREVIEW:-'), 2)
+        self.assertNotIn('PDF preview:', result.stdout)
+        self.assertNotIn('Text (page', result.stdout)
+        self.assertNotIn('unexpected text extraction', result.stderr)
         self.assertIn('PREVIEW:notes.md', result.stdout)
         self.assertIn('✅ Transcoded png contents copied to clipboard', result.stdout)
         self.assertEqual(result.stdout.count('✅ File path copied to clipboard'), 2)
@@ -615,7 +622,6 @@ o "$IMPOSTOR"
         before = r'''
 pdfinfo() { print -r -- 'Pages:          2'; }
 pdftoppm() { print -rn -- 'fake png'; }
-pdftotext() { print -r -- 'First preview page'; }
 chafa() { [[ "$2" == - ]] && cat >/dev/null; print -r -- 'PREVIEW:pdf'; }
 mdcat() { print -r -- 'PREVIEW:markdown'; }
 __terminal_copy_file() { print -u2 -- 'unexpected file copy'; return 1; }
@@ -629,6 +635,40 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
                 self.assertIn(expected, result.stdout)
                 self.assertIn('✅ File path copied to clipboard', result.stdout)
                 saved.unlink()
+
+    def test_pdf_preview_page_selection_and_omission_marker(self):
+        pdf = self.root / 'pages.pdf'
+        script = r'''
+source "$DOTFILES_DIR/src/lib/terminal-file.sh"
+pdfinfo() { print -r -- "Pages: $PAGE_COUNT"; }
+pdftoppm() {
+  while (( $# )); do
+    if [[ "$1" == -f ]]; then print -rn -- "$2"; return 0; fi
+    shift
+  done
+  return 1
+}
+chafa() { print -r -- "PAGE:$(cat)"; }
+__terminal_preview "$PDF"
+'''
+        for count, expected in ((1, [1]), (2, [1, 2]), (6, list(range(1, 7))),
+                                (7, [1, 2, 3, 6, 7]), (8, [1, 2, 3, 7, 8])):
+            with self.subTest(pages=count):
+                pdf.write_bytes(sample_pdf(count))
+                env = dict(os.environ, DOTFILES_DIR=str(REPO), PDF=str(pdf), PAGE_COUNT=str(count))
+                result = subprocess.run(['zsh', '-f', '-c', script], env=env,
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual([int(line.removeprefix('PAGE:'))
+                                  for line in result.stdout.splitlines() if line.startswith('PAGE:')], expected)
+                self.assertNotIn('PDF preview:', result.stdout)
+                self.assertNotIn('Text (page', result.stdout)
+                if count > 6:
+                    self.assertIn(f'pages 4-{count - 2} omitted', result.stdout)
+                    self.assertIn('\x1b[90m', result.stdout)
+                    self.assertIn('\x1b[0m', result.stdout)
+                else:
+                    self.assertNotIn('omitted', result.stdout)
 
     def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
         self.payload.write_bytes(b'\xff\0binary\x80')

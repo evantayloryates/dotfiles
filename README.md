@@ -282,8 +282,10 @@ reload_dotfiles  # or use the alias: dr
 
 ### Preview and copy a file with `o`
 
-On macOS, `o image.png` renders an image with Chafa. `o document.pdf` shows
-the first page with its page count and a short extract of selectable text.
+On macOS, `o image.png` renders an image with Chafa. `o document.pdf` renders
+every page of PDFs up to six pages. Longer PDFs show pages 1-3 and the last
+two, with a gray divider naming the omitted page range. The PDF preview shows
+page images only; it does not print extracted text or create image files.
 `o notes.md` renders Markdown with mdcat, including local resources only.
 Markdown needs a `.md` or `.markdown` suffix and text content; images and PDFs
 are detected from their contents.

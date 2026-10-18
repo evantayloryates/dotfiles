@@ -27,22 +27,26 @@ __terminal_preview() {
       command -v chafa >/dev/null 2>&1 || return 1
       chafa --probe=off "$1" ;;
     pdf)
-      command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 || return 1
-      local pages text_preview
+      command -v pdfinfo >/dev/null 2>&1 && command -v pdftoppm >/dev/null 2>&1 && command -v chafa >/dev/null 2>&1 || return 1
+      local pages page previous=0
+      local -a selected=()
       pages="$(pdfinfo "$1" 2>/dev/null | /usr/bin/awk '/^Pages:/ { print $2; exit }')"
-      [[ -n "$pages" ]] && print -r -- "PDF preview: page 1 of $pages"
-      # Poppler writes the PNG to stdout when no output prefix is supplied.
-      ( setopt pipefail; pdftoppm -f 1 -l 1 -singlefile -scale-to 1000 -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
-      if command -v pdftotext >/dev/null 2>&1; then
-        text_preview="$(pdftotext -f 1 -l 1 -layout -nopgbrk "$1" - 2>/dev/null | \
-          LC_ALL=en_US.UTF-8 /usr/bin/sed -e 's/[[:cntrl:]]//g' -e '/^[[:space:]]*$/d' | \
-          /usr/bin/awk 'length($0) { if (++n <= 12) print substr($0, 1, 140) }')"
-        if [[ -n "$text_preview" ]]; then
+      [[ "$pages" =~ '^[0-9]+$' ]] && (( pages > 0 )) || return 1
+      if (( pages <= 6 )); then
+        for (( page = 1; page <= pages; page++ )); do selected+=("$page"); done
+      else
+        selected=(1 2 3 "$((pages - 1))" "$pages")
+      fi
+      for page in "${selected[@]}"; do
+        if (( pages > 6 && page == pages - 1 )); then
+          printf '\n\033[90m%s\033[0m\n\n' "────────  ... pages 4-$((pages - 2)) omitted ...  ────────"
+        elif (( previous > 0 )); then
           print -r -- ''
-          print -r -- 'Text (page 1):'
-          print -r -- "$text_preview"
         fi
-      fi ;;
+        # One page at a time streams PNG bytes; no temporary images are saved.
+        ( setopt pipefail; pdftoppm -f "$page" -l "$page" -singlefile -scale-to 1000 -png "$1" 2>/dev/null | chafa --probe=off - ) || return 1
+        previous="$page"
+      done ;;
     markdown)
       command -v mdcat >/dev/null 2>&1 || return 1
       mdcat --local --no-pager "$1" ;;
