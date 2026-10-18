@@ -2407,3 +2407,18 @@ and actual loaded-MCP adoption. Cached78678a MCP still requires supported user
 Codex restart after source settles; no hidden process kill/reload route exists.
 Fixture remains tool-title/Haiku5.5/high/bypass/unarchived/unpinned by last independent
 readback, pairfb79/c404 priorf874 healthy. No cleanup pending; goal active.
+
+## Input-free CLI qualification entrypoints
+
+`claude-driver preflight --input-free --controller <exact-local-id> --session
+<exact-owned-fixture-id>` delegates to the existing ordinary preflight. It audits
+input resources, validates ownership/restorable baseline and live controller
+readiness, and saves a pressure report without messages, cleanup or mutations.
+It refuses `--live` and unknown flags rather than silently expanding scope.
+
+`claude-driver probe --input-free --controller <exact-local-id> --session
+<exact-owned-fixture-id> --live` delegates to the existing twelve-check ordinary
+profile, including native effects and baseline restoration. No implicit target,
+creation or legacy fallback. Both leave whole-interface legacy capabilities
+untouched: creation/focus/archive, groups/windows, human cards and outage recovery
+remain separate acceptance gates. Inspect a failed saved job before retrying.

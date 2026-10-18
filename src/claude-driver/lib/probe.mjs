@@ -17,6 +17,7 @@ import { assertUiAvailable, uiPolicy } from './ui-policy.mjs'
 const PROBE_MODEL = 'claude-haiku-4-5-20251001'
 
 export async function preflight(flags = {}) {
+  if ('input-free' in flags) return (await import('./input-free-probe.mjs')).inputFreeProbe('preflight', flags)
   const lines = []
   const ok = (n, d) => lines.push(`PASS ${n}${d ? ` — ${d}` : ''}`)
   const bad = (n, d) => lines.push(`FAIL ${n}${d ? ` — ${d}` : ''}`)
@@ -67,6 +68,7 @@ export async function preflight(flags = {}) {
 }
 
 export async function probe(flags = {}) {
+  if ('input-free' in flags) return (await import('./input-free-probe.mjs')).inputFreeProbe('probe', flags)
   assertUiAvailable()
   const v = versions()
   const key = `${v.app}|${v.cli}`

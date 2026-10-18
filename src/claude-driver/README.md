@@ -68,10 +68,12 @@ human gates. Bypass mode does not remove them.
 Qualification remains partial: final current-source suite/harness consolidation,
 actual cached MCP adoption, app quit/restart, deleted-service replacement and
 sustained availability remain open. Groups retain the legacy route; window/UI
-operations remain quarantined. The old `probe` entrypoint requires UI availability
-and cannot currently qualify this input-free implementation. `preflight --no-probe`
-checks installation but still reports legacy-broker state; neither is a substitute
-for independent controller qualification. Codex bridge fixes and 1Password remain
+operations remain quarantined. The default legacy `probe` still requires UI availability. Explicit
+`preflight --input-free --controller <id> --session <id>` reuses ordinary read-only
+qualification; `probe --input-free --controller <id> --session <id> --live` runs
+the existing ordinary native profile. These report their narrower scope and do
+not update the legacy whole-interface capability matrix. `preflight --no-probe`
+still reports legacy-broker installation state. Codex bridge fixes and 1Password remain
 separate. The observer owns legacy-broker recovery; do not launch duplicate wakes.
 
 See the [requirements audit](docs/v2-qualification.md) and

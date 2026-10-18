@@ -6,8 +6,8 @@
 //     claude-driver pin_session --session "X" --pinned true
 //   Inside a desktop session's shell, Tier B ops hand the ccd_* calls back to you; --broker forces the broker.
 //   claude-driver tools                        list tools and their args
-//   claude-driver preflight                    environment checks (+ probe if the app version changed)
-//   claude-driver probe [--keep]               canary suite → capabilities.json
+//   claude-driver preflight [--input-free --controller ID --session ID]  read-only ordinary qualification or legacy checks
+//   claude-driver probe [--input-free --controller ID --session ID --live]  ordinary profile or legacy canary
 //   claude-driver broker init|status|revive    manage the broker session
 //   claude-driver install [--dry-run]          register the MCP server in Claude Code, Codex, Cursor, OpenCode
 //   claude-driver cleanup-leftovers <uuid>     remove CLI files for a deleted driver-created session

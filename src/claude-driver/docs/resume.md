@@ -1,3 +1,31 @@
+## October 18 input-free CLI entrypoints and consolidated gates
+
+preflight/probe now support explicit --input-free --controller <exact ID> --session
+<exact owned fixture ID>, reusing existing ordinary live-v2 runner. Preflight
+always --preflight-only; refuses --live/unknown flags. Probe requires explicit
+--live; never infers targets or creates a fixture. Default legacy entrypoints
+remain unchanged; legacy capability matrix not overwritten or falsely qualified.
+Narrow-profile exclusions printed. Focused argument/fixture/epoch tests5 PASS.
+
+Actual CLI read-only preflight passed all3 on current code: report
+pressure/live-v2-2026-10-18T04-13-07-119Z.json, no native effects, fixture same
+PID92860/tool title/high/bypass/unarchived/unpinned; inputfilters0 before/after,
+quarantine true. Controllerfb79 readiness qualified; no new native profile replay.
+
+Consolidated current-source batch PASS: Claude harness10/10 report
+pressure/harness-v2-claude-2026-10-18T04-13-21-630Z.json; configured gpt-6-sol Codex
+harness10/10 report pressure/harness-v2-codex-2026-10-18T04-13-25-911Z.json.
+Both source/global config unchanged. Full isolated suite1/1 round45.5sec PASS,
+pressure/v2-2026-10-18T04-14-03-845Z.json, sourceChangedfalse. These synthetic
+harnesses do not prove new native automatic outage branches or cached adoption.
+
+Actual loaded MCP checked again: runtime78678a vs source3f2db9d5, restartRequired
+true; legacy broker offline, no recovery attempted. Next: one user Codex app
+restart after publication, then actual loaded MCP verification. Remaining scope
+still includes appquit/deleted-service/sustained availability and separate original
+creation/focus/legacy UI/person-card limitations. No jobs or cleanup pending;
+goal active. Do not repeat native12 for this CLI delegation-only change.
+
 ## October 18 original-scope entrypoint audit
 
 Reconciled brief requirements against saved evidence, without new native tests.
