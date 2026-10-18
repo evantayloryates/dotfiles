@@ -1,3 +1,33 @@
+## October 18 installed delete contract changes recovery frontier
+
+Read-only exact current app2.42304.0/CLI2.1.299 source audit contradicts any blanket
+assumption that CLI transcripts always survive native deletion. Exact CFJssAFf
+SHAabff2bf8cd6fa8d3d18964636ebaa6034e93997a9eea16a8802eaec0f759c9b7:
+teardown deletion collects local transcript IDs when userInitiated or imported,
+excludes others' claims, then calls release/reap. Reap guards require writer/record/
+claim/liveness safety and realpath match before removal. Thus eligible native
+deletes CAN remove transcript and UUID side directory; not every deletion must.
+Historical Sept29 transcript-survival observation is not current universal policy.
+
+Private exact-source static5 PASS, zero native effects:
+pressure/native-delete-transcript-contract-20261018.json, double-read source hash
+plus teardown/release/guard fragment digests. No full bundle execution, live record
+or transcript contents, auth, native deletion/card or process changes. Evidence
+runner remained private runtime artifact; sealed source79619016 unchanged, so
+loaded-client/full180/native12 qualification is not invalidated by documentation.
+
+Existing missing-service plan already requires exact surviving transcript metadata
+and safely refuses missing/linked/changed files (isolated coverage). It covers
+missing saved records WITH retained transcripts, not all native deletion loss.
+Next substantial frontier: controlled same-role fresh service provisioning when
+both record AND transcript are gone, or an explicitly retained minimal service
+seed, anchored to immutable account/role policy and native consent without history
+replay or app-file edits. Must preserve STOP/human consent and avoid resurrecting
+intentional retired services. Live disposable native delete/card proof still
+required; do not delete current serving pair to manufacture evidence. Also keep
+unattended all-process-absent startup gap distinct. Goal active; no live job or
+cleanup pending. Codex bridge remains parked.
+
 ## October 18 restarted MCP adopted; final native ordinary12 passed
 
 Taylor restarted Codex. Actual this-chat MCP runtime==source79619016d6fa309f9619ba89606049a3d8aa34f9b1d7f8dd30ca78b6f1d73e5f,

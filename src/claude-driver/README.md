@@ -74,6 +74,9 @@ Exact missing-record restoration and same-identity pair reactivation now have
 explicit durable operations, private claims/child ledgers and isolated integration
 evidence. They preserve grants and reject uncertain replay. Actual deleted-service
 recovery remains unqualified and ordinary routing does not invoke it automatically.
+Installed app deletion can also reap the CLI transcript after ownership/liveness
+checks. The current same-identity path requires a surviving exact transcript and
+fails closed otherwise; it does not yet rebuild a service whose transcript is gone.
 
 Qualification remains partial: unattended startup after app quit/restart, actual
 deleted-service recovery, sustained availability
