@@ -132,6 +132,12 @@ function mechanismOk(name) {
   return !m || m.mechanisms?.[name]?.ok !== false
 }
 
+async function ordinaryControllerForOperation(name,args,ctx){
+ const recovery=await(await import('./ordinary-record-recovery.mjs')).maybeRecoverOrdinaryControllerRecord(name,args,ctx)
+ if(recovery)ctx.controllerRecordRecovery=recovery
+ return sessionManagementController(args.session)
+}
+
 function underFolder(p, folder) {
   if (!p) return false
   const a = resolve(p)
@@ -518,7 +524,7 @@ export const OPS = [
         ctx.notes.push('deep-link unarchive did not take; falling back to Tier B')
       }
       if(args.import_only===true)throw new DriverError('import-only unarchive unavailable or unverified; no broker fallback attempted',{category:'unarchive_import_unverified',detail:{brokerFallback:false,retrySafe:false}})
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus(focusArg(args),async()=>{const result=await (await import('./ordinary-session-route.mjs')).routeOrdinarySession(rec.sessionId,'unarchive_session',undefined,ctx);if(focusArg(args)==='show')return {...result,...await openSession(rec)};return result},{observeUnchanged:true});delete result.navigatedTo;return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('unarchive_session',args,ctx)){ctx.tier='independent-session-management';const {result,focus}=await withFocus(focusArg(args),async()=>{const result=await (await import('./ordinary-session-route.mjs')).routeOrdinarySession(rec.sessionId,'unarchive_session',undefined,ctx);if(focusArg(args)==='show')return {...result,...await openSession(rec)};return result},{observeUnchanged:true});delete result.navigatedTo;return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
       const b = await tierB(ctx, [{ op: 'unarchive_session', args: { session_id: rec.sessionId } }], 'isArchived false')
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.isArchived === false, { timeoutMs: 8000 })
@@ -536,7 +542,7 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const metadataController=enrolledMetadataController(rec.sessionId,args)
       if(metadataController){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,{...args,metadata_controller:metadataController},ctx)}
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinaryConfig(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('rename_session',args,ctx)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinaryConfig(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       const b = await tierB(ctx, [{ op: 'set_session_title', args: { session_id: rec.sessionId, title: args.title } }], `title "${args.title}", titleSource "tool"`)
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.title === args.title && r.titleSource === 'tool', { timeoutMs: 8000 })
@@ -553,7 +559,7 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const metadataController=enrolledMetadataController(rec.sessionId,args)
       if(metadataController){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,{...args,metadata_controller:metadataController},ctx)}
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'set_pinned',args.pinned,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('pin_session',args,ctx)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'set_pinned',args.pinned,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
       if(rec.isArchived)throw new DriverError('unarchive this session before changing its pin state',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const b = await tierB(ctx, [{ op: 'set_pinned', args: { session_id: rec.sessionId, pinned: !!args.pinned } }], `pinned ${!!args.pinned}`)
       if (b.handback) return b.handback
@@ -574,7 +580,7 @@ export const OPS = [
       if (self && !args.confirm_self) throw new DriverError('that is your own session: archiving it ends this conversation. Pass confirm_self:true only if that is the intent.', { category: 'gate_self' })
       if (rec.isArchived) return { sessionId: rec.sessionId, alreadyArchived: true }
       if (brokerInfo().sessionId === rec.sessionId) throw new DriverError('refusing to archive the broker; use `claude-driver broker` commands', { category: 'gate' })
-      if(!self&&sessionManagementController(rec.sessionId)){if(args.via_broker!==undefined)throw new DriverError('ordinary archive does not accept a fallback option',{category:'bad_args'});ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'archive_session',args.reason,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(!self&&await ordinaryControllerForOperation('archive_session',args,ctx)){if(args.via_broker!==undefined)throw new DriverError('ordinary archive does not accept a fallback option',{category:'bad_args'});ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'archive_session',args.reason,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       const b = await tierB(ctx, [{ op: 'archive_session', args: { session_id: self ? 'self' : rec.sessionId, reason: args.reason || 'claude-driver archive_session' } }], 'isArchived true')
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.isArchived === true, { timeoutMs: 8000 })
@@ -604,7 +610,7 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const metadataController=enrolledMetadataController(rec.sessionId,args)
       if(metadataController){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,{...args,metadata_controller:metadataController},ctx)}
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinaryConfig(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
+      if(await ordinaryControllerForOperation('set_session_config',args,ctx)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinaryConfig(rec.sessionId,args,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusObservation:focus}}
       // Native pin/effort reject archived sessions. Reject the entire batch
       // before a valid title change can create a known avoidable partial effect.
       if(rec.isArchived&&(args.pinned!==undefined||args.effort))throw new DriverError('unarchive this session before a pin/effort configuration batch',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
@@ -1437,6 +1443,7 @@ async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {
       row.targetSession = session
       out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal,...(['send_message','steer_session'].includes(name)&&args.transport==='peer-direct'?{timeoutMs:Math.max(1,ctx.directDeadline-Date.now())}:{}) })
     } else out = await op.run(args, ctx)
+    if(ctx.controllerRecordRecovery&&out&&typeof out==='object')out={...out,controllerRecordRecovery:ctx.controllerRecordRecovery}
     trace('operation-end',{outcome:out?.handedBack?'handed-back':out?.verified===false?'unverified':'returned',ms:Date.now()-t0})
     if(name==='broker_status')trace('broker-observed',{info:out?.broker||out})
     const handedBack = out && typeof out === 'object' && out.handedBack

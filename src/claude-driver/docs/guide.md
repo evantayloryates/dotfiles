@@ -21,8 +21,9 @@ seeded record rebuild use `kind:"seeded"`; for its pair reactivation use
 independently observed child handles without exposing snapshots or transcript
 text. `submission-unconfirmed` requires original-handle reconciliation; it is not
 permission to submit again. A completed child does not erase a failed parent or
-prove service readiness. Missing-record plan/import/reactivation remain explicit
-experimental operations, not automatic ordinary-route recovery. One native
+prove service readiness. Missing-record plan/import/reactivation retain explicit
+experimental entrypoints. Durable ordinary metadata/archive admission can compose
+them when its retained pair explicitly enables automatic recovery. One native
 deleted-record rebuild and reciprocal pair reactivation passed with human
 permission and hot-reload consent; unattended recreation is unqualified.
 
@@ -34,6 +35,28 @@ plan bound to the retained account, identity and automatic pair. Run that inspec
 before choosing an explicit restoration path. A hint does not prove process absence,
 terminal history, a surviving transcript, permission or native readiness. Health
 does not run restoration, seed rebuilds, consent steps or target replay.
+
+Durable rename, pin, configuration, archive and broker-needed unarchive can
+restore one missing controller record before target dispatch. They require exact
+same-account retained ownership, unchanged scoped grants and no STOP/unknowns.
+The pipeline chooses a surviving-transcript import or independently qualified
+minimal seed before claiming a single attempt; it never falls back after an
+attempted effect. It verifies original restoration jobs, then current reciprocal
+pair readiness, actual bypass modes, source, account and enrollment before the
+target operation proceeds. Existing successful Tier A/no-op routes do not trigger
+this maintenance. Send, stop and interrupt retain their existing admission gates.
+
+`ordinary_controller_record_recovery_pending` means the target was not dispatched.
+Retain `recoveryParentJobId`, `restorationJobId`/`restorationKind` and any
+`reactivationJobId` from its detail. Inspect these original jobs and
+`broker_service_restoration_status`; use the existing exact continuation plans
+for a supported failed prefix. Later metadata requests preserve the first claim
+and report those handles rather than starting another seed/import. Clearing a
+person-owned consent/readiness gate does not yet automatically adopt that lineage.
+The automatic composition currently has isolated proof; native loss qualification
+remains a separate final gate. A successful operation may include
+`controllerRecordRecovery`, whose `targetDispatched:false` describes maintenance
+before the target operation, not the final operation's delivery outcome.
 
 The installed PreToolUse adapter redirects exact cached wait/check commands,
 and a separate gate checks the actual native operation. See [resume.md](resume.md) for

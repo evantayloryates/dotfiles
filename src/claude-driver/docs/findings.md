@@ -1,3 +1,61 @@
+## October 18 ordinary metadata admission composes single-attempt record recovery
+
+Previous goal turn was progress: published5e3dc64 added distinct missing-record
+errors and exact read-only health inspection hints. Current source
+fd1217aa965a1efb6a92349d97e8c7adab5d18f2503b55f2bc0ec9a22758c35b now integrates
+recovery into durable rename/pin/config/archive and broker-needed unarchive.
+Admission remains after successful TierA/no-op and explicit-controller branches,
+inside the target control lock. Send/stop/interrupt retain their original paths;
+no claims that epoch-bound intent is yet frozen across this new record-loss path.
+
+New ordinary-record-recovery adapter guards original automatic pair, primary cwd,
+immutable account/recovery identity, target binding, scoped grants, source/version,
+cancellation and self/reciprocal-target exclusion. Independently qualified retained
+transcript import or all-transcript-absent seed is selected BEFORE one generation
+claim; never fallback after an attempted restoration. Private roots under
+ordinary-record-recoveries/<parent>.json and claims/<originalService>.json retain
+intent hash, target binding, phases, exact child submissions/handles and failures.
+Child submission intent precedes scheduler call; unconfirmed/unknown results block
+later effects. Record proof independently reads original parent, root/claim and
+actual quiesce/retire child jobs and rechecks origin after awaits.
+
+Only qualified restored-pair plan proceeds to one reactivation child. Independent
+final evidence checks same original account/target binding, actual actor bypass/
+unarchived identity, both selected current-source/native idle epochs/readiness/
+policy/noSTOP/no unknowns, required grants and final enrollment CAS. Recovery
+itself never dispatches original target; only after verification does normal
+operation run, returning controllerRecordRecovery as separate maintenance evidence.
+Native consent/epoch waits return ordinary_controller_record_recovery_pending
+with original recovery parent, restoration kind/job/root SHA and any pair child.
+Claim remains after import recreates saved record. Later metadata requests inspect
+same owner rather than start another seed/import; explicit continuation currently
+required to clear/adopt pending lineage. No claim reassignment or failed-root edits.
+
+Focused26 PASS incl shared sequence, real production adapter/private ledger/locks,
+positive and gated compositions, child observation loss, duplicate-after-import,
+foreign account/grants/disabled pair, actual-child tamper, final permissions/source/
+account/selection races. Actual public durable pin worker in isolated app/state
+refused missing ownership with no legacy fallback or target writes; same submission
+reattached to original failed job. Positive native calls/statuses remain simulated.
+Full188 PASS38.9sec/frozen source+test+installed identity/sourceChangedfalse:
+pressure/v2-2026-10-18T17-40-09-560Z.json. Logs
+pressure/ordinary-record-recovery-focused-{1,2,3,4}-20261018.log and
+pressure/ordinary-record-recovery-full-20261018.log. No native loss/ordinary12 or
+extra filtered harness repetition at this interim gate. Last native explicit
+human-assisted deletion n=1 still source5ee packages; last actual harnessf13,
+loaded-MCP/native12 source796 scopes remain separate. Global working pair, ProDevs,
+recovered disposable pair, observer broker, app permissions and UI untouched.
+
+NEXT: pressure-test concurrent callers and explicit adoption/continuation of this
+pending recovery lineage after person gates, preserving original claim/root/actual
+child proof and never replaying target. Add read-only pending-root status for health
+when record already reappeared; integrate send/stop/interrupt only with frozen
+appropriate epoch intent. Then one final client adoption/native qualification and
+cleanup gate. Unattended all-Code-processes-absent startup still lacks a changed
+supported ingress; do not repeat unchanged appquit tests. Goal active; no human
+action pending, live shell/job or task-owned cleanup left. Codex bridge/1Password
+remain separate.
+
 ## October 18 ordinary controller loss diagnostics and desktop CLI ingress audit
 
 Current source 3bb05efd460950b3da825109cfe7ee9d8f2085f7fe3ae66bbf3912705cc864ff.

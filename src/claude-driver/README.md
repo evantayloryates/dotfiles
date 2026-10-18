@@ -40,7 +40,7 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `3bb05efd` passes all 187
+execution remains unqualified. Current host source `fd1217aa` passes all 188
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on prior
 source `f13af418`; loaded-client adoption is a separate gate.
 One actual human-assisted native deletion test reaped the
@@ -78,8 +78,12 @@ human gates. Bypass mode does not remove them.
 Exact missing-record restoration and same-identity pair reactivation now have
 explicit durable operations, private claims/child ledgers and isolated integration
 evidence. They preserve grants and reject uncertain replay. Native deleted-service
-recovery passed once with human permission and loader consent; ordinary routing
-does not invoke it automatically.
+recovery passed once with human permission and loader consent. Durable ordinary
+rename, pin, configuration, archive and broker-needed unarchive now compose a
+single guarded record restoration and pair reactivation under retained automatic
+enrollment. This composition has isolated adapter/worker evidence; its native
+automatic-loss gate remains unqualified. Send, stop and interruption retain their
+existing admission paths.
 Installed app deletion can also reap the CLI transcript after ownership/liveness
 checks. The current same-identity path requires a surviving exact transcript and
 fails closed otherwise. An explicit minimal-seed rebuild path handles missing
@@ -91,6 +95,12 @@ with matching retained account, identity and automatic pair, supplies an exact
 read-only `broker_service_missing_record_plan` invocation. This does not assess
 process absence, restore a record or authorize replay. Generic controller health
 never silently recreates an actor.
+
+Automatic record recovery retains a generation claim and original child handles.
+Pending consent/readiness or uncertain submission stops before target dispatch;
+later metadata calls report the same recovery rather than creating a second
+seed/import. Clearing a native gate currently requires the existing explicit
+continuation operations; automatic adoption of that pending lineage remains open.
 
 Qualification remains partial: unattended startup after app quit/restart,
 automatic deleted-service recovery and sustained availability
