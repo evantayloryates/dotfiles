@@ -47,6 +47,13 @@ export async function inspectSessionManagementController({signal}={},dependencie
   row=read();if(!row)return {configured:false,operations:[],nativeEffectsRequested:0,recoveryAttempted:false}
   validateSessionManagementEnrollment(row)
   const r=record(row.controllerSession)
+  const readPair=dependencies.readPair??(await import('./standby-enrollment.mjs')).readStandbyEnrollment,pair=readPair(row.controllerSession)
+  if(pair){
+   const {standbyEnrollmentDigest}=await import('./standby-enrollment.mjs'),inspectRecovery=dependencies.inspectRecordRecovery??(await import('./ordinary-record-checkpoint.mjs')).inspectOrdinaryRecordRecovery
+   const pending=await inspectRecovery(row.controllerSession,pair.primary.serviceId,standbyEnrollmentDigest(pair),{signal})
+   if(JSON.stringify(read())!==JSON.stringify(row)||JSON.stringify(readPair(row.controllerSession))!==JSON.stringify(pair))throw Error('pending recovery enrollment changed')
+   if(pending.configured)return {configured:true,controllerSession:row.controllerSession,operations:[],health:{nativeReadAdmission:'unverified'},reason:'controller-record-recovery-pending',routeReadiness:{scope:'ordinary-controller-preconditions',admission:'record-recovery-pending',operationAuthorized:false,targetAssessed:false,recoveryAttempted:false},recoveryReadiness:pending,nativeEffectsRequested:0,recoveryAttempted:false}
+  }
   if(!r){
    const {inspectMissingControllerRecovery}=await import('./missing-controller-recovery.mjs')
    const recoveryReadiness=await inspectMissingControllerRecovery(row,{signal},{...dependencies,read,record})
@@ -54,7 +61,6 @@ export async function inspectSessionManagementController({signal}={},dependencie
   }
   if(r.cwd!==row.receiverCwd)throw Error('identity')
   const selected=select(r.cwd);if(selected.selector.sessionId!==row.controllerSession)throw Error('selection')
-  const readPair=dependencies.readPair??(await import('./standby-enrollment.mjs')).readStandbyEnrollment,pair=readPair(row.controllerSession)
   const status=await inspect(row.controllerSession,selected.selector.serviceId,{signal}),after=select(r.cwd)
   if(JSON.stringify(pair)!==JSON.stringify(readPair(row.controllerSession)))throw Error('pair binding changed')
   if(JSON.stringify(selected)!==JSON.stringify(after)||status.sessionId!==row.controllerSession||status.serviceId!==selected.selector.serviceId||[status,selected.policy,selected.pointer].some(x=>x.sessionManagementControl!==true)||status.nativeEpoch?.pid!==selected.selector.pid||status.nativeEpoch?.procStart!==selected.selector.procStart||status.build!==selected.selector.build)throw Error('generation')

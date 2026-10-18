@@ -40,7 +40,7 @@ The CLI and MCP share durable jobs, explicit stop/queue/interrupt operations,
 incremental observations and service memory. All four harness registrations have
 been recorded. Fresh Claude and configured Codex harness contracts passed on the
 recorded source; Cursor's last execution stopped at authentication, and OpenCode
-execution remains unqualified. Current host source `fd1217aa` passes all 188
+execution remains unqualified. Current host source `caf129d8` passes all 188
 isolated test files. Fresh Claude/Codex harness checks passed 10/10 each on prior
 source `f13af418`; loaded-client adoption is a separate gate.
 One actual human-assisted native deletion test reaped the
@@ -99,8 +99,14 @@ never silently recreates an actor.
 Automatic record recovery retains a generation claim and original child handles.
 Pending consent/readiness or uncertain submission stops before target dispatch;
 later metadata calls report the same recovery rather than creating a second
-seed/import. Clearing a native gate currently requires the existing explicit
-continuation operations; automatic adoption of that pending lineage remains open.
+seed/import. Once an original metadata parent has definitively failed before
+target dispatch and its restoration child independently completed, a later
+metadata request can claim only the never-attempted pair-reactivation suffix after
+its native gates clear. It preserves the original failure and never repeats
+restoration. An already-attempted or uncertain pair still needs its existing exact
+continuation/reconciliation path. Pending recovery remains visible in health even
+after import recreates the saved chat record; use
+`broker_service_controller_record_status` for bounded parent/child handles.
 
 Qualification remains partial: unattended startup after app quit/restart,
 automatic deleted-service recovery and sustained availability
@@ -258,6 +264,7 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
 | `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
+| `broker_service_controller_record_status` | A | read-only exact ordinary recovery owner, failed parent and original/suffix child handles; pending health remains visible after record recreation |
 | `broker_service_restoration_status` | A | bounded exact record-restoration or seeded-rebuild or pair-reactivation journal and independently observed parent/child handles; no retry or readiness authority |
 | `broker_service_seed_plan`, `broker_service_rebuild_missing_record` | A | explicit exact-identity no-history seed/import when record and all transcripts are absent; durable experimental execution only, native permission/readiness remain separate |
 | `broker_service_seed_continuation_plan`, `broker_service_continue_seeded_record` | A | exact failed pre-bootstrap retirement checkpoint; separately claimed durable continuation retains original failed root and claim; never repeats retirement or uncertain bootstrap/import |

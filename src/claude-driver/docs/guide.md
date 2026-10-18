@@ -51,8 +51,26 @@ Retain `recoveryParentJobId`, `restorationJobId`/`restorationKind` and any
 `reactivationJobId` from its detail. Inspect these original jobs and
 `broker_service_restoration_status`; use the existing exact continuation plans
 for a supported failed prefix. Later metadata requests preserve the first claim
-and report those handles rather than starting another seed/import. Clearing a
-person-owned consent/readiness gate does not yet automatically adopt that lineage.
+and report those handles rather than starting another seed/import. After a native
+gate clears, a later metadata request may adopt an independently completed
+restoration and claim only its never-attempted pair suffix. The original metadata
+parent must be definitively failed with target-undispatched evidence, and actual
+parent arguments, child jobs and immutable roots must still match. Active or
+unknown parents, changed intent, uncertain submissions and already-attempted pairs
+refuse. A separate suffix claim/root preserves original failures; concurrent
+callers cannot start a second import or pair suffix. It does not replay the
+original target request. Failed pair prefixes still use their existing explicit
+continuation operations.
+
+`broker_service_controller_record_status {session:<exact enrolled controller>}`
+is read-only and works when the saved record is missing or already restored.
+It reports original/current recovery-parent handles, phase, root hash and independently
+observed child states, without native reads or transcript/snapshot contents.
+`suffixInspectionEligible` permits inspecting the remaining suffix; it grants no
+effect or continuation authority. `driver_status` reports
+`record-recovery-pending` before live-generation health, so a recreated record
+cannot hide an incomplete claimed recovery. Neither health entrypoint repairs or
+wakes anything. The CLI's current source and cached MCP adoption remain separate.
 The automatic composition currently has isolated proof; native loss qualification
 remains a separate final gate. A successful operation may include
 `controllerRecordRecovery`, whose `targetDispatched:false` describes maintenance

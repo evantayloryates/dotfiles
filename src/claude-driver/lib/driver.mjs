@@ -1103,6 +1103,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable seeded continuation required',{category:'bad_args'});return(await import('./seeded-restoration-continuation.mjs')).continueSeededRestoration(args.original_job_id,args.expected_original_root_sha256,ctx)},
   },
   {
+    name:'broker_service_controller_record_status',title:'Inspect ordinary controller record recovery',readOnly:true,
+    description:'Read-only exact enrolled ordinary controller generation claim, original failed metadata parent, independently observed restoration/pair children and any separately claimed suffix. Works even after the saved chat record reappears. Reports root hashes, phases and handles without native reads, source renewal, consent, import, target replay or continuation authority.',
+    schema:{required:['session'],properties:{session:{type:'string',pattern:'^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$'}}},
+    run:async(args,ctx)=>(await import('./ordinary-record-checkpoint.mjs')).inspectEnrolledOrdinaryRecordRecovery(args.session,ctx),
+  },
+  {
     name:'broker_service_restoration_status',title:'Inspect one record-restoration or pair-reactivation attempt',readOnly:true,
     description:'Bounded private journal and independently observed exact parent/child handles, root hash, phase and sanitized failure category. Reports uncertain submissions without retrying. No native readiness assessment, imports, effects, replay or retry authority.',
     schema:{required:['root_job_id','kind'],properties:{root_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},kind:{type:'string',enum:['record','seeded','pair']}}},

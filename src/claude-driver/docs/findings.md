@@ -1,3 +1,63 @@
+## October 18 post-import ordinary recovery suffix and pending health visibility
+
+Previous goal turn was progress: e2c7fd7 integrated single-attempt metadata record
+recovery. Current source caf129d871ef1093c2fdfa31c2d8362e544b755574043d06c77c25306dcb79a0
+adds exact post-import suffix adoption. New ordinary-record-checkpoint reads only
+one original generation claim/root and at most one separate continuation claim/root.
+It independently binds original/current metadata parents to exact intent hashes,
+operations/target identities, original restoration submission/actual child, any
+pair submission/actual job, and rechecks roots/claims/jobs after asynchronous reads.
+Unknown/active parents, mismatched actual arguments, unpublished journals and
+already-attempted pairs never qualify another suffix.
+
+A later durable metadata request may continue ONLY after original parent failed
+with ordinary_controller_record_recovery_pending/target-undispatched proof and
+its actual restoration child completed. Native restored-pair plan must independently
+qualify before suffix ownership; unchanged closed gates create no new journals.
+Separate continuation-claims/<originalMetadataJob>.json and new metadata-parent
+root preserve original generation claim, failed root/parent and restoration child.
+Shared finishOrdinaryRecordRecovery skips seed/import/retirement. It re-observes
+original restoration proof and suffix readiness before one pair child, then uses
+existing both-actor account/bypass/source/epoch/policy/enrollment verification.
+Concurrent callers serialize one suffix; a lock waiter observes the new CAS
+generation instead of replaying the old prefix. Original target is never replayed;
+new caller's normal metadata admission happens only after qualified maintenance.
+One claimed suffix is retained on further failure/re-gating; no unbounded retry
+chain. Failed/uncertain pair prefixes still need existing explicit exact continuations.
+
+New read-only broker_service_controller_record_status {session:<exact enrolled
+controller>} reports original/current parent handles, phase/root hash and actual
+child states without snapshots, transcript text, native reads or effects. Health
+checks pending generation ownership BEFORE live service inspection, including
+when the imported record has reappeared at Dont ask. It reports
+record-recovery-pending and no admitted operations rather than hiding the gate.
+Current CLI actual new API reports configuredfalse for working controller; CLI
+runtime==sourcecaf129d8. driver_status still sees original working primary alive,
+unresolved0/source-maintenance-required and nativeEffects0. No service renewal,
+MCP reload, new messages/UI/permissions/app restart or native loss test performed.
+
+Focused28 PASS incl post-consent suffix, lost-observation now-completed child
+adoption, immutable original bytes, concurrent callers, actual job/intent/race
+refusal, restored-record pending health and claimed failed suffix no-repeat.
+Initial focused27/28 failure was synthetic pair job missing actual args; corrected
+fixture to include scheduler-equivalent args, verifier unchanged. Preserved
+pressure/ordinary-record-continuation-focused-2-20261018.log; final -3 log PASS.
+Full188 PASS39.5sec/frozen source+suite+installed identity/sourceChangedfalse:
+pressure/v2-2026-10-18T17-48-48-285Z.json. Full log
+pressure/ordinary-record-continuation-full-20261018.log. Positive native effects in
+new adapter tests remain simulated. No repeated filtered harness or ordinary12 at
+this interim gate: historical actual harnessf13, loaded-MCP/native12 source796 and
+human-assisted native deletion source5ee packages remain distinct scopes.
+
+NEXT: integrate automatic supported failed-pair readiness continuation without
+replaying prefix; extend record-loss admission to send/stop/interrupt only with
+appropriate frozen target epoch/intent, then final client/harness adoption/native
+qualification and cleanup. Keep original brief scope, ordinary chats/ProDevs and
+always-on limitations explicit. Cold-app all-Code-processes-absent startup still
+has no changed supported ingress; do not repeat unchanged outage test. Goalactive,
+no person action pending, no live test worker or cleanup remaining. Working and
+recovered disposable pairs, observer broker, Codex bridge and1Password unchanged.
+
 ## October 18 ordinary metadata admission composes single-attempt record recovery
 
 Previous goal turn was progress: published5e3dc64 added distinct missing-record
