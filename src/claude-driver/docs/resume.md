@@ -1,3 +1,27 @@
+## October 18 durable reactivation claims and scheduler child evidence
+
+Added restored-pair-ledger.mjs. Exact plan digest and distinct durable job create
+exclusive restoration-root claim before private root publication. Any repeated or
+competing root reports originalJobId and retrySafe false; claim never expires or
+silently transfers after failure. Root retains phase/results snapshots, sanitized
+failure, original plan/source and child submission/actual scheduler job ID before
+observation. Unknown/error/cancelled child remains retained, never auto-resubmits.
+Exact preparation mapping preserves original grants; live survivor quiesce/retire
+mapping cannot target lost actor or dispatch an import. Not exposed to MCP yet.
+
+Source inspection found real live quiesce omits offline instead of emitting false.
+Corrected sequence admission to offline!==true and aligned fixture with actual
+contract; explicit offline:true still refuses. This avoids a fixture-only success
+that would have failed the native lifecycle.
+
+Focused ledger/sequence/pair11 PASS; strengthened offline refusal then ledger/
+sequence8 PASS (overlap). Includes actual private filesystem claims/root, scheduler
+handle-before-observation, running->completed, unknown/observation-loss/cancellation,
+repeat refusal and failed checkpoint/no dispatch. No live native work or whole
+suite repeat. Next: finish production adapter and exact enrollment transition
+proof; then integration gate, not new native tests after each helper. Goal active;
+no live job or cleanup pending. Codex bridge remains parked.
+
 ## October 18 no-import pair reactivation sequence
 
 Added runRestoredPairReactivation in restored-pair-reactivation.mjs. Exact plan/

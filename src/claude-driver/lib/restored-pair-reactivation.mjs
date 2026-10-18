@@ -12,7 +12,7 @@ export async function runRestoredPairReactivation(plan,d){
  await step('preflight',d.preflight,r=>hash(r)===hash(plan))
  for(const role of roles)await prepared(role)
  if(result['prepare-primary'].serviceId===result['prepare-standby'].serviceId)throw Error('distinct prepared generations required')
- await step('quiesce-survivor',()=>d.quiesce(survivor),r=>r?.quiescent===true&&r.offline===false&&r.terminalAttemptReviewComplete===true&&r.sessionId===plan.currentEpochs[survivor].sessionId&&r.serviceId===plan.originalServiceIds[survivor])
+ await step('quiesce-survivor',()=>d.quiesce(survivor),r=>r?.quiescent===true&&r.offline!==true&&r.terminalAttemptReviewComplete===true&&r.sessionId===plan.currentEpochs[survivor].sessionId&&r.serviceId===plan.originalServiceIds[survivor])
  await step('retire-survivor',()=>d.retire(survivor),r=>r?.filesRetired===true&&r.terminalAttemptReviewComplete===true&&r.sessionId===plan.currentEpochs[survivor].sessionId&&r.serviceId===result['quiesce-survivor'].serviceId)
  for(const role of roles){
   const id=result['prepare-'+role].serviceId
