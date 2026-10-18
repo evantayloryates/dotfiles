@@ -1,3 +1,20 @@
+## October 18 resumed audit 2: unchanged startup boundary, no progress
+
+Previous turn was progress: closed actual loaded-MCP adoption, published3017348.
+Current source remainsfcf484e3; worktree clean before this checkpoint. Read-only
+hashes of installed resume chunkmuI2IV6k and machine-tool chunkB5tintml still match
+the retained exact contracts; app2.42304.0/CLI2.1.299 unchanged. Re-read actual
+state/appquit-recovery-readback-20261018.json: automaticAppRestartQualifiedfalse,
+humanStartupRequiredtrue, originalTargetReplayedfalse. No live process/job being
+waited for; no changed supported startup ingress. This turn is NO PROGRESS,
+not a verified wait. Same startup barrier is the second consecutive resumed
+goal turn (including the user-resumed adoption turn); goal remains ACTIVE until
+the required blocked threshold, no reuse of the prior pre-restart blocked audit.
+No new suite, target effect, source patch, app wake/restart, UI/quarantine/auth
+change or permission request. Next needs a supported all-processes-absent native
+startup capability, or Taylor's explicit scope/architecture decision. Preserve
+full completion-audit.md; do not silently waive always-on or re-run import-only.
+
 ## October 18 resumed: actual loaded MCP adoption verified
 
 Taylor restarted Codex and resumed. Actual goal ACTIVE (fresh blocked audit).
