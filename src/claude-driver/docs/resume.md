@@ -1,3 +1,52 @@
+## October 18 remote input rig active; shared-client retention reproduced
+
+Taylor supplied the remote setup in chat “theo”
+01a1178d-fc2e-78f0-b55a-3690b5706ed3 and authorized testing there. Taylor used
+Play/Resume; actual goal is ACTIVE. This is a changed condition and progress;
+do not carry the prior blocked audit forward. Full goal remains incomplete.
+
+Theo Air is reachable through existing SSH alias theo-air-ts with strict host
+verification/no forwarding. Private owned workspace:
+/Users/theo/.local/state/claude-driver/input-teardown-20261018. Public CUA runtime,
+CLI and signed helper copied without auth/config/session files. Remote helper
+matches local SHA f21c31c0; Sky 0.7.8 / CUA REPL 0.1.0. The old remote repository
+remains clean at 0203e6047bc0; Switchboard/caffeinate PIDs 508/510 unchanged.
+Claude and the Codex desktop app are not installed on that host.
+
+MCP catalogue succeeded without helper startup. Exact fixture acquisition then
+succeeded after Taylor's explicit per-app test approval and reconciliation of
+the initial pending native-permission response. No OS permission edited or
+OS prompt answered by the agent. Failures/build logs are retained.
+
+Read-only acquire/reset/EOF created no keyboard filters. One synthetic typing
+case delivered exactly 54 characters/bytes/hash once, created two active keyboard
+filters, retained them across JS reset, and removed them on sole-client EOF.
+With a second read-only client held, the same filters survived typing-client EOF
+and independent 1.29/5.29/15.29-second inventories. Last-client EOF removed helper
+and filters normally; no helper kill. Cleanup failure is preserved as failure.
+These standalone clients had no actual Codex turn metadata; the custom AppKit
+target and synthetic input do not qualify real Claude or physical typing.
+
+Detailed method, limits, asset instructions and evidence names:
+docs/remote-input-test-rig.md. Private mirror under existing
+pressure/input-investigation-20261018/remote-theo-air-20261018, original 39-file
+and final 43-file manifests verified. Candidate memory1f544294 records the limits.
+All owned remote MCP/CLI/helper/fixture processes stopped;
+original four non-helper taps restored. Runtime/binaries retained for reuse.
+
+Shipped driver source remains 5d15b13f. Existing focused 12/full 191 evidence is
+unchanged; no broad/native suite repetition. New test assets are outside runtime
+and ordinary suite fingerprints. Local UI quarantine remains blocked with exact
+unchanged 9808e860 hash; no local CUA/input/helper restart. Ordinary service pairs,
+observer broker, broad Codex fixes and1Password remain untouched.
+
+NEXT: inspect the documented turn_ended contract and actual Mac registration,
+then establish scoped native ownership/teardown using a real owned host turn
+while another client stays live. Do not fabricate native context, use private
+disposal RPCs or kill shared helpers. Real Claude/physical-key qualification and
+unattended all-processes-absent startup remain open. No live test handle or cleanup
+is pending; automatic goal continuation must be checked from actual goal state.
+
 ## October 18 input investigation blocked on isolated native qualification
 
 Third consecutive goal turn after Taylor authorized input investigation while

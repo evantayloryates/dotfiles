@@ -86,14 +86,21 @@ retained. Codex-driver and 1Password work remain separate.
 
 ## Next changed condition
 
-Taylor authorized the separate input-defect investigation while keeping UI
-disabled. It corrected a local cleanup false-positive and narrowed the native
-filter-lifetime question without starting Computer Use. The same physical/native
-startup barrier persisted for three consecutive goal turns while independent
-offline work was completed. The goal is now BLOCKED awaiting an isolated macOS
-test target or Taylor's direction on a different recovery architecture. The
-existing VM/spare-Mac question is unanswered. No live test process, fixture
-cleanup, quarantine release or further restart request is pending.
+Taylor supplied Theo Air from chat “theo”, authorized the remote input test rig,
+and resumed the actual goal. The goal is ACTIVE. The previous blocked audit does
+not carry forward. The [remote native report](remote-input-test-rig.md) records
+exact-helper acquisition, one-attempt synthetic delivery and shared-client filter
+retention: filters survived JS reset and typing-client EOF for at least 15 seconds
+while another read-only client stayed connected. Last-client EOF removed the
+helper and filters without a kill. Failed cleanup remains a failed result.
+
+The remote fixture carried no actual Codex turn metadata and was not Claude;
+physical duplicate typing is not reproduced or ruled out. Next inspect the
+documented host turn-end contract and actual Mac registration, then qualify
+scoped native teardown with a real owned host turn while another client remains
+live. No fabricated metadata/private disposal route/shared-helper kill is
+authorized. All owned remote processes are stopped, Switchboard is preserved,
+and no fixture cleanup, local quarantine release or restart request is pending.
 The latest source is isolated-tested; actual loaded-client/native/harness
 adoption of that cleanup source remains a separate future gate.
 

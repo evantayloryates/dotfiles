@@ -1,8 +1,11 @@
 # Duplicate input investigation — October 18, 2026
 
 Taylor authorized investigation of the duplicate-typing defect with UI automation
-still disabled. No Computer Use runtime was initialized, native IPC request sent,
-input injected, helper terminated, permission changed or quarantine released.
+still disabled on this desktop. The initial investigation below was offline.
+Taylor then provided Theo Air as an isolated remote target; the new remote
+native findings are documented in [the test-rig report](remote-input-test-rig.md).
+No local Computer Use runtime, input injection, helper retirement or quarantine
+release occurred.
 
 ## What the evidence establishes
 
@@ -82,10 +85,10 @@ existing input-investigation directory. The first symbol-display artifact had
 truncated labels; v2 explicitly supersedes it. Initial name-based disassembly
 lookups failed and remain preserved; only the address-bounded evidence is used.
 
-Taylor has been asked whether an isolated macOS VM or spare Mac is available
-for a future native teardown test. The current desktop remains excluded by the
-existing disabled-UI instruction. No response or authorization is inferred from
-elapsed time or a preselected answer.
+Taylor supplied the existing remote-Mac setup in chat “theo” and explicitly
+authorized its use. The current desktop remains excluded. Remote preparation,
+native acquisition, synthetic typing and the shared-client retention experiment
+are now recorded separately; they do not rewrite the historical offline proof.
 
 ## Reproduced local cleanup defect and correction
 
@@ -137,9 +140,13 @@ authorized native test must bind the exact helper binary/epoch, Claude target,
 client/thread identity and tap inventory before acquisition, after reset and
 after confirmed thread cleanup, including failure/cancellation. It must verify
 the human keyboard independently; synthetic text or archive acknowledgement is
-insufficient. Prefer an isolated macOS test environment so a regression cannot
-interfere with Taylor's active keyboard. Current authorization does not permit
-that live experiment or removing quarantine.
+insufficient. The isolated remote fixture now demonstrates that active keyboard
+filters can outlive the typing MCP client while another client keeps the helper
+alive, including a 15-second settling window. Last-client EOF removed the helper
+and filters without a kill. These standalone MCP clients had no actual Codex
+turn metadata, and the target was a custom AppKit fixture rather than Claude.
+Native host turn-end cleanup, the real Claude target and physical-key behavior
+remain separate qualification steps. This desktop stays quarantined.
 
 Until such evidence exists, preserve the working input-free ordinary service,
 do not claim unattended all-processes-absent startup, and do not repeat the old
