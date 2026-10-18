@@ -1,3 +1,21 @@
+## October 18 restored-record evidence admission
+
+Added restored-record-proof.mjs: read-only bounded root/claim reader and exact
+completed parent/root/claim/child receipt validator. Requires original automatic
+pair digest, plan/identity hash, old selector epoch, ordered single import phases,
+offline quiescence and retirement receipts. Returns evidence admission only;
+activation/import/replay/effects remain false. Lowered original permission mode
+is retained as history, never treated as fresh bypass/native readiness.
+
+Focused restoration/root8 PASS; root/filesystem5 PASS (overlapping root tests).
+No live imports, messages, app restart, permission changes or service deployment.
+This helper is not yet exposed or connected to automatic recovery. Next: verify
+fresh actual bypass/new idle native epoch and reciprocal survivor identity before
+role-preserving two-sided reactivation/enrollment transition. Do not admit failed
+or partial roots through this completed-root proof; preserve original handles.
+Final full suite/client adoption deferred until integrated stage is settled.
+Goal active; no live job or cleanup pending. Codex bridge work remains parked.
+
 ## October 18 consolidated gate exposed/fixed sealed package capacity
 
 Full suite168 files on stable source FAILED9 (747/756 pass), original report
