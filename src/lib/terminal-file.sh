@@ -36,10 +36,11 @@ __terminal_preview() {
       if detected_scale="$(__terminal_pdf_display_scale)" && [[ "$detected_scale" =~ '^[1-3]$' ]]; then
         display_scale="$detected_scale"
       fi
-      columns="$(/usr/bin/tput cols 2>/dev/null)"
-      [[ "$columns" =~ '^[0-9]+$' ]] && (( columns > 0 )) || columns="${COLUMNS:-80}"
+      columns="$COLUMNS"
+      [[ "$columns" =~ '^[0-9]+$' ]] && (( columns > 0 )) || columns="$(/usr/bin/tput cols 2>/dev/null)"
+      [[ "$columns" =~ '^[0-9]+$' ]] && (( columns > 0 )) || columns=80
       (( columns >= 3 )) || columns=3
-      ( setopt pipefail; python3 "$DOTFILES_DIR/src/python/terminal_pdf_preview.py" "$1" "$display_scale" "$columns" | chafa --probe=off --size="$((columns - 2))x" - ) || return 1 ;;
+      ( setopt pipefail; python3 "$DOTFILES_DIR/src/python/terminal_pdf_preview.py" "$1" "$display_scale" "$columns" | chafa --probe=off --exact-size=on --size="$((columns - 2))x" - ) || return 1 ;;
     markdown)
       command -v mdcat >/dev/null 2>&1 || return 1
       mdcat --local --no-pager "$1" ;;

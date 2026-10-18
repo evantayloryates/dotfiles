@@ -2,14 +2,16 @@
 """Compose a width-aware, transparent PDF contact strip for terminal display."""
 
 from concurrent.futures import ThreadPoolExecutor
+import fcntl
 from io import BytesIO
 import math
-import os
 from pathlib import Path
 import re
 import subprocess
+import struct
 import sys
 import tempfile
+import termios
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -50,16 +52,28 @@ def page_geometry(source):
 
 def strip_width(selected, aspects, height):
     pages = sorted(selected)
-    omitted = any(right - left > 1 for left, right in zip(pages, pages[1:]))
-    omitted |= pages[-1] < len(aspects)
-    items = len(pages) + int(omitted)
+    omissions = sum(right - left > 1 for left, right in zip(pages, pages[1:]))
+    omissions += pages[-1] < len(aspects)
+    items = len(pages) + omissions
     return (sum(max(MIN_PAGE_SLOT, math.ceil(aspects[page] * height)) for page in pages)
-            + int(omitted) * OMISSION_WIDTH + max(0, items - 1) * PAGE_GAP)
+            + omissions * OMISSION_WIDTH + max(0, items - 1) * PAGE_GAP)
 
 
-def plan_pages(aspects, columns):
+def terminal_cell_width(scale):
+    try:
+        _, columns, pixels, _ = struct.unpack(
+            "HHHH", fcntl.ioctl(0, termios.TIOCGWINSZ, b"\0" * 8))
+        logical_width = pixels / columns / scale
+        if 6 <= logical_width <= 20:
+            return logical_width
+    except (OSError, ValueError, ZeroDivisionError):
+        pass
+    return CELL_WIDTH
+
+
+def plan_pages(aspects, columns, cell_width=CELL_WIDTH):
     count = len(aspects)
-    budget = max(1, columns - 2) * CELL_WIDTH
+    budget = max(1, columns - 2) * cell_width
     height = PAGE_HEIGHT
     selected = {1}
     if count > 1:
@@ -79,10 +93,15 @@ def plan_pages(aspects, columns):
     elif strip_width(selected, aspects, height) > budget:
         height = max(1, int(budget / aspects[1]))
     if count > 2 and count in selected:
-        order = [2, count - 1] + list(range(3, count - 1))
-        for page in order:
+        for page in (2, count - 1):
             if page not in selected and strip_width(selected | {page}, aspects, height) <= budget:
                 selected.add(page)
+        for page in range(3, count - 1):
+            if page in selected:
+                continue
+            if strip_width(selected | {page}, aspects, height) > budget:
+                break
+            selected.add(page)
     return sorted(selected), height
 
 
@@ -154,11 +173,11 @@ def compose(source, selected, rotations, count, height, scale):
 
 
 def main():
-    source = Path(sys.argv[1])
+    source = Path(sys.argv[1]).resolve()
     scale = max(1, min(3, int(sys.argv[2])))
     columns = max(3, int(sys.argv[3]))
     aspects, rotations = page_geometry(source)
-    selected, height = plan_pages(aspects, columns)
+    selected, height = plan_pages(aspects, columns, terminal_cell_width(scale))
     sys.stdout.buffer.write(compose(source, selected, rotations, len(aspects), height, scale))
 
 

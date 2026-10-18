@@ -1068,7 +1068,7 @@ export const OPS = [
   },
   {
     name:'broker_service_restore_missing_record',title:'Restore one exact missing service record',readOnly:false,
-    description:'Experimental durable one-import record restoration from an exact current qualified plan and enrollment digest. Claims the old generation before import; repeats no attempted import. Verifies recreated same account/CLI identity and reports actual permission mode. Does not install service authority, raise permissions, replay work or claim serving. Consent/startup and subsequent service recovery remain separate gates.',
+    description:'Experimental durable one-import record restoration from an exact current qualified plan and enrollment digest. Claims the old generation, verifies offline quiescence/retirement before one import; repeats no attempted import. Verifies recreated same account/CLI identity and reports actual permission mode. Does not install service authority, raise permissions, replay work or claim serving. Consent/startup and subsequent service recovery remain separate gates.',
     schema:{required:['session','role','expected_enrollment_sha256','expected_plan_sha256','experimental'],properties:{session:{type:'string'},role:{type:'string',enum:['primary','standby']},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},expected_plan_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable record restoration required',{category:'bad_args'});return(await import('./missing-service-restoration.mjs')).restoreMissingServiceRecord(args.session,args.role,args.expected_enrollment_sha256,args.expected_plan_sha256,ctx)},
   },

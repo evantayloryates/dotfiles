@@ -59,8 +59,13 @@ something setup should do behind your back.
 | `ffmpeg` | Video workhorse |
 | `imagemagick` | Image workhorse |
 | `chafa` | Inline terminal image previews through `o <image>` |
-| `poppler` | PDF page previews and text extraction through `o <file.pdf>` |
+| `poppler` | PDF page rasterization for horizontal terminal previews through `o <file.pdf>` |
 | `mdcat` | Styled terminal previews for Markdown files |
+
+PDF previews also use Pillow from the dotfiles Python environment. Pages are
+composed on a transparent canvas at a maximum height of 380 logical pixels,
+with 40 pixels between pages. The preview selects pages to fit the active
+terminal width and shows a vertical count when pages are omitted.
 
 `libtiff` and `webp` would arrive anyway as dependencies of the other two; listing
 them keeps a future `brew autoremove` from taking them back out.

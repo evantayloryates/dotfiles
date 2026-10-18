@@ -622,7 +622,7 @@ o "$IMPOSTOR"
         markdown = self.root / 'source.md'
         markdown.write_text('# Preview\n\nA **Markdown** file.\n')
         before = r'''
-chafa() { [[ "$2" == - ]] && cat >/dev/null; print -r -- 'PREVIEW:pdf'; }
+chafa() { [[ "${@[-1]}" == - ]] && cat >/dev/null; print -r -- 'PREVIEW:pdf'; }
 mdcat() { print -r -- 'PREVIEW:markdown'; }
 __terminal_copy_file() { print -u2 -- 'unexpected file copy'; return 1; }
 __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
@@ -675,15 +675,18 @@ __terminal_copy_png() { print -u2 -- 'unexpected transcode'; return 1; }
         self.assertEqual(plan_pages(aspects, 100)[0], [1, 8, 9])
         self.assertEqual(plan_pages(aspects, 180)[0], [1, 2, 3, 8, 9])
 
-        result = subprocess.run(
-            [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
-             str(pdf), '1', '180'], capture_output=True)
-        self.assertEqual(result.returncode, 0, result.stderr.decode())
-        image = Image.open(BytesIO(result.stdout))
-        self.assertLessEqual(image.width, 1691)
-        self.assertEqual(image.getpixel((0, 0))[3], 0)
-        # Page 2 is landscape and should keep its width/height relationship.
-        self.assertGreater(image.width, 1500)
+        for columns in (180, 240):
+            with self.subTest(columns=columns):
+                result = subprocess.run(
+                    [sys.executable, str(REPO / 'src/python/terminal_pdf_preview.py'),
+                     str(pdf), '1', str(columns)], capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                image = Image.open(BytesIO(result.stdout))
+                self.assertLessEqual(image.width, int((columns - 2) * 9.5) + 8)
+                self.assertEqual(image.getpixel((0, 0))[3], 0)
+                if columns == 180:
+                    # Page 2 is landscape and should keep its width/height relationship.
+                    self.assertGreater(image.width, 1500)
 
     def test_pdf_rotated_page_preserves_target_height(self):
         from PIL import Image

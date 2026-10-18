@@ -11,7 +11,7 @@ import {requireIndependentOfflineMutation} from './independent-offline-review.mj
 import {transcriptPath} from './peer-direct.mjs'
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex')
 const same=(a,b)=>['sessionId','cwd','pid','procStart'].every(k=>a?.[k]===b?.[k])
-export function planMissingServiceImport({binding,expectedSha256,role,record,identity,accountStoreHash,absence,status,selected,transcript,version}={}){
+export function planMissingServiceImport({binding,expectedSha256,role,record,identity,accountStoreHash,absence,status,selected,transcript,version,retiredByRoot=false}={}){
  const result=(action,reason)=>({action,reason,importPreparationEligible:action==='prepare',importAuthorized:false,replacementAuthorized:false,permissionRaiseAuthorized:false,replayAuthorized:false,effectsPerformed:false,servingQualified:false})
  try{
   if(!['primary','standby'].includes(role)||standbyEnrollmentDigest(binding)!==expectedSha256||binding.schemaVersion!==2||binding.automaticRecovery!==true)return result('inspect','exact-automatic-pair-required')
@@ -22,7 +22,7 @@ export function planMissingServiceImport({binding,expectedSha256,role,record,ide
   validateServiceRecoveryIdentity(identity,{session:actor.sessionId,serviceId:actor.serviceId})
   if(identity.cwd!==actor.cwd||identity.storeHash!==accountStoreHash)return result('inspect','retained-account-identity-mismatch')
   if(absence?.previousPidObservedAbsent!==true||absence.previousPid!==actor.pid||absence.previousProcStart!==actor.procStart)return result('inspect','independent-absence-unqualified')
-  if(!status?.verified||status.verificationMode!=='offline-installed'||status.sourceDisposition!=='installed'||status.sessionId!==actor.sessionId||status.serviceId!==actor.serviceId||status.nativeEpoch?.pid!==actor.pid||status.nativeEpoch.procStart!==actor.procStart||status.admissionStopped!==false||status.terminalAttemptReviewComplete!==true||!Array.isArray(status.unresolvedRequestIds)||status.unresolvedRequestIds.length)return result('inspect','terminal-history-or-stop-unqualified')
+  if(!status?.verified||status.verificationMode!==(retiredByRoot?'offline-retired':'offline-installed')||status.sourceDisposition!==(retiredByRoot?'files-retired':'installed')||status.sessionId!==actor.sessionId||status.serviceId!==actor.serviceId||status.nativeEpoch?.pid!==actor.pid||status.nativeEpoch.procStart!==actor.procStart||status.admissionStopped!==retiredByRoot||retiredByRoot&&status.stopMarkerMatchesGeneration!==true||status.terminalAttemptReviewComplete!==true||!Array.isArray(status.unresolvedRequestIds)||status.unresolvedRequestIds.length)return result('inspect','terminal-history-or-stop-unqualified')
   if(selected?.selector?.sessionId!==actor.sessionId||selected.selector.serviceId!==actor.serviceId||selected.selector.pid!==actor.pid||selected.selector.procStart!==actor.procStart||selected.selector.build!==status.build)return result('inspect','retained-generation-mismatch')
   if(role==='primary'?!same(status.metadataTarget,other)||status.archiveTarget!==undefined:!same(status.archiveTarget,other)||status.metadataTarget!==undefined)return result('inspect','retained-role-unqualified')
   if(transcript?.verified!==true||!/^[a-f0-9]{64}$/.test(transcript.fingerprint||''))return result('inspect','exact-transcript-unavailable')
@@ -50,6 +50,6 @@ export async function inspectMissingServiceImport(primary,role,expectedSha256,{s
   phase='transcript';const transcript=transcriptRead(identity),accountStoreHash=account()
   phase='final-recheck';if(signal?.aborted||record(actor.sessionId)||standbyEnrollmentDigest(read(primary))!==expectedSha256||JSON.stringify(select(actor.cwd))!==JSON.stringify(selected)||JSON.stringify(identityRead(actor.sessionId,actor.serviceId))!==JSON.stringify(identity)||JSON.stringify(transcriptRead(identity))!==JSON.stringify(transcript))throw Error('changed')
   absent(actor)
-  return planMissingServiceImport({binding,expectedSha256,role,record:null,identity,accountStoreHash,absence,status,selected,transcript,version:version()})
+  return planMissingServiceImport({binding,expectedSha256,role,record:null,identity,accountStoreHash,absence,status,selected,transcript,version:version(),retiredByRoot:d.retiredByRoot===true})
  }catch{return {action:'inspect',reason:'missing-service-inspection-unqualified',inspectionPhase:phase,importPreparationEligible:false,importAuthorized:false,effectsPerformed:false}}
 }

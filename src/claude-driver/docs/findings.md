@@ -1,3 +1,37 @@
+## October 18 filesystem restoration qualified; retirement ordering corrected
+
+Added isolated filesystem fixture covering real saved-record lookup, enrollment,
+immutable identity, exact account/transcript metadata, claims and durable root
+ledger. Native offline status/lifecycle and importer are explicitly mocked; it
+never writes real Claude app state or dispatches a deep link. Tests recreate only
+task-created fixture records. Bypass/Accept-edits outcomes, missing/symlinked
+transcript and wrong-account recreation with retained uncertain import claim PASS.
+
+Integration exposed required ordering: retire original generation WHILE old actor
+is independently absent, before import may start successor. Restoration root now
+claims, verifies offline quiescence/retirement via durable one-use child jobs,
+retains original identity/selection/pair snapshot, then repeats account/transcript/
+absence review against its exact retired generation/STOP before one import.
+Generic plan still refuses STOP/retired history; private owning-root review alone
+admits offline-retired/files-retired with exact stopMarkerMatchesGeneration. It
+cannot authorize service activation or permission raise. Unknown/failed child
+preserves handles and prevents all later effects; no automatic import replay.
+
+Plan/restoration/filesystem14 PASS; adjacent quiescence/activation/continuation/
+identity16 PASS. Final original-snapshot filesystem3 PASS. Source code checks
+passed, no whole suite repeated this interim gate. No live chat lost, imported,
+retired, renewed or messaged. Earlier real negative request remains no-import.
+Positive real native deleted-chat recovery remains UNQUALIFIED.
+
+Next: exact-root continuation for partial retirement/import and restored-native
+readiness, then reuse role-preserving activation/rebind with BOTH reciprocal
+native targets verified. Do not treat recordRestored as service restoration or
+activate against stale counterpart epoch. Native Accept-edits/initial trust/hot
+reload cards stay human; do not synthesize approval. Existing current actors do
+not have new identity snapshots until qualified preparation. Actual last MCP/
+native source18ef; host development uses current CLI, final reload after settled.
+Goal active; no live jobs/cleanup pending. Codex bridge remains parked.
+
 ## October 18 durable missing-record restoration root implemented
 
 Added broker_service_missing_record_plan (read-only, plan digest when eligible)

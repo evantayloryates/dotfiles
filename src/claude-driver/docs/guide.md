@@ -2452,3 +2452,10 @@ import intent, imports that CLI identity once and verifies the recreated account
 record. Reattach the original job after uncertainty. recordRestored is a partial
 outcome: serviceRestored/servingQualified remain false. Observe actual native
 mode/startup before any service reactivation; native consent stays human.
+
+Missing-record restoration retires the exact old generation offline before
+import, retaining original snapshot and child handles. Only its owning root may
+review that exact retired STOP as an intermediate step; normal loss planning
+continues to refuse STOP. A failed retirement/import is never wholesale retried.
+Filesystem integration tests mock native lifecycle/import and prove no live loss
+recovery; record restoration remains separate from reciprocal service reactivation.
