@@ -1,3 +1,13 @@
+## October 18 fresh filtered harness adoption of continuation source
+
+Actual Claude and configured Codexgpt-6-sol PASS10/10 each,22.3/19.7sec on
+source5ee1ea075972e7fc961b35584ec30db96f9d470f1cce92fcda69edba61698736,
+source/global configuration unchanged. Synthetic stores/filtered MCP only:
+pressure/harness-v2-{claude,codex}-2026-10-18T17-17-18-268Z.json. This verifies
+cross-harness durable API behavior, not cached desktop MCP reload or native
+service reactivation. Recovered native primary process now idle; actual modedontAsk,
+pair plan still waits at person-permission-required. Startup cause unassessed.
+
 ## October 18 native deleted-record reconstruction gate
 
 Actual task-owned native deletion removed record/process/all UUID transcripts.

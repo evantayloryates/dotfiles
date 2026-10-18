@@ -1,3 +1,21 @@
+## October 18 continuation source fresh cross-harness checks; native mode pending
+
+Fresh actual filtered Claude/Codex harnesses on source5ee1ea075972e7fc961b35584ec30db96f9d470f1cce92fcda69edba61698736
+PASS10/10 each,22.3/19.7sec, private synthetic stores only, source/config unchanged.
+Reports pressure/harness-v2-{claude,codex}-2026-10-18T17-17-18-268Z.json.
+Codex used verified configuredgpt-6-sol; no model substitution. Actual complete
+full186 gate remains same5ee1ea07. No repeated native12 or suite after no source edit.
+
+Recovered primaryaf930615 now has exact idle nativePID41342/start
+Sun Oct18 17:16:23UTC/desktop2.1.299. Startup cause NOT assessed (do not attribute
+it to unattended import). Saved modedontAsk persists; explicit seeded pair plan
+stillwait/person-permission-required. No pair reactivation attempted. Async human
+Bypass+ready request remains pending for exact title
+claude-driver recovered service af930615. Do not repeat seed/import, fake card input,
+recreate sessions or wake working pair. After human response inspect current mode/
+new epoch/survivor and one exact restored-pair plan. Original failed root and
+successful continuation unchanged. Goalactive; no live harness/shell worker remains.
+
 ## October 18 explicit seeded continuation restored the deleted service record
 
 Implemented broker_service_seed_continuation_plan and durable experimental
