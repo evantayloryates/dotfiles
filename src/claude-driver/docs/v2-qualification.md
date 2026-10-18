@@ -2303,3 +2303,41 @@ claim reservation on uncertainty and verified-before-first-message behavior.
 Then reassess one integrated creation/lifecycle gate (don't incidentally create new
 chats). Both-absent/bootstrap/natural pressure/window/person/final loaded-MCP gates
 remain open. Goal ACTIVE; no live job pending. Codex-driver work remains parked.
+
+## October 17 approved pool claims use independent configuration
+
+Previous turn = progress (durable imported creation followups). Durable approved
+bypass pool claims without group/explicit alternate route now use independent
+public unarchive, set_session_config and optional send_message. No import or
+permission raise is added. Record's actual folder must resolve to requested
+canonical folder and mode remain bypass. Stable separate contexts derived from
+parent+operation, one recipient lock, private pool-native-claims root. Original
+identity/account/cwd retained; unarchive may materialize only the expected host CLI
+UUID from null, with original/after bindings retained. Other identity drift refuses.
+
+Whole config/message plan validates before followup effects. Saved unarchive and
+exact title/titleSource tool/model/effort/bypass verify before first message; saved
+configuration is freshly rechecked immediately before sending to catch drift.
+Native send requires exact delivered/queued acceptance, never model application.
+Unknown effects stop later steps, preserve parent/child contexts and claimed ID,
+never retry, legacy-fallback, recreate or automatically return the claim.
+
+Added persistent claimUnresolved/claimJobId marker BEFORE native intent. Pool
+health/reconciliation no longer recycles that claim via the ordinary stale timeout,
+even if still archived/CLI-null. Clear marker only after all requested steps and
+checkpointing succeed. A failed final registry/checkpoint write remains reserved.
+This closes an uncertainty/reuse gap; old ordinary handback stale claims retain
+existing behavior. Operators must reconcile original exact requests before manual
+claim repair; no reset/repair effect is introduced by this change.
+
+Focused pool/import orchestration + existing actual isolated MCP/pool regressions:
+26 PASS (~12.2sec). After added immediate pre-send config recheck, focused8 PASS;
+syntax/diff pass after exact-folder guard. No native pool claimed, chat created,
+message sent or full suite repeated this interim gate. No claim of native pooled
+creation qualification. Grouped/synchronous/explicit alternate-route paths remain
+legacy; no new sidebar/project rights. Codex-driver and 1Password stay separate.
+
+NEXT: audit remaining ordinary grouping and lifecycle dependencies, then run one
+integrated final-source batch including actual MCP entrypoints; native creation/
+pool/fork and app/both-absent recovery/pressure/window/person gates remain open.
+Do not rerun archive/stop/send merely for activity. Goal ACTIVE; no live test job.

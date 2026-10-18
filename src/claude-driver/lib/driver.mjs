@@ -1231,6 +1231,9 @@ async function createFromPool(args, ctx) {
   const observationCursor=sessionEvents({session:id}).cursor
   const model = args.model || DEFAULT_MODEL
   const effort = args.effort || 'high'
+  if(ctx.jobId&&args.group===undefined&&args.via_broker===undefined&&sessionManagementController(id)){
+    const follow=await withSessionControl(id,()=>import('./pool-native-claim.mjs').then(m=>m.routePoolNativeClaim(id,{...args,folder,model,effort},ctx)),{signal:ctx.signal}).catch(error=>{throw new DriverError('pool member claimed; inspect original outcome before another claim or send',{category:error.category??'pool_claim_unresolved',detail:{...error.detail,sessionId:id,claimReserved:true,retrySafe:false}})});ctx.tier='independent-pool';return {sessionId:id,via:'pool',cwd:folder,requestedFolder:args.folder,title:args.title,model,effort,permissionMode:BYPASS,intendedPermissionMode:BYPASS,pooledFrom:pick.priorTitle||null,observationCursor,verified:true,followUps:follow.results.map(r=>({op:r.operation,ok:true,result:r.result,contextId:r.contextId})),followUpRouteFile:follow.routeFile}
+  }
   const ops = []
   if (pick.archived) ops.push({ op: 'unarchive_session', args: { session_id: id } })
   ops.push({ op: 'set_session_title', args: { session_id: id, title: args.title } })

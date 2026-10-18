@@ -7,7 +7,7 @@
 // Registry shape (registry.json → pool):
 //   { [local id]: { state: 'recycling' | 'parking' | 'parked' | 'claimed', folder,
 //                   priorTitle, cliAtRequest, requestedAt, parkedAt,
-//                   claimedAt, claimedTitle } }
+//                   claimedAt, claimedTitle, claimUnresolved, claimJobId } }
 // "Clean" is read from disk, never from the registry: the app drops a
 // record's cliSessionId on /clear and writes a new one on the next turn.
 
@@ -84,6 +84,7 @@ export function health(id, entry) {
   if (!rec) return { status: 'gone' }
   if (rec.permissionMode !== BYPASS) return { status: 'not_bypass', rec }
   if (entry.state === 'parked') return { status: rec.cliSessionId || !rec.isArchived ? 'dirty' : 'ready', rec }
+  if (entry.state === 'claimed' && entry.claimUnresolved === true) return { status: 'claim_unresolved', rec }
   if (entry.state === 'claimed') {
     if (rec.cliSessionId) return { status: 'in_use', rec }
     return { status: rec.isArchived && Date.now() - (entry.claimedAt || 0) > CLAIM_STALE_MS ? 'claim_stale' : 'claimed', rec }

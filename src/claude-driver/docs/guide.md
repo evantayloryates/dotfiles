@@ -1776,5 +1776,16 @@ group or explicit alternate-route options use independent public rename/send
 followups. Title lock must verify before first_message dispatch. Stable per-effect
 contexts and a created-session-followups ledger retain partial outcomes. A followup
 error reports the already-created session ID; inspect it rather than creating or
-sending again. This does not yet cover the bypass pool's separate batch, grouped
-creation or native create/fork qualification.
+sending again. The approved pool path has its own independent configuration transaction below;
+grouped creation and native create/fork qualification remain separate.
+
+### Durable approved pool claims
+
+With the enrolled controller, durable no-group/default-route pool creation uses
+independent unarchive, saved configuration and optional first-message delivery.
+It preserves the already approved bypass mode and requested folder. Configuration
+is verified again immediately before first-message send. Inspect pool-native-claims
+and exact child contexts after failure; an unresolved claim stays reserved via
+claimUnresolved and is excluded from stale automatic reuse. No automatic repair,
+permission raise or replay is authorized. Native pooled-creation qualification
+remains separate; grouped/synchronous/explicit alternate routes are unchanged.
