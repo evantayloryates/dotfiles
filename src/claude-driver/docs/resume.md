@@ -1,3 +1,15 @@
+## October 17 fresh one-shot setup blocked audit
+
+Same primary-live/absent-primary-test-condition blocker verified in three consecutive
+goal turns (setup plus two continuations). Prepared importStartedOneShotTrial remains
+unsubmitted, no live job to wait on. All actionable implementation, native explicit
+continuation/rebind and both actual harness contracts checkpointed. Goal blocked;
+next action Taylor archives existing transport scratch in Claude Code, then resumes
+this Codex goal. Do not repeat status checks or create new test identities while
+unchanged. Native actual absence/qualified standby/current digest must be revalidated
+before planned single request; no forced process exit or STOP-archive substitution.
+Automatic recovery disabled; service pair healthy on latest qualified observation.
+
 ## October 17 fresh one-shot import recovery setup pending
 
 Previousbatch4a98949. Fresh single-request cold test needed after native continuation
