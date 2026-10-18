@@ -1079,6 +1079,12 @@ export const OPS = [
     run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('pair bootstrap requires explicit experimental durable submission',{category:'bad_args'});return (await import('./pair-bootstrap.mjs')).bootstrapIndependentPair(args.session,args.expected_enrollment_sha256,ctx)},
   },
   {
+    name:'broker_service_continue_renewal_readiness',title:'Continue exact failed renewal after late native readiness',readOnly:false,
+    description:'Experimental durable continuation of one failed before-readiness timeout after independently observed same-epoch late readiness. Preserves original failed job and completed installation; only never-attempted policy/family/enrollment steps execute. Requires exact original ledger and enrollment digests, no attempts/unknowns and unchanged roles/settings/selection. No reinstallation, target-operation replay, process restart or permission change.',
+    schema:{required:['session','original_renewal_job_id','expected_renewal_sha256','expected_enrollment_sha256','experimental'],properties:{session:{type:'string'},original_renewal_job_id:{type:'string',pattern:'^j[a-f0-9]{32}$'},expected_renewal_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{if(args.experimental!==true||!ctx.jobId)throw new DriverError('explicit durable late-readiness continuation required',{category:'bad_args'});return (await import('./renewal-readiness-continuation.mjs')).continueRenewalReadiness(args.session,args.original_renewal_job_id,args.expected_renewal_sha256,args.expected_enrollment_sha256,{jobId:ctx.jobId,signal:ctx.signal})},
+  },
+  {
     name:'broker_service_renewal_lineage',title:'Inspect exact offline interrupted renewal lineage',readOnly:true,
     description:'Read-only proof of one installed primary successor whose renewal stopped at a metadata family read after verified turnover. Binds original failed job, unchanged enrollment/selector, independently reviewed retired predecessor and offline successor, abandoned read, retained predecessor family and unchanged roles/settings. Does not authorize adoption, bootstrap, rebind, wake or replay.',
     schema:{required:['session','expected_enrollment_sha256'],properties:{session:{type:'string'},expected_enrollment_sha256:{type:'string',pattern:'^[a-f0-9]{64}$'}}},

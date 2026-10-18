@@ -19,3 +19,10 @@ export function ordinaryBatchQualification(result,operations){
  const ids=operations.map(op=>result.requestIds[op]);if(ids.some(id=>!/^rpeer[a-f0-9]{32}$/.test(id||''))||new Set(ids).size!==ids.length)throw Error('ordinary batch request identities unqualified')
  return {operations:operations.length,nativeRequests:ids.length,requestIds:ids,receiptVerified:true}
 }
+
+export function qualificationFixtureEpoch({ordinary,ordinaryEpoch,metadataTarget}){
+ const epoch=ordinary?ordinaryEpoch:metadataTarget
+ if(!epoch||!Number.isSafeInteger(epoch.pid)||epoch.pid<2||typeof epoch.procStart!=='string'||!epoch.procStart)throw Error('qualification fixture epoch unavailable')
+ return {pid:epoch.pid,procStart:epoch.procStart}
+}
+export function liveFixtureEpochMatches(epoch,live,peer){return !!(epoch&&live?.pid===epoch.pid&&peer?.pid===epoch.pid&&peer?.procStart===epoch.procStart)}

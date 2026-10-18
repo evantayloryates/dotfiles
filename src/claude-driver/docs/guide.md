@@ -2318,3 +2318,56 @@ verify current pair, finish tool-title setup after verified nondispatch, rerun
 preflight once and execute one consolidated ordinary native profile. No new message
 or forced outage tests this turn; full suite deferred. Goal active; all handles
 terminal and failed evidence preserved. Cached MCP remains older78678a build.
+
+## October 18 late-readiness continuation and combined ordinary profile passed
+
+Added exact durable broker_service_continue_renewal_readiness: only original failed
+before-readiness timeout with unchanged original ledger/enrollment digests and
+same live idle successor epoch, observed readiness, no policy/attempts/unknowns,
+verified completed install/retired predecessor and identical roles/settings.
+One claim per original renewal prevents competing continuation roots. Continuation
+only invokes never-attempted policy, family and standby CAS; no installation/target
+operation replay. Original failed job/file bytes remain unchanged. Subsequent
+normal hot renewal wait60sec (bounded); actual failed generation registered ready
+~53sec after activation, explaining the former30sec deadline failure.
+
+Native continuationjb26c6a98dddf41aba3e9d6bf12ee1e53 COMPLETED for original
+j82d7a883599a4b778aed4a499b0dc4e7, originalSha1658c65f... preserved, policy/family
+and pair readback verified; installationRepeatedfalse. Source7bae... observed old
+installed5718... without pretending original job success. Changed-condition title
+setupj3dddf033c36e48f38effa994b8f96622 then passed exact receipt/titleSourcetool.
+Owned fixture efforthigh/titletool are deliberate TEST BASELINE preparation from
+originalunset values, not a claim of reverting to original defaults. No permissions
+raised. Explicit preflight03:59 failure retained; preflight04:04:55 passed all3.
+
+First full ordinary profile04:05:11 retained failure: runner compared ordinary
+fixturePID92860 to standby metadataTargetPID13521, rejecting before concurrent
+controls and cleanup. Independent saved baseline matched exactly afterward; no
+native control race/epoch change. Corrected fixture-epoch selector with regression
+cases for ordinary/fixed targets and PID reuse. No receipt/idle guard weakened.
+
+Corrected ordinary profile ALL12 PASS on
+f8745320185ee2d6dffb6e69444c83425e25126dc99b385f02c78f0fb00b1b07:
+pressure/live-v2-2026-10-18T04-06-00-576Z.json, sourceUnchanged. Native durable
+submit+reuse+causal reply, cancellation before dispatch,3 concurrent controls,
+3-field batch, busy queue, native interruption+replacement, causal QUEUED reply
+with instruction ordering, unique replies and cleanup restore all verified.
+Quarantine true/inputfilters0 before+after; no new chats/permissions/archives.
+Batch requests:1 = one PUBLIC job; adapter verified3 distinct per-field native IDs.
+Reply proof is native sender/body/cursor/ancestry, NOT returned message-UUID linkage.
+
+Independent final readback ordinary-native-profile-readback-20261018.json confirms
+fixture8f1 baseline fully restored (tool title/Haiku5.5/high/bypass/unarchived/unpinned),
+controllerfb79c9df4f9b4b06a0f5a91831010193 exact samePID13210/start03:50:04 idle,
+current sourcef874, readiness/policy true, unresolved[],46 slots; pair primary-live
+and automatictrue. Focused continuation/MCP39 PASS plus fixture/causal13 PASS.
+No whole synthetic repeat after immediately preceding160-file gate; runner-only
+regression fixed during controlled native gate with first failure preserved.
+
+Next: wire exact late-readiness continuation into ordinary preflight BEFORE its
+controller route lock (same deadlock precaution as pair recovery), preventing
+policy probing of a selected successor while retained pair binding stays stale.
+Do not force another native profile now: preserve this substantive gate and use
+changed-condition/targeted checks. Then reconcile remaining full scope (group/
+window/person-only/appquit/loss/sustained-pressure) and final actual MCP adoption.
+All jobs terminal; no fixture cleanup pending. Goal active.

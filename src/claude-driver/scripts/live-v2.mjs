@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {validateOrdinaryLiveFixture,ordinaryBatchQualification} from '../lib/ordinary-live-qualification.mjs'
+import {validateOrdinaryLiveFixture,ordinaryBatchQualification,qualificationFixtureEpoch,liveFixtureEpochMatches} from '../lib/ordinary-live-qualification.mjs'
 import {ordinarySessionsSameStore} from '../lib/ordinary-session-control.mjs'
 import {readSessionManagementEnrollment} from '../lib/session-management-controller.mjs'
 import {readStandbyEnrollment} from '../lib/standby-enrollment.mjs'
@@ -40,7 +40,7 @@ const controlMode=process.argv.includes('--control-mode')?process.argv[process.a
 if(!['both','batch','concurrent'].includes(controlMode)||controlMode!=='both'&&!controlsOnly)throw new Error('--control-mode batch|concurrent requires --controls-only')
 if(controlsOnly&&!brokerOnly)throw new Error('--controls-only requires --broker-only')
 if(brokerOnly&&!process.argv.includes('--session'))throw new Error('--broker-only requires --session <owned fixture id>')
-let adopted=false,baseline
+let adopted=false,baseline,ordinaryFixtureEpoch
 const sourceBefore = runtimeFingerprint()
 const brokerRuntimeBefore=brokerInfo().runtime
 const rows = []
@@ -89,7 +89,7 @@ async function step(name, fn) {
   try { const evidence = await fn(); const r={name,ok:true,ms:Date.now()-at,evidence};rows.push(r);console.log(JSON.stringify(r));return evidence }
   catch(e){ const r={name,ok:false,ms:Date.now()-at,category:e.category,error:e.message,...e.category==='qualification_gate'?{blockers:e.detail?.blockers}:{},requestId:e.detail?.requestId,retrySafe:e.detail?.retrySafe};rows.push(r);console.log(JSON.stringify(r));throw e }
 }
-async function waitOwnedIdle(){const end=Date.now()+12000,started=Date.now();for(;;){const r=await op('get_session',{session});if(enrolled&&r.live?.pid!==enrolledStatus.metadataTarget.pid)throw Error('owned fixture epoch changed while waiting for idle');if(r.live?.status==='idle')return {waitMs:Date.now()-started,pid:r.live.pid};if(!['busy','working','running'].includes(r.live?.status)||Date.now()>end)throw Error('owned fixture did not become idle');await new Promise(r=>setTimeout(r,100))}}
+async function waitOwnedIdle(){const end=Date.now()+12000,started=Date.now();for(;;){const r=await op('get_session',{session});if(enrolled&&!liveFixtureEpochMatches(qualificationFixtureEpoch({ordinary,ordinaryEpoch:ordinaryFixtureEpoch,metadataTarget:enrolledStatus.metadataTarget}),r.live,peerRecord(session)))throw Error('owned fixture epoch changed while waiting for idle');if(r.live?.status==='idle')return {waitMs:Date.now()-started,pid:r.live.pid};if(!['busy','working','running'].includes(r.live?.status)||Date.now()>end)throw Error('owned fixture did not become idle');await new Promise(r=>setTimeout(r,100))}}
 async function observeUntil(predicate, seconds=30) {
   const end=Date.now()+seconds*1000; const seen=[]
   while(Date.now()<end){ const r=await op('session_wait',{session,cursor,include_text:true,include_causality:true,timeout_sec:Math.min(5,Math.max(0,(end-Date.now())/1000))});cursor=r.cursor;seen.push(...r.events);observed.push(...r.events);if(predicate(seen,r))return seen }
@@ -107,7 +107,7 @@ try {
     const record=getRecord(session),enrollment=readSessionManagementEnrollment(),binding=readStandbyEnrollment(controllerSession),selected=(await import('../lib/receiver-runtime-selection.mjs')).loadReceiverSelection(getRecord(controllerSession).cwd),status=await runOp('broker_service_status',{session:controllerSession,service_id:selected.selector.serviceId})
     if(enrollment?.controllerSession!==controllerSession)throw Error('ordinary fixture controller enrollment changed')
     const proof=validateOrdinaryLiveFixture({session,controller:controllerSession,record,registry:loadRegistry().sessions[session],stateDir:STATE_DIR,status,peer:peerRecord(session),protectedIds:[controllerSession,binding?.standby.sessionId,brokerInfo().sessionId],sameStore:ordinarySessionsSameStore(record,getRecord(controllerSession),controllerSession),quarantine:uiPolicy().blocked})
-    enrolledStatus=status;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline,...proof}
+    enrolledStatus=status;ordinaryFixtureEpoch=proof.fixtureEpoch;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline,...proof}
   })
   else if(enrolled)await step('adopt-enrolled-fixture',async()=>{const record=getRecord(session),status=await runOp('broker_service_status',{session:controllerSession,service_id:(await import('../lib/receiver-runtime-selection.mjs')).loadReceiverSelection(getRecord(controllerSession).cwd).selector.serviceId});if(enrolledMetadataController(session,{})!==controllerSession||!status.verified||!status.readinessObserved||!status.nativePolicyObserved||status.admissionStopped||status.unresolvedRequestIds?.length||status.unreservedSlots<16||status.deadline-Date.now()<180000||status.metadataSendControl!==true||status.metadataStopControl!==true||!metadataTargetPreflightMatches({target:status.metadataTarget,record,peer:peerRecord(session),registered:metadataTargetRegistered(status.metadataTarget,{controlStateDir:STATE_DIR}),openPrCount:openPrs(record).length}))throw Error('whole enrolled fixture qualification preflight failed');enrolledStatus=status;baseline={title:record.title,titleSource:record.titleSource,effort:record.effort,model:record.model,permissionMode:record.permissionMode,archived:record.isArchived,pinned:readPins().has(session)};adopted=true;return {session,controllerSession,serviceId:status.serviceId,baseline}})
   else if (brokerOnly) await step('adopt-owned-fixture',async()=>{
