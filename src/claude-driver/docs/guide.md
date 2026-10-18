@@ -1629,3 +1629,42 @@ native epoch/readiness/policy, capacity, expiry and unresolved count from infere
 availability. Observed read admission is evidence only and never authorizes an
 operation, wake or recovery. Prompts, raw results, paths and exception text are
 excluded. An old legacy broker snapshot does not describe the independent pair.
+
+### Ordinary native chats: unarchive and pin
+
+An explicitly enrolled independent session-management receiver now handles public
+`unarchive_session` and `pin_session` calls for ordinary Claude Code chats. Targets
+do not need to be driver scratch sessions, have a running process, or use bypass
+permissions. The driver binds each target to its exact saved session/CLI identity,
+folder and account-store hash, and verifies the saved result after the native call.
+The receiver remains an owned, qualified service with an explicit sealed
+`session_management_control:true` grant. This grants only native unarchive and pin;
+it does not grant arbitrary messages, permission changes, archive or deletion.
+
+Use the ordinary public operations through `driver_submit`, then `driver_wait`:
+
+```json
+{"operation":"unarchive_session","arguments":{"session":"local_<exact UUID>","focus":"restore"},"idempotency_key":"<stable workflow key>:unarchive","timeout_sec":120}
+```
+
+After that job completes with `verified:true`, submit `pin_session` with
+`{"session":"local_<exact UUID>","pinned":true}` and its own stable key. Reattach
+the same job after a disconnect. If the native outcome is unresolved, inspect its
+retained `requestId`/`serviceId` and use receipt reconciliation; do not replay under
+a new key. A configured management controller refuses on stale/unqualified state
+rather than falling back to the legacy broker. `import_only:true` still excludes
+this native route. Existing fixed scratch metadata enrollments keep their route.
+
+`focus:"restore"` on this native metadata path compares fresh before/after focus
+observations. `focusObservation.observationScope:"before-after-endpoints"` means
+only those two observations matched; it does not prove uninterrupted focus or a
+full window layout. A changed or unavailable observation is unconfirmed and does
+not authorize restoring an unattributed view. Explicit `focus:"show"` opens the
+successfully unarchived chat and checks the normal navigation result.
+
+Service maintenance: enable the grant during explicit `broker_service_prepare` or
+`broker_service_renew` with `session_management_control:true`, then enroll that
+qualified receiver with `broker_service_enroll_session_management`, `session` and
+`experimental:true`. Enrollment performs no native effects and does not change
+an existing fixed target. Renewal and guarded cold recovery preserve the grant.
+Only one exact enrolled controller is selected; this is not arbitrary discovery.

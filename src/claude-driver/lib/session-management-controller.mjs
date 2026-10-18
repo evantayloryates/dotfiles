@@ -33,3 +33,20 @@ export async function enrollSessionManagementController(session,{signal}={}){
   return {enrolled:true,controllerSession:session,serviceId:status.serviceId,verified:true,nativeEffectsRequested:0}
  },{signal,timeoutMs:5000})
 }
+
+// Read exactly one retained enrollment and selected generation; never discover
+// actors, renew a lease, reconcile an effect or wake a process from health.
+export async function inspectSessionManagementController({signal}={},dependencies={}){
+ const read=dependencies.read??readSessionManagementEnrollment,record=dependencies.record??getRecord,select=dependencies.select??loadReceiverSelection,inspect=dependencies.inspect??inspectIndependentService
+ let row
+ try{
+  row=read();if(!row)return {configured:false,operations:[],nativeEffectsRequested:0,recoveryAttempted:false}
+  validateSessionManagementEnrollment(row)
+  const r=record(row.controllerSession);if(!r||r.cwd!==row.receiverCwd)throw Error('identity')
+  const selected=select(r.cwd);if(selected.selector.sessionId!==row.controllerSession)throw Error('selection')
+  const status=await inspect(row.controllerSession,selected.selector.serviceId,{signal}),after=select(r.cwd)
+  if(JSON.stringify(selected)!==JSON.stringify(after)||status.sessionId!==row.controllerSession||status.serviceId!==selected.selector.serviceId||[status,selected.policy,selected.pointer].some(x=>x.sessionManagementControl!==true)||status.nativeEpoch?.pid!==selected.selector.pid||status.nativeEpoch?.procStart!==selected.selector.procStart||status.build!==selected.selector.build)throw Error('generation')
+  const {independentServiceHealth}=await import('./service-health.mjs'),health=independentServiceHealth(status,{session:row.controllerSession,serviceId:status.serviceId,now:dependencies.now?.()??Date.now()})
+  return {configured:true,controllerSession:row.controllerSession,serviceId:status.serviceId,operations:['unarchive_session','pin_session'],health,nativeEffectsRequested:0,recoveryAttempted:false}
+ }catch{return {configured:true,...sid.test(row?.controllerSession||'')?{controllerSession:row.controllerSession}:{},operations:[],health:{nativeReadAdmission:'unverified'},reason:'enrollment-or-selected-generation-unqualified',nativeEffectsRequested:0,recoveryAttempted:false}}
+}

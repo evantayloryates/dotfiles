@@ -17,14 +17,14 @@ proof of always-on operation. The full goal remains unfinished.
 
 | Requirement | Current evidence and boundary |
 | --- | --- |
-| Durable cross-harness tools | Fresh actual Claude and Codex filtered MCP contracts pass; native receipt/reply contracts pass in named reports. This chat's actual loaded connector was refreshed and verified current after Codex app restart; direct native read/reattach passed. |
+| Durable cross-harness tools | Fresh actual Claude and Codex filtered MCP contracts pass; native receipt/reply contracts pass in named reports. This chat's connector was refreshed after app restart and direct native read/reattach passed at that revision; it is stale after subsequent ordinary-route implementation. Final loaded-client refresh remains open. |
 | Efficient concurrent requests | Four concurrent native reads on recovered3c68 pass exact receipts, idempotent reattachment, capacity delta4, no unknowns/model turn; p50 1801ms/p95 3062ms including queue time. Four samples are not an SLA. |
 | Controller failover with surviving standby | Actual ordinary sendj65d648... recovered, rebound and delivered; independent causal reply/baselines match; binding0f9550 automatic true. |
 | App quit or both controllers lost | Missing native qualification and a verified full bootstrap strategy; surviving-standby success does not prove this case. |
 | Stop, steer and executing cancellation | Prior scoped native stop/steer proof and synthetic uncertainty boundaries; broad executing-effect cancellation is not established by a cancellation flag. |
 | Model, effort, title and pin controls | Prior scoped native mutation/readback evidence retained; latest recovery preserves exact grants and settings. This is not blanket qualification of every configuration path. |
 | Create in folder/no folder and fork | Current full native end-to-end coverage remains missing; historical mechanism notes are not current qualification. |
-| Archive, unarchive and deletion | Imported scratch recovery proved. Ordinary archived native ProDevs unarchive failed through stale legacy TierB; import-only is ineligible for that target. Public native unarchive followed by pin is an explicit completion blocker. Project archive, cleanup and deletion-card paths remain separate. |
+| Archive, unarchive and deletion | Imported scratch recovery proved. Ordinary native ProDevs public unarchive then pin now passed with exact native receipts and saved archived=false/pinned=true on source708034. Import-only remains ineligible for that target. Final-source/loaded-client qualification remains separate. Project archive, cleanup and deletion-card paths remain separate. |
 | Permissions and trust | Bypass preserved; actual trust refusal/human approval retained. Permission mode does not grant workspace trust or hot-reload consent. |
 | Focus and windows | Existing scoped navigation and recovery focus restoration evidence; full create/fork/window paths remain unqualified under input quarantine. |
 | Sustained residency under pressure | Current-generation read-only 180s/13samples same-PID idle survival verified; zero natural events, so pressure remains unqualified. |

@@ -1266,3 +1266,13 @@ live PID, scratch enrollment or worktree restrictions required for these metadat
 actions. Unknown outcomes remain pending, never replayed. See docs/resume.md for
 exact jobs, source revisions, passing focused/full synthetic/filtered harness
 evidence and remaining final-source/focus/loaded-MCP qualification gaps.
+
+## October 17 ordinary-route health and focus observations
+
+Legacy resident=false can coexist with a qualified independent ordinary-session
+controller. driver_status now exposes sessionManagement separately using exact
+retained enrollment/generation/epoch and bounded independent health; status never
+wakes or repairs it. Native metadata results without navigation attribution need
+fresh endpoint focus observations, not assumed restoration. Changed/unknown views
+remain untouched and unconfirmed; matching endpoints do not establish uninterrupted
+focus. Focus/status focused tests pass; no repeated live user-chat mutation.

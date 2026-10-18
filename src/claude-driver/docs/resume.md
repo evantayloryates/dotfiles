@@ -1,3 +1,52 @@
+## October 17 continuation: focus endpoint evidence and discoverable ordinary-route health
+
+Previous goal turn = progress: real ordinary ProDevs unarchive/pin and repaired
+standby binding, not a wait or no-progress restatement. Goal remains active.
+
+Current CLI driver_status now includes bounded sessionManagement health for exactly
+one enrolled controller/selected generation, without broad actor discovery, wake,
+renewal or receipt reconciliation. Retains legacy broker field separately. Validates
+record cwd, selected generation before/after, policy/pointer/status capability,
+build and exact native epoch. Reuses independentServiceHealth; raw errors/paths/
+request IDs/tokens are not returned. Unknown or expired evidence cannot qualify
+admission. Read-only actual check on host source
+1c298e35f10211694a55eaffd3a40c246cadc365edea69fc09fdb9475c80a071:
+legacy residentfalse; ordinary29b4ba0b3e8547efb6c28f6768a19a2a PID96436 live,
+policy/readinesstrue, unknown0, slots60, deadline1792293620824, not expired.
+Native sealed source remains708034..., not current host. Loaded chat MCP remains
+older until final reconnect gate; a new CLI process current does not prove loaded
+MCP refresh. No native writes/test messages/process restarts in this turn.
+
+Public ordinary unarchive/pin now observe fresh main-session and front-app endpoints
+before/after under default restore mode. Without attributed navigation, never move
+the window or front app on changed/unknown observations; report verifiedfalse and
+changed-unattributed/observation-unavailable. Exact known endpoints equality yields
+unchanged-observed with observationScope before-after-endpoints, NOT uninterrupted
+focus/full native layout proof. Original failure category/request/retrySafe retained
+and focus evidence added to error.detail for durable job serialization. Explicit
+unarchive focusshow opens result only AFTER verified native success using existing
+openSession/withFocus navigation checks; leave bypasses observation. No new live
+workflow: this is focused instrumentation after last turn's native acceptance.
+
+Focused focus+ordinary10 PASS, then focus+status10 PASS. Tests cover fresh ordering,
+changed session/front app, unavailable snapshots, time/source qualification,
+original uncertain failures, missing grants/changed epochs/selections/expired and
+unresolved health. Actual read-only status result verified above. Full synthetic
+and both filtered harness passes from prior708034 batch remain historical; do not
+repeat them after every small edit. Guide now explains ordinary durable API,
+receipt/no-replay boundaries, explicit enrollment, focus evidence limits and show.
+
+NEXT substantial frontier: full original brief still open, especially a strategy
+for app-quit/both controllers absent WITHOUT CUA or unauthorized new chats;
+ordinary operations beyond new unarchive/pin still use other existing paths and
+must not be claimed generally qualified. Derive safe bootstrap from exact retained
+owned actor identities/history/settings and no-unknown evidence; do not infer a
+wake from import or bypass trust/person-only gates. Plan/implement changed-condition
+bootstrap before disruptive tests. Native create/fork/no-folder/window/deletion card
+and natural-pressure gates remain open. One final source/native/loaded-MCP gate at
+end of batch; no repeated client reload or ProDevs mutation per small edit. No test
+or native jobs running at checkpoint. Codex-driver and 1Password remain parked.
+
 ## October 17 ordinary ProDevs public workflow qualified; goal remains active
 
 Implemented explicit sessionManagementControl across sealed package, policy, runtime

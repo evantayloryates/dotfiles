@@ -271,7 +271,7 @@ export const OPS = [
   {
     name: 'driver_status',
     title: 'Driver status',
-    description: 'App and CLI versions, whether you are a desktop caller, broker liveness, the capability matrix for these versions, the main window\'s current session, and recent failures from the ledger.',
+    description: 'App and CLI versions, whether you are a desktop caller, legacy broker liveness, the enrolled ordinary-chat route health, the capability matrix for these versions, the main window\'s current session, and recent failures from the ledger.',
     schema: { properties: {} },
     readOnly: true,
     run: async () => {
@@ -287,6 +287,7 @@ export const OPS = [
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),
         broker,
+        sessionManagement:await (await import('./session-management-controller.mjs')).inspectSessionManagementController(),
         capabilities: m.current ? { probedAt: m.current.probedAt, mechanisms: m.current.mechanisms } : `not probed for ${m.key}; run \`claude-driver probe\``,
         mainWindow: currentMain(),
         frontApp: await frontApp(),
@@ -509,7 +510,7 @@ export const OPS = [
         ctx.notes.push('deep-link unarchive did not take; falling back to Tier B')
       }
       if(args.import_only===true)throw new DriverError('import-only unarchive unavailable or unverified; no broker fallback attempted',{category:'unarchive_import_unverified',detail:{brokerFallback:false,retrySafe:false}})
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus(focusArg(args),()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'unarchive_session',undefined,ctx))));return {...result,focus:focus.action,focusVerified:focus.verified}}
+      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus(focusArg(args),async()=>{const result=await (await import('./ordinary-session-route.mjs')).routeOrdinarySession(rec.sessionId,'unarchive_session',undefined,ctx);if(focusArg(args)==='show')return {...result,...await openSession(rec)};return result},{observeUnchanged:true});delete result.navigatedTo;return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
       const b = await tierB(ctx, [{ op: 'unarchive_session', args: { session_id: rec.sessionId } }], 'isArchived false')
       if (b.handback) return b.handback
       const w = await waitForRecord(rec.sessionId, (r) => r.isArchived === false, { timeoutMs: 8000 })
@@ -543,7 +544,7 @@ export const OPS = [
       const rec = resolveSession(args.session)
       const metadataController=enrolledMetadataController(rec.sessionId,args)
       if(metadataController){ctx.tier='independent-metadata';return (await import('./metadata-config-route.mjs')).routeMetadataConfig(rec.sessionId,{...args,metadata_controller:metadataController},ctx)}
-      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';return (await import('./ordinary-session-route.mjs')).routeOrdinarySession(rec.sessionId,'set_pinned',args.pinned,ctx)}
+      if(sessionManagementController(rec.sessionId)){ctx.tier='independent-session-management';const {result,focus}=await withFocus('restore',()=>(import('./ordinary-session-route.mjs').then(m=>m.routeOrdinarySession(rec.sessionId,'set_pinned',args.pinned,ctx))),{observeUnchanged:true});return {...result,focus:focus.action,focusVerified:focus.verified,focusDisposition:focus.disposition,focusObservation:focus}}
       if(rec.isArchived)throw new DriverError('unarchive this session before changing its pin state',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const b = await tierB(ctx, [{ op: 'set_pinned', args: { session_id: rec.sessionId, pinned: !!args.pinned } }], `pinned ${!!args.pinned}`)
       if (b.handback) return b.handback

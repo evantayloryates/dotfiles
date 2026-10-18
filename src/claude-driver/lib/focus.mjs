@@ -131,9 +131,25 @@ export async function restoreFrom(before,target,{settleMs=3000,...opts}={}){
  return opts.evidence?result:result.action
 }
 
+// A metadata result without a navigation receipt cannot authorize restoration.
+// Compare fresh observations instead; a changed view remains unattributed and
+// untouched. Equality proves observed endpoints, never uninterrupted focus.
+export function observeFocusPreservation(before,after){
+ const known=x=>x&&Number.isSafeInteger(x.at)&&x.at>=0&&typeof x.mainSession==='string'&&x.mainSession.length>0&&typeof x.frontApp==='string'&&x.frontApp.length>0&&['main.log','disk'].includes(x.source)
+ const qualified=known(before)&&known(after)&&after.at>=before.at
+ const unchanged=qualified&&before.mainSession===after.mainSession&&before.frontApp===after.frontApp
+ return {action:unchanged?'focus endpoints unchanged':qualified?'focus changed; left untouched (cause unassessed)':'focus observation unavailable (not confirmed)',verified:unchanged,disposition:unchanged?'unchanged-observed':qualified?'changed-unattributed':'observation-unavailable',observationScope:'before-after-endpoints',before,after}
+}
+export async function runObservedFocusOperation(fn,d){
+ const before=await d.snapshot()
+ try{const result=await fn();return {result,focus:observeFocusPreservation(before,await d.snapshot())}}
+ catch(error){try{error.focusObservation=observeFocusPreservation(before,await d.snapshot());error.detail={...error.detail,focusObservation:error.focusObservation}}catch{}throw error}
+}
+
 // Run fn (which returns { navigatedTo, ... }) under a focus mode.
 export async function withFocus(mode='restore',fn,opts={}){
  if(!FOCUS_MODES.includes(mode))mode='restore'
+ if(opts.observeUnchanged===true&&mode==='restore')return runObservedFocusOperation(fn,{snapshot})
  const before=mode==='leave'?null:await snapshot()
  let result
  try{result=await fn()}catch(error){
