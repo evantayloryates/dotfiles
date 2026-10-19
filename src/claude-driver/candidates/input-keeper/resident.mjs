@@ -17,7 +17,7 @@ function privatePath(path,kind){
 }
 function envelope(m){
  if(!m||m.v!==1||!uuid(m.id)||!uuid(m.generation)||typeof m.auth!=='string'||!/^[a-f0-9]{64}$/.test(m.auth)||!['status','acquire','release','shutdown'].includes(m.op)||!m.args||typeof m.args!=='object'||Array.isArray(m.args)||Object.keys(m).some(k=>!['v','id','generation','auth','op','args'].includes(k)))throw fail('invalid request envelope')
- const allowed=m.op==='acquire'?['owner','guardians']:m.op==='release'?['token','generation','outcome']:[]
+ const allowed=m.op==='acquire'?['owner','guardians','evidenceDir']:m.op==='release'?['token','generation','outcome']:[]
  if(Object.keys(m.args).some(k=>!allowed.includes(k)))throw fail('request fields outside control scope')
 }
 export function inspectKeeperRequest(dir,id,generation){

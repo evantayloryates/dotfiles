@@ -1,3 +1,49 @@
+## October 18 release freeze — current frontier
+
+Taylor requested a qualified release cut, final smoke tests and deferred backlog.
+Do not continue the prior keeper/native integration NEXT steps automatically.
+See release-2026-10-18.md and tool-catalog.md. Production build is now
+d8cfb397f4110d0b4d381fbeb14e95e8e5e56c25b7b874716fe4c81abce71575;
+default per-lease service routing and local input quarantine remain unchanged.
+Keeper modules remain unwired; the trusted owner extension does not enable them.
+
+Full195-suite/199-evidence-file pass93.066s has unchanged source/suite/installed
+identity: pressure/v2-2026-10-19T00-26-59-451Z.json. Final focused49 pass27.923s
+with before/after hashes covering lib, candidate, remote fixtures and tests:
+pressure/release-20261018/focused.json and focused.log. These include actual
+owner/watchdog normal, cancellation and double-owner-loss with synthetic sockets,
+FD3/guardian refusal, kernel held/free identity and filter classifications.
+No current native UI/input/harness adoption follows from those tests.
+
+Final candidate additions: owner-binding.mjs connects checked owner/watchdog
+through exact persisted resident request IDs, live FD3 and returned trusted
+binding; lease-observation.mjs verifies private owner evidence, current groups,
+descriptor identity and one-shot nonblocking kernel flock. A process startup
+deadline is never inferred to mean lock contention. UUID evidence-directory
+names are covered. filter-audit.mjs classifies exact helper/baseline/target filters
+without changing them or claiming native receiving/physical safety. Controller
+loss during a pending native release and actual adapter integration are deferred.
+
+Original keeper-owner-binding-first.log6/7 and keeper-owner-binding-final.log46/47
+remain failed: aliased baseline test data and an ambiguous timed lock probe were
+corrected before final-source49/49. The failed synthetic root
+/private/tmp/keeper-contract-9hNvgO is preserved; do not clean it to pass a check.
+Historical native resident/resource/shared-helper passes keep their own producer
+hashes; current candidate changes were not native-qualified or staged remotely.
+
+Manual fresh-launcher MCP fixture smoke PASSES: one idempotent durable job,
+persisted result, independent MCP reconnect and shared candidate readback;
+synthetic saved record unchanged. Report pressure/release-20261018/fixture-smoke.json.
+Local configs and quarantine hashes unchanged. Second post-publication real
+ordinary-chat metadata read and exact loaded version are the final release gate.
+All current test/tool handles are terminal; remote cleanup remains as previously
+recorded with no new native run. Codex bridge/1Password work stays separate.
+
+The release audit preserves the original universal objective as deferred work;
+it does not claim unattended cold startup, native input safety or every consent
+gate solved. Next changed condition is a new explicit release scope, not another
+unchanged native probe or automatic keeper integration.
+
 ## October 18 shared resident control and native reconnect pass
 
 New isolated resident.mjs owns one coordinator independently of each client

@@ -1,5 +1,19 @@
 # Input keeper lifetime candidate
 
+**Release freeze:** retained as experimental source, excluded from supported v2
+routing. Later integration work requires explicit scope; see
+`../../docs/release-2026-10-18.md`. Local input quarantine remains enabled.
+
+The final candidate adds trusted `owner-binding.mjs`, live FD3/kernel-lock
+observations in `lease-observation.mjs`, and pure `filter-audit.mjs` classification.
+Normal completion, cancellation and caller+owner loss use the existing real UI
+owner/watchdog with synthetic socket resources. Filter classification does not
+disable filters or establish receiving/physical safety. The one-shot nonblocking
+kernel probe distinguishes process startup failure from a held mutex. A prior
+timed-probe cancellation failure and an aliased-baseline test failure remain
+preserved. Current native lease adapters and pending-release controller loss are
+not qualified. No production call site imports these modules.
+
 `lifetime.mjs` is an isolated integration candidate, not imported by the shipped
 MCP server, CLI, Tier C owner or worker. It does not load or start Computer Use.
 Trusted adapters supply resource/client handles and independent observations;

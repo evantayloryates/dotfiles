@@ -80,7 +80,7 @@ async function start(spec){
  const text=(result.content??[]).filter(c=>c.type==='text').map(c=>c.text).join('\n')
  row.inventory={isError:result.isError===true,bytes:Buffer.byteLength(text),sha256:hash(text),hasText:!!text.length,images:(result.content??[]).filter(c=>c.type==='image').length};save()
  if(result.isError||!text.length||row.refusedNativeRequests)throw Error('public inventory keeper connection did not qualify')
- row.ready=await probe();save();return {epoch:row.epoch,observation:row.ready,inventory:row.inventory,runtimeHashes:runtime.hashes}
+ row.ready=await probe();save();return {epoch:row.epoch,observation:row.ready,inventory:row.inventory,runtimeHashes:runtime.hashes,inputBinding:service.binding}
 }
 process.on('message',async m=>{
  if(!Number.isSafeInteger(m?.id)||busy||closing){if(Number.isSafeInteger(m?.id))process.send?.({id:m.id,error:'resource operation unavailable'});return}

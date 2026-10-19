@@ -9,6 +9,7 @@ import {fileURLToPath} from 'node:url'
 import {createKeeperLifetime} from '../../candidates/input-keeper/lifetime.mjs'
 import {acquireKernelLock} from '../../lib/kernel-lock.mjs'
 import {ownedGroupMembers} from '../../lib/ui-lease-owner.mjs'
+import {probeUiKernelLock} from '../../candidates/input-keeper/lease-observation.mjs'
 
 const fixture=fileURLToPath(new URL('./keeper-fixture.mjs',import.meta.url)),epoch='a'.repeat(64)
 const sleep=ms=>new Promise(r=>setTimeout(r,ms))
@@ -34,7 +35,7 @@ async function rig(){
  const root=mkdtempSync('/private/tmp/keeper-contract-'),evidence=join(root,'keeper.json'),path=join(root,'s'),lockPath=join(root,'ui.lock')
  const owners=[],releases=[],state={epoch,opens:0,clientOpens:0,retireFails:false,settleReady:true},sentinel=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'})
  let resource,keeperConnection,keeper,passed=false
- const contend=()=>spawnSync(process.execPath,['--input-type=module','-e',`import{acquireKernelLock}from${JSON.stringify(new URL('../../lib/kernel-lock.mjs',import.meta.url).href)};try{const r=await acquireKernelLock(${JSON.stringify(lockPath)},{timeoutMs:80});r();console.log('acquired')}catch(e){console.log(e.category)}`],{encoding:'utf8',timeout:2000}).stdout.trim()
+ const contend=()=>{const s=lstatSync(lockPath);return probeUiKernelLock(lockPath,{dev:s.dev,ino:s.ino}).held?'lock_timeout':'acquired'}
  const adapters={
   runtimeEpoch:async()=>state.epoch,
   openResource:async()=>{

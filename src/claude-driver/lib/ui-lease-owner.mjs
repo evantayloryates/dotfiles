@@ -41,6 +41,21 @@ async function reapGroup(group,{excludeSelf=false,excludePids=[]}={}){
  return {group,forced,terminated,escalated,remaining:[]}
 }
 const ancillaryGit=path=>/^\/(?:usr\/bin|opt\/homebrew\/(?:bin|Cellar\/git\/[A-Za-z0-9._-]+\/(?:bin|libexec\/git-core)|opt\/git\/libexec\/git-core))\/(?:git|git-remote-https?)$/.test(path)
+// Trusted service adapters may retire worker peers while a separate keeper
+// stays alive. This capability is restricted to the current live owner/group
+// and inherited lock; no saved PID or tool argument authorizes another group.
+export async function retireUiWorkerPeers({watcherPid,lock}){
+ const s=fstatSync(3),rows=await groupSnapshot(process.pid)
+ if(!s.isFile()||s.dev!==lock?.dev||s.ino!==lock?.ino||!rows.some(p=>p.pid===process.pid)||!Number.isSafeInteger(watcherPid)||watcherPid<=1||watcherPid===process.pid)throw failed('Worker retirement requires live owner/group/lock')
+ const watcher=rows.find(p=>p.pid===watcherPid)
+ if(watcher&&watcher.ppid!==process.pid)throw failed('Worker retirement guardian is not the live owner child')
+ if(!watcher){
+  let gone=false;try{process.kill(watcherPid,0)}catch(error){if(error.code==='ESRCH')gone=true;else throw error}
+  if(!gone)throw failed('Worker retirement guardian is live outside the owned group')
+ }
+ const receipt=await reapGroup(process.pid,{excludeSelf:true,excludePids:watcher?[watcher.pid]:[]})
+ return {...receipt,ancillaryGitOnly:receipt.forced&&!receipt.escalated&&receipt.terminated.length>0&&receipt.terminated.every(p=>ancillaryGit(p.path))}
+}
 function retireAbandonedSocket(dir,group){
  const file=join(dir,'private-input-service.json'),row=readJson(file,null)
  if(row?.parentPid!==group||row.closed===true||typeof row.socketPath!=='string')return false
@@ -161,7 +176,7 @@ async function executeLease({payload,dir,ownerLock},signal,{openService,audit,ab
   let cleanupError
   // A normally closed worker lets the native helper and its own internal
   // descendants drain first. Failed/cancelled workers must lose their clients.
-  row.workerGroupCleanup=!signal.aborted&&workerExit?.code===0&&!workerResult?.error?{group:process.pid,forced:false,remaining:[],deferredUntilHelperExit:true}:await reapGroup(process.pid,{excludeSelf:true,excludePids:[service?.pid,watcher?.pid].filter(Boolean)})
+  row.workerGroupCleanup=!signal.aborted&&workerExit?.code===0&&!workerResult?.error?{group:process.pid,forced:false,remaining:[],...service?.persistent?{deferredToServiceAdapter:true}:{deferredUntilHelperExit:true}}:await reapGroup(process.pid,{excludeSelf:true,excludePids:[service?.pid,watcher?.pid].filter(Boolean)})
   try{if(service){const receipt=await service.close();if(response)response.nativeInputService=receipt;row.nativeInputService=receipt}}catch(e){cleanupError=e.message}
   row.groupCleanup=await reapGroup(process.pid,{excludeSelf:true,excludePids:watcher?.pid?[watcher.pid]:[]})
   // Current bundled backends can leave their own Git children after a normal

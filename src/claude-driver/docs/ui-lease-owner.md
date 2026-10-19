@@ -1,5 +1,12 @@
 # UI lease ownership and bounded teardown — October 18, 2026
 
+Release note: default per-lease private-helper routing and quarantine are
+unchanged. A trusted candidate adapter can request current-group peer retirement
+only with the owner's inherited FD3 identity and live child guardian verification.
+Persistent-adapter cleanup metadata differs from normal helper-exit metadata;
+the shipped default adapter does not enable that branch. Keeper routing remains
+unwired and outside the supported release.
+
 Tier C now starts one private lease owner before helper startup. That owner
 holds the inherited kernel mutex, manages the existing helper factory and UI
 worker, and performs its own post-lease input audit. The caller keeps the other

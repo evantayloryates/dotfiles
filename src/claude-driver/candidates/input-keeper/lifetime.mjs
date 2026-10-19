@@ -51,14 +51,14 @@ export async function createKeeperLifetime({evidence,epoch,guardTimeoutMs=1000},
   if(value?.alive!==true||value.kernelLockHeld!==true||!same(owner(value.owner),lease.owner))throw refusal('live-kernel-owner-unverified')
   if(lease.owner.group===row.resource?.group||lease.owner.pid===row.resource?.pid)throw refusal('keeper-inside-lease-group')
  }
- const publicLease=lease=>({token:lease.token,generation:row.generation,resource:{...row.resource},owner:structuredClone(lease.owner)})
+ const publicLease=lease=>({token:lease.token,generation:row.generation,resource:{...row.resource},owner:structuredClone(lease.owner),...lease.client?.inputBinding?{inputBinding:structuredClone(lease.client.inputBinding)}:{}})
  const retire=async(lease,outcome)=>{
   // Do not accept receipt objects from callers. These adapters independently
   // inspect the tracked handle/group and target state while the lock is held.
-  const retirement=await adapters.retireClient({client:lease.client,token:lease.token,owner:lease.owner,outcome})
+  const retirement=await adapters.retireClient({client:lease.client,token:lease.token,owner:lease.owner,guardians:lease.guardians,evidenceDir:lease.evidenceDir,outcome})
   lease.record.retirement={clientsRetired:retirement?.clientsRetired===true,workerPeersRetired:retirement?.workerPeersRetired===true};save()
   if(!lease.record.retirement.clientsRetired||!lease.record.retirement.workerPeersRetired)throw refusal('lease-clients-not-retired')
-  const settlement=await adapters.settleInput({token:lease.token,owner:lease.owner,outcome})
+  const settlement=await adapters.settleInput({token:lease.token,owner:lease.owner,guardians:lease.guardians,evidenceDir:lease.evidenceDir,outcome})
   const holder=owner(settlement?.lockHolder)
   lease.record.settlement={verified:settlement?.verified===true,lockHolder:holder};save()
   if(!lease.record.settlement.verified||![lease.owner,...lease.guardians].some(p=>same(p,holder)))throw refusal('receiving-settlement-unverified')
@@ -91,20 +91,21 @@ export async function createKeeperLifetime({evidence,epoch,guardTimeoutMs=1000},
     await observe();row.phase='idle';save();return {...row.resource}
    }catch{throw fence('keeper-startup-unverified')}
   }),
-  acquire:({owner:proposedOwner,guardians=[],signal}={})=>run(async()=>{
+  acquire:({owner:proposedOwner,guardians=[],evidenceDir,signal}={})=>run(async()=>{
    if(row.phase!=='idle'||active)throw refusal('keeper-not-idle')
    if(signal?.aborted)throw refusal('lease-cancelled-before-admission')
    if(!Array.isArray(guardians)||guardians.length>2)throw refusal('invalid-lease-guardians')
-   const lease={owner:owner(proposedOwner),guardians:guardians.map(owner),token:randomUUID()}
+   if(evidenceDir!==undefined&&(typeof evidenceDir!=='string'||!isAbsolute(evidenceDir)||evidenceDir.includes('\0')))throw refusal('invalid-lease-evidence-directory')
+   const lease={owner:owner(proposedOwner),guardians:guardians.map(owner),evidenceDir,token:randomUUID()}
    if(lease.guardians.some(p=>!same(p.lock,lease.owner.lock)))throw refusal('guardian-lock-mismatch')
    // Admission failure before openClient creates no lease/client and still
    // fences observed runtime/resource drift rather than starting a replacement.
    try{await observe();await observeOwner(lease);for(const guardian of lease.guardians)await observeOwner({owner:guardian})}catch{throw fence('lease-admission-unverified')}
    if(signal?.aborted)throw refusal('lease-cancelled-before-client-start')
-   lease.record={token:lease.token,owner:lease.owner,guardians:lease.guardians,startedAt:new Date().toISOString(),outcome:'unknown'}
+   lease.record={token:lease.token,owner:lease.owner,guardians:lease.guardians,...evidenceDir?{evidenceDir}:{},startedAt:new Date().toISOString(),outcome:'unknown'}
    active=lease;row.leases.push(lease.record);row.leases=row.leases.slice(-32);row.leaseCount++;row.phase='leased';save()
    try{
-    lease.client=await adapters.openClient({resource,token:lease.token,owner:lease.owner,signal})
+    lease.client=await adapters.openClient({resource,token:lease.token,owner:lease.owner,guardians:lease.guardians,evidenceDir,signal})
     await observe();await observeOwner(lease)
     if(signal?.aborted)throw refusal('lease-cancelled-during-admission')
     return publicLease(lease)

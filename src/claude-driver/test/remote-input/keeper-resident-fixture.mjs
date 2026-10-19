@@ -8,7 +8,10 @@ import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {serveKeeperResident} from '../../candidates/input-keeper/resident.mjs'
 import {matchingLockDescriptors,readProcessSnapshot} from '../../candidates/input-keeper/process-observation.mjs'
+import {admitUiOwnerEvidence,observeUiKernelOwner,observeRetiredUiPeers,probeUiKernelLock} from '../../candidates/input-keeper/lease-observation.mjs'
+import {syntheticInputBinding} from '../private-input-fixture.mjs'
 const dir=process.argv[2],epoch='c'.repeat(64),sleep=ms=>new Promise(r=>setTimeout(r,ms))
+const bindingMode=process.argv[3]==='--owner-binding'
 if(!/^\/private\/tmp\/keeper-resident-test-[A-Za-z0-9]+$/.test(dir))throw Error('owned fixture directory required')
 const st=lstatSync(dir);if(st.uid!==process.getuid()||st.isSymbolicLink()||(st.mode&0o077)!==0)throw Error('private fixture refused')
 const helperPath=join(dir,'r'),row={scope:'synthetic-resident-transport-only',opens:0,clientStarts:0,pid:process.pid}
@@ -33,24 +36,32 @@ const adapters={
   return {alive:true,uiLockInherited:value.lock!==null,identity:{pid:helper.pid,group:process.pid,socketPath:helperPath,socketDev:s.dev,socketIno:s.ino}}
  },
  observeOwner:async owner=>{
+   if(bindingMode)return observeUiKernelOwner(owner,join(dir,'state/locks/ui-automation.mutex'))
   const current=readProcessSnapshot().rows.find(p=>p.pid===owner.pid)
   if(!current||current.group!==owner.group)return {alive:false}
   const output=execFileSync('/usr/sbin/lsof',['-nP','-a','-p',String(owner.pid),'-F','pfiD'],{encoding:'utf8',timeout:3000,maxBuffer:256*1024})
-  const contender=spawnSync(process.execPath,['--input-type=module','-e',`import{acquireKernelLock}from${JSON.stringify(new URL('../../lib/kernel-lock.mjs',import.meta.url).href)};try{const r=await acquireKernelLock(${JSON.stringify(join(dir,'ui.lock'))},{timeoutMs:60});r();console.log('free')}catch(e){console.log(e.category)}`],{encoding:'utf8',timeout:2000})
-  return {alive:true,owner,kernelLockHeld:matchingLockDescriptors(output,owner.lock).length>0&&contender.stdout.trim()==='lock_timeout'}
+  return {alive:true,owner,kernelLockHeld:matchingLockDescriptors(output,owner.lock).length>0&&probeUiKernelLock(join(dir,'ui.lock'),owner.lock).held}
  },
- openClient:async({token})=>{
+ openClient:async({token,owner,guardians,evidenceDir})=>{
   row.clientStarts++;save()
+  if(bindingMode){admitUiOwnerEvidence({owner,guardians,evidenceDir},dir);return {inputBinding:{...syntheticInputBinding(dir),socketPath:helperPath}}}
   const socket=connect(helperPath);await once(socket,'connect');activeSockets.set(token,socket)
   while(existsSync(join(dir,'pause-open'))&&!existsSync(join(dir,'resume-open')))await sleep(20)
   return socket
  },
- retireClient:async({token})=>{
+ retireClient:async({token,owner,guardians})=>{
+  if(bindingMode)return observeRetiredUiPeers({owner,guardians})
   const socket=activeSockets.get(token);if(socket){socket.end();await once(socket,'close');activeSockets.delete(token)}
   return {clientsRetired:true,workerPeersRetired:true}
  },
- settleInput:async({owner})=>{
-  for(let i=0;i<100;i++){if((await rpc('probe')).clients===1)return {verified:true,lockHolder:owner};await sleep(10)}
+ settleInput:async({owner,guardians})=>{
+  for(let i=0;i<100;i++){
+   if((await rpc('probe')).clients===1){
+    const holder=bindingMode?[owner,...guardians].find(p=>{try{return observeUiKernelOwner(p,join(dir,'state/locks/ui-automation.mutex')).kernelLockHeld}catch{return false}}):owner
+    if(holder)return {verified:true,lockHolder:holder}
+   }
+   await sleep(10)
+  }
   return {verified:false,lockHolder:owner}
  },
  closeResource:async()=>{

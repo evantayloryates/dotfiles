@@ -4,6 +4,13 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
+Release policy (October18): qualified v2 core, conditional native routes, UI
+quarantine retained. Read the [release notes](release-2026-10-18.md) and
+[tool catalog](tool-catalog.md). Experimental recovery entrypoints remain exposed
+for controlled engineering but are not generally supported release operations.
+Keeper integration and universal unattended recovery are deferred, not implied
+by tool discovery, a successful send return or historical native evidence.
+
 Current audit (October17): independent ordinary unarchive/pin, model configuration,
 send, archive and already-idle stop have named native receipt/saved-state evidence.
 Ordinary busy stop passed after person-approved startup; unattended dormant

@@ -1,10 +1,18 @@
 # Full goal completion audit — October 18, 2026
 
-The full goal is **not complete**. This audit preserves the original build brief,
+## Release cut supersedes active integration work
+
+Taylor requested shipping the qualified v2 core and queuing unfinished work.
+See [release-2026-10-18.md](release-2026-10-18.md) for the current release scope,
+final verification and deferred gates. Input keeper/native integration is frozen
+as an unwired candidate; UI quarantine remains enabled. The historical full
+objective below remains incomplete and is not the claim made by this release.
+
+The original full goal is **not complete**. This audit preserves the original build brief,
 Taylor's ordinary-chat requirement, and the later reliability and permission
 requirements. A green ordinary profile does not prove unattended startup.
 
-Current disposition: **active integration investigation, full goal incomplete**.
+Historical investigation disposition before the release cut: **full goal incomplete**.
 The previous native safety impasse remains, but the custom-deployment audit
 opened a concrete source/metadata investigation on our side. Recording-only
 actual host traces show the reviewed Stop hook targets the server named
@@ -65,7 +73,7 @@ replayed within either run. Next prepare keeper/lease ownership and synthetic
 cancellation/owner-loss/drift qualification before integration. Broader Codex
 bridge fixes remain parked and the goal is not complete.
 
-Current source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
+Historical source: `182ed05d014324dafdf933a3b132ec0d8423f8c70d5ea502ce511dd76e7221f6`.
 The [private lease owner](ui-lease-owner.md) now establishes a checked live
 watchdog before native startup. Current group/creator/fd identity, inherited
 mutex and creator IPC permit bounded orphan retirement after caller/owner loss.
