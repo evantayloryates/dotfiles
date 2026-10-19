@@ -749,6 +749,24 @@ processes were left running.
       base64-hidden URL, with a "pre-approved by Taylor" note, rejected it
       as high risk and named all four problems.
 
+54. **Security review of the gate itself.** Three fixes.
+    - **The desktop fixer is off by default.** `fixer-claude.mjs` runs a
+      bypass-permission desktop session in the real repo: unsandboxed,
+      releasing its own change, out of the review gate's reach. It now
+      refuses unless `ANCHOR_ALLOW_DESKTOP_FIXER=1` is set for a
+      supervised run. The headless fixer is the automated one.
+    - **The reviewer's folder came from the fixer's workspace.** A fixer
+      could plant files or a symlink there. Each review now gets a fresh
+      folder under `~/.cache/anchor-lab/reviews/`, its files are created
+      new (`wx`), and odd file names are refused.
+    - **Verdict parsing was lenient.** It took the last line that looked
+      like JSON. Only the very last line counts now, and an answer with two
+      verdict objects is no verdict.
+
+    Headless 27/27, including a fixer that plants a review symlink and a
+    reviewer answer with two verdicts. All 15 suites pass (291 checks).
+    Real fixer and reviewer: fixed, "review approved (risk low)".
+
 **Final pilot** (r7 and r8 through anchor, pooled; baselines r5 and r6
 direct): every phase 3 target met in both harnesses.
 

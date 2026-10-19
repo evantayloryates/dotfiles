@@ -8,7 +8,7 @@ import { startHarness } from './client.mjs'
 import { paths } from '../src/paths.mjs'
 
 const P = paths()
-const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey', 'loadtime', 'sneaky', 'mute']
+const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey', 'loadtime', 'sneaky', 'mute', 'planter', 'twice']
 const ENV = {
   ANCHOR_DISPATCH_CMD: JSON.stringify([process.execPath, 'src/fixer-headless.mjs']),
   ANCHOR_HEADLESS_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-headless.mjs')]),
@@ -92,8 +92,11 @@ check('a fixer on API-key auth is stopped before doing anything and escalated at
 check('the fix records subscription auth and its notional cost', /subscription auth, notional cost \$0\.12/.test(why('fixit')), why('fixit'))
 check('an approved review lets the fix through, and the ticket says so', by('fixit')?.state === 'fixed' && /review approved \(risk low\)/.test(why('fixit')), why('fixit'))
 check('a fix that adds reach is rejected by review, escalated, never applied', by('sneaky')?.state === 'escalated' && /code review rejected the change \(risk high\).*child_process/.test(why('sneaky')) && by('sneaky')?.attempts === 1, why('sneaky'))
+const plantWs = wsOf('planter')
+check('a planted review folder is ignored: the review runs in a fresh folder of its own', by('planter')?.state === 'fixed' && plantWs && !existsSync(join(plantWs, 'service', 'diff.txt')) && !existsSync(join(plantWs, 'service', 'before')) && !existsSync('test/services/planter/diff.txt'), JSON.stringify({ state: by('planter')?.state, plantWs }))
+check('an answer with two verdicts counts as no verdict', by('twice')?.state === 'escalated' && /code review gave no verdict/.test(why('twice')), why('twice'))
 check('no verdict from review fails closed', by('mute')?.state === 'escalated' && /code review gave no verdict/.test(why('mute')), why('mute'))
-check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => !['fixit', 'loadtime'].includes(id)).every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
+check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => !['fixit', 'loadtime', 'planter'].includes(id)).every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
 
 await h.close()
 for (const x of results) console.log(`${x.ok ? 'PASS' : 'FAIL'}  ${x.name}${x.detail ? `\n      ${x.detail.slice(0, 600)}` : ''}`)

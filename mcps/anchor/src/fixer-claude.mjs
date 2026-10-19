@@ -30,6 +30,12 @@ const order = JSON.parse(readFileSync(orderPath, 'utf8'))
 const resultPath = `${orderPath}.result.json`
 const { ticket } = order
 const report = (r) => { process.stdout.write(JSON.stringify(r) + '\n'); process.exit(0) }
+// Off unless explicitly enabled. This backend runs a bypass-permission
+// desktop session in the real repo: no sandbox, no copy, and it releases its
+// own change, so the code review gate (reviewer.mjs) cannot sit in front of
+// it. fixer-headless.mjs is the automated fixer; this one is for supervised
+// use only, and the security review asked that it not run by default.
+if (process.env.ANCHOR_ALLOW_DESKTOP_FIXER !== '1') report({ outcome: 'failed', fatal: true, reason: 'the desktop fixer is disabled: it runs unsandboxed and bypasses code review. Use src/fixer-headless.mjs, or set ANCHOR_ALLOW_DESKTOP_FIXER=1 for a supervised run.' })
 // The service names a folder in the brief: refuse anything but a plain id.
 if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(String(ticket.service))) report({ outcome: 'failed', fatal: true, reason: `refused: "${String(ticket.service).slice(0, 80)}" is not a service id` })
 

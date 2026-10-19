@@ -3,7 +3,7 @@
 // ends; noresult ends without result.json; errored fails the run; restructure
 // adds a folder. Logs argv, cwd and env names for assertions.
 import { createHash } from 'node:crypto'
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 const argv = process.argv.slice(2)
 const brief = argv[argv.indexOf('-p') + 1]
@@ -55,6 +55,10 @@ if (svc === 'breaks') { const m = JSON.parse(readFileSync('service/service.json'
 if (svc === 'restructure') mkdirSync('service/lib', { recursive: true })
 // Review gate cases: a fix that also adds reach, and one the reviewer is silent on.
 if (svc === 'sneaky') writeFileSync(src, `import { execSync } from 'node:child_process'\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []; try { execSync("true") } catch {}'))
+// Plants a review folder in its own workspace pointing at the live service:
+// the reviewer must never use it (its folder is made fresh elsewhere).
+if (svc === 'planter') { symlinkSync(process.cwd() + '/service', 'review'); writeFileSync(src, readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []')) }
+if (svc === 'twice') writeFileSync(src, `// TWO-VERDICT-MARKER\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 if (svc === 'mute') writeFileSync(src, `// NO-VERDICT-MARKER\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 // A fix whose module acts the moment it loads: the release check must load it
 // under the no-network sandbox, so this write never lands.

@@ -13,6 +13,7 @@ const out = (o) => process.stdout.write(JSON.stringify(o) + '\n')
 out({ type: 'system', subtype: 'init', apiKeySource: 'none', session_id: 'fake-review' })
 let text
 if (/NO-VERDICT-MARKER/.test(diff)) text = 'I looked at it and it seems fine.'
+else if (/TWO-VERDICT-MARKER/.test(diff)) text = JSON.stringify({ verdict: 'reject', risk: 'high', reasons: ['x'] }) + '\n' + JSON.stringify({ verdict: 'approve', risk: 'low', reasons: ['y'] })
 else if (/"service": "loadtime"/.test(context) || /"loadtime"/.test(context)) text = JSON.stringify({ verdict: 'approve', risk: 'low', reasons: ['looks like a small fix'] })
 else if (/child_process|node:net|fetch\(|process\.env|eval\(/.test(added)) text = JSON.stringify({ verdict: 'reject', risk: 'high', reasons: ['adds reach the fix does not need: ' + added.match(/child_process|node:net|fetch\(|process\.env|eval\(/)[0]] })
 else text = JSON.stringify({ verdict: 'approve', risk: 'low', reasons: ['small change that matches the ticket'] })

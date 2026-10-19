@@ -11,6 +11,7 @@ const P = paths()
 const ENV = {
   ANCHOR_DISPATCH_CMD: JSON.stringify([process.execPath, 'src/fixer-claude.mjs']),
   ANCHOR_FIXER_DRIVER: JSON.stringify([process.execPath, 'test/fake-driver.mjs']),
+  ANCHOR_ALLOW_DESKTOP_FIXER: '1',
   ANCHOR_FIXER_POLL_MS: '300',
   ANCHOR_FIXER_IDLE_GRACE_MS: '1000',
   ANCHOR_FIXER_TIMEOUT_MS: '4000',

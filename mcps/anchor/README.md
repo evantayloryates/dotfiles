@@ -37,7 +37,9 @@ and can send a sandboxed fixer to repair them.
   the diff and what the change is for, but not the fixer's reasoning. A
   rejection, or no verdict, escalates the ticket to Taylor. The template is
   generic: any path that releases without a person can call
-  `reviewChange()`. `ANCHOR_REVIEW=off` disables it.
+  `reviewChange()`. `ANCHOR_REVIEW=off` disables it. The desktop fixer
+  (`src/fixer-claude.mjs`) cannot be reviewed, so it is off unless
+  `ANCHOR_ALLOW_DESKTOP_FIXER=1` is set for a supervised run.
 - **Discovery** (`src/discovery.mjs`): a keyword first pass over service
   manifests, with per-service relevance hooks.
 - **Alerts and dashboard** (`src/alerts.mjs`, `src/export-dashboard.mjs`).
