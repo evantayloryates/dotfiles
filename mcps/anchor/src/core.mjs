@@ -817,7 +817,8 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
     for (const sup of supervisors.values()) sup.stop()
   }
 
-  return { hello, discover, describe, run, shutdown, sessions, supervisors, mode, book, hooks }
+  const activeJobs = () => [...jobs.values()].filter((j) => j.state === 'running').length
+  return { hello, discover, describe, run, shutdown, sessions, supervisors, mode, book, hooks, activeJobs }
 }
 
 function readJson(path, fallback) {

@@ -14,6 +14,7 @@ import { Alerts } from './alerts.mjs'
 import { spawn } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 import { paths } from './paths.mjs'
+import { buildId } from './build.mjs'
 
 if (process.env.ANCHOR_DAEMON_BROKEN === '1') { console.error('[anchord] test hook: refusing to start'); process.exit(1) }
 const { servicesDir, stateDir, socket, pidFile } = paths()
@@ -54,6 +55,29 @@ anchor.hooks.ticketChanged = (type, t) => {
   }
 }
 
+// Build id (build.mjs) and draining: a front end that finds this daemon on
+// code no longer on disk asks it to drain. It then refuses new work, lets
+// in-flight requests and running jobs finish (up to DRAIN_MS), and exits; the
+// front end starts a daemon on the current code. Journals carry sessions,
+// pins, notes, records and tickets across.
+const BUILD = buildId()
+const DRAIN_MS = Number(process.env.ANCHOR_DRAIN_MS || 30_000)
+let draining = false
+let inflight = 0
+function drain() {
+  if (draining) return
+  draining = true
+  log('draining: build', BUILD, 'is no longer on disk')
+  const until = Date.now() + DRAIN_MS
+  const t = setInterval(() => {
+    if ((inflight === 0 && anchor.activeJobs() === 0) || Date.now() > until) {
+      clearInterval(t)
+      log('drained', inflight === 0 && anchor.activeJobs() === 0 ? 'cleanly' : `with ${inflight} requests and ${anchor.activeJobs()} jobs still running`)
+      stop()
+    }
+  }, 100)
+}
+
 const server = createServer((conn) => {
   const send = (m) => conn.writable && conn.write(JSON.stringify(m) + '\n')
   createInterface({ input: conn }).on('line', async (line) => {
@@ -64,11 +88,16 @@ const server = createServer((conn) => {
       return send({ id: null, error: { message: 'parse error' } })
     }
     const { id, method, params = {} } = req
+    // Draining: refuse new work before acknowledging it, so the front end
+    // knows it never ran and resends it to the next daemon.
+    if (draining && !['ping', 'drain'].includes(method)) return send({ id, error: { message: 'draining: the anchor daemon is restarting on new code', draining: true } })
     // Receipt first: a request lost before this ack never ran and may be retried.
     send({ id, ack: true })
+    inflight++
     try {
       let result
-      if (method === 'ping') result = { ok: true, pid: process.pid }
+      if (method === 'ping') result = { ok: true, pid: process.pid, build: BUILD, draining }
+      else if (method === 'drain') { drain(); result = { draining: true, inflight: inflight - 1, jobs: anchor.activeJobs() } }
       else if (method === 'hello') result = await anchor.hello(params)
       else if (method === 'discover') result = await anchor.discover(params)
       else if (method === 'describe') result = await anchor.describe(params)
@@ -78,6 +107,8 @@ const server = createServer((conn) => {
     } catch (err) {
       log(err)
       send({ id, error: { message: err.message } })
+    } finally {
+      inflight--
     }
   })
   conn.on('error', () => {})

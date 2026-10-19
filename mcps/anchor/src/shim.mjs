@@ -10,6 +10,7 @@ import { createInterface } from 'node:readline'
 import { randomBytes } from 'node:crypto'
 import { serveMcp } from '../../_shared/kernel/mcp-stdio.mjs'
 import { paths } from './paths.mjs'
+import { buildId } from './build.mjs'
 import { PREAMBLE } from './core.mjs'
 import { mayRerun, policyForTarget } from './policy.mjs'
 import { Alerts } from './alerts.mjs'
@@ -48,7 +49,7 @@ function connect() {
         if (m.ack) return void (w.acked = true)
         if (m.progress) return w.onProgress?.(m.progress)
         waiting.delete(m.id)
-        m.error ? w.reject(Object.assign(new Error(m.error.message), { remote: true })) : w.resolve(m.result)
+        m.error ? w.reject(Object.assign(new Error(m.error.message), { remote: true, draining: !!m.error.draining })) : w.resolve(m.result)
       })
       c.on('close', () => {
         if (conn === c) conn = null
@@ -63,11 +64,45 @@ function connect() {
   })
 }
 
+// Updates without restarts. The disk is the source of truth: a daemon whose
+// build is no longer on disk is drained and replaced by one started from the
+// current code. A front end older than the disk never touches the daemon (a
+// daemon only ever starts from disk, so nothing can go back to old code); it
+// tells its chat once that a new chat picks up the update.
+const MY_BUILD = buildId()
+const DRAIN_WAIT_MS = Number(process.env.ANCHOR_DRAIN_WAIT_MS || 35_000)
+let staleNote = null
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+async function waitGone() {
+  const until = Date.now() + DRAIN_WAIT_MS
+  while (Date.now() < until) {
+    try { const c = await connect(); c.destroy(); await sleep(200) } catch { return true }
+  }
+  return false
+}
+// True when the connected daemon runs the code on disk; false when it was
+// drained (the caller then starts a new one).
+async function upToDate() {
+  const disk = buildId()
+  let info
+  try { info = await request('ping', {}) } catch { return true }
+  if (!info?.build || info.build === disk) {
+    if (MY_BUILD !== disk && staleNote === null) staleNote = 'This chat started on an older anchor front end. The installed update reaches it in a new chat.'
+    return true
+  }
+  log(`daemon build ${info.build} is not the code on disk (${disk}): draining it`)
+  try { await request('drain', { build: disk }) } catch {}
+  conn?.destroy()
+  conn = null
+  await waitGone()
+  return false
+}
+
 async function ensureDaemon() {
   if (conn) return true
   try {
     conn = await connect()
-    return true
+    if (await upToDate()) return true
   } catch {}
   // Not running: start it (launchd does this in production), then wait.
   const out = openSync(join(P.stateDir, 'anchord.log'), 'a')
@@ -135,8 +170,21 @@ async function call(method, params, onProgress) {
       return fn({ ...params, session: sessionHandle }, onProgress)
     }
     try {
-      return await request(method, params, onProgress)
+      const result = await request(method, params, onProgress)
+      if (method === 'run' && staleNote) {
+        result.notes = result.notes ? `${result.notes}\n- ${staleNote}` : `[anchor notes]\n- ${staleNote}`
+        staleNote = false
+      }
+      return result
     } catch (err) {
+      // Refused by a draining daemon before it was acknowledged: it never ran.
+      // Wait for that daemon to go, then send it to the next one.
+      if (err.draining && attempt === 0) {
+        conn?.destroy()
+        conn = null
+        await waitGone()
+        continue
+      }
       if (!err.lost) throw err
       conn?.destroy()
       conn = null

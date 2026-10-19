@@ -767,6 +767,30 @@ processes were left running.
     reviewer answer with two verdicts. All 15 suites pass (291 checks).
     Real fixer and reviewer: fixed, "review approved (risk low)".
 
+## First release
+
+55. **A1: updates reach a running daemon without a restart.** Before this,
+    a daemon kept serving its starting code until it died, so fixes from
+    real use would never reach chats.
+    - **Build id:** a hash of `src/` (`src/build.mjs`). The daemon records
+      its own at start, and `ping` reports it.
+    - **The disk is the source of truth.** A front end that finds the
+      daemon's build differs from the code on disk asks it to drain. While
+      draining, the daemon refuses new work before acknowledging it (so the
+      front end resends that work), lets in-flight requests and running
+      jobs finish (up to 30 s), then exits. The front end then starts a
+      daemon from disk.
+    - **Old front ends:** a daemon only ever starts from disk, so an old
+      front end can never bring old code back. It never drains a current
+      daemon; it tells its chat once that a new chat picks up the update.
+    - Upgrade suite 11/11: an in-flight call finishes across the drain, a
+      background job's result survives, pins carry over, an old chat keeps
+      working and is told once, and a third build replaces the second.
+      All 16 suites pass (302 checks).
+
+    From here the front end is frozen (playbook rule): later changes go to
+    the daemon side, which the drain delivers.
+
 **Final pilot** (r7 and r8 through anchor, pooled; baselines r5 and r6
 direct): every phase 3 target met in both harnesses.
 
