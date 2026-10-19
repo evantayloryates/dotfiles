@@ -16,7 +16,7 @@
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { decideApp, decideCommand, decideFileChange } from './policy.mjs'
+import { capSandbox, decideApp, decideCommand, decideFileChange } from './policy.mjs'
 import { existsSync, unlinkSync } from 'node:fs'
 import { STOP_FILE, ensureScreenshotDir, ensureTimelineDir } from './state.mjs'
 
@@ -337,7 +337,8 @@ export async function runTurn(app, opts) {
     if (outputSchema) turnParams.outputSchema = outputSchema
     if (overrides.model) turnParams.model = overrides.model
     if (overrides.effort) turnParams.effort = overrides.effort
-    if (overrides.sandbox) turnParams.sandboxPolicy = sandboxPolicy(overrides.sandbox)
+    const sandbox = capSandbox(policy, overrides.sandbox)
+    if (sandbox) turnParams.sandboxPolicy = sandboxPolicy(sandbox)
     if (overrides.disabledPluginIds) turnParams.disabledPluginIds = overrides.disabledPluginIds
     if (overrides.allowCommands) turnParams.approvalPolicy = { granular: { mcp_elicitations: true, rules: false, sandbox_approval: true } }
     mark('turn_start_sent', { inputChars: input.reduce((n, i) => n + (i.text?.length || 0), 0), images: input.filter((i) => i.type === 'localImage').length })

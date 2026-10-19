@@ -1,5 +1,5 @@
 {
-  "$comment": "codex-bridge approval policy. apps.* entries are app display names or bundle ids. unknown: 'deny' (Claude must pass apps=[...]) or 'session'. commands/fileChanges: 'deny' or 'accept'. sandbox: read-only | workspace-write | danger-full-access. mcpRoster: trim (only Computer Use on bridge threads; boot 1.2 s instead of 3 s) or full.",
+  "$comment": "codex-bridge approval policy. apps.* entries are app display names or bundle ids. unknown: 'deny' (Claude must pass apps=[...]) or 'session'. commands/fileChanges: 'deny' or 'accept'. sandbox: read-only | workspace-write | danger-full-access, the default for every turn. maxSandbox: the most a single call's `sandbox` argument may ask for (never below sandbox); calls above it are rejected. mcpRoster: trim (only Computer Use on bridge threads; boot 1.2 s instead of 3 s) or full.",
   "apps": {
     "always": [],
     "session": ["Finder"],
@@ -9,5 +9,6 @@
   "commands": "deny",
   "fileChanges": "deny",
   "sandbox": "read-only",
+  "maxSandbox": "workspace-write",
   "mcpRoster": "trim"
 }

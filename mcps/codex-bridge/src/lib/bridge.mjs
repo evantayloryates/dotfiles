@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { AppServer } from './appserver.mjs'
 import { trimmedRoster } from './codex-config.mjs'
 import { CODEX_HOME, daemonStatus } from './codex-paths.mjs'
-import { loadPolicy } from './policy.mjs'
+import { SandboxPolicyError, capSandbox, loadPolicy } from './policy.mjs'
 import { STATE_DIR, STOP_FILE, loadState, updateState } from './state.mjs'
 import { unlinkSync, writeFileSync } from 'node:fs'
 import { finalizeTimeline, formatResult, runTurn, summarize } from './turn-runner.mjs'
@@ -127,9 +127,18 @@ export class Bridge {
     return threadId
   }
 
+  #checkSandbox(requested) {
+    try {
+      capSandbox(this.policy, requested)
+    } catch (err) {
+      throw err instanceof SandboxPolicyError ? new BridgeError(err.message) : err
+    }
+  }
+
   async run(args, ctx = {}) {
     const receivedAt = Date.now()
     const session = String(args.session || 'default')
+    this.#checkSandbox(args.sandbox)
     if (this.active.has(session)) {
       const a = this.active.get(session)
       throw new BridgeError(`session "${session}" already has a turn running (started ${a.startedAt}, task: ${a.task.slice(0, 80)}). Use codex_steer to redirect it, codex_interrupt to stop it, or another session name.`)
@@ -245,6 +254,7 @@ export class Bridge {
   startAsync(args, ctx = {}) {
     const session = String(args.session || 'default')
     if (this.jobs.has(session) || this.active.has(session)) throw new BridgeError(`session "${session}" already has a turn running`)
+    this.#checkSandbox(args.sandbox)
     const job = { startedAt: new Date().toISOString(), task: String(args.task), progress: [], done: null, error: null }
     const progress = (m) => {
       job.progress.push(`${new Date().toISOString().slice(11, 19)} ${m}`)
@@ -370,7 +380,7 @@ export class Bridge {
     }
     const head = gitRev()
     lines.push(`bridge: server started ${SERVER_STARTED_AT} on revision ${SERVER_REVISION || '?'}${SERVER_REVISION && head && head !== SERVER_REVISION ? ` (checkout is now ${head}: this session runs an older bridge; a Claude Code restart picks up the current one)` : ''}`)
-    lines.push(`policy: ${this.policy.source || 'built-in defaults'}; sandbox ${this.policy.sandbox}; unknown apps → ${this.policy.apps.unknown}; commands ${this.policy.commands}; mcp roster ${this.policy.mcpRoster || 'full'}`)
+    lines.push(`policy: ${this.policy.source || 'built-in defaults'}; sandbox ${this.policy.sandbox} (per-call max ${this.policy.maxSandbox}); unknown apps → ${this.policy.apps.unknown}; commands ${this.policy.commands}; mcp roster ${this.policy.mcpRoster || 'full'}`)
     const state = loadState()
     const grants = Object.entries(state.grants || {})
     if (grants.length) lines.push(`grants: ${grants.map(([a, s]) => `${a}=${s}`).join(', ')}`)

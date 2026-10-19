@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-18.002
+
+- A call's `sandbox` is now capped by `maxSandbox` in `src/policy.json`
+  (default `workspace-write`, never below `sandbox`). A call asking for more,
+  such as `danger-full-access`, is rejected before any thread or turn starts;
+  only a human edit to the policy raises the cap. Enforced in `Bridge.run`,
+  `startAsync` and `runTurn`. `codex_status` and `preflight` show the cap.
+
 ## 2026-10-18.001
 
 - Moved into the MCP fleet as `mcps/codex-bridge` (formerly `src/codex-bridge`).

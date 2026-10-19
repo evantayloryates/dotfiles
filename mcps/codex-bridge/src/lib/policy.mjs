@@ -20,6 +20,9 @@ export const DEFAULT_POLICY = {
   commands: 'deny',
   fileChanges: 'deny',
   sandbox: 'read-only',
+  // The most a single call may ask for with `sandbox`. Raising it is a human
+  // edit to policy.json; a call can never lift itself past it.
+  maxSandbox: 'workspace-write',
   mcpRoster: 'trim', // 'trim' = Computer Use only on bridge threads; 'full' = whatever config.toml enables
   // sandbox_approval: true lets Codex ASK to escape the read-only sandbox; the
   // bridge then decides from `commands` / allow_commands and the result shows
@@ -73,6 +76,25 @@ export function decideApp(policy, grants, elicitationParams) {
   if (listHas(policy.apps.session, app.ids)) return { app, decision: 'accept', persist: 'session', reason: 'apps.session in policy' }
   if (policy.apps.unknown === 'session') return { app, decision: 'accept', persist: 'session', reason: 'apps.unknown=session in policy' }
   return { app, decision: 'decline', reason: 'not in policy or per-call apps grants' }
+}
+
+export const SANDBOX_MODES = ['read-only', 'workspace-write', 'danger-full-access']
+
+export class SandboxPolicyError extends Error {}
+
+// The per-call `sandbox` capped by policy: returns the mode to use (undefined
+// keeps the thread's policy.sandbox) or throws. The ceiling is the larger of
+// policy.sandbox and policy.maxSandbox; an unrecognised ceiling fails closed
+// to read-only.
+export function capSandbox(policy, requested) {
+  if (requested === undefined || requested === null) return undefined
+  if (!SANDBOX_MODES.includes(requested)) throw new SandboxPolicyError(`unknown sandbox "${requested}"; use one of ${SANDBOX_MODES.join(', ')}`)
+  const rank = (mode) => Math.max(0, SANDBOX_MODES.indexOf(mode))
+  const ceiling = Math.max(rank(policy?.sandbox), rank(policy?.maxSandbox))
+  if (rank(requested) > ceiling) {
+    throw new SandboxPolicyError(`sandbox "${requested}" exceeds the policy ceiling "${SANDBOX_MODES[ceiling]}" (maxSandbox in ${policy?.source || 'the built-in policy'}); only a human edit to policy.json can raise it`)
+  }
+  return requested
 }
 
 export function decideCommand(policy, overrides, params) {

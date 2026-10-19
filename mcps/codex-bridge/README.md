@@ -220,6 +220,10 @@ plus per-call grants, and reports every decision in the result:
   sandbox (`sandbox_approval: true`); the bridge answers from `commands` /
   `allow_commands` and the result lists the denial. With `allow_commands`
   and `sandbox: workspace-write` the thread cwd is writable without asking.
+- **Sandbox ceiling.** A call's `sandbox` can never exceed `maxSandbox` in
+  `src/policy.json` (default `workspace-write`, and never below `sandbox`).
+  A call asking for more, such as `danger-full-access`, is rejected before any
+  thread or turn starts. Only a human edit to the policy raises it.
 - **Permission escalations** are always declined.
 
 Computer Use itself is not sandboxed by `sandbox`; the app allowlist is the

@@ -57,7 +57,7 @@ async function preflight() {
   const pluginCache = join(CODEX_HOME, 'plugins', 'cache', 'openai-bundled', 'unified-computer-use')
   existsSync(pluginCache) ? ok('unified-computer-use plugin cache', pluginCache) : bad('unified-computer-use plugin cache', `${pluginCache} missing`)
   const policy = loadPolicy()
-  ok('policy', `${policy.source || 'built-in defaults'} (unknown apps → ${policy.apps.unknown}, commands ${policy.commands}, sandbox ${policy.sandbox})`)
+  ok('policy', `${policy.source || 'built-in defaults'} (unknown apps → ${policy.apps.unknown}, commands ${policy.commands}, sandbox ${policy.sandbox}, per-call max ${policy.maxSandbox})`)
   const bridge = new Bridge({ log })
   try {
     await bridge.connect()
