@@ -14,10 +14,11 @@
 - Every finished attempt sends a macOS notification that opens the ticket's
   `trace.html`. The worker's smoke checks are restricted to existing
   `test/<name>.test.mjs` files run with `node --test`; model output is never
-  executed as a command. Before master moves, the rebased diff must stay
-  inside `mcps/smart-record/`, be text under 1 MB per file and add no
-  credential-shaped lines, and the suite and smoke tests must pass on the
-  rebased branch. A failed post-merge check files a follow-on ticket
+  executed as a command. Before master moves, the exact rebased commit is
+  vetted from raw blobs: inside `mcps/smart-record/`, no repair-pipeline
+  files, UTF-8 text under 1 MB, no symlinks or mode changes, no
+  credential-shaped lines, unchanged repository git config. The suite and
+  smoke tests must pass on it, and master is fast-forwarded to that SHA only. A failed post-merge check files a follow-on ticket
   (`parent_ticket`, at most two generations).
 - `test/paired-map.test.mjs` reads the expected adapter version from
   `server.mjs` instead of a stale `0.19.1`.

@@ -162,18 +162,40 @@ ALLOWED_PREFIX='mcps/smart-record/'
 MAX_FILE_BYTES=1024*1024
 SECRET_PATTERNS=[re.compile(p) for p in [r'AKIA[0-9A-Z]{16}',r'gh[pousr]_[A-Za-z0-9]{36,}',r'github_pat_[A-Za-z0-9_]{40,}',r'\bsk-[A-Za-z0-9_-]{20,}',
     r'xox[abposr]-[A-Za-z0-9-]{10,}',r'-----BEGIN [A-Z ]*PRIVATE KEY-----',r'AIza[0-9A-Za-z_-]{35}',r'ops_[A-Za-z0-9]{40,}']]
-def vet_diff(path):
-    """Refuse a branch that leaves the service folder, adds binaries or large
-    files, or adds anything shaped like a credential. Runs before master moves."""
-    for line in git(path,'diff','--name-status','--no-renames','master..HEAD').stdout.splitlines():
-        name=line.split('\t')[-1]
+# Files that run, gate or describe the repair pipeline itself: a fix that
+# touches one waits for Taylor instead of merging automatically.
+CONTROL_PLANE={'mcps/smart-record/src/repair-service.py','mcps/smart-record/src/lib/repair-worker-config.mjs','mcps/smart-record/src/lib/repair-tickets.mjs',
+    'mcps/smart-record/src/build.py','mcps/smart-record/src/install.sh','mcps/smart-record/src/launch','mcps/smart-record/mcp.json','mcps/smart-record/AGENTS.md',
+    'mcps/smart-record/docs/REPAIR-WORKER.md','mcps/smart-record/test/repair-service-test.py'}
+# Read diffs and blobs raw: no external diff drivers, textconv or attributes.
+RAW=['-c','diff.external=','-c','core.attributesFile=/dev/null']
+def vet_diff(path,base,head):
+    """Refuse a branch that leaves the service folder, touches the repair
+    pipeline, adds binaries, symlinks, mode changes or large files, or adds a
+    line shaped like a credential. Reads exact commits, never the work tree."""
+    names=[]
+    for line in git(path,*RAW,'diff','--raw','--no-renames','--no-ext-diff','--no-textconv',base,head).stdout.splitlines():
+        meta,name=line.split('\t',1);old_mode,new_mode,_,_,status=meta.lstrip(':').split()
         if not name.startswith(ALLOWED_PREFIX):raise Halt('needs_input',f'The fix changes {name}, outside {ALLOWED_PREFIX}; nothing was merged.')
-        if not line.startswith('D') and int(git(path,'cat-file','-s',f'HEAD:{name}').stdout.strip())>MAX_FILE_BYTES:raise Halt('needs_input',f'The fix adds a file over 1 MB ({name}); nothing was merged.')
-    for line in git(path,'diff','--numstat','master..HEAD').stdout.splitlines():
-        if line.startswith('-\t-\t'):raise Halt('needs_input',f'The fix adds a binary file ({line.split(chr(9))[-1]}); nothing was merged.')
-    for line in git(path,'diff','-U0','master..HEAD').stdout.splitlines():
+        if name in CONTROL_PLANE or name.startswith('mcps/smart-record/bin/') or name.endswith('.gitattributes'):
+            raise Halt('needs_input',f'The fix changes {name}, part of the repair pipeline; it waits for Taylor and nothing was merged.')
+        if status=='D':continue
+        if new_mode!='100644' and not (status=='M' and new_mode==old_mode=='100755'):raise Halt('needs_input',f'The fix adds a symlink, submodule or mode change ({name} {old_mode}->{new_mode}); nothing was merged.')
+        blob=subprocess.run(['git','-C',str(path),*RAW,'cat-file','blob',f'{head}:{name}'],capture_output=True,timeout=60,check=True).stdout
+        if len(blob)>MAX_FILE_BYTES:raise Halt('needs_input',f'The fix adds a file over 1 MB ({name}); nothing was merged.')
+        try:
+            if b'\0' in blob:raise UnicodeDecodeError('utf-8',blob,0,1,'NUL byte')
+            blob.decode('utf-8')
+        except UnicodeDecodeError:raise Halt('needs_input',f'The fix adds a binary file ({name}); nothing was merged.')
+        names.append(name)
+    if not names:return
+    for line in git(path,*RAW,'diff','--no-ext-diff','--no-textconv','-U0',base,head,'--',*names).stdout.splitlines():
         if line.startswith('+') and not line.startswith('+++') and any(p.search(line) for p in SECRET_PATTERNS):
             raise Halt('needs_input','The fix adds a line shaped like a credential; nothing was merged.')
+
+def config_snapshot(repo):
+    """Repository-local git config, so a worker cannot quietly add hooks or diff drivers."""
+    return git(repo,'config','--local','--list',check=False).stdout
 
 def integrate(repo,path,branch,deadline_s=900,pause_s=30,before_merge=None):
     """Rebase the branch onto local master, vet and test the rebased branch,
@@ -188,10 +210,16 @@ def integrate(repo,path,branch,deadline_s=900,pause_s=30,before_merge=None):
             if r.returncode:
                 git(path,'rebase','--abort',check=False)
                 raise Halt('needs_input','The fix conflicts with newer master changes; rebase stopped: '+tail(r.stderr or r.stdout,1500))
-            head=git(path,'rev-parse','HEAD').stdout.strip()
-            if before_merge and checked!=head:before_merge(path);checked=head
-            r=git(repo,'merge','--ff-only',branch,check=False,timeout=300)
-            if r.returncode==0:return git(repo,'rev-parse','HEAD').stdout.strip()
+            head=git(path,'rev-parse','HEAD').stdout.strip();base=git(repo,'rev-parse','master').stdout.strip()
+            if before_merge and checked!=head:
+                before_merge(path,base,head)
+                if git(path,'rev-parse','HEAD').stdout.strip()!=head:raise Halt('needs_input','The branch changed while it was being checked; nothing was merged.')
+                checked=head
+            # Merge the exact commit that was checked, never the branch name.
+            r=git(repo,'merge','--ff-only',head,check=False,timeout=300)
+            if r.returncode==0:
+                if git(repo,'rev-parse','master').stdout.strip()!=head:raise Halt('needs_input','master did not land on the checked commit; inspect before any retry.')
+                return head
             last=tail(r.stderr or r.stdout,800)
         if time.time()>=end:raise Halt('needs_input','Could not merge the fix into master: '+last)
         time.sleep(pause_s)
@@ -335,7 +363,7 @@ def worker(db,id,repo=None):
         if binary is None:raise Halt('needs_input','The bundled Codex CLI is not installed')
         cmd=[str(binary),'exec','--ephemeral','-c','approval_policy="never"','--add-dir',str(folder),'--add-dir',str(HOME),'--output-schema',str(folder/'schema.json'),'--output-last-message',str(folder/'result.json'),'-']
         for override in worker_overrides(repo):cmd[2:2]=['-c',override]
-        prompt=worker_prompt(path,branch,folder,repo);(folder/'prompt.txt').write_text(prompt)
+        prompt=worker_prompt(path,branch,folder,repo);(folder/'prompt.txt').write_text(prompt);config_before=config_snapshot(repo)
         with (folder/'worker.log').open('wb') as log:
             process=subprocess.Popen(cmd,cwd=path,stdin=subprocess.PIPE,stdout=log,stderr=log,start_new_session=True)
             try:process.communicate(prompt.encode(),timeout=CODEX_TIMEOUT)
@@ -348,9 +376,10 @@ def worker(db,id,repo=None):
         if git(path,'status','--porcelain').stdout.strip():raise Halt('needs_input','The worker left uncommitted changes; nothing was merged.')
         log_lines=git(path,'log','--format=%H %s','master..HEAD').stdout.strip().splitlines()
         if not log_lines:raise Halt('needs_input','The worker reported a fix but committed nothing.')
-        def before_merge(tree):
-            vet_diff(tree);run_suite(tree,result['smoke'],'the rebased branch')
-            step(db,id,folder,'pre_merge','diff vetted (service folder only, text, no credential shapes); suite and smoke tests pass on the rebased branch')
+        if config_snapshot(repo)!=config_before:raise Halt('needs_input','The repository git config changed during the attempt; nothing was merged.')
+        def before_merge(tree,base,head):
+            vet_diff(tree,base,head);run_suite(tree,result['smoke'],'the rebased branch')
+            step(db,id,folder,'pre_merge',f'{head[:12]} vetted (service folder only, no pipeline files, text, no credential shapes); suite and smoke tests pass on it')
         head=integrate(repo,path,branch,before_merge=before_merge)
         commits=[{'sha':l.split(' ',1)[0],'subject':l.split(' ',1)[1] if ' ' in l else ''} for l in git(repo,'log','--format=%H %s',f'{head}~{len(log_lines)}..{head}').stdout.strip().splitlines()]
         step(db,id,folder,'merged',f'master is now {head[:12]}',commits=commits)

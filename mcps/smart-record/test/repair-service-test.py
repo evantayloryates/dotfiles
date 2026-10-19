@@ -92,10 +92,13 @@ class Pipeline(unittest.TestCase):
   self.assertEqual(r.smoke_files(self.repo,['test/ok.test.mjs']),['test/ok.test.mjs'])
   for bad in [['rm','-rf','/'],'test/../../x.test.mjs','test/missing.test.mjs','/bin/sh','test/ok.test.mjs; rm -rf ~']:
    with self.assertRaises(r.Halt):r.smoke_files(self.repo,[bad])
- def vet(self,name,content):
+ def vet(self,name,content,link=False,mode=None):
   path,branch=r.make_worktree(self.repo,self.id,2);target=path/name;target.parent.mkdir(parents=True,exist_ok=True)
-  (target.write_bytes if isinstance(content,bytes) else target.write_text)(content);r.git(path,'add','-A');r.git(path,'commit','-qm','fix')
-  try:r.vet_diff(path);return None
+  if link:target.symlink_to(content)
+  else:(target.write_bytes if isinstance(content,bytes) else target.write_text)(content)
+  if mode:target.chmod(mode)
+  r.git(path,'add','-A');r.git(path,'commit','-qm','fix')
+  try:r.vet_diff(path,r.git(self.repo,'rev-parse','master').stdout.strip(),r.git(path,'rev-parse','HEAD').stdout.strip());return None
   except r.Halt as h:return h.detail
   finally:r.remove_worktree(self.repo,path,branch)
  def test_vetting_allows_text_inside_the_service(self):
@@ -106,9 +109,20 @@ class Pipeline(unittest.TestCase):
   self.assertIn('1 MB',self.vet('mcps/smart-record/big.txt','x'*(1024*1024+1)))
   self.assertIn('credential',self.vet('mcps/smart-record/src/k.mjs','const k="ghp_'+'A'*36+'"\n'))
   self.assertIn('credential',self.vet('mcps/smart-record/src/k.txt','-----BEGIN OPENSSH PRIVATE KEY-----\n'))
+ def test_vetting_refuses_pipeline_files_links_modes_and_attributes(self):
+  for name in ['mcps/smart-record/src/repair-service.py','mcps/smart-record/bin/smart-record','mcps/smart-record/AGENTS.md','mcps/smart-record/test/.gitattributes']:
+   self.assertIn('repair pipeline',self.vet(name,'x\n'),name)
+  self.assertIn('symlink',self.vet('mcps/smart-record/src/link','/etc/passwd',link=True))
+  self.assertIn('mode',self.vet('mcps/smart-record/src/run.sh','echo\n',mode=0o755))
+  self.assertIn('binary',self.vet('mcps/smart-record/src/nul.txt','a\0b'))
+ def test_branch_moving_during_checks_is_not_merged(self):
+  path,branch=r.make_worktree(self.repo,self.id,2);self.commit(path,'fix.txt','x\n','fix');before=r.git(self.repo,'rev-parse','HEAD').stdout
+  def sneaky(tree,base,head):self.commit(tree,'more.txt','y\n','unchecked')
+  with self.assertRaises(r.Halt) as h:r.integrate(self.repo,path,branch,deadline_s=5,pause_s=0,before_merge=sneaky)
+  self.assertIn('changed while',h.exception.detail);self.assertEqual(r.git(self.repo,'rev-parse','HEAD').stdout,before);r.remove_worktree(self.repo,path,branch)
  def test_pre_merge_check_failure_leaves_master_alone(self):
   path,branch=r.make_worktree(self.repo,self.id,2);self.commit(path,'fix.txt','x\n','fix');before=r.git(self.repo,'rev-parse','HEAD').stdout
-  def refuse(tree):raise r.Halt('needs_input','tests fail on the rebased branch')
+  def refuse(tree,base,head):raise r.Halt('needs_input','tests fail on the rebased branch')
   with self.assertRaises(r.Halt):r.integrate(self.repo,path,branch,deadline_s=5,pause_s=0,before_merge=refuse)
   self.assertEqual(r.git(self.repo,'rev-parse','HEAD').stdout,before);r.remove_worktree(self.repo,path,branch)
  def test_prompt_carries_no_report_text(self):
@@ -166,6 +180,10 @@ json.dump(dict(state={state!r},summary='fixed it',root_cause='an off-by-one',ver
   final,_=self.run_worker(self.fake_codex('cannot_reproduce',commit=False))
   self.assertEqual(final['state'],'cannot_reproduce');self.assertNotEqual(r.git(self.repo,'rev-parse','HEAD').stdout,before)  # the fixture's own test commit only
   self.assertFalse(r.worktree_path(self.repo,final['ticket_id']).exists());self.assertFalse((self.repo/'mcps/smart-record/fix.txt').exists())
+ def test_worker_changing_git_config_is_not_merged(self):
+  script=self.fake_codex();script.write_text(script.read_text().replace("json.dump(","subprocess.run(['git','config','core.hooksPath','/tmp/x'])\njson.dump(",1))
+  final,_=self.run_worker(script);self.assertEqual(final['state'],'needs_input');self.assertIn('git config',final['worker_outcome'])
+  self.assertFalse((self.repo/'mcps/smart-record/fix.txt').exists())
  def test_post_merge_failure_files_a_follow_on(self):
   final,filed=self.run_worker(self.fake_codex(),smoke_ok=False)
   self.assertEqual(final['state'],'needs_input');self.assertEqual(filed[0]['parent_ticket'],final['ticket_id']);self.assertTrue(final['follow_on'].startswith('bug_'))

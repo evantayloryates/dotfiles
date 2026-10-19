@@ -26,12 +26,19 @@ supervisor:
    (`test/<name>.test.mjs`; nothing else is accepted or run).
 4. On `fixed`, the supervisor (not the model) rebases the branch onto
    `master`, then, before master moves, vets the rebased diff and runs the
-   suite and smoke tests in the worktree. The diff may only touch
-   `mcps/smart-record/`, must be text with no file over 1 MB, and must add no
-   line shaped like a credential (AWS, GitHub, OpenAI, Slack, Google, 1Password
-   service tokens, private keys). Then it fast-forwards the main checkout's
-   `master`, retrying for up to 15 minutes while master moves. A conflict or a
-   failed check stops with Needs input and nothing merged.
+   suite and smoke tests in the worktree. The diff, read from the exact commit
+   with no external diff drivers, textconv or attributes, may only touch
+   `mcps/smart-record/`. It must leave the repair pipeline alone
+   (`repair-service.py`, the worker config and ticket tools, `build.py`,
+   `install.sh`, `launch`, `bin/`, `mcp.json`, `AGENTS.md`, this file, the
+   repair tests, any `.gitattributes`): such a fix waits for Taylor. Files
+   must be UTF-8 text under 1 MB with no symlinks or mode changes, and no added
+   line may look like a credential (AWS, GitHub, OpenAI, Slack, Google,
+   1Password service tokens, private keys). The repository's git config must be
+   unchanged by the attempt. Master is fast-forwarded to that exact checked
+   commit, and only if the branch did not move during the checks; it retries
+   for up to 15 minutes while master moves. A conflict or a failed check stops
+   with Needs input and nothing merged.
 5. Removes the worktree and branch, then runs `bin/dotfiles-publish` (six
    tries). An unpublished merge stays on local master for the next publish.
 6. Re-runs `node --test test/*.test.mjs` and the worker's smoke test files on
