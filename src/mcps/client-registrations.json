@@ -56,6 +56,13 @@
    "args": [
     "smart-record"
    ]
+  },
+  "ios-agent": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "tool_timeout_sec": 150.0,
+   "args": [
+    "ios-agent"
+   ]
   }
  },
  "claude": {
@@ -115,6 +122,14 @@
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
     "smart-record"
+   ],
+   "env": {}
+  },
+  "ios-agent": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "ios-agent"
    ],
    "env": {}
   }

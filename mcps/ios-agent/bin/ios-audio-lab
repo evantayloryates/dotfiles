@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/python3 -B "$(dirname "$(/bin/realpath "$0")")/../src/audio_lab.py" "$@"

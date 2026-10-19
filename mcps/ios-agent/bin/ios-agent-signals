@@ -1,0 +1,2 @@
+#!/bin/sh
+exec node "$(dirname "$(/bin/realpath "$0")")/../src/mcp/signals-cli.mjs" "$@"

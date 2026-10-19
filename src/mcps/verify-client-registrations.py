@@ -51,7 +51,7 @@ def main() -> int:
         settings = json.loads(settings_path.read_text())
         if any("playwright" in name.lower() and enabled for name, enabled in settings.get("enabledPlugins", {}).items()):
             errors.append("Claude Playwright plugin remains enabled")
-    for relative, target in [("Library/Application Support/Claude/claude_desktop_config.json", "src/mcps/host-config/claude-desktop.json"), (".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "src/ios-agent/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "src/ios-agent/com.taylor.ios-agent.metro.plist")]:
+    for relative, target in [("Library/Application Support/Claude/claude_desktop_config.json", "src/mcps/host-config/claude-desktop.json"), (".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "mcps/ios-agent/src/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "mcps/ios-agent/src/com.taylor.ios-agent.metro.plist")]:
         trigger = HOME / relative
         if not trigger.is_symlink() or trigger.resolve() != (ROOT / target).resolve():
             errors.append(f"{relative}: canonical dotfiles symlink missing")

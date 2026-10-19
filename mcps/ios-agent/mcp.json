@@ -1,0 +1,20 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "ios-agent",
+  "description": "Drives Taylor's iPhone and the Kickoff dev app: native and mobile-web control, capture, signals and verification through a local Python host service.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "toolPrefix": "ios_",
+  "services": [
+    { "label": "com.taylor.ios-agent", "run": ["/usr/bin/python3", "-B", "src/service.py"], "keepAlive": true },
+    { "label": "com.taylor.ios-agent.metro", "run": ["node", "~/src/github/kickoff/mobile/node_modules/react-native/cli.js", "start", "--port", "19404", "--config", "src/native/metro.cjs"], "keepAlive": true }
+  ],
+  "requires": [
+    "cli:npm ci --prefix src/mcp (pins @modelcontextprotocol/sdk)",
+    "cli:npm ci --prefix src/react (pins agent-react-devtools)",
+    "file:~/src/github/kickoff/mobile"
+  ],
+  "cli": ["ios-agent", "ios-agent-signals", "ios-audio-lab"],
+  "harnesses": { "claude": {}, "claude-desktop": {}, "codex": { "tool_timeout_sec": 150 } },
+  "test": "PYTHONPATH=src python3 -B -m unittest discover -s test && node --test test/*.cjs test/test_*.mjs && npm test --prefix src/mcp"
+}

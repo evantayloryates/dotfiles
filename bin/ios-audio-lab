@@ -1,2 +1,1 @@
-#!/bin/sh
-exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/audio_lab.py "$@"
+../mcps/ios-agent/bin/ios-audio-lab

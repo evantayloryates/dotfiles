@@ -1,0 +1,21 @@
+#!/bin/sh
+SRC="$(dirname "$(/bin/realpath "$0")")/../src"
+case "$1" in
+  reflection-admin)
+    shift
+    exec /usr/bin/python3 -B "$SRC/reflection_admin.py" "$@"
+    ;;
+  stack-ensure)
+    shift
+    exec /usr/bin/python3 -B "$SRC/local_stack.py" "$@"
+    ;;
+  doctor)
+    shift
+    exec /usr/bin/python3 -B "$SRC/health.py" "$@"
+    ;;
+  verify)
+    shift
+    exec /usr/bin/python3 -B "$SRC/verify.py" "$@"
+    ;;
+esac
+exec /usr/bin/python3 -B "$SRC/cli.py" "$@"

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for ios-agent (stdio). Harnesses start it through
+# mcps/_shared/bin/run ios-agent. Resolves node explicitly: GUI-launched MCP
+# servers inherit a minimal PATH. Resolves its own realpath so the link at
+# bin/ios-agent-mcp (Claude desktop's registration) resolves to this folder.
+SCRIPT_DIR="$(dirname "$(/bin/realpath "${BASH_SOURCE[0]}")")"
+# Started by mcps/_shared/bin/run: $1 is the profile.
+[[ -n "${MCP_PROFILE:-}" ]] && shift
+. "${SCRIPT_DIR}/../../../src/lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/mcp/server.mjs" "$@"

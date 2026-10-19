@@ -1,2 +1,1 @@
-#!/bin/sh
-exec node "$(dirname "$0")/../src/ios-agent/mcp/signals-cli.mjs" "$@"
+../mcps/ios-agent/bin/ios-agent-signals
