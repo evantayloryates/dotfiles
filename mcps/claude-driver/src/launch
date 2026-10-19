@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for claude-driver (stdio). Harnesses start it through
+# mcps/_shared/bin/run claude-driver; the compatibility link at
+# src/claude-driver/bin/claude-driver-mcp also lands here. Resolves node
+# explicitly: GUI-launched MCP servers inherit a minimal PATH. Resolves its own
+# realpath so links into this folder still find their neighbours.
+SCRIPT_DIR="$(dirname "$(/bin/realpath "${BASH_SOURCE[0]}")")"
+# Started by mcps/_shared/bin/run: $1 is the profile.
+[[ -n "${MCP_PROFILE:-}" ]] && shift
+. "${SCRIPT_DIR}/../../../src/lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/server.mjs" "$@"

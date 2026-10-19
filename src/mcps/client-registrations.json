@@ -12,7 +12,10 @@
    "tool_timeout_sec": 120.0
   },
   "claude-driver": {
-   "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "claude-driver"
+   ],
    "tool_timeout_sec": 300.0
   },
   "gmail_personal_secondary": {
@@ -75,8 +78,10 @@
   },
   "claude-driver": {
    "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
-   "args": [],
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "claude-driver"
+   ],
    "env": {}
   },
   "gmail-personal-secondary": {

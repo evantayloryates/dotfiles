@@ -1,0 +1,14 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "claude-driver",
+  "description": "Drives the Claude desktop app from any harness: create/fork/open/rename/pin/archive/delete sessions, model/effort/permission mode, messages, groups and window state, verified against the app's files on disk.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "services": [
+    { "label": "com.taylor.claude-driver-lifecycle", "run": ["node", "src/scripts/lifecycle-monitor.mjs"] }
+  ],
+  "requires": ["app:Claude", "mcp:codex-bridge", "file:${repo}/src/claude-driver/.runtime/state"],
+  "cli": ["claude-driver"],
+  "harnesses": { "claude": {}, "codex": { "tool_timeout_sec": 300.0 }, "opencode": {} },
+  "test": "cd ../.. && node --test mcps/claude-driver/test/*.test.mjs"
+}

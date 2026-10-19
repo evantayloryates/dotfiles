@@ -1,0 +1,100 @@
+// `claude-driver install`: register the MCP server in every harness Taylor
+// uses. Idempotent; backs up each file it changes (<file>.bak-claude-driver).
+
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { HOME, runCli } from './paths.mjs'
+
+// Every fleet registration starts the service through mcps/_shared/bin/run <id>.
+const LAUNCHER = fileURLToPath(new URL('../../../_shared/bin/run', import.meta.url))
+const NAME = 'claude-driver'
+const ARGS = [NAME]
+
+function backup(file) {
+  if (existsSync(file)) copyFileSync(file, `${file}.bak-claude-driver`)
+}
+
+async function claudeCode(dry) {
+  const got = await runCli(['mcp', 'get', NAME], { cwd: HOME, timeoutMs: 30_000 })
+  if (got.code === 0 && got.stdout.includes(`Command: ${LAUNCHER}`) && got.stdout.includes(`Args: ${ARGS.join(' ')}`)) return 'already registered'
+  if (dry) return `would run: claude mcp add claude-driver -s user -- ${LAUNCHER} ${ARGS.join(' ')}`
+  if (got.code === 0) await runCli(['mcp', 'remove', NAME, '-s', 'user'], { cwd: HOME, timeoutMs: 30_000 })
+  const r = await runCli(['mcp', 'add', NAME, '-s', 'user', '--', LAUNCHER, ...ARGS], { cwd: HOME, timeoutMs: 30_000 })
+  if (r.code !== 0) throw new Error(`claude mcp add failed: ${r.stderr || r.stdout}`)
+  return 'registered (user scope)'
+}
+
+function codex(dry) {
+  const file = join(HOME, '.codex', 'config.toml')
+  const text = existsSync(file) ? readFileSync(file, 'utf8') : ''
+  const current = text.match(new RegExp(`\\n\\[mcp_servers\\.${NAME}\\]\\n([\\s\\S]*?)(?=\\n\\[|$)`))?.[1]
+  if (current !== undefined) return current.includes(`command = "${LAUNCHER}"`) && current.includes(`args = ${JSON.stringify(ARGS)}`) ? 'already registered' : 'present with a different command; left alone'
+  const block = `\n[mcp_servers.${NAME}]\ncommand = "${LAUNCHER}"\nargs = ${JSON.stringify(ARGS)}\ntool_timeout_sec = 300.0\n`
+  if (dry) return `would append to ${file}:${block}`
+  backup(file)
+  // Insert before the first non-mcp top-level table after the mcp_servers block, else append.
+  const idx = text.search(/\n\[(?!mcp_servers)[^\]]+\]\n/g)
+  const lastMcp = text.lastIndexOf('[mcp_servers.')
+  let out
+  if (lastMcp >= 0) {
+    const after = text.slice(lastMcp).search(/\n\[(?!mcp_servers)[^\]]+\]/)
+    out = after >= 0 ? text.slice(0, lastMcp + after) + block + text.slice(lastMcp + after) : text + block
+  } else out = idx >= 0 ? text + block : text + block
+  writeFileSync(file, out)
+  return `registered in ${file}`
+}
+
+function jsonFile(file, mutate, dry) {
+  const data = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {}
+  const before = JSON.stringify(data)
+  mutate(data)
+  if (JSON.stringify(data) === before) return 'already registered'
+  if (dry) return `would write ${file}`
+  backup(file)
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`)
+  return `registered in ${file}`
+}
+
+async function cursor(dry) {
+  const out = jsonFile(join(HOME, '.cursor', 'mcp.json'), (d) => {
+    d.mcpServers = d.mcpServers || {}
+    if (d.mcpServers[NAME]?.command !== LAUNCHER || JSON.stringify(d.mcpServers[NAME]?.args) !== JSON.stringify(ARGS)) d.mcpServers[NAME] = { command: LAUNCHER, args: ARGS }
+  }, dry)
+  // cursor-agent loads only approved servers; approve ours (and only ours).
+  const agent = join(HOME, '.local', 'bin', 'cursor-agent')
+  if (!existsSync(agent)) return `${out}; cursor-agent not installed`
+  if (dry) return `${out}; would run: cursor-agent mcp enable ${NAME}`
+  const { execFileSync } = await import('node:child_process')
+  try {
+    execFileSync(agent, ['mcp', 'enable', NAME], { cwd: HOME, timeout: 60_000, stdio: 'pipe' })
+    return `${out}; approved in cursor-agent`
+  } catch (err) {
+    return `${out}; cursor-agent mcp enable failed: ${String(err.stderr || err.message).slice(0, 200)}`
+  }
+}
+
+function opencode(dry) {
+  return jsonFile(join(HOME, '.config', 'opencode', 'opencode.json'), (d) => {
+    if (!d.$schema) d.$schema = 'https://opencode.ai/config.json'
+    d.mcp = d.mcp || {}
+    if (JSON.stringify(d.mcp[NAME]?.command) !== JSON.stringify([LAUNCHER, ...ARGS])) d.mcp[NAME] = { type: 'local', command: [LAUNCHER, ...ARGS], enabled: true, timeout: 300000 }
+  }, dry)
+}
+
+export async function install(flags = {}) {
+  const dry = !!flags['dry-run']
+  if (!existsSync(LAUNCHER)) throw new Error(`launcher missing: ${LAUNCHER}`)
+  const out = {}
+  for (const [name, fn] of [['claude-code', claudeCode], ['codex', codex], ['cursor', cursor], ['opencode', opencode]]) {
+    try {
+      out[name] = await fn(dry)
+    } catch (err) {
+      out[name] = `FAILED: ${err.message}`
+    }
+  }
+  console.log(JSON.stringify(out, null, 2))
+  return Object.values(out).some((v) => v.startsWith('FAILED')) ? 1 : 0
+}
