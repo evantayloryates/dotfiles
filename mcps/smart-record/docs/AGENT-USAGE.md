@@ -924,8 +924,11 @@ active probe opportunistic and preserve its high-fidelity replay evidence.
 File recorder failures with `report_bug`: bounded symptom, expected/observed
 behavior, build/provider/app, exact recording/session IDs and private evidence
 references. Never paste raw input, footage, credentials or bulk logs. Open exact
-duplicates reuse a ticket. By default one bounded developer attempt is dispatched;
-`dispatch:false` files only. `repair_status` distinguishes Working, Patch prepared,
+duplicates reuse a ticket. By default one automatic repair starts (see
+[the repair worker](REPAIR-WORKER.md)): fixed in its own worktree, merged into
+master, published, re-tested and smoke-tested by the service, with a
+notification to Taylor; `dispatch:false` files only. `repair_status`
+distinguishes Working, Patch prepared,
 Needs input, Dispatch uncertain and Ready for use. A missing permission, sandbox
 boundary, busy delivery or unavailable worker is visible rather than bypassed.
 Computer-use defects use `owner:computer_use`; the ticket returns a routing

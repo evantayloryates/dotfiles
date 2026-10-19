@@ -27,7 +27,7 @@ import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
 import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../../codex-bridge/src/lib/evidence-tools.mjs";
 
 const log = (...args) => console.error("[smart-record]", ...args);
-const VERSION = "0.20.4";
+const VERSION = "0.20.5";
 
 // ---------------------------------------------------------------- engine link
 

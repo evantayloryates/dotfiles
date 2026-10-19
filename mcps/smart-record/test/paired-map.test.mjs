@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { mkdtempSync,writeFileSync,mkdirSync,rmSync,symlinkSync } from 'node:fs';
+import { mkdtempSync,writeFileSync,mkdirSync,rmSync,symlinkSync,readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawn,spawnSync } from 'node:child_process';
@@ -150,7 +150,7 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
   lines.on('line',line=>{const r=JSON.parse(line),p=pending.get(r.id);if(p){clearTimeout(p.timer);pending.delete(r.id);r.error?p.reject(Error(r.error.message)):p.resolve(r.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),15000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
   try {
-    assert.equal((await rpc('initialize',{protocolVersion:'2025-06-18'})).serverInfo.version,'0.19.1');
+    assert.equal((await rpc('initialize',{protocolVersion:'2025-06-18'})).serverInfo.version,readFileSync(new URL('../src/server.mjs',import.meta.url),'utf8').match(/const VERSION = "([^"]+)"/)[1]);
     const tool=(await rpc('tools/list',{})).tools.find(t=>t.name==='recording_paired_map');assert(tool);assert.equal(tool.annotations.readOnlyHint,true);
     const response=await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,max_segments:3}});assert.equal(response.isError,false);
     const first=JSON.parse(response.content[0].text);assert.equal(first.clock_alignment.qualified,true);assert.equal(first.segment_count,8);
