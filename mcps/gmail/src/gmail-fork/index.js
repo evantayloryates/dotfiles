@@ -1106,9 +1106,21 @@ async function main() {
                         if (!fs.existsSync(savePath)) {
                             fs.mkdirSync(savePath, { recursive: true });
                         }
-                        // Write file
-                        const fullPath = path.join(savePath, filename);
-                        fs.writeFileSync(fullPath, buffer);
+                        // Write file. The name comes from the email, so it is untrusted:
+                        // keep only its last path segment and confine the write to savePath.
+                        filename = path.basename(String(filename)).replace(/[\x00-\x1f]/g, '_');
+                        if (!filename || filename === '.' || filename === '..') {
+                            filename = `attachment-${path.basename(String(validatedArgs.attachmentId))}`;
+                        }
+                        const baseDir = fs.realpathSync(savePath);
+                        const fullPath = path.resolve(baseDir, filename);
+                        if (path.dirname(fullPath) !== baseDir) {
+                            throw new Error(`Refusing to write attachment outside ${baseDir}`);
+                        }
+                        if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isSymbolicLink()) {
+                            throw new Error(`Refusing to overwrite symlink ${fullPath}`);
+                        }
+                        fs.writeFileSync(fullPath, buffer, { mode: 0o600 });
                         return {
                             content: [
                                 {
