@@ -640,8 +640,8 @@ processes were left running.
     - 8874af6's kernel equals the current one, which passes on four
       servers.
 
-    zdr-agent and bulk-classify cannot start from a worktree, because their
-    secrets are in the main checkout's git-ignored `.env`. Final suite run:
+    zdr-agent and bulk-classify, given a symlink (not a copy) to the main
+    checkout's `apps/zdr-agent/.env`, also pass at 13f13d9 (legacy era). Final suite run:
     `SUITES_FAILED=0`, nothing left running, no artifact watches.
 
 48. **The move found a real fixer bug.** A Claude fixer's brief said to
