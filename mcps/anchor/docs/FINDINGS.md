@@ -805,6 +805,13 @@ processes were left running.
       with a first-run check in the basic suite (27/27). This landed before
       the front-end freeze takes effect at the restart.
 
+57. **A3: registered in Claude Code beside the fleet** (2026-10-19). The
+    command was `claude mcp add -s user anchor --
+    <repo>/mcps/_shared/bin/run anchor`, the same form as every fleet
+    entry, and `mcp.json` `harnesses` now has `claude`. Every other entry
+    in `~/.claude.json` was compared before and after: unchanged, nothing
+    removed. Rollback is `claude mcp remove -s user anchor`.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 
