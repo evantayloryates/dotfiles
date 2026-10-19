@@ -5,7 +5,10 @@
   "kind": "custom",
   "launcher": "src/launch",
   "harnesses": {
-    "claude": {}
+    "claude": {},
+    "codex": {
+      "tool_timeout_sec": 120
+    }
   },
   "test": "sh test/run-all.sh"
 }

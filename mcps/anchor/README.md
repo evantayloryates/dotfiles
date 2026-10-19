@@ -53,6 +53,19 @@ and can send a sandboxed fixer to repair them.
   the code on disk changes; open chats move to it on their next call.
 - **Alerts and dashboard** (`src/alerts.mjs`, `src/export-dashboard.mjs`).
 
+## Using it
+
+Anchor is registered in Claude Code (`claude mcp add -s user anchor --
+<repo>/mcps/_shared/bin/run anchor`) and Codex (`[mcp_servers.anchor]` in
+`~/.codex/config.toml`), beside the fleet's direct registrations. A chat
+sees the three tools and a short list of services. Check health and
+configuration with `anchor:status`, and what changed with
+`anchor:signals {since}`.
+
+**Rollback:** `claude mcp remove -s user anchor`, and delete the
+`[mcp_servers.anchor]` block from `~/.codex/config.toml`. Nothing else
+changes: the fleet's own registrations are untouched.
+
 ## Running
 
 ```sh

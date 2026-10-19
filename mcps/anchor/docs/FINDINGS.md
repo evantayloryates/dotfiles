@@ -881,6 +881,35 @@ processes were left running.
       rotation); the upgrade suite checks each drain's signal (13/13). All
       17 suites pass.
 
+63. **B4: registered in Codex beside the fleet** (2026-10-19). Only an
+    `[mcp_servers.anchor]` block was added to `~/.codex/config.toml`, in the
+    fleet's form with `tool_timeout_sec = 120`. The file parses with
+    `tomllib`, all 19 other servers and every other setting are unchanged,
+    and the diff is the five added lines. `mcp.json` `harnesses` now has
+    `codex`. A real `codex exec` with Taylor's settings called
+    `anchor:status` (fixers `headless`) and `db-kickoff-stage:stage_status`
+    through anchor. In a read-only sandbox the same calls are refused as
+    needing approval; that comes from the test sandbox, not from anchor.
+    Rollback: delete that block.
+
+64. **B5: anchor in real use.** From this session, through the live anchor:
+    - discovery chose notion-kickoff on a clear first-pass match;
+    - a Notion search for "onboarding" returned the matching pages;
+    - staging confirmed no onboarding table, and gave a coach-table count
+      (62);
+    - Notion identity and bulk-classify profiles came back, each served
+      from stable.
+
+    A real Codex run called anchor too. `anchor:signals` shows all of it:
+    releases, service starts, discovery and calls (with versions, timings
+    and hashed sessions), and a per-service snapshot with live process
+    states. Live protocol checks:
+    - anchor passes on both eras;
+    - bulk-classify passes on both;
+    - notion-kickoff (the upstream package) and db-kickoff-stage (its own
+      server) answer the legacy era, which anchor's gateway client and
+      Claude Code's fallback use.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 
