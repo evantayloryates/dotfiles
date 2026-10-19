@@ -113,8 +113,15 @@ class Pipeline(unittest.TestCase):
   for name in ['mcps/smart-record/src/repair-service.py','mcps/smart-record/bin/smart-record','mcps/smart-record/AGENTS.md','mcps/smart-record/test/.gitattributes']:
    self.assertIn('repair pipeline',self.vet(name,'x\n'),name)
   self.assertIn('symlink',self.vet('mcps/smart-record/src/link','/etc/passwd',link=True))
-  self.assertIn('mode',self.vet('mcps/smart-record/src/run.sh','echo\n',mode=0o755))
+  self.assertIn('mode',self.vet('mcps/smart-record/src/run.py','print()\n',mode=0o755))
   self.assertIn('binary',self.vet('mcps/smart-record/src/nul.txt','a\0b'))
+ def test_control_plane_matching_ignores_case_and_normalization(self):
+  for name in ['mcps/smart-record/src/Repair-Service.py','MCPS/smart-record/bin/x','mcps/smart-record/src/lib/reader-dependencies.sh','mcps/smart-record/test/.GITATTRIBUTES']:
+   self.assertTrue(r.control_plane(name),name)
+  self.assertFalse(r.control_plane('mcps/smart-record/src/lib/frame-map.mjs'))
+ def test_hook_added_during_checks_is_detected(self):
+  before=r.config_snapshot(self.repo);hooks=Path(r.git(self.repo,'rev-parse','--git-common-dir').stdout.strip());hooks=(hooks if hooks.is_absolute() else self.repo/hooks)/'hooks'
+  hooks.mkdir(exist_ok=True);(hooks/'post-merge').write_text('#!/bin/sh\n');self.assertNotEqual(before,r.config_snapshot(self.repo))
  def test_branch_moving_during_checks_is_not_merged(self):
   path,branch=r.make_worktree(self.repo,self.id,2);self.commit(path,'fix.txt','x\n','fix');before=r.git(self.repo,'rev-parse','HEAD').stdout
   def sneaky(tree,base,head):self.commit(tree,'more.txt','y\n','unchecked')

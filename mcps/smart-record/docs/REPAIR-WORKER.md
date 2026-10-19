@@ -30,12 +30,15 @@ supervisor:
    with no external diff drivers, textconv or attributes, may only touch
    `mcps/smart-record/`. It must leave the repair pipeline alone
    (`repair-service.py`, the worker config and ticket tools, `build.py`,
-   `install.sh`, `launch`, `bin/`, `mcp.json`, `AGENTS.md`, this file, the
-   repair tests, any `.gitattributes`): such a fix waits for Taylor. Files
+   `install.sh`, `launch`, any `src/**/*.sh`, `bin/`, `mcp.json`, `AGENTS.md`,
+   this file, the repair tests, any `.gitattributes`; names compared
+   case- and Unicode-insensitively): such a fix waits for Taylor. Files
    must be UTF-8 text under 1 MB with no symlinks or mode changes, and no added
    line may look like a credential (AWS, GitHub, OpenAI, Slack, Google,
-   1Password service tokens, private keys). The repository's git config must be
-   unchanged by the attempt. Master is fast-forwarded to that exact checked
+   1Password service tokens, private keys). The repository's git config, hooks
+   and info directory must be unchanged by the attempt, checked after the
+   worker, again right before the merge and again before publishing; the
+   supervisor's own git commands run with hooks and fsmonitor off. Master is fast-forwarded to that exact checked
    commit, and only if the branch did not move during the checks; it retries
    for up to 15 minutes while master moves. A conflict or a failed check stops
    with Needs input and nothing merged.
@@ -87,6 +90,14 @@ crafted report could try to steer it. Gating or sandboxing the worker trades
 that risk against automatic repair; Taylor chose automatic repair. The merge
 gate limits what reaches master and origin to text changes inside the service
 with no credential-shaped lines; it cannot judge whether a change is benign.
+
+The merge gate is a guard against accidents and low-effort mistakes, not a
+security boundary. With full access, a misdirected worker does not need the
+merge at all: it can edit the main checkout, the supervisor, other
+repositories or `~/.ssh` directly. Only sandboxing the worker (Codex
+`workspace-write` limited to its worktree and ticket folder, no network)
+would make the gate a boundary, and that would also block the repairs that
+need the live engine or the network.
 
 Implementation reference: [OpenAI non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode).
 The worker keeps private attempt files even though the CLI rollout is not
