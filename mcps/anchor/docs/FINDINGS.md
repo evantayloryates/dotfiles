@@ -825,6 +825,14 @@ processes were left running.
     server that releases fine and crashes on use: hotfix ticket escalated,
     never dispatched, alert raised.
 
+60. **Open chats never triggered the build check.** Only a new connection
+    made a front end compare builds. Chats hold one connection for their
+    whole life, so after B2 was published the live daemon kept old code
+    while 13 chats were open. The daemon now checks the build on disk every
+    30 s and drains itself when it changes; open chats reconnect to a fresh
+    daemon on their next call. Upgrade suite 12/12, with no new chat
+    involved.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 

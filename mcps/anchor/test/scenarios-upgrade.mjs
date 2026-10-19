@@ -16,7 +16,7 @@ const killDaemon = () => { try { execSync(`pkill -9 -f "${P.daemon} --state ${P.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const pid = () => { try { return Number(readFileSync(P.pidFile, 'utf8')) } catch { return null } }
 const SALT = join(homedir(), '.cache/anchor-lab/build-salt')
-const ENV = { ANCHOR_ALERT_BACKEND: 'log', ANCHOR_BUILD_EXTRA: SALT }
+const ENV = { ANCHOR_ALERT_BACKEND: 'log', ANCHOR_BUILD_EXTRA: SALT, ANCHOR_BUILD_CHECK_MS: '500' }
 killDaemon()
 rmSync(P.stateDir, { recursive: true, force: true }); mkdirSync(P.stateDir, { recursive: true })
 writeFileSync(SALT, 'v1')
@@ -67,6 +67,14 @@ writeFileSync(SALT, 'v3')
 const third = await startHarness({ name: 'chat-third', env: ENV })
 const c = await third.call('anchor_run', { calls: [{ target: 'echo:add', args: { a: 2, b: 3 } }] })
 check('a third build replaces the second the same way', c.data[0].ok && c.data[0].value === 5 && pid() !== pid2, JSON.stringify(c.data[0]))
+
+// No new chat at all: the daemon notices the change on disk itself, drains,
+// and the next call from an open chat reaches a daemon on the new code.
+const pidBefore = pid()
+writeFileSync(SALT, 'v4')
+await sleep(2500)
+const d = await third.call('anchor_run', { calls: [{ target: 'echo:echo', args: { text: 'no new chat' } }] })
+check('the daemon notices new code by itself and an open chat moves to it', d.data[0].ok && pid() && pid() !== pidBefore, JSON.stringify({ d: d.data[0], pidBefore, now: pid() }))
 
 for (const h of [old, fresh, third]) await h.close()
 killDaemon()

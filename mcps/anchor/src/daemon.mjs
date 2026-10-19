@@ -78,6 +78,16 @@ function drain() {
   }, 100)
 }
 
+// The daemon also watches the code itself: chats hold long-lived
+// connections and only a new connection makes a front end check, so without
+// this an update would wait for someone to open a new chat.
+const BUILD_CHECK_MS = Number(process.env.ANCHOR_BUILD_CHECK_MS || 30_000)
+setInterval(() => {
+  let disk
+  try { disk = buildId() } catch { return }
+  if (disk !== BUILD) { log('code on disk changed:', BUILD, '->', disk); drain() }
+}, BUILD_CHECK_MS).unref()
+
 const server = createServer((conn) => {
   const send = (m) => conn.writable && conn.write(JSON.stringify(m) + '\n')
   createInterface({ input: conn }).on('line', async (line) => {
