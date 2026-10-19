@@ -10,6 +10,6 @@ test('manifest id matches folder and tools carry the prefix', async () => {
   const manifest = await loadManifest(dir)
   assert.equal(manifest.id, 'zdr-agent')
   const tools = await loadTools(dir)
-  assert.deepEqual(tools.map((t) => t.name), ['zdr_ask', 'zdr_open', 'zdr_sessions'])
+  assert.deepEqual(tools.map((t) => t.name), ['zdr_abort', 'zdr_ask', 'zdr_exports', 'zdr_open', 'zdr_read', 'zdr_sessions', 'zdr_status', 'zdr_terra'])
   for (const t of tools) assert.ok(t.name.startsWith(manifest.toolPrefix))
 })

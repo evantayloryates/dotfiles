@@ -12,8 +12,8 @@ const ASK_TIMEOUT_MS = Number(process.env.ZDR_ASK_TIMEOUT_MS || 10 * 60 * 1000)
 // The harness runs two agents. `zdr` de-identifies its answer to HIPAA Safe
 // Harbor because this bridge hands it to a context with no BAA; `analyst`
 // answers in full for the app UI. Only `zdr` output may cross this boundary.
-const ZDR_AGENT = 'zdr'
-const SESSION_ID = /^ses_[A-Za-z0-9]+$/
+export const ZDR_AGENT = 'zdr'
+export const SESSION_ID = /^ses_[A-Za-z0-9]+$/
 const deepLink = (id) => `open -a "ZDR Harness" --args --session ${id}`
 
 const log = (...args) => console.error('[zdr-agent]', ...args)
@@ -28,7 +28,7 @@ export class HarnessError extends Error {
   expected = true
 }
 
-async function harness(method, path, { body, signal } = {}) {
+export async function harness(method, path, { body, signal } = {}) {
   let res
   try {
     res = await fetch(`${BASE_URL}${path}`, {
@@ -89,7 +89,7 @@ async function ensureMcpConnected(signal) {
 
 // Second layer behind the harness agent's answer rule. Only obvious contact
 // details are scrubbed; issue/chart IDs are deliberately left intact.
-function scrub(text) {
+export function scrub(text) {
   return text
     .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[redacted-email]')
     .replace(/(?<![\w.])(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?![\w.])/g, '[redacted-phone]')
@@ -181,9 +181,49 @@ export function openInApp(sessionId) {
 }
 
 export async function listSessions(signal) {
-  const sessions = await harness('GET', '/session?limit=20', { signal })
+  const [sessions, status] = await Promise.all([
+    harness('GET', '/session?limit=20', { signal }),
+    harness('GET', '/session/status', { signal }).catch(() => ({})),
+  ])
   if (!sessions?.length) return 'No ZDR harness sessions yet.'
   return sessions
-    .map((s) => `${s.id}  ${new Date(s.time?.updated || s.time?.created).toISOString()}  ${s.title || ''}`)
+    .map((s) => {
+      const state = status?.[s.id]?.type === 'busy' ? 'busy' : 'idle'
+      return `${s.id}  ${new Date(s.time?.updated || s.time?.created).toISOString()}  ${state}  ${s.agent || '?'}  ${s.title || ''}`
+    })
     .join('\n')
+}
+
+function checkId(sessionId) {
+  if (typeof sessionId !== 'string' || !SESSION_ID.test(sessionId)) throw new HarnessError(`"${sessionId}" is not a session id`)
+}
+
+const textOf = (message) =>
+  (message?.parts || [])
+    .filter((part) => part.type === 'text' && !part.synthetic && !part.ignored)
+    .map((part) => part.text)
+    .join('\n')
+    .trim()
+
+// Only the question and the zdr agent's final answer leave the harness: never
+// tool parts, never another agent's text.
+export async function readSession(sessionId, signal) {
+  checkId(sessionId)
+  const session = await harness('GET', `/session/${encodeURIComponent(sessionId)}`, { signal })
+  if (session?.agent && session.agent !== ZDR_AGENT) {
+    throw new HarnessError(`Session ${sessionId} belongs to the "${session.agent}" agent and cannot be read here. Open it with zdr_open.`)
+  }
+  const messages = (await harness('GET', `/session/${encodeURIComponent(sessionId)}/message`, { signal })) || []
+  const question = textOf(messages.find((m) => m.info?.role === 'user'))
+  const answer = textOf(messages.findLast((m) => m.info?.role === 'assistant' && m.info?.agent === ZDR_AGENT && textOf(m)))
+  return (
+    `question: ${scrub(question || '(none)')}\n\nanswer: ${scrub(answer || '(no final answer yet)')}\n\n` +
+    `session_id: ${sessionId}\ntitle: ${session?.title || ''}`
+  )
+}
+
+export async function abortSession(sessionId, signal) {
+  checkId(sessionId)
+  await harness('POST', `/session/${encodeURIComponent(sessionId)}/abort`, { signal })
+  return `Asked the harness to stop session ${sessionId}.`
 }
