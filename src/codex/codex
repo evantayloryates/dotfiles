@@ -1,0 +1,21 @@
+#!/bin/sh
+# The one Codex CLI on this Mac. ~/.local/bin/codex links here
+# (src/codex/install.sh); nothing else named codex is on PATH.
+#
+# The ChatGPT app owns Codex: it bundles the CLI and installs the same build
+# as the shared app-server daemon (~/.codex/packages/app-server-daemon/
+# current). This runs that daemon build, so a terminal codex always matches
+# the daemon it connects to, else the app's bundled CLI. The old standalone
+# install (~/.codex/packages/standalone, stable channel) is retired: it
+# drifted behind the app and could not share the daemon (2026-10-19:
+# 0.159.3 against 0.163.0-alpha, "incompatible feature settings"), and it
+# cannot drive Computer Use (see mcps/codex-bridge).
+set -eu
+daemon="$HOME/.codex/packages/app-server-daemon/current/bin/codex"
+for app in "$daemon" \
+  /Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex \
+  /Applications/Codex.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex; do
+  if [ -x "$app" ]; then exec "$app" "$@"; fi
+done
+echo "codex: no app-installed Codex found. Install or open the ChatGPT app; it provides the CLI." >&2
+exit 127
