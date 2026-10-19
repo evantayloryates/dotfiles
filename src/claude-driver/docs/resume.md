@@ -1,5 +1,12 @@
 ## October 18 release freeze — current frontier
 
+Release cut is complete for the qualified local/durable core. Final report
+pressure/release-20261018/final.json verifies unchanged executable hashes and
+installed identity, both smoke workflows,93 exact catalog IDs, protected configs
+and parked Codex bridge hashes. Candidate service memoryb17685de is read back.
+Only candidate README documentation changed after the focused source freeze;
+no executable source changed. Native writes remain unavailable, not qualified.
+
 Taylor requested a qualified release cut, final smoke tests and deferred backlog.
 Do not continue the prior keeper/native integration NEXT steps automatically.
 See release-2026-10-18.md and tool-catalog.md. Production build is now
@@ -34,8 +41,17 @@ hashes; current candidate changes were not native-qualified or staged remotely.
 Manual fresh-launcher MCP fixture smoke PASSES: one idempotent durable job,
 persisted result, independent MCP reconnect and shared candidate readback;
 synthetic saved record unchanged. Report pressure/release-20261018/fixture-smoke.json.
-Local configs and quarantine hashes unchanged. Second post-publication real
-ordinary-chat metadata read and exact loaded version are the final release gate.
+Local configs and quarantine hashes unchanged. Post-publication real ordinary
+metadata smoke PASSES: MCP version5e4abed/buildd8cfb397/API2,93 tools, exact
+ProDevs record remains unarchived/pinned, local action eligible, MCP exit0.
+First live rig failure is preserved as live-smoke-first-failed.json: its parser
+mistook JSON text arrays for no records. Only that private parser changed; no
+service replay or product fix. Fresh live health still has no eligible ordinary
+controller, and legacy broker is not resident. Native mutation readiness is
+explicitly excluded. The MCP already loaded in this chat is olderfcf484e3 with
+restartRequired:true; no hot reload or app restart was attempted. Source commit
+5e4abeddf7f703906beb6f83cdcd495a2b6577ae was published and read back as both
+HEAD and origin/master. Final evidence documentation is a separate checkpoint.
 All current test/tool handles are terminal; remote cleanup remains as previously
 recorded with no new native run. Codex bridge/1Password work stays separate.
 

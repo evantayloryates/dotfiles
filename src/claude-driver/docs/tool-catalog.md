@@ -46,6 +46,10 @@ Readiness is determined per route, installed version, ownership and native gates
 Native mutations need currently eligible, scoped controllers. Creation/fork,
 permissions and deletion retain their existing consent gates. These are Claude
 desktop **Code chats**; web/Cowork chat support is not implied.
+At this release's live check, the ordinary controller had no eligible operations
+and the legacy broker was not resident. Native mutation tools below are
+implemented but **not ready to rely on here**. Disk reads and durable local work
+remain available; no native write was smoke-tested in this release cut.
 
 | ID | Purpose |
 |---|---|

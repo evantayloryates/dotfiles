@@ -37,7 +37,7 @@ Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 
 ## Release cut — October 18, 2026
 
-The qualified v2 core is being released with explicit route prerequisites and
+The qualified v2 core is published with explicit route prerequisites and
 UI quarantine retained. See [release notes](docs/release-2026-10-18.md) and the
 [complete tool catalog](docs/tool-catalog.md). Build `d8cfb397` passes all195
 current-source test files once93.066s. Unwired keeper/native recovery work is
@@ -45,6 +45,9 @@ deferred; the original universal always-on objective remains incomplete.
 Fresh MCP processes load the published source; running clients report their own
 loaded build and may still require refresh. Historical evidence below retains
 its original builds and is not relabelled as current-source native qualification.
+Final49 focused checks and fresh-MCP synthetic/reconnect plus real ProDevs
+metadata smoke pass. The current ordinary native controller remains unqualified
+with no eligible operations; native mutations are not ready on this host.
 
 ## Historical qualification — October 18, 2026
 

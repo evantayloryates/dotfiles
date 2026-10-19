@@ -7,6 +7,11 @@ See [release-2026-10-18.md](release-2026-10-18.md) for the current release scope
 final verification and deferred gates. Input keeper/native integration is frozen
 as an unwired candidate; UI quarantine remains enabled. The historical full
 objective below remains incomplete and is not the claim made by this release.
+The bounded release cut is complete: full195 files, focused49 and both custom-MCP
+smoke workflows pass. Native mutations currently have no eligible controller;
+only the local/durable core is confirmed ready here. The older MCP loaded in
+this chat still requires refresh. No further integration work is active under
+this release scope.
 
 The original full goal is **not complete**. This audit preserves the original build brief,
 Taylor's ordinary-chat requirement, and the later reliability and permission
