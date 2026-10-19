@@ -1,0 +1,7 @@
+{
+  "command": [
+    "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+    "notion-kickoff"
+  ],
+  "startTimeoutMs": 60000
+}

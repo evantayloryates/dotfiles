@@ -23,9 +23,16 @@ if (existsSync(join(dir, 'gateway.json'))) {
   // The service's server dying is this service crashing: exit, so the
   // supervisor's restart policy and crash fingerprints apply.
   const client = await connectStdio(g.command, { startTimeoutMs: g.startTimeoutMs || 30_000, onExit: (code, signal) => { process.stderr.write(`Error: gateway server exited (${signal || code})\n`); process.exit(1) } })
+  // A gateway serves exactly the operations its manifest declares: a subset
+  // of the server's tools (say, only its reads), each mapped to its tool by
+  // name or by the declaration's "tool" (tool names need not be snake_case).
+  const decls = JSON.parse(readFileSync(join(dir, 'service.json'), 'utf8')).operations || {}
+  const opOfTool = new Map(Object.entries(decls).map(([op, d]) => [d?.tool || op, op]))
   for (const t of await client.listTools()) {
-    sources[t.name] = JSON.stringify(t)
-    ops[t.name] = {
+    const op = opOfTool.get(t.name)
+    if (!op) continue
+    sources[op] = JSON.stringify(t)
+    ops[op] = {
       description: t.description,
       inputSchema: t.inputSchema,
       handler: async (args, ctx) => {

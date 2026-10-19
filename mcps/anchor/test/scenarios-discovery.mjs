@@ -22,6 +22,10 @@ check('precision is tracked and reported', /precision [\d.]+%/.test(ev), ev.spli
 check('first-pass median latency under 300 ms', median < 300, ev.split('\n')[0])
 check('no plaintext request in any log', /plaintext requests in logs: 0/.test(ev), ev.match(/plaintext.*/)?.[0])
 
+// 1b. The release's real services, with their manifest keywords.
+const evr = execFileSync(process.execPath, ['test/discovery/eval.mjs'], { timeout: 60000, env: { ...process.env, EVAL_SERVICES: join(P.lab, 'services'), EVAL_FILE: join(P.lab, 'test/discovery/eval-release.jsonl') } }).toString()
+check('recall on the real services is at least 95%', Number(evr.match(/^recall ([\d.]+)%/m)?.[1]) >= 95 && /plaintext requests in logs: 0/.test(evr), evr.split('\n')[0])
+
 // 2. Relevance hooks: one refines its answer, one hangs and is ignored.
 for (const [id, rel] of [['relev', `export async function relevance(ctx, need) { return /forecast/.test(need) ? { ops: ['b'], note: 'b gives the forecast' } : { relevant: false } }`], ['hangrel', `export async function relevance() { await new Promise(() => {}) }`]]) {
   rmSync(join(P.servicesDir, id), { recursive: true, force: true }); mkdirSync(join(P.servicesDir, id))

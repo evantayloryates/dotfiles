@@ -1,0 +1,7 @@
+{
+  "command": [
+    "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+    "db-kickoff-stage"
+  ],
+  "startTimeoutMs": 60000
+}

@@ -59,6 +59,7 @@ export function manifestProblems(man) {
     if (d?.class && !CLASSES.includes(d.class)) problems.push(`operation "${name}": class must be one of ${CLASSES.join(', ')}`)
     if (d?.idempotency && !IDEMPOTENCY.includes(d.idempotency)) problems.push(`operation "${name}": idempotency must be one of ${IDEMPOTENCY.join(', ')}`)
     if (d?.idempotency === 'natural' && d?.class && d.class !== 'read') problems.push(`operation "${name}": a ${d.class} operation cannot be "natural"; declare "keyed" if it dedupes on the key, else "none"`)
+    if (d?.tool !== undefined && (typeof d.tool !== 'string' || !d.tool)) problems.push(`operation "${name}": tool must be the server's tool name`)
     if (d?.notice !== undefined && (typeof d.notice !== 'string' || !d.notice.trim())) problems.push(`operation "${name}": notice must be non-empty text`)
     if (d?.inputSchema && (typeof d.inputSchema !== 'object' || d.inputSchema.type !== 'object')) problems.push(`operation "${name}": inputSchema must be an object schema`)
   }

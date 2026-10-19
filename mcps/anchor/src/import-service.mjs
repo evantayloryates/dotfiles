@@ -28,7 +28,11 @@ const operations = {}
 for (const t of tools) {
   const a = t.annotations || {}
   const cls = a.readOnlyHint ? 'read' : a.destructiveHint ? 'destructive' : 'write'
-  operations[t.name] = {
+  // Operation names are snake_case; a tool named otherwise keeps its name in
+  // "tool" so the gateway can still call it.
+  const name = /^[a-z][a-z0-9_]*$/.test(t.name) ? t.name : t.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^[^a-z]+/, '').replace(/_+$/, '')
+  operations[name] = {
+    ...(name !== t.name ? { tool: t.name } : {}),
     description: t.description || t.title || t.name,
     class: cls,
     idempotency: cls === 'read' ? 'natural' : a.idempotentHint ? 'keyed' : 'none',

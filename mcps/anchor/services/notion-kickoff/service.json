@@ -1,0 +1,3292 @@
+{
+  "description": "Kickoff's Notion workspace, read only: search, pages, blocks, comments, databases and data sources.",
+  "version": "2026-10-19.001",
+  "importedFrom": "mcps/notion-kickoff",
+  "operations": {
+    "api_get_user": {
+      "tool": "API-get-user",
+      "description": "Notion | Retrieve a user\nError Responses:\n400: 400",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id"
+        ]
+      }
+    },
+    "api_get_self": {
+      "tool": "API-get-self",
+      "description": "Notion | Retrieve your token's bot user\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    "api_get_block_children": {
+      "tool": "API-get-block-children",
+      "description": "Notion | Retrieve block children\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "Identifier for a [block](ref:block)"
+          },
+          "start_cursor": {
+            "type": "string",
+            "description": "If supplied, this endpoint will return a page of results starting after the cursor provided. If not supplied, this endpoint will return the first page of results."
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "default": 100,
+            "description": "The number of items from the full list desired in the response. Maximum: 100"
+          }
+        },
+        "required": [
+          "block_id"
+        ]
+      }
+    },
+    "api_retrieve_a_block": {
+      "tool": "API-retrieve-a-block",
+      "description": "Notion | Retrieve a block\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "Identifier for a Notion block"
+          }
+        },
+        "required": [
+          "block_id"
+        ]
+      }
+    },
+    "api_retrieve_a_page": {
+      "tool": "API-retrieve-a-page",
+      "description": "Notion | Retrieve a page\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "description": "Identifier for a Notion page"
+          },
+          "filter_properties": {
+            "type": "string",
+            "description": "A list of page property value IDs associated with the page. Use this param to limit the response to a specific page property value or values. To retrieve multiple properties, specify each page property ID. For example: `?filter_properties=iAk8&filter_properties=b7dh`."
+          }
+        },
+        "required": [
+          "page_id"
+        ]
+      }
+    },
+    "api_retrieve_a_page_property": {
+      "tool": "API-retrieve-a-page-property",
+      "description": "Notion | Retrieve a page property item\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "description": "Identifier for a Notion page"
+          },
+          "property_id": {
+            "type": "string",
+            "description": "Identifier for a page [property](https://developers.notion.com/reference/page#all-property-values)"
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "For paginated properties. The max number of property item objects on a page. The default size is 100"
+          },
+          "start_cursor": {
+            "type": "string",
+            "description": "For paginated properties."
+          }
+        },
+        "required": [
+          "page_id",
+          "property_id"
+        ]
+      }
+    },
+    "api_retrieve_a_comment": {
+      "tool": "API-retrieve-a-comment",
+      "description": "Notion | Retrieve comments\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "description": "Identifier for a Notion block or page"
+          },
+          "start_cursor": {
+            "type": "string",
+            "description": "If supplied, this endpoint will return a page of results starting after the cursor provided. If not supplied, this endpoint will return the first page of results."
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of items from the full list desired in the response. Maximum: 100"
+          }
+        },
+        "required": [
+          "block_id"
+        ]
+      }
+    },
+    "api_retrieve_a_data_source": {
+      "tool": "API-retrieve-a-data-source",
+      "description": "Notion | Retrieve a data source\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "data_source_id": {
+            "type": "string",
+            "description": "Identifier for a Notion data source"
+          }
+        },
+        "required": [
+          "data_source_id"
+        ]
+      }
+    },
+    "api_list_data_source_templates": {
+      "tool": "API-list-data-source-templates",
+      "description": "Notion | List templates in a data source\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "data_source_id": {
+            "type": "string",
+            "description": "Identifier for a Notion data source"
+          },
+          "start_cursor": {
+            "type": "string"
+          },
+          "page_size": {
+            "type": "integer",
+            "default": 100
+          }
+        },
+        "required": [
+          "data_source_id"
+        ]
+      }
+    },
+    "api_retrieve_a_database": {
+      "tool": "API-retrieve-a-database",
+      "description": "Notion | Retrieve a database\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "database_id": {
+            "type": "string",
+            "description": "Identifier for a Notion database"
+          }
+        },
+        "required": [
+          "database_id"
+        ]
+      }
+    },
+    "api_retrieve_page_markdown": {
+      "tool": "API-retrieve-page-markdown",
+      "description": "Notion | Retrieve a page as Markdown\nError Responses:\n400: Bad request\n403: The integration lacks the read/update content capability required for this page.\n404: Page not found or not shared with the integration.\n429: Rate limited.",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier for a Notion page (or block) to read or update as markdown."
+          },
+          "include_transcript": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to include meeting note transcripts. When false (default), a placeholder with the meeting note URL is shown instead of the full transcript."
+          }
+        },
+        "required": [
+          "page_id"
+        ]
+      }
+    },
+    "api_post_search": {
+      "tool": "API-post-search",
+      "description": "Notion | Search by title\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The text that the API compares page and database titles against."
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "object",
+                "description": "A set of criteria, `direction` and `timestamp` keys, that orders the results. The **only** supported timestamp value is `\"last_edited_time\"`. Supported `direction` values are `\"ascending\"` and `\"descending\"`. If `sort` is not provided, then the most recently edited results are returned first.",
+                "properties": {
+                  "direction": {
+                    "type": "string",
+                    "description": "The direction to sort. Possible values include `ascending` and `descending`."
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "description": "The name of the timestamp to sort against. Possible values include `last_edited_time`."
+                  }
+                },
+                "additionalProperties": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "description": "A set of criteria, `value` and `property` keys, that limits the results to either only pages or only data sources. Possible `value` values are `\"page\"` or `\"data_source\"`. The only supported `property` value is `\"object\"`.",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "description": "The value of the property to filter the results by.  Possible values for object type include `page` or `data_source`.  **Limitation**: Currently the only filter allowed is `object` which will filter by type of object (either `page` or `data_source`)",
+                    "enum": [
+                      "page",
+                      "data_source"
+                    ]
+                  },
+                  "property": {
+                    "type": "string",
+                    "description": "The name of the property to filter by. Currently the only property you can filter by is the object type.  Possible values include `object`.   Limitation: Currently the only filter allowed is `object` which will filter by type of object (either `page` or `data_source`)"
+                  }
+                },
+                "additionalProperties": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "start_cursor": {
+            "type": "string",
+            "description": "A `cursor` value returned in a previous response that If supplied, limits the response to results starting after the `cursor`. If not supplied, then the first page of results is returned. Refer to [pagination](https://developers.notion.com/reference/intro#pagination) for more details."
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of items from the full list to include in the response. Maximum: `100`.",
+            "default": 100
+          }
+        },
+        "required": []
+      }
+    },
+    "api_query_data_source": {
+      "tool": "API-query-data-source",
+      "description": "Notion | Query a data source\nError Responses:\n400: Bad request",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "$defs": {
+          "richTextRequest": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "pageIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "page_id"
+            ],
+            "additionalProperties": true
+          },
+          "dataSourceIdParentRequest": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "database_id"
+              },
+              "database_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "database_id"
+            ],
+            "additionalProperties": true
+          },
+          "parentRequest": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pageIdParentRequest"
+              },
+              {
+                "$ref": "#/$defs/dataSourceIdParentRequest"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "movePageParentRequest": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "page_id"
+                  },
+                  "page_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "page_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "database_id"
+                  },
+                  "database_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "type",
+                  "database_id"
+                ],
+                "additionalProperties": true
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "workspace"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": true
+              }
+            ]
+          },
+          "sortObject": {
+            "type": "object",
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "additionalProperties": true
+          },
+          "paragraphBlockRequest": {
+            "type": "object",
+            "properties": {
+              "paragraph": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "bulletedListItemBlockRequest": {
+            "type": "object",
+            "properties": {
+              "bulleted_list_item": {
+                "type": "object",
+                "properties": {
+                  "rich_text": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/richTextRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "rich_text"
+                ],
+                "additionalProperties": false
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bulleted_list_item"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "blockObjectRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/paragraphBlockRequest"
+              },
+              {
+                "$ref": "#/$defs/bulletedListItemBlockRequest"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "data_source_id": {
+            "type": "string",
+            "description": "Identifier for a Notion data source (database)"
+          },
+          "filter_properties": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              ]
+            },
+            "description": "A list of page property value IDs to limit the response"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "description": "Filter conditions for querying the data source",
+                "additionalProperties": true
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "sorts": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/sortObject"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              ]
+            }
+          },
+          "start_cursor": {
+            "type": "string"
+          },
+          "page_size": {
+            "type": "integer",
+            "default": 100
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "in_trash": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data_source_id"
+        ]
+      }
+    }
+  },
+  "keywords": [
+    "notion",
+    "page",
+    "pages",
+    "ticket",
+    "tickets",
+    "kanban",
+    "board",
+    "card",
+    "cards",
+    "block",
+    "comment",
+    "comments",
+    "database",
+    "workspace",
+    "doc",
+    "docs",
+    "wiki"
+  ]
+}

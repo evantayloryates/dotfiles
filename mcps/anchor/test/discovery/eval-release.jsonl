@@ -1,0 +1,15 @@
+{"need": "How many tables in the Kickoff staging database start with coach?", "services": ["db-kickoff-stage"], "source": "release"}
+{"need": "Show me the columns and indexes of the messages table in staging.", "services": ["db-kickoff-stage"], "source": "release"}
+{"need": "Run EXPLAIN on this query against kudos_staging.", "services": ["db-kickoff-stage"], "source": "release"}
+{"need": "Which GraphQL field maps to which table in staging?", "services": ["db-kickoff-stage"], "source": "release"}
+{"need": "Label these 300 support messages by topic.", "services": ["bulk-classify"], "source": "release"}
+{"need": "Triage these feedback notes into bug, feature request or praise.", "services": ["bulk-classify"], "source": "release"}
+{"need": "Reuse the saved label set from last week to tag this file of texts.", "services": ["bulk-classify"], "source": "release"}
+{"need": "Find the Notion ticket about the onboarding bug.", "services": ["notion-kickoff"], "source": "release"}
+{"need": "Read the markdown of this Notion page.", "services": ["notion-kickoff"], "source": "release"}
+{"need": "What cards are in the Dev In Progress column of the kanban board?", "services": ["notion-kickoff"], "source": "release"}
+{"need": "Who commented on that Notion card?", "services": ["notion-kickoff"], "source": "release"}
+{"need": "Classify the comments on the Notion bug ticket by severity.", "services": ["notion-kickoff", "bulk-classify"], "source": "release"}
+{"need": "Compare the staging table for tickets with what the Notion board says.", "services": ["db-kickoff-stage", "notion-kickoff"], "source": "release"}
+{"need": "Send an email to Sam.", "services": [], "source": "release"}
+{"need": "What's the weather tomorrow?", "services": [], "source": "release"}

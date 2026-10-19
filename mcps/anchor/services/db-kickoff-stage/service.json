@@ -1,0 +1,132 @@
+{
+  "description": "Read-only SQL against Kickoff's STAGING database (kudos_staging) over the Tunnelblick VPN. Not production.",
+  "version": "2026-10-19.001",
+  "importedFrom": "mcps/db-kickoff-stage",
+  "operations": {
+    "stage_guide": {
+      "description": "[STAGING kudos_staging, not production] What the staging database holds, when to use it instead of the production routes (Kickoff Sanitized DB, zdr_ask), core tables, definitions and limits. Read once before an unfamiliar question.",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "stage_tables": {
+      "description": "[STAGING kudos_staging, not production] List tables with approximate row counts. like: a LIKE pattern on the table name (\"%call%\"; a bare word matches anywhere). column_like: only tables having a column like it, listing those columns (\"coach_id\").",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "like": {
+            "type": "string"
+          },
+          "column_like": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "description": "default 200, max 500"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "stage_describe": {
+      "description": "[STAGING kudos_staging, not production] Columns, types, indexes and foreign keys for one table or up to 10 in one call (tables: [...]). Wide tables (clients has ~150 columns): pass column_like to see only the columns you need.",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          },
+          "column_like": {
+            "type": "string",
+            "description": "only columns (and their indexes and keys) like this, e.g. %coach% or insurance"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "stage_query": {
+      "description": "[STAGING kudos_staging, not production] Run one read statement (SELECT, WITH, SHOW, EXPLAIN, DESCRIBE). Prefer aggregates. Use ? placeholders with params for values. Shows 100 rows by default (limit up to 1000) as a column list plus one JSON array per row. For more rows than you need to read, pass output_path (.csv/.tsv/.jsonl, absolute, git-ignored if inside a repo; name only the columns you need) to stream up to 5,000,000 rows to a file; the answer is counts and a sample.",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sql": {
+            "type": "string"
+          },
+          "params": {
+            "type": "array",
+            "description": "values for ? placeholders, in order"
+          },
+          "limit": {
+            "type": "number",
+            "description": "rows to show, default 100, max 1000"
+          },
+          "timeout_seconds": {
+            "type": "number",
+            "description": "default 30, max 120 (exports 300)"
+          },
+          "max_cell_chars": {
+            "type": "number",
+            "description": "default 500, max 20000"
+          },
+          "output_path": {
+            "type": "string",
+            "description": "write every row to this file instead of showing them"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "replace output_path if it exists"
+          }
+        },
+        "required": [
+          "sql"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stage_status": {
+      "description": "[STAGING kudos_staging, not production] VPN state, database user, read-only check, latency, newest migration. Use when a call fails or before a long session.",
+      "class": "read",
+      "idempotency": "natural",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  "keywords": [
+    "sql",
+    "database",
+    "db",
+    "mysql",
+    "table",
+    "tables",
+    "columns",
+    "schema",
+    "indexes",
+    "explain",
+    "query",
+    "rows",
+    "staging",
+    "stg",
+    "kudos_staging",
+    "graphql"
+  ]
+}

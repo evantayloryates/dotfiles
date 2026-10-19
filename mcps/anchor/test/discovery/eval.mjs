@@ -10,11 +10,13 @@ import { createAnchor } from '../../src/core.mjs'
 import { paths } from '../../src/paths.mjs'
 
 const P = paths()
-const services = join(homedir(), '.cache/anchor-lab/pilot/services')
+// EVAL_SERVICES / EVAL_FILE: another service folder and evaluation set (the
+// release's real services use eval-release.jsonl).
+const services = process.env.EVAL_SERVICES || join(homedir(), '.cache/anchor-lab/pilot/services')
 const stateDir = join(homedir(), '.cache/anchor-lab/discovery-eval')
 rmSync(stateDir, { recursive: true, force: true }); mkdirSync(stateDir, { recursive: true })
 const anchor = createAnchor({ servicesDir: services, stateDir })
-const items = readFileSync(join(P.lab, 'test/discovery/eval.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l))
+const items = readFileSync(process.env.EVAL_FILE || join(P.lab, 'test/discovery/eval.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l))
 const rows = []
 for (const it of items) {
   const t0 = process.hrtime.bigint()

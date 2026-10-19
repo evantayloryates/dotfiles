@@ -14,5 +14,5 @@ for s in basic supervision recovery persistence policy channels tickets fixer he
 done
 pkill -9 -f "mcps/anchor/src/daemon.mjs --state $ANCHOR_STATE_DIR" 2>/dev/null
 sleep 1
-echo "leftover: services $(pgrep -f mcps/anchor/src/service-host.mjs | wc -l | tr -d ' '), fixers $(pgrep -f 'fixer-headless|fake-headless|fake-fixer|fake-driver' | wc -l | tr -d ' ')"
+echo "leftover: services $(pgrep -f "mcps/anchor/src/service-host.mjs .*mcps/anchor/test/services" | wc -l | tr -d ' '), fixers $(pgrep -f 'fixer-headless|fake-headless|fake-fixer|fake-driver' | wc -l | tr -d ' ')"
 echo "SUITES_FAILED=$failed"

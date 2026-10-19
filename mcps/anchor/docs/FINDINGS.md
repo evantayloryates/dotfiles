@@ -833,6 +833,32 @@ processes were left running.
     daemon on their next call. Upgrade suite 12/12, with no new chat
     involved.
 
+61. **B1: the first real services.** db-kickoff-stage, bulk-classify and
+    notion-kickoff are imported as gateways, released and promoted to
+    stable in the live anchor (2026-10-19.001 each).
+    - **bulk-classify is `sensitive`:** its inputs and results are texts
+      that may include client data, which must not land on anchor's disk.
+      Checked: none of its results are in the state folder.
+    - **notion-kickoff is read only:** 13 operations. Search and query are
+      included as reads although the server marks them destructive (they
+      are POST requests). `API-get-users` is left out, as Taylor's Codex
+      config already does.
+    - **Two mechanisms were needed:**
+      - operation names are snake_case, so an import maps a tool like
+        `API-get-self` to `api_get_self`, with `tool` naming the real tool;
+      - a gateway now serves exactly its manifest's operations, so a
+        subset passes the release check and any other tool is refused.
+    - **Discovery keywords** are in each manifest. A release evaluation set
+      (15 requests) scores 100% recall and 88.9% precision, and the
+      discovery suite now runs it.
+    - **The prompt still fits:** 1622 characters for Claude Code, 6374 for
+      Codex.
+    - **Live from this session:** a staging count (62), Notion's identity,
+      and bulk-classify's saved profiles, each served from stable.
+    - Gateway suite 21/21; all 16 suites pass. `run-all`'s leftover check
+      now counts only test processes, since the live anchor's services may
+      run.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 

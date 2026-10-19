@@ -3,7 +3,7 @@
 //   node harness/scenarios-gateway.mjs [service-id ...]   (default db-kickoff-stage and zdr-agent)
 import './env.mjs'
 import { execSync, execFileSync } from 'node:child_process'
-import { rmSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { rmSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { startHarness } from './client.mjs'
 import { connectStdio } from '../src/mcp-client.mjs'
@@ -86,6 +86,25 @@ for (const id of ids) {
   const again = (await h.call('anchor_run', { calls: [{ target: `${id}:${tool}`, args }] })).data[0]
   check(`${id}: anchor recovers when the service's server dies`, again.ok, JSON.stringify(again).slice(0, 300))
   direct.close()
+  await h.close()
+  killDaemon()
+}
+// A gateway serves only what its manifest declares, under snake_case names
+// mapped to the server's own tool names (notion-kickoff's are "API-...").
+{
+  execFileSync(process.execPath, ['src/import-service.mjs', 'notion-kickoff'], { stdio: 'ignore', timeout: 120000 })
+  const mp = 'test/services/notion-kickoff/service.json'
+  const m = JSON.parse(readFileSync(mp, 'utf8'))
+  check('notion-kickoff: tool names become snake_case operations that keep their tool', m.operations.api_get_self?.tool === 'API-get-self' && m.operations.api_post_page?.tool === 'API-post-page', JSON.stringify(Object.keys(m.operations).slice(0, 4)))
+  m.operations = { api_get_self: m.operations.api_get_self }
+  writeFileSync(mp, JSON.stringify(m, null, 2))
+  const rel = JSON.parse(execFileSync(process.execPath, ['src/release.mjs', 'release', 'notion-kickoff']).toString())
+  execFileSync(process.execPath, ['src/release.mjs', 'promote', 'notion-kickoff'])
+  check('a gateway trimmed to a subset of its tools passes the release check', rel.ok, JSON.stringify(rel))
+  const h = await startHarness({ name: 'gateway-subset', env: { ANCHOR_ALERT_BACKEND: 'log' } })
+  const r = (await h.call('anchor_run', { calls: [{ target: 'notion-kickoff:api_get_self' }, { target: 'notion-kickoff:api_post_page', args: {} }] })).data
+  check('the declared operation reaches its tool', r[0].ok && /"object":"user"/.test(String(r[0].value)), JSON.stringify(r[0]).slice(0, 300))
+  check('a tool the manifest leaves out cannot be called', r[1].code === 'unknown_op', JSON.stringify(r[1]))
   await h.close()
   killDaemon()
 }
