@@ -1,7 +1,7 @@
 // Client for the local ZDR harness (OpenCode server on 127.0.0.1:4096). Lets
 // non-ZDR agents (Claude Code, Codex) ask questions without loading raw
 // Amplitude/BugSnag/production data into their own context: only the harness's
-// de-identified final answer comes back. See src/zdr-harness/README.md.
+// de-identified final answer comes back. See apps/zdr-agent/README.md.
 
 import { execFile } from 'node:child_process'
 

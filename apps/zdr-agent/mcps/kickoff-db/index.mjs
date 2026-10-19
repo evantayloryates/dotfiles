@@ -1,0 +1,1146 @@
+#!/usr/bin/env node
+// kickoff-db: an MCP stdio server giving the ZDR harness read-only access to
+// Kickoff's LIVE production database (the read replica) and to the archived
+// call transcripts in S3 that its rows point at.
+//
+// Harness-only. This is raw PHI: names, emails, health details, and the full
+// text of coaching calls. It must never be registered in Claude Code, Codex or
+// any other non-ZDR client. The sanitized copy exists for those. See
+// ../../README.md.
+//
+// Walls, in order:
+//   1. The credential: kudos_ro has SELECT and SHOW VIEW on kudos_production and
+//      nothing else, on a replica that is itself read_only=1.
+//   2. This file: one statement per call, only SELECT/WITH/SHOW/EXPLAIN/DESCRIBE,
+//      inside a READ ONLY transaction with a server-side execution timeout,
+//      rows and bytes capped. Transcripts come only from the one archive bucket
+//      and only by way of a database row that names the object.
+//   3. The answer rule in the prompts governs what leaves the harness.
+//
+// Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0.
+// The database driver is mysql2, pinned into ~/.zdr-harness/opt like OpenCode.
+
+import { exportStates as terraArchiveExport, runs as terraArchiveRuns, start as terraArchiveStartRun, status as terraArchiveStatusRead } from './terra-archive-cli.mjs'
+import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
+import { createHash, createHmac, randomBytes } from 'node:crypto'
+import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { join } from 'node:path'
+import { createInterface } from 'node:readline'
+import { checkServerIdentity } from 'node:tls'
+import { gunzipSync } from 'node:zlib'
+import { fixtureTool, fixturePackage } from './fixture-package.mjs'
+import { fixtureContextTool, fixtureContext } from './fixture-context.mjs'
+import { fixtureOrdinalTool, ordinalFromRows } from './fixture-ordinal.mjs'
+import { fixtureSourceTool, SOURCE_PAGE_MAX_ROWS, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
+import { importSourcePages } from './fixture-import.mjs'
+import { fixtureFactsTool, fixtureFacts } from './fixture-facts.mjs'
+
+const OPT = process.env.ZDR_HARNESS_OPT
+if (!OPT) {
+  console.error('[kickoff-db] ZDR_HARNESS_OPT is not set; start this server through kickoff-db-mcp')
+  process.exit(1)
+}
+const mysql = createRequire(join(OPT, 'noop.js'))('mysql2/promise')
+
+const DB_URL = process.env.KICKOFF_ZDR_DB_URL
+const TUNNEL_PORT = Number(process.env.KICKOFF_ZDR_DB_TUNNEL_PORT || 0)
+const RDS_CA = process.env.ZDR_HARNESS_RDS_CA
+const REGION = process.env.KICKOFF_ZDR_AWS_REGION || 'us-west-1'
+const ACCESS_KEY_ID = process.env.KICKOFF_ZDR_AWS_ACCESS_KEY_ID
+const SECRET_ACCESS_KEY = process.env.KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY
+const SESSION_TOKEN = process.env.KICKOFF_ZDR_AWS_SESSION_TOKEN
+const SUPPORTED_PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05']
+
+// Second wall for transcripts: the only bucket this server will ever read,
+// regardless of what a row or the credential says.
+const ALLOWED_BUCKET = 'kickoff-transcript-archive-production'
+const ALLOWED_KEY = /^transcripts\/v1\/\d+\/\d+\/assemblyai\.json\.gz$/
+
+// Guardrails. The replica serves the product too, so a runaway query is a
+// production incident, not a slow answer.
+const STATEMENT_TIMEOUT_MS = 30 * 1000
+const DEFAULT_ROWS = 200
+const MAX_ROWS = 1000
+const MAX_RESULT_BYTES = 250_000
+const MAX_CELL_CHARS = 2000
+const DEFAULT_TRANSCRIPT_CHARS = 20_000
+const MAX_TRANSCRIPT_CHARS = 80_000
+const MAX_TRANSCRIPT_LIST = 200
+// A full scan this large is flagged in the result so the agent narrows next
+// time; the 30s server timeout and the streaming row cap are what actually
+// bound it.
+const SCAN_NOTE_ROWS = 1_000_000
+// Transcripts have no per-hour read limit (removed 2026-10-05): agents choose
+// how many to read for the question at hand, guided by the sampling practice
+// in TRANSCRIPT_PRACTICE. Bulk export goes straight from S3 to a file inside
+// the harness for the classifier, never through the agent's context. One
+// export is capped so its file stays readable in one piece (about 10k
+// transcripts is ~400 MB of text).
+const MAX_EXPORT = 10_000
+const TRANSCRIPT_PRACTICE = `Choosing how many transcripts to read (quality per token):
+- Counts, durations, who and when: SQL or transcript_list metadata; no text needed.
+- "What share of calls ...", "which calls ...": transcript_export the whole relevant set and classify the file
+  (about $0.002 a call); never read transcripts to count them.
+- Themes and nuance: read a small spread sample (5-20) across coaches and weeks, not just the newest; page with
+  max_chars/offset and stop once the point is clear.
+- Checking a classification: read 3-5 per label of interest, low and medium confidence first.
+- One full transcript costs this conversation roughly 6-12k tokens; classifying one costs a fraction of that.
+  Say how many you read and how you chose them.`
+const TERRA_PRACTICE = `Terra webhook payloads (bucket ${TERRA_BUCKET}, last 30 days only): the raw events
+Terra sends for each wearable connection. Use them for what the database does not keep: a connection's granted
+scopes (user.scopes), raw webhook events and fields dropped on save. Stored rows (terra_users, client_integration_*)
+are database questions: use query. terra_payload_days counts objects and bytes per day (no bodies);
+terra_payload_get reads one payload (bounded); terra_scopes_export writes each Terra user's latest provider,
+scopes, active flag and last event to a ts_ file in exports and returns stats only. Scopes are always empty for
+APPLE (HealthKit hides read permissions), MYFITNESSPAL, CRONOMETER, PELOTON and COROS: report them as "not
+reported", never as "no scopes". Every payload pairs a client id with health data.
+The Terra archive keeps what the bucket would lose after 30 days: per payload its type and user block (provider,
+scopes, active), as a scope history per user, per-user daily event counts, and connection events in full. It runs
+on its own whenever it falls behind (checked every 30 min); terra_archive_status shows health and coverage, terra_archive_scopes_export writes each user's latest
+archived state to a ts_ export (all archived days, not only the last 30). Prefer it over terra_scopes_export.`
+const EXPORT_CONCURRENCY = 48
+const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
+
+const log = (...args) => console.error('[kickoff-db]', ...args)
+
+class ToolError extends Error {}
+
+// ---------------------------------------------------------------------------
+// Database connection: one lazily opened, read-only session
+
+let conn = null
+let target = null
+
+function parseUrl() {
+  if (!DB_URL) {
+    throw new ToolError(
+      'No database URL: set KICKOFF_ZDR_DB_URL in apps/zdr-agent/.env (1Password: personal account, ' +
+        'Kickoff vault, KICKOFF_ZDR_DB_URL), then run: zdr-harness reload-auth'
+    )
+  }
+  let u
+  try {
+    u = new URL(DB_URL)
+  } catch {
+    throw new ToolError('KICKOFF_ZDR_DB_URL is not a valid mysql:// URL')
+  }
+  return {
+    host: u.hostname,
+    port: Number(u.port || 3306),
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname.replace(/^\//, ''),
+  }
+}
+
+// The tunnel is a launchd-kept SSM session that is restarted when it drops,
+// so a lost socket is expected now and then: forget it and let the next call
+// open a fresh one rather than failing every call until restart.
+const LOST = new Set(['PROTOCOL_CONNECTION_LOST', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT', 'ECONNREFUSED', 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR'])
+function forgetIfLost(err) {
+  if (LOST.has(err?.code) || err?.fatal) {
+    conn?.destroy?.()
+    conn = null
+    return true
+  }
+  return false
+}
+
+async function connection() {
+  if (conn) return conn
+  target = parseUrl()
+  const ca = RDS_CA ? readFileSync(RDS_CA, 'utf8') : undefined
+  const ssl = {
+    ca,
+    rejectUnauthorized: true,
+    // Through the SSM tunnel the socket says 127.0.0.1; the certificate still
+    // has to be the replica's, so verify it against the real hostname.
+    checkServerIdentity: (_host, cert) => checkServerIdentity(target.host, cert),
+  }
+  const c = await mysql.createConnection({
+    host: TUNNEL_PORT ? '127.0.0.1' : target.host,
+    port: TUNNEL_PORT || target.port,
+    user: target.user,
+    password: target.password,
+    database: target.database,
+    ssl,
+    connectTimeout: 15_000,
+    decimalNumbers: true,
+    dateStrings: true,
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+  }).catch((err) => {
+    const hint = TUNNEL_PORT
+      ? ` (tunnel on 127.0.0.1:${TUNNEL_PORT}: is it up? zdr-harness tunnel status)`
+      : ' (the replica is private: set KICKOFF_ZDR_DB_TUNNEL_PORT and start the tunnel)'
+    throw new ToolError(`Cannot connect to the production read replica: ${err.code || err.message}${hint}`)
+  })
+  // Belt and braces on top of kudos_ro's grants and the replica's read_only.
+  await c.query('SET SESSION TRANSACTION READ ONLY')
+  await c.query(`SET SESSION MAX_EXECUTION_TIME=${STATEMENT_TIMEOUT_MS}`)
+  await c.query("SET SESSION sql_mode=CONCAT(@@sql_mode,',NO_ENGINE_SUBSTITUTION')")
+  c.on('error', (err) => {
+    log('connection lost:', err.code || err.message)
+    conn = null
+  })
+  conn = c
+  return c
+}
+
+// ---------------------------------------------------------------------------
+// SQL checking
+
+const READ_START = /^(SELECT|WITH|SHOW|EXPLAIN|DESCRIBE|DESC)\b/i
+const FORBIDDEN = /\b(INTO\s+(OUTFILE|DUMPFILE)|FOR\s+UPDATE|LOCK\s+IN\s+SHARE\s+MODE|FOR\s+SHARE|LOAD_FILE\s*\(|SLEEP\s*\(|BENCHMARK\s*\()/i
+
+function stripComments(sql) {
+  return sql
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/--[^\n]*/g, ' ')
+    .replace(/#[^\n]*/g, ' ')
+}
+
+// True when a semicolon appears outside quotes: a second statement.
+function hasStatementBreak(sql) {
+  let q = null
+  for (let i = 0; i < sql.length; i++) {
+    const ch = sql[i]
+    if (q) {
+      if (ch === '\\') i++
+      else if (ch === q) q = null
+    } else if (ch === "'" || ch === '"' || ch === '`') q = ch
+    else if (ch === ';') return true
+  }
+  return false
+}
+
+function checkSql(sql) {
+  if (typeof sql !== 'string' || !sql.trim()) throw new ToolError('"sql" is required')
+  let s = stripComments(sql).trim().replace(/;\s*$/, '')
+  if (!s) throw new ToolError('"sql" is empty after removing comments')
+  if (!READ_START.test(s)) {
+    throw new ToolError('Only SELECT, WITH, SHOW, EXPLAIN and DESCRIBE statements run here; this server cannot write')
+  }
+  if (hasStatementBreak(s)) throw new ToolError('One statement per call')
+  const bad = s.match(FORBIDDEN)
+  if (bad) throw new ToolError(`${bad[1]} is not allowed here`)
+  return s
+}
+
+function checkLimit(value, fallback, max, name) {
+  if (value === undefined || value === null) return fallback
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < 1 || n > max) throw new ToolError(`"${name}" must be a whole number from 1 to ${max}`)
+  return n
+}
+
+function checkInt(value, name) {
+  const n = Number(value)
+  if (!Number.isInteger(n) || n < 1) throw new ToolError(`"${name}" must be a positive whole number`)
+  return n
+}
+
+const IDENT = /^[A-Za-z0-9_]{1,64}$/
+function checkIdent(value, name) {
+  if (typeof value !== 'string' || !IDENT.test(value)) throw new ToolError(`"${name}" must be a plain table name`)
+  return value
+}
+
+// ---------------------------------------------------------------------------
+// Result shaping
+
+function shapeRows(rows, limit) {
+  const truncatedRows = rows.length > limit
+  const kept = truncatedRows ? rows.slice(0, limit) : rows
+  let bytes = 0
+  let truncatedCells = 0
+  const out = []
+  for (const row of kept) {
+    const shaped = {}
+    for (const [k, v] of Object.entries(row)) {
+      let val = v
+      if (Buffer.isBuffer(val)) val = `<${val.length} bytes>`
+      else if (typeof val === 'string' && val.length > MAX_CELL_CHARS) {
+        val = `${val.slice(0, MAX_CELL_CHARS)}… <truncated ${val.length - MAX_CELL_CHARS} chars>`
+        truncatedCells++
+      }
+      shaped[k] = val
+    }
+    const line = JSON.stringify(shaped)
+    bytes += line.length + 1
+    if (bytes > MAX_RESULT_BYTES) return { rows: out, truncatedRows: true, truncatedCells, bytesCapped: true }
+    out.push(shaped)
+  }
+  return { rows: out, truncatedRows, truncatedCells, bytesCapped: false }
+}
+
+// ---------------------------------------------------------------------------
+// Tools
+
+const GUIDE = `Kickoff production database (LIVE, read replica) — kudos_production, MySQL 8.4, ~400 tables.
+This is the real data, not the sanitized copy: every client row is a person. Aggregate before you answer.
+
+Physical names are snake_case (clients.coach_id, created_at). Objection models in the codebase use camelCase for the same columns.
+Core: clients (the customer; clients.user_id -> users, clients.coach_id -> coaches), coaches, users (login/person accounts),
+workouts + workout_programs, sms + sms_conversations (client<->coach messaging), kickoff_calls + meeting_rooms (video calls),
+files (uploads; files.user_id), client memory / nutrition / insurance / payment tables by name.
+Definitions that hold: clients.signed_up is the signup time (no created_at); active client = clients.status = 1; exclude test and
+merged accounts by their flags. A completed video call = kickoff_calls.method='video' AND completed_at IS NOT NULL AND deleted_at IS NULL,
+joined on client_id; meeting_rooms is the room (room_started_at/room_ended_at, kickoff_call_id), not the booking. Coach caseload =
+COUNT of active clients by coach_id. Not every table has deleted_at; check describe_table before filtering on it.
+Discovery: use list_tables with a LIKE pattern, then describe_table on a short named list. Do not scan information_schema.columns broadly.
+Time: *_at columns are UTC datetimes; date columns are local calendar dates. Say which timestamp defines an event and whether ranges are inclusive.
+Counting traps: soft deletes (deleted_at), status history tables, test accounts, and one-to-many joins that multiply rows.
+
+Call transcripts: a video call is meeting_rooms (kickoff_call_id, room_started_at). meeting_room_file_transcripts links a room to
+file_transcripts (status, provider). file_transcript_artifacts (is_canonical=1, status='completed') holds the archived object:
+storage_bucket/storage_key/storage_version_id/sha256/bytes. Use transcript_list to find them and transcript_get to read one;
+transcript_get verifies the sha256 and renders speaker turns. ~175k archived transcripts, ~23 GB. Transcripts are verbatim
+client speech: quote nothing outside the harness, summarise themes with cell-size protection.
+
+Every query runs as kudos_ro (SELECT only) inside a READ ONLY transaction with a ${STATEMENT_TIMEOUT_MS / 1000}s server timeout,
+capped at ${MAX_ROWS} rows / ${Math.round(MAX_RESULT_BYTES / 1000)} KB: a statement that returns more is cut off at the cap, not buffered.
+Results note a planned full scan over ${SCAN_NOTE_ROWS.toLocaleString()} rows.
+Prefer aggregates and LIMIT; the replica also serves the product.
+
+${TRANSCRIPT_PRACTICE}
+
+${TERRA_PRACTICE}`
+
+async function guide() {
+  return GUIDE + '\n\nCall Guidance fixtures: fixture_package stages ten transformed customer bundles and reports inside protected ZDR exports. It validates declared joins and hashes; it does not deidentify or certify source parity. Release requires a separately operator-written manifest-hash-bound qualified review receipt, and writes only to /Users/taylor/Desktop/zdr-dump. Never return package contents through the bridge.'
+}
+
+async function listTables({ like, limit } = {}) {
+  const c = await connection()
+  const n = checkLimit(limit, 100, 500, 'limit')
+  const params = [target.database]
+  let where = ''
+  if (like !== undefined) {
+    if (typeof like !== 'string' || like.length > 64) throw new ToolError('"like" must be a short LIKE pattern, e.g. %client%')
+    where = ' AND table_name LIKE ?'
+    params.push(like)
+  }
+  const [rows] = await c.query(
+    `SELECT table_name AS table_name, table_rows AS approx_rows, ROUND(data_length/1048576) AS data_mb FROM information_schema.tables ` +
+      `WHERE table_schema=?${where} ORDER BY table_name LIMIT ${n}`,
+    params
+  )
+  if (!rows.length) return like ? `No tables match ${like}.` : 'No tables.'
+  return rows.map((r) => `${r.table_name}  ~${r.approx_rows} rows  ${r.data_mb} MB`).join('\n')
+}
+
+async function describeTable({ table }) {
+  const c = await connection()
+  const t = checkIdent(table, 'table')
+  const [cols] = await c.query(
+    'SELECT column_name AS column_name, column_type AS column_type, is_nullable AS is_nullable, column_key AS column_key, column_default AS column_default, extra AS extra FROM information_schema.columns ' +
+      'WHERE table_schema=? AND table_name=? ORDER BY ordinal_position',
+    [target.database, t]
+  )
+  if (!cols.length) throw new ToolError(`No table named ${t}. Try list_tables with a LIKE pattern.`)
+  const [idx] = await c.query(
+    'SELECT index_name AS index_name, non_unique AS non_unique, GROUP_CONCAT(column_name ORDER BY seq_in_index) AS cols FROM information_schema.statistics ' +
+      'WHERE table_schema=? AND table_name=? GROUP BY index_name, non_unique ORDER BY index_name',
+    [target.database, t]
+  )
+  const [fks] = await c.query(
+    'SELECT column_name AS column_name, referenced_table_name AS referenced_table_name, referenced_column_name AS referenced_column_name FROM information_schema.key_column_usage ' +
+      'WHERE table_schema=? AND table_name=? AND referenced_table_name IS NOT NULL ORDER BY column_name',
+    [target.database, t]
+  )
+  const lines = [`${t}`, 'columns:']
+  for (const col of cols) {
+    lines.push(
+      `  ${col.column_name}  ${col.column_type}${col.is_nullable === 'NO' ? ' NOT NULL' : ''}` +
+        `${col.column_key ? ` [${col.column_key}]` : ''}${col.extra ? ` ${col.extra}` : ''}`
+    )
+  }
+  if (idx.length) {
+    lines.push('indexes:')
+    for (const i of idx) lines.push(`  ${i.index_name}${i.non_unique ? '' : ' (unique)'}: ${i.cols}`)
+  }
+  if (fks.length) {
+    lines.push('foreign keys:')
+    for (const f of fks) lines.push(`  ${f.column_name} -> ${f.referenced_table_name}.${f.referenced_column_name}`)
+  }
+  return lines.join('\n')
+}
+
+async function query({ sql, limit } = {}) {
+  const c = await connection()
+  const statement = checkSql(sql)
+  const rowLimit = checkLimit(limit, DEFAULT_ROWS, MAX_ROWS, 'limit')
+  const started = Date.now()
+  const fp = fingerprint(statement)
+  const note = await scanNote(c, statement)
+  let result
+  try {
+    result = await runReadOnly(c, statement, rowLimit)
+  } catch (err) {
+    if (forgetIfLost(err)) {
+      const again = await connection()
+      result = await runReadOnly(again, statement, rowLimit).catch((e) => { forgetIfLost(e); throw new ToolError(`${e.code || 'query failed'}: ${e.sqlMessage || e.message}`) })
+      return finish(result, rowLimit, started, fp, note)
+    }
+    if (err.code === 'ER_QUERY_TIMEOUT') {
+      log(`query ${fp.hash} timeout after ${Date.now() - started}ms: ${fp.shape}`)
+      throw new ToolError(`Query exceeded the ${STATEMENT_TIMEOUT_MS / 1000}s limit. Narrow the range or aggregate in SQL.`)
+    }
+    log(`query ${fp.hash} failed ${err.code || ''}: ${fp.shape}`)
+    throw new ToolError(`${err.code || 'query failed'}: ${err.sqlMessage || err.message}`)
+  }
+  return finish(result, rowLimit, started, fp, note)
+}
+
+// What gets logged about a statement: a short hash and its shape with
+// literals removed, never the literals themselves (they can be a person).
+function fingerprint(statement) {
+  const shape = statement
+    .replace(/'(?:[^'\\]|\\.)*'/g, '?')
+    .replace(/"(?:[^"\\]|\\.)*"/g, '?')
+    .replace(/\b\d+(\.\d+)?\b/g, '?')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return { hash: sha256hex(statement).slice(0, 12), shape: shape.slice(0, 160) }
+}
+
+// EXPLAIN is cheap and tells us whether the optimizer plans a large full scan.
+// Only a note: the agent needs to know why a query was slow or capped, and
+// COUNT(*) over a big table is legitimate.
+async function scanNote(c, statement) {
+  if (!/^(SELECT|WITH)\b/i.test(statement)) return undefined
+  try {
+    const [rows] = await c.query(`EXPLAIN FORMAT=JSON ${statement}`)
+    const plan = JSON.parse(rows[0]?.EXPLAIN || rows[0]?.[Object.keys(rows[0])[0]] || '{}')
+    let worst = 0
+    let table = ''
+    const walk = (node) => {
+      if (!node || typeof node !== 'object') return
+      if (Array.isArray(node)) return node.forEach(walk)
+      if (node.table && (node.table.access_type === 'ALL' || node.table.access_type === 'index')) {
+        const n = Number(node.table.rows_examined_per_scan || 0)
+        if (n > worst) { worst = n; table = node.table.table_name }
+      }
+      for (const v of Object.values(node)) walk(v)
+    }
+    walk(plan)
+    if (worst >= SCAN_NOTE_ROWS) return `full scan of ~${worst.toLocaleString()} rows on ${table}; add an indexed filter to make this cheaper`
+  } catch {
+    // EXPLAIN can fail where the query would not (temp tables, permissions); never block on it.
+  }
+  return undefined
+}
+
+// Rows stream in and stop at the cap. A statement that would return more
+// than the cap is cut off at the socket rather than buffered: the server
+// side thread ends with the connection, and the next call reconnects. That
+// is what keeps `SELECT * FROM sms` from pulling a table into this process
+// while the 30s timer runs.
+function runReadOnly(c, statement, cap) {
+  return new Promise((resolve, reject) => {
+    const raw = c.connection
+    const rows = []
+    let overflowed = false
+    let settled = false
+    const done = (err) => {
+      if (settled) return
+      settled = true
+      if (err) return reject(err)
+      resolve({ rows, overflowed })
+    }
+    raw.query('START TRANSACTION READ ONLY', (err) => {
+      if (err) return done(err)
+      const q = raw.query({ sql: statement, rowsAsArray: false })
+      q.on('error', (err) => done(err))
+      q.on('result', (row) => {
+        if (overflowed) return
+        if (rows.length >= cap) {
+          overflowed = true
+          // Drop the connection: the only clean way to abandon a result set mid-stream.
+          forgetIfLost({ code: 'ECONNRESET' })
+          return done()
+        }
+        rows.push(row)
+      })
+      q.on('end', () => {
+        raw.query('ROLLBACK', () => done())
+      })
+    })
+  })
+}
+
+function finish({ rows, overflowed }, rowLimit, started, fp, scan) {
+  const elapsed = Date.now() - started
+  log(`query ${fp.hash} ${elapsed}ms rows=${rows.length}${overflowed ? '+' : ''}: ${fp.shape}`)
+  const shaped = shapeRows(rows, rowLimit)
+  const notes = []
+  if (scan) notes.push(scan)
+  if (overflowed) notes.push(`stopped at ${rowLimit} rows; the statement returns more — aggregate in SQL or add LIMIT`)
+  else if (shaped.truncatedRows) notes.push(`showing ${shaped.rows.length} of ${rows.length} rows`)
+  if (shaped.bytesCapped) notes.push(`result capped at ${Math.round(MAX_RESULT_BYTES / 1000)} KB`)
+  if (shaped.truncatedCells) notes.push(`${shaped.truncatedCells} long cell(s) truncated`)
+  return JSON.stringify(
+    { rows: shaped.rows, row_count: shaped.rows.length, elapsed_ms: elapsed, note: notes.join('; ') || undefined },
+    null,
+    1
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Transcripts: database row -> S3 object -> text
+
+async function transcriptList({ kickoff_call_id, meeting_room_id, client_id, coach_id, since, until, limit } = {}) {
+  const c = await connection()
+  const n = checkLimit(limit, 20, MAX_TRANSCRIPT_LIST, 'limit')
+  const where = ["a.is_canonical=1", "a.status='completed'"]
+  const params = []
+  if (kickoff_call_id !== undefined) { where.push('mr.kickoff_call_id=?'); params.push(checkInt(kickoff_call_id, 'kickoff_call_id')) }
+  if (meeting_room_id !== undefined) { where.push('mr.id=?'); params.push(checkInt(meeting_room_id, 'meeting_room_id')) }
+  if (client_id !== undefined) { where.push('kc.client_id=?'); params.push(checkInt(client_id, 'client_id')) }
+  if (coach_id !== undefined) { where.push('kc.coach_id=?'); params.push(checkInt(coach_id, 'coach_id')) }
+  for (const [name, val, op] of [['since', since, '>='], ['until', until, '<']]) {
+    if (val === undefined) continue
+    if (typeof val !== 'string' || !/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(val)) throw new ToolError(`"${name}" must be YYYY-MM-DD or YYYY-MM-DD HH:MM`)
+    where.push(`mr.room_started_at ${op} ?`)
+    params.push(val)
+  }
+  const [rows] = await c.query(
+    `SELECT a.file_transcript_id, a.bytes, a.archived_at, mr.id AS meeting_room_id, mr.kickoff_call_id, mr.room_started_at, mr.room_ended_at,
+            kc.client_id, kc.coach_id
+       FROM file_transcript_artifacts a
+       JOIN meeting_room_file_transcripts mft ON mft.file_transcript_id = a.file_transcript_id
+       JOIN meeting_rooms mr ON mr.id = mft.meeting_room_id
+       LEFT JOIN kickoff_calls kc ON kc.id = mr.kickoff_call_id
+      WHERE ${where.join(' AND ')}
+      ORDER BY mr.room_started_at DESC
+      LIMIT ${n}`,
+    params
+  )
+  if (!rows.length) return 'No archived transcripts match.'
+  return JSON.stringify({ transcripts: rows, count: rows.length }, null, 1)
+}
+
+const sha256hex = (value) => createHash('sha256').update(value).digest('hex')
+const hmac = (key, value) => createHmac('sha256', key).update(value).digest()
+const encodeSegment = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`)
+
+async function s3Get(bucket, key, versionId) {
+  if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY) {
+    throw new ToolError(
+      'No AWS credentials for S3: set KICKOFF_ZDR_AWS_ACCESS_KEY_ID and KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY in apps/zdr-agent/.env'
+    )
+  }
+  if (bucket !== ALLOWED_BUCKET) throw new ToolError(`Refusing to read from ${bucket}: only ${ALLOWED_BUCKET} is readable here`)
+  if (!ALLOWED_KEY.test(key)) throw new ToolError('Refusing an object key outside transcripts/v1/<id>/<generation>/assemblyai.json.gz')
+  const host = `${bucket}.s3.${REGION}.amazonaws.com`
+  const path = '/' + key.split('/').map(encodeSegment).join('/')
+  const queryString = versionId ? `versionId=${encodeSegment(versionId)}` : ''
+  const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '')
+  const dateStamp = amzDate.slice(0, 8)
+  const payloadHash = sha256hex('')
+  const headers = { host, 'x-amz-content-sha256': payloadHash, 'x-amz-date': amzDate }
+  if (SESSION_TOKEN) headers['x-amz-security-token'] = SESSION_TOKEN
+  const names = Object.keys(headers).sort()
+  const signedHeaders = names.join(';')
+  const canonicalHeaders = names.map((k) => `${k}:${headers[k].trim()}\n`).join('')
+  const canonicalRequest = ['GET', path, queryString, canonicalHeaders, signedHeaders, payloadHash].join('\n')
+  const scope = `${dateStamp}/${REGION}/s3/aws4_request`
+  const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, sha256hex(canonicalRequest)].join('\n')
+  let k = hmac(`AWS4${SECRET_ACCESS_KEY}`, dateStamp)
+  for (const part of [REGION, 's3', 'aws4_request']) k = hmac(k, part)
+  const signature = createHmac('sha256', k).update(stringToSign).digest('hex')
+  headers.authorization = `AWS4-HMAC-SHA256 Credential=${ACCESS_KEY_ID}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`
+
+  let res
+  try {
+    res = await fetch(`https://${host}${path}${queryString ? `?${queryString}` : ''}`, { headers })
+  } catch (err) {
+    throw new ToolError(`S3 is not reachable (${err.cause?.code || err.message})`)
+  }
+  if (!res.ok) {
+    const text = await res.text()
+    const code = (text.match(/<Code>([^<]+)<\/Code>/) || [])[1] || `HTTP ${res.status}`
+    const msg = (text.match(/<Message>([^<]+)<\/Message>/) || [])[1] || ''
+    if (code === 'AccessDenied') {
+      throw new ToolError(
+        'S3 AccessDenied: the zdr-harness IAM user needs s3:GetObject/GetObjectVersion on the archive bucket and kms:Decrypt on ' +
+          'its key. Apply apps/zdr-agent/iam/zdr-harness-policy.json (see iam/README.md).'
+      )
+    }
+    throw new ToolError(`S3 GetObject failed: ${code} ${msg}`.trim())
+  }
+  return Buffer.from(await res.arrayBuffer())
+}
+
+function renderTranscript(t) {
+  const utterances = Array.isArray(t.utterances) ? t.utterances : []
+  const turns = []
+  for (const u of utterances) {
+    if (!u || typeof u.text !== 'string' || !u.text.trim()) continue
+    const label = u.speaker === undefined || u.speaker === null ? 'Speaker' : `Speaker ${u.speaker}`
+    turns.push(`${label}: ${u.text.trim()}`)
+  }
+  if (turns.length) return { text: turns.join('\n\n'), turns: turns.length, speakers: new Set(utterances.map((u) => u?.speaker)).size }
+  return { text: typeof t.text === 'string' ? t.text : '', turns: 0, speakers: 0 }
+}
+
+async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
+  const c = await connection()
+  const id = checkInt(file_transcript_id, 'file_transcript_id')
+  const cap = checkLimit(max_chars, DEFAULT_TRANSCRIPT_CHARS, MAX_TRANSCRIPT_CHARS, 'max_chars')
+  const start = offset === undefined ? 0 : checkLimit(offset, 0, 10_000_000, 'offset')
+  const [rows] = await c.query(
+    'SELECT storage_bucket, storage_key, storage_version_id, sha256, bytes, archived_at FROM file_transcript_artifacts ' +
+      "WHERE file_transcript_id=? AND is_canonical=1 AND status='completed' LIMIT 1",
+    [id]
+  )
+  const row = rows[0]
+  if (!row) throw new ToolError(`No archived canonical transcript for file_transcript_id ${id}`)
+  const body = await s3Get(row.storage_bucket, row.storage_key, row.storage_version_id)
+  // The archive stores gzip with Content-Encoding: gzip, and fetch() honours
+  // that header by decompressing for us; a body that still starts with the
+  // gzip magic bytes was not touched, so inflate it here.
+  const raw = body[0] === 0x1f && body[1] === 0x8b ? gunzipSync(body) : body
+  const digest = sha256hex(raw)
+  if (row.sha256 && digest !== row.sha256) throw new ToolError('Archived transcript checksum does not match the database row')
+  const envelope = JSON.parse(raw.toString('utf8'))
+  const transcript = envelope && typeof envelope === 'object' && envelope.transcript ? envelope.transcript : envelope
+  const rendered = renderTranscript(transcript)
+  log(`transcript ${sha256hex(String(id)).slice(0, 8)} ${raw.length}B`)
+  const slice = rendered.text.slice(start, start + cap)
+  const meta = {
+    file_transcript_id: id,
+    archived_at: row.archived_at,
+    audio_duration_s: typeof transcript.audio_duration === 'number' ? transcript.audio_duration : undefined,
+    speakers: rendered.speakers,
+    turns: rendered.turns,
+    total_chars: rendered.text.length,
+    offset: start,
+    returned_chars: slice.length,
+    more: start + slice.length < rendered.text.length ? `call again with offset=${start + slice.length}` : undefined,
+  }
+  return `${JSON.stringify(meta)}\n\n${slice}`
+}
+
+// ---------------------------------------------------------------------------
+// Bulk transcript export (for the classifier)
+
+const exportsById = new Map()
+
+function transcriptFilters({ kickoff_call_id, meeting_room_id, client_id, coach_id, since, until, file_transcript_ids }) {
+  const where = ["a.is_canonical=1", "a.status='completed'"]
+  const params = []
+  if (kickoff_call_id !== undefined) { where.push('mr.kickoff_call_id=?'); params.push(checkInt(kickoff_call_id, 'kickoff_call_id')) }
+  if (meeting_room_id !== undefined) { where.push('mr.id=?'); params.push(checkInt(meeting_room_id, 'meeting_room_id')) }
+  if (client_id !== undefined) { where.push('kc.client_id=?'); params.push(checkInt(client_id, 'client_id')) }
+  if (coach_id !== undefined) { where.push('kc.coach_id=?'); params.push(checkInt(coach_id, 'coach_id')) }
+  for (const [name, val, op] of [['since', since, '>='], ['until', until, '<']]) {
+    if (val === undefined) continue
+    if (typeof val !== 'string' || !/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(val)) throw new ToolError(`"${name}" must be YYYY-MM-DD or YYYY-MM-DD HH:MM`)
+    where.push(`mr.room_started_at ${op} ?`)
+    params.push(val)
+  }
+  if (file_transcript_ids !== undefined) {
+    if (!Array.isArray(file_transcript_ids) || !file_transcript_ids.length || file_transcript_ids.length > MAX_EXPORT) throw new ToolError(`file_transcript_ids must be a list of 1 to ${MAX_EXPORT} ids`)
+    where.push(`a.file_transcript_id IN (${file_transcript_ids.map(() => '?').join(',')})`)
+    params.push(...file_transcript_ids.map((v) => checkInt(v, 'file_transcript_ids[]')))
+  }
+  return { where, params }
+}
+
+// The driver turns a DATETIME into a Date read as local time; the stored value
+// is UTC, so print the local fields back unchanged ("2026-09-30 23:44:00").
+function dbStamp(d) {
+  if (!(d instanceof Date)) return String(d)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
+async function transcriptExport(args = {}) {
+  const c = await connection()
+  if (args.limit === undefined && args.file_transcript_ids === undefined && args.since === undefined && args.coach_id === undefined && args.client_id === undefined && args.kickoff_call_id === undefined && args.meeting_room_id === undefined) {
+    throw new ToolError('Narrow the export: pass since/until, a coach_id or client_id, file_transcript_ids, or an explicit limit.')
+  }
+  const n = checkLimit(args.limit, MAX_EXPORT, MAX_EXPORT, 'limit')
+  const { where, params } = transcriptFilters(args)
+  const [rows] = await c.query(
+    `SELECT a.file_transcript_id, a.storage_bucket, a.storage_key, a.storage_version_id, a.sha256, a.bytes,
+            mr.kickoff_call_id, mr.room_started_at, kc.client_id, kc.coach_id
+       FROM file_transcript_artifacts a
+       JOIN meeting_room_file_transcripts mft ON mft.file_transcript_id = a.file_transcript_id
+       JOIN meeting_rooms mr ON mr.id = mft.meeting_room_id
+       LEFT JOIN kickoff_calls kc ON kc.id = mr.kickoff_call_id
+      WHERE ${where.join(' AND ')}
+      ORDER BY mr.room_started_at DESC
+      LIMIT ${n}`,
+    params
+  )
+  if (!rows.length) return 'No archived transcripts match.'
+  // How many match in total, so a capped export is never mistaken for the
+  // whole set ("all of September" once silently became its newest two days).
+  const [[{ matching }]] = await c.query(
+    `SELECT COUNT(*) AS matching
+       FROM file_transcript_artifacts a
+       JOIN meeting_room_file_transcripts mft ON mft.file_transcript_id = a.file_transcript_id
+       JOIN meeting_rooms mr ON mr.id = mft.meeting_room_id
+       LEFT JOIN kickoff_calls kc ON kc.id = mr.kickoff_call_id
+      WHERE ${where.join(' AND ')}`,
+    params
+  )
+  const id = `tx_${randomBytes(4).toString('hex')}`
+  mkdirSync(EXPORT_DIR, { recursive: true, mode: 0o700 })
+  const path = join(EXPORT_DIR, `${id}.jsonl`)
+  const ex = { id, path, matching: Number(matching), total: rows.length, done: 0, failed: {}, empty: 0, lengths: [], coaches: new Set(), clients: new Set(), first: null, last: null, started: Date.now(), state: 'running' }
+  exportsById.set(id, ex)
+  log(`export ${id}: ${rows.length} transcripts, filters ${Object.keys(args).sort().join(',')}`)
+  ex.promise = runExport(ex, rows).catch((err) => {
+    ex.state = 'failed'
+    ex.error = err instanceof ToolError ? err.message : `internal error (${err.code || err.name})`
+    log(`export ${id} failed: ${err.message}`)
+  })
+  return exportStatus({ export_id: id, wait_seconds: 90 })
+}
+
+async function runExport(ex, rows) {
+  const tmp = `${ex.path}.part`
+  const fd = openSync(tmp, 'w', 0o600)
+  try {
+    let next = 0
+    await Promise.all(
+      Array.from({ length: Math.min(EXPORT_CONCURRENCY, rows.length) }, async () => {
+        while (next < rows.length) {
+          const row = rows[next++]
+          try {
+            const body = await s3Get(row.storage_bucket, row.storage_key, row.storage_version_id)
+            const raw = body[0] === 0x1f && body[1] === 0x8b ? gunzipSync(body) : body
+            if (row.sha256 && sha256hex(raw) !== row.sha256) throw new ToolError('checksum mismatch')
+            const envelope = JSON.parse(raw.toString('utf8'))
+            const t = envelope && typeof envelope === 'object' && envelope.transcript ? envelope.transcript : envelope
+            const rendered = renderTranscript(t)
+            if (!rendered.text.trim()) ex.empty++
+            const started = row.room_started_at ? dbStamp(row.room_started_at) : null
+            writeSync(fd, `${JSON.stringify({
+              id: String(row.file_transcript_id),
+              text: rendered.text,
+              kickoff_call_id: row.kickoff_call_id,
+              coach_id: row.coach_id,
+              client_id: row.client_id,
+              room_started_at: started,
+              audio_duration_s: typeof t.audio_duration === 'number' ? t.audio_duration : null,
+              turns: rendered.turns,
+            })}\n`)
+            ex.lengths.push(rendered.text.length)
+            if (row.coach_id != null) ex.coaches.add(row.coach_id)
+            if (row.client_id != null) ex.clients.add(row.client_id)
+            if (started && (!ex.first || started < ex.first)) ex.first = started
+            if (started && (!ex.last || started > ex.last)) ex.last = started
+          } catch (err) {
+            const reason = err instanceof ToolError ? err.message.replace(/: .*/, '') : 'unreadable'
+            ex.failed[reason] = (ex.failed[reason] || 0) + 1
+          }
+          ex.done++
+        }
+      })
+    )
+  } finally {
+    closeSync(fd)
+  }
+  renameSync(tmp, ex.path)
+  ex.state = 'done'
+  ex.finished = Date.now()
+  log(`export ${ex.id} done: ${ex.lengths.length} written, ${ex.done - ex.lengths.length} failed`)
+}
+
+async function exportStatus({ export_id, wait_seconds } = {}) {
+  const ex = exportsById.get(export_id)
+  if (!ex) throw new ToolError(`No export "${export_id}" in this server session (exports do not survive a harness restart; run transcript_export again).`)
+  const wait = Math.max(0, Math.min(90, Number(wait_seconds ?? 45)))
+  const until = Date.now() + wait * 1000
+  while (ex.state === 'running' && Date.now() < until) await new Promise((r) => setTimeout(r, 250))
+  if (ex.state === 'running') return `Export ${ex.id} running: ${ex.done.toLocaleString()} of ${ex.total.toLocaleString()} transcripts.\nNext: transcript_export_status {"export_id": "${ex.id}"}`
+  if (ex.state === 'failed') return `Export ${ex.id} failed: ${ex.error}.`
+  const L = [...ex.lengths].sort((a, b) => a - b)
+  const q = (p) => (L.length ? L[Math.min(L.length - 1, Math.floor(p * L.length))] : 0)
+  const chars = L.reduce((s, x) => s + x, 0)
+  const failed = Object.entries(ex.failed)
+  return [
+    `Export ${ex.id} done in ${((ex.finished - ex.started) / 1000).toFixed(1)}s: ${L.length.toLocaleString()} of ${ex.total.toLocaleString()} transcripts written${failed.length ? `, ${failed.map(([r, k]) => `${k} ${r}`).join(', ')}` : ''}${ex.empty ? `, ${ex.empty} empty` : ''}.`,
+    `File: ${ex.path} (one JSON line per transcript: id, text, kickoff_call_id, coach_id, client_id, room_started_at (UTC), audio_duration_s, turns).`,
+    `Calls from ${ex.first?.slice(0, 10) ?? '?'} to ${ex.last?.slice(0, 10) ?? '?'}; ${ex.coaches.size} coaches, ${ex.clients.size} clients.`,
+    ex.matching > ex.total
+      ? `This is ${ex.total.toLocaleString()} of ${ex.matching.toLocaleString()} matching transcripts (the newest). For the whole set, export the rest with until "${ex.first?.slice(0, 16) ?? '?'}" (at most ${MAX_EXPORT.toLocaleString()} per export) and classify each file; say plainly if you analyse only part of it.`
+      : `That is every matching transcript (${ex.matching.toLocaleString()}).`,
+    `Length in characters: median ${q(0.5).toLocaleString()}, 90th percentile ${q(0.9).toLocaleString()}, longest ${q(1).toLocaleString()}; ${(chars / 1e6).toFixed(1)}M in total. Classifying all of it costs roughly $${((chars / 1000) * 0.0001).toFixed(2)}.`,
+    `Next: check a few with classifier_classify_sample {"input_file": "${ex.path}", "n": 10}, then classifier_classify_start {"input_file": "${ex.path}", "labels": [...]}. Do not read transcripts one by one.`,
+  ].join('\n')
+}
+
+async function fixtureSourcePage(args) {
+  try {
+    const root = join(EXPORT_DIR, 'fixture-source-pages')
+    if (args.action === 'read') return readSourcePage(args, root)
+    if (args.action === 'import') return importSourcePages(args, root, join(EXPORT_DIR, 'fixture-packages'))
+    if (args.action !== 'capture') throw new Error('fixture_source_arguments_invalid')
+    const statement = checkSql(args.sql)
+    if (!/^SELECT\b/i.test(statement)) throw new Error('fixture_source_select_required')
+    const limit = args.limit ?? 25
+    if (!Number.isInteger(limit) || limit < 1 || limit > SOURCE_PAGE_MAX_ROWS) throw new Error('fixture_source_arguments_invalid')
+    const c = await connection()
+    const [rows] = await c.query(`SELECT * FROM (${statement}) AS fixture_source_rows LIMIT ${limit + 1}`)
+    return storeSourcePage(rows, limit, root)
+  } catch (err) {
+    if (forgetIfLost(err)) log('fixture source connection lost')
+    throw new ToolError(/^fixture_[a-z_]+$/.test(err.message) ? err.message : 'fixture_source_unavailable')
+  }
+}
+
+async function fixtureCallNumber(args) {
+  try {
+    if (args.rows !== undefined) return JSON.stringify(ordinalFromRows(args.rows, args.call || null, args))
+    for (const value of [args.client_id, ...(args.coach_id == null ? [] : [args.coach_id]), ...(args.kickoff_call_id == null ? [] : [args.kickoff_call_id])]) {
+      if (!Number.isSafeInteger(value) || value <= 0) throw new Error('fixture_ordinal_id_invalid')
+    }
+    if (args.kickoff_call_id == null && args.coach_id == null) throw new Error('fixture_ordinal_target_required')
+    // Validate anchor before opening a production connection.
+    ordinalFromRows([], null, { coach_id: args.coach_id || 1, at: args.at })
+    const c = await connection()
+    const [rows] = await c.query('SELECT id, coach_id AS coachId, service_id AS serviceId, started_at AS startedAt, scheduled_at AS scheduledAt, completed_at AS completedAt, duration_minutes AS durationMinutes FROM kickoff_calls WHERE client_id=? AND completed_at IS NOT NULL AND deleted_at IS NULL AND rescheduled_at IS NULL AND missed_by IS NULL LIMIT 10001', [args.client_id])
+    if (rows.length > 10000) throw new Error('fixture_ordinal_history_limit')
+    let call = null
+    if (args.kickoff_call_id != null) {
+      const [targets] = await c.query('SELECT id, coach_id AS coachId, service_id AS serviceId, started_at AS startedAt, scheduled_at AS scheduledAt, scheduled_end_at AS scheduledEndAt FROM kickoff_calls WHERE id=? AND client_id=? LIMIT 1', [args.kickoff_call_id, args.client_id])
+      if (targets.length !== 1) throw new Error('fixture_ordinal_target_not_found')
+      call = targets[0]
+    }
+    return JSON.stringify(ordinalFromRows(rows, call, args))
+  } catch (err) {
+    if (forgetIfLost(err)) log('fixture ordinal connection lost')
+    throw new ToolError(/^fixture_[a-z_]+$/.test(err.message) ? err.message : 'fixture_ordinal_unavailable')
+  }
+}
+
+const TOOLS = [
+  fixtureTool, fixtureContextTool, fixtureOrdinalTool, fixtureSourceTool, fixtureFactsTool,
+  {
+    name: 'guide',
+    title: 'How to use the production database',
+    description: 'Read first: what the live database holds, naming conventions, the transcript join path, limits and counting traps.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'list_tables',
+    title: 'List tables',
+    description: 'List tables in kudos_production with approximate row counts. Pass a LIKE pattern to narrow, e.g. %client%.',
+    inputSchema: {
+      type: 'object',
+      properties: { like: { type: 'string', description: 'SQL LIKE pattern on the table name' }, limit: { type: 'number' } },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'describe_table',
+    title: 'Describe a table',
+    description: 'Columns, indexes and foreign keys of one table.',
+    inputSchema: { type: 'object', properties: { table: { type: 'string' } }, required: ['table'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'query',
+    title: 'Run one read-only SQL statement',
+    description:
+      `One SELECT/WITH/SHOW/EXPLAIN/DESCRIBE against the live production read replica, in a READ ONLY transaction with a ` +
+      `${STATEMENT_TIMEOUT_MS / 1000}s timeout; up to ${MAX_ROWS} rows. Every row is a real person: aggregate in SQL where you can.`,
+    inputSchema: {
+      type: 'object',
+      properties: { sql: { type: 'string' }, limit: { type: 'number', description: `Rows to return (default ${DEFAULT_ROWS}, max ${MAX_ROWS})` } },
+      required: ['sql'],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'transcript_list',
+    title: 'Find archived call transcripts',
+    description:
+      'List archived canonical call transcripts (newest first) with their meeting room, call, client and coach ids. ' +
+      'Filter by kickoff_call_id, meeting_room_id, client_id, coach_id, since/until (room start, UTC).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        kickoff_call_id: { type: 'number' },
+        meeting_room_id: { type: 'number' },
+        client_id: { type: 'number' },
+        coach_id: { type: 'number' },
+        since: { type: 'string', description: 'YYYY-MM-DD or YYYY-MM-DD HH:MM (UTC)' },
+        until: { type: 'string' },
+        limit: { type: 'number', description: `default 20, max ${MAX_TRANSCRIPT_LIST}` },
+      },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'transcript_get',
+    title: 'Read one archived call transcript',
+    description:
+      'Fetch a transcript from the archive by file_transcript_id, verify its checksum, and return speaker turns as text. ' +
+      `Returns ${DEFAULT_TRANSCRIPT_CHARS} chars by default (max ${MAX_TRANSCRIPT_CHARS}); use offset to page (re-reading the same transcript is free). ` +
+      'No read limit: read as many as the question needs. To count or find calls, export and classify instead of reading; ' +
+      'for themes, a spread sample of 5-20 usually suffices (see guide). Verbatim client speech: never quote it outside the harness.',
+    inputSchema: {
+      type: 'object',
+      properties: { file_transcript_id: { type: 'number' }, max_chars: { type: 'number' }, offset: { type: 'number' } },
+      required: ['file_transcript_id'],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'transcript_export',
+    title: 'Export many transcripts to a file for the classifier',
+    description:
+      `Download archived call transcripts straight to a file inside the harness (up to ${MAX_EXPORT.toLocaleString()} per export, newest first), ` +
+      'verifying each checksum. Nothing is read into this conversation: it returns the file path and stats (count, dates, lengths, cost to classify). ' +
+      'Same filters as transcript_list, or file_transcript_ids. Use it to classify or analyse many transcripts; then classifier_classify_sample to check a few ' +
+      'and classifier_classify_start on the file. Exports are deleted with the 7-day database window.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        kickoff_call_id: { type: 'number' },
+        meeting_room_id: { type: 'number' },
+        client_id: { type: 'number' },
+        coach_id: { type: 'number' },
+        since: { type: 'string', description: 'YYYY-MM-DD or YYYY-MM-DD HH:MM (UTC)' },
+        until: { type: 'string' },
+        file_transcript_ids: { type: 'array', items: { type: 'number' } },
+        limit: { type: 'number', description: `at most this many (max ${MAX_EXPORT.toLocaleString()})` },
+      },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'transcript_export_status',
+    title: 'Wait for a transcript export',
+    description: 'Wait (up to 90 s) for an export from transcript_export to finish, then return its path and stats.',
+    inputSchema: { type: 'object', properties: { export_id: { type: 'string' }, wait_seconds: { type: 'number' } }, required: ['export_id'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'terra_payload_days',
+    title: 'Count Terra webhook payloads by day',
+    description: 'Raw Terra (wearable) webhook payloads in S3, last 30 days: objects and bytes per day, no bodies. days (1-31, default 3, newest first) or one day (YYYY-MM-DD). Use for scopes, raw webhook events or fields the database drops; stored data rows are in the database (terra_users, client_integration_*).',
+    inputSchema: { type: 'object', properties: { days: { type: 'number' }, day: { type: 'string' }, max_pages_per_day: { type: 'number', description: 'default 50 pages of 1000, max 400' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_payload_get',
+    title: 'Read one Terra webhook payload',
+    description: 'Read one raw Terra webhook payload by key production/<YYYY-MM-DD>/<uuid>.json (bounded: max_chars default 20000, max 80000; page with offset). PHI: pairs a client id with health data; answer rule applies.',
+    inputSchema: { type: 'object', properties: { key: { type: 'string' }, max_chars: { type: 'number' }, offset: { type: 'number' } }, required: ['key'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_scopes_export',
+    title: 'Export each Terra user\'s latest scopes to a file',
+    description: 'Scan Terra webhook payloads newest day first, smallest objects first, and write each Terra user\'s latest provider, granted scopes, active flag and last event to a ts_ file in exports. Returns stats only. Stops at target_users (connections expected to have an event in the window, e.g. terra_users with a webhook update in the last 30 days; the all-time terra_users count includes connections that will never appear), max_objects (default 50000), or after saturation objects in a row add no new user (default 5000). Never downloads the whole bucket.',
+    inputSchema: { type: 'object', properties: { days: { type: 'number', description: '1-31, default 30' }, max_objects: { type: 'number' }, target_users: { type: 'number' }, saturation: { type: 'number' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'terra_archive_status',
+    title: 'Terra archive coverage and runs',
+    description: 'Coverage of the Terra webhook archive (sealed day range, open days with progress, totals), whether a run is live, and the last runs one line each. Aggregate only.',
+    inputSchema: { type: 'object', properties: { runs: { type: 'number', description: 'past runs to list, default 5, max 30' } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'terra_archive_start',
+    title: 'Start a Terra archive run',
+    description: 'Start a background archive run now (idempotent: reports the live run if one is going). Runs also start on their own whenever the archive falls behind (checked every 30 minutes); use this only to catch up sooner. Returns at once; check terra_archive_status later, not in a loop.',
+    inputSchema: { type: 'object', properties: { max_minutes: { type: 'number', description: 'budget, default 120, max 240' } }, additionalProperties: false },
+    annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: true },
+  },
+  {
+    name: 'terra_archive_scopes_export',
+    title: 'Export latest scopes from the Terra archive',
+    description: "Write each Terra user's latest archived provider, scopes and active flag (with when that state was first and last seen) to a ts_ file in exports. Returns the path and a row count only.",
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: 'terra_scopes_export_status',
+    title: 'Wait for a Terra scopes export',
+    description: 'Wait (up to 90 s) for a terra_scopes_export job, then return its file path and stats.',
+    inputSchema: { type: 'object', properties: { job_id: { type: 'string' }, wait_seconds: { type: 'number' } }, required: ['job_id'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Terra webhook payloads (S3, read-only, production/ prefix only). See
+// terra-payloads.mjs.
+
+
+function terra() {
+  try {
+    return terraClient({ region: REGION, accessKeyId: ACCESS_KEY_ID, secretAccessKey: SECRET_ACCESS_KEY, sessionToken: SESSION_TOKEN })
+  } catch (e) {
+    throw new ToolError(e.message)
+  }
+}
+const terraErr = (e) => (e instanceof TerraError ? new ToolError(e.message) : e)
+
+async function terraPayloadDays({ days, day, max_pages_per_day } = {}) {
+  const list = day !== undefined ? [day] : recentDays(checkLimit(days, 3, 31, 'days'))
+  const cap = checkLimit(max_pages_per_day, 50, 400, 'max_pages_per_day')
+  try {
+    const rows = await dayCounts(terra(), list, { maxPagesPerDay: cap })
+    return JSON.stringify({ days: rows.map((r) => ({ ...r, mb: Math.round(r.bytes / 1e5) / 10 })), note: rows.some((r) => !r.complete) ? `incomplete days stopped at ${cap} pages of 1,000 objects; raise max_pages_per_day (max 400) for a full count` : undefined }, null, 1)
+  } catch (e) {
+    throw terraErr(e)
+  }
+}
+
+async function terraPayloadGet({ key, max_chars, offset } = {}) {
+  const n = checkLimit(max_chars, 20_000, 80_000, 'max_chars')
+  try {
+    const r = await readPayload(terra(), key, { maxChars: n, offset: Number(offset) || 0 })
+    return `${r.key} (${r.bytes} bytes, ${r.total_chars} chars; showing from ${r.offset}${r.more ? `, more: offset ${r.offset + n}` : ''})\n${r.text}`
+  } catch (e) {
+    throw terraErr(e)
+  }
+}
+
+// The Terra archive (terra-archive.mjs) runs as its own detached process under
+// a lock, so a harness restart never kills it. These tools only read its
+// aggregate state, start a run, or export from it.
+function terraArchiveStatus({ runs } = {}) {
+  const n = Math.max(1, Math.min(Number(runs) || 5, 30))
+  return JSON.stringify({ ...terraArchiveStatusRead(), last_run: undefined, runs: terraArchiveRuns(n) }, null, 1)
+}
+function terraArchiveStart({ max_minutes } = {}) {
+  if (!ACCESS_KEY_ID) throw new ToolError('No AWS credentials for S3 in this harness (KICKOFF_ZDR_AWS_ACCESS_KEY_ID).')
+  const m = Math.max(1, Math.min(Number(max_minutes) || 120, 240))
+  return JSON.stringify(terraArchiveStartRun(['--max-minutes', String(m), '--trigger', 'harness']))
+}
+function terraArchiveScopes() {
+  try {
+    const r = terraArchiveExport()
+    return `Wrote ${r.users} users to ${r.id} (${r.path}). Hand Taylor the path; he opens it with: ${r.open}`
+  } catch (e) {
+    throw new ToolError(e.message)
+  }
+}
+
+const terraJobs = new Map()
+async function terraScopesExport({ days, max_objects, target_users, saturation } = {}) {
+  const job = { id: `tj_${randomBytes(4).toString('hex')}`, state: 'running', started: Date.now(), progress: { fetched: 0, users: 0, day: null } }
+  const opts = {
+    days: recentDays(checkLimit(days, 30, 31, 'days')),
+    maxObjects: checkLimit(max_objects, 50_000, 500_000, 'max_objects'),
+    targetUsers: target_users === undefined ? undefined : checkInt(target_users, 'target_users'),
+    saturation: checkLimit(saturation, 5000, 100_000, 'saturation'),
+  }
+  const client = terra()
+  terraJobs.set(job.id, job)
+  log(`terra scopes export ${job.id}: ${opts.days.length} days, max ${opts.maxObjects} objects`)
+  job.promise = scopesExport(client, opts, (p) => { job.progress = p })
+    .then(({ rows, stats }) => {
+      const { id, path } = writeScopesFile(EXPORT_DIR, rows)
+      Object.assign(job, { state: 'done', export_id: id, path, stats, finished: Date.now() })
+    })
+    .catch((e) => Object.assign(job, { state: 'failed', error: e instanceof TerraError ? e.message : `internal error (${e.code || e.name})`, finished: Date.now() }))
+  return terraScopesStatus({ job_id: job.id, wait_seconds: 60 })
+}
+
+async function terraScopesStatus({ job_id, wait_seconds } = {}) {
+  const job = terraJobs.get(job_id)
+  if (!job) throw new ToolError(`No Terra scopes export "${job_id}" in this server session (jobs do not survive a harness restart).`)
+  const until = Date.now() + Math.max(0, Math.min(90, Number(wait_seconds ?? 45))) * 1000
+  while (job.state === 'running' && Date.now() < until) await new Promise((r) => setTimeout(r, 250))
+  if (job.state === 'running') return `Terra scopes export ${job.id} running: ${job.progress.fetched.toLocaleString()} payloads read, ${job.progress.users.toLocaleString()} users so far (day ${job.progress.day ?? '…'}).\nNext: terra_scopes_export_status {"job_id": "${job.id}"}`
+  if (job.state === 'failed') return `Terra scopes export ${job.id} failed: ${job.error}`
+  const s = job.stats
+  return [
+    `Terra scopes export ${job.export_id} done in ${((job.finished - job.started) / 1000).toFixed(1)}s: ${s.users.toLocaleString()} Terra users from ${s.objects_fetched.toLocaleString()} payloads (${(s.bytes_fetched / 1e6).toFixed(1)} MB${s.failed ? `, ${s.failed} unreadable` : ''}). Stopped: ${s.stop_reason}.`,
+    `File: ${job.path} (one JSON line per Terra user: user_id, reference_id (Kickoff client id), provider, scopes, scopes_reported, active, last_event_type, last_event_day, last_webhook_update). It is an export: it stays until archived (exports_archive).`,
+    `By provider (users / with scopes reported): ${Object.entries(s.by_provider).sort((a, b) => b[1].users - a[1].users).map(([k, v]) => `${k} ${v.users}/${v.with_scopes}`).join(', ')}.`,
+    'Only users with an event in the scanned window appear. Apply the answer rule before reporting any of this outside the harness.',
+  ].join('\n')
+}
+
+const HANDLERS = { fixture_facts: args => { try { return fixtureFacts(args) } catch { throw new ToolError('fixture_facts_arguments_invalid') } }, fixture_source_page: fixtureSourcePage, fixture_context: args => { try { return fixtureContext(args) } catch { throw new ToolError('fixture_context_unavailable') } }, fixture_call_number: fixtureCallNumber, fixture_package: (args) => {
+  try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
+  catch (err) { throw new ToolError(err.message) }
+}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus, terra_archive_status: terraArchiveStatus, terra_archive_start: terraArchiveStart, terra_archive_scopes_export: terraArchiveScopes }
+
+// ---------------------------------------------------------------------------
+// MCP stdio loop
+
+const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`)
+const reply = (id, result) => send({ jsonrpc: '2.0', id, result })
+const fail = (id, code, message) => send({ jsonrpc: '2.0', id, error: { code, message } })
+
+const rl = createInterface({ input: process.stdin })
+// The open database socket would otherwise keep the process alive after the
+// client goes away; a probe piping a few requests must be able to finish, but
+// only once the requests it piped have been answered.
+let inflight = 0
+let closing = false
+const maybeExit = () => {
+  if (!closing || inflight > 0) return
+  conn?.end().catch(() => {})
+  setTimeout(() => process.exit(0), 100).unref()
+}
+rl.on('close', () => { closing = true; maybeExit() })
+rl.on('line', async (line) => {
+  if (!line.trim()) return
+  let request
+  try {
+    request = JSON.parse(line)
+  } catch {
+    return
+  }
+  const { id, method, params } = request
+  if (method === 'initialize') {
+    const requested = params?.protocolVersion
+    reply(id, {
+      protocolVersion: SUPPORTED_PROTOCOLS.includes(requested) ? requested : SUPPORTED_PROTOCOLS[0],
+      capabilities: { tools: { listChanged: false } },
+      serverInfo: { name: 'kickoff-db', version: '1.0.0' },
+      instructions:
+        'Live production database (read replica) and archived call transcripts. Read the guide tool first. Every row is a ' +
+        'real person; aggregate before answering, and never quote transcript text outside the harness.',
+    })
+  } else if (method === 'tools/list') {
+    reply(id, { tools: TOOLS })
+  } else if (method === 'tools/call') {
+    const { name, arguments: args = {} } = params || {}
+    const handler = HANDLERS[name]
+    if (!handler) return fail(id, -32602, `Unknown tool: ${name}`)
+    inflight++
+    try {
+      const text = await handler(args)
+      reply(id, { content: [{ type: 'text', text }], isError: false })
+    } catch (err) {
+      if (forgetIfLost(err)) log('database connection lost; will reconnect on the next call')
+      else if (!(err instanceof ToolError)) log(err)
+      const message = err instanceof ToolError ? err.message : `kickoff-db internal error: ${err.message}`
+      reply(id, { content: [{ type: 'text', text: message }], isError: true })
+    } finally {
+      inflight--
+      maybeExit()
+    }
+  } else if (method === 'ping') {
+    reply(id, {})
+  } else if (id !== undefined) {
+    fail(id, -32601, `Unsupported method: ${method}`)
+  }
+})
+
+process.on('SIGTERM', () => { conn?.end().catch(() => {}); process.exit(0) })

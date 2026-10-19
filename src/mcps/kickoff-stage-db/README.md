@@ -159,7 +159,7 @@ Then:
 
 1. Update the 1Password item's `password` and `KICKOFF_STAGE_DB_URL` fields
    with `op item edit --template` so the value stays out of argv.
-2. Update dotfiles `.env` with `src/zdr-harness/set-env-value.py`.
+2. Update dotfiles `.env` with `apps/zdr-agent/set-env-value.py`.
 
 Last rotated 2026-10-06. If staging is rebuilt from a new snapshot, the user is
 gone (or carries production's grants table) and must be created again; the

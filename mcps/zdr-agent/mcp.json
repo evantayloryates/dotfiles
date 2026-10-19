@@ -8,7 +8,7 @@
   "env": {
     "ZDR_HARNESS_PASSWORD": {
       "from": [
-        "file:${repo}/src/zdr-harness/.env",
+        "file:${repo}/apps/zdr-agent/.env",
         "file:~/.zdr-harness/.env"
       ]
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Keeps the Terra webhook archive current. S3 deletes payloads after 30 days.
+    Every 30 minutes (and at login) launchd runs `terra-archive tick`, which
+    decides from the archive's own state whether there is work: catching up
+    unsealed days, a refresh when the last complete pass is over 6 h old, or a
+    retry after trouble with backoff (15 min, 30, 60 ... 4 h). When the archive
+    is current the tick exits at once with no network call. Runs resume from
+    committed progress after a crash, reboot, sleep or outage; caffeinate keeps
+    the Mac awake only while a tick is running.
+    See apps/zdr-agent/README.md "Terra archive". launchd does not expand ~.
+  -->
+  <key>Label</key>
+  <string>com.taylor.zdr-harness-terra-archive</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/caffeinate</string>
+    <string>-i</string>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/src/github/dotfiles/apps/zdr-agent/bin/zdr-harness</string>
+    <string>terra-archive</string>
+    <string>tick</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>1800</integer>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>Nice</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/terra-archive/launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/terra-archive/launchd.log</string>
+</dict>
+</plist>

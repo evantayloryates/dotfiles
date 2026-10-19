@@ -121,6 +121,9 @@ gui/$(id -u)/com.taylor.docker-prune`.
 
 ## `com.taylor.zdr-harness`
 
+The four `com.taylor.zdr-harness*` plists live with the app in
+`apps/zdr-agent/launchd/` (moved 2026-10-18).
+
 Keeps the Kickoff zero-data-retention OpenCode harness (`zdr-harness serve`)
 running on `127.0.0.1:4096` (`RunAtLoad`, `KeepAlive`, `ThrottleInterval 60`).
 Logs go to `~/.zdr-harness/logs/`. The wrapper runs OpenCode under `env -i`, so
@@ -128,10 +131,10 @@ the tokens `com.taylor.mcp-tokens` puts in the launchd session never reach it.
 
 `install.sh` only loads it when `~/.zdr-harness/.env` exists, since the service
 can't start without its secrets. Setup, verification and upgrades are in
-[`../zdr-harness/README.md`](../zdr-harness/README.md).
+[`../../apps/zdr-agent/README.md`](../../apps/zdr-agent/README.md).
 
 ```sh
-~/dotfiles/src/zdr-harness/bin/zdr-harness status
+~/dotfiles/apps/zdr-agent/bin/zdr-harness status
 launchctl print gui/$(id -u)/com.taylor.zdr-harness
 ```
 
@@ -227,7 +230,7 @@ Keeps the SSM port-forward to Kickoff's production read replica open on
 127.0.0.1:33306 for the ZDR harness. Runs `zdr-harness tunnel start
 --foreground` under the harness's own AWS key (no profile, no `~/.aws`); SSM
 ends idle sessions after ~20 minutes and KeepAlive reopens them. Details in
-`src/zdr-harness/README.md`, "Production database".
+`apps/zdr-agent/README.md`, "Production database".
 
 ```sh
 ln -sf "$HOME/dotfiles/src/launchd/com.taylor.zdr-harness-tunnel.plist" \

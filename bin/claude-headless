@@ -31,7 +31,7 @@ CLI="${CLAUDE_HEADLESS_CLI:-$HOME/.local/bin/claude}"
 [[ -x "$CLI" ]] || { echo "claude-headless: $CLI not found (install: curl -fsSL https://claude.ai/install.sh | bash)" >&2; exit 1; }
 [[ -n "$TOKEN" ]] || {
   echo "claude-headless: KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN is not set in $ENV_FILE." >&2
-  echo "  Make one with: claude setup-token   then store it with src/zdr-harness/set-env-value.py (and 1Password)." >&2
+  echo "  Make one with: claude setup-token   then store it with apps/zdr-agent/set-env-value.py (and 1Password)." >&2
   exit 1
 }
 exec env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN="$TOKEN" "$CLI" "$@"
