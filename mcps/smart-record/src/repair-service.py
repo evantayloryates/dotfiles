@@ -157,10 +157,29 @@ def save_patch(repo,path,branch,folder):
     if patch.strip():(folder/'attempt.patch').write_text(patch);return str(folder/'attempt.patch')
     return None
 
-def integrate(repo,path,branch,deadline_s=900,pause_s=30):
-    """Rebase the branch onto local master and fast-forward master to it.
-    Retries while master moves or the shared checkout is briefly unsuitable."""
-    end=time.time()+deadline_s;last=''
+# A repair may only change the service itself, in text, without secrets.
+ALLOWED_PREFIX='mcps/smart-record/'
+MAX_FILE_BYTES=1024*1024
+SECRET_PATTERNS=[re.compile(p) for p in [r'AKIA[0-9A-Z]{16}',r'gh[pousr]_[A-Za-z0-9]{36,}',r'github_pat_[A-Za-z0-9_]{40,}',r'\bsk-[A-Za-z0-9_-]{20,}',
+    r'xox[abposr]-[A-Za-z0-9-]{10,}',r'-----BEGIN [A-Z ]*PRIVATE KEY-----',r'AIza[0-9A-Za-z_-]{35}',r'ops_[A-Za-z0-9]{40,}']]
+def vet_diff(path):
+    """Refuse a branch that leaves the service folder, adds binaries or large
+    files, or adds anything shaped like a credential. Runs before master moves."""
+    for line in git(path,'diff','--name-status','--no-renames','master..HEAD').stdout.splitlines():
+        name=line.split('\t')[-1]
+        if not name.startswith(ALLOWED_PREFIX):raise Halt('needs_input',f'The fix changes {name}, outside {ALLOWED_PREFIX}; nothing was merged.')
+        if not line.startswith('D') and int(git(path,'cat-file','-s',f'HEAD:{name}').stdout.strip())>MAX_FILE_BYTES:raise Halt('needs_input',f'The fix adds a file over 1 MB ({name}); nothing was merged.')
+    for line in git(path,'diff','--numstat','master..HEAD').stdout.splitlines():
+        if line.startswith('-\t-\t'):raise Halt('needs_input',f'The fix adds a binary file ({line.split(chr(9))[-1]}); nothing was merged.')
+    for line in git(path,'diff','-U0','master..HEAD').stdout.splitlines():
+        if line.startswith('+') and not line.startswith('+++') and any(p.search(line) for p in SECRET_PATTERNS):
+            raise Halt('needs_input','The fix adds a line shaped like a credential; nothing was merged.')
+
+def integrate(repo,path,branch,deadline_s=900,pause_s=30,before_merge=None):
+    """Rebase the branch onto local master, vet and test the rebased branch,
+    then fast-forward master to it. Retries while master moves or the shared
+    checkout is briefly unsuitable."""
+    end=time.time()+deadline_s;last='';checked=None
     while True:
         if git(repo,'branch','--show-current').stdout.strip()!='master':last='main checkout is not on master'
         elif any((Path(git(repo,'rev-parse','--absolute-git-dir').stdout.strip())/m).exists() for m in ['rebase-merge','rebase-apply','MERGE_HEAD','CHERRY_PICK_HEAD']):last='an operation is in progress in the main checkout'
@@ -169,6 +188,8 @@ def integrate(repo,path,branch,deadline_s=900,pause_s=30):
             if r.returncode:
                 git(path,'rebase','--abort',check=False)
                 raise Halt('needs_input','The fix conflicts with newer master changes; rebase stopped: '+tail(r.stderr or r.stdout,1500))
+            head=git(path,'rev-parse','HEAD').stdout.strip()
+            if before_merge and checked!=head:before_merge(path);checked=head
             r=git(repo,'merge','--ff-only',branch,check=False,timeout=300)
             if r.returncode==0:return git(repo,'rev-parse','HEAD').stdout.strip()
             last=tail(r.stderr or r.stdout,800)
@@ -250,6 +271,15 @@ def step(db,id,folder,name,detail,**fields):
         row.update(fields,updated_at=now());put(db,row)
     write_trace(folder,row);return row
 
+def run_suite(root,smoke,label):
+    """The service's full suite, then the worker's smoke test files."""
+    code,out=run_logged(['node','--test',*sorted(str(p.relative_to(root/SERVICE)) for p in (root/SERVICE/'test').glob('*.test.mjs'))],root/SERVICE,1800)
+    if code:raise Halt('verify_failed' if label=='master' else 'needs_input',f'The test suite fails on {label}:\n'+out)
+    tests=smoke_files(root,smoke)
+    if tests:
+        code,out=run_logged(['node','--test',*tests],root/SERVICE,600,env={'HOME':str(Path.home()),'PATH':'/usr/bin:/bin:/opt/homebrew/bin'})
+        if code:raise Halt('verify_failed' if label=='master' else 'needs_input',f'Smoke tests {tests} fail on {label}:\n'+out)
+
 def smoke_files(repo,names):
     """The worker's smoke checks: existing test files under the service's test/."""
     root=(repo/SERVICE/'test').resolve();out=[]
@@ -318,19 +348,17 @@ def worker(db,id,repo=None):
         if git(path,'status','--porcelain').stdout.strip():raise Halt('needs_input','The worker left uncommitted changes; nothing was merged.')
         log_lines=git(path,'log','--format=%H %s','master..HEAD').stdout.strip().splitlines()
         if not log_lines:raise Halt('needs_input','The worker reported a fix but committed nothing.')
-        head=integrate(repo,path,branch)
+        def before_merge(tree):
+            vet_diff(tree);run_suite(tree,result['smoke'],'the rebased branch')
+            step(db,id,folder,'pre_merge','diff vetted (service folder only, text, no credential shapes); suite and smoke tests pass on the rebased branch')
+        head=integrate(repo,path,branch,before_merge=before_merge)
         commits=[{'sha':l.split(' ',1)[0],'subject':l.split(' ',1)[1] if ' ' in l else ''} for l in git(repo,'log','--format=%H %s',f'{head}~{len(log_lines)}..{head}').stdout.strip().splitlines()]
         step(db,id,folder,'merged',f'master is now {head[:12]}',commits=commits)
         remove_worktree(repo,path,branch);path=branch=None
         step(db,id,folder,'cleaned','worktree and branch removed')
         published,out=publish(repo)
         step(db,id,folder,'published' if published else 'publish_deferred',out if not published else 'origin/master updated',published=published)
-        code,out=run_logged(['node','--test',*sorted(str(p.relative_to(repo/SERVICE)) for p in (repo/SERVICE/'test').glob('*.test.mjs'))],repo/SERVICE,1800)
-        if code:raise Halt('verify_failed','The test suite fails on master after the merge:\n'+out)
-        smoke_tests=smoke_files(repo,result['smoke'])
-        if smoke_tests:
-            code,out=run_logged(['node','--test',*smoke_tests],repo/SERVICE,600,env={'HOME':str(Path.home()),'PATH':'/usr/bin:/bin:/opt/homebrew/bin'})
-            if code:raise Halt('verify_failed',f'Smoke tests {smoke_tests} fail on master after the merge:\n'+out)
+        run_suite(repo,result['smoke'],'master')
         step(db,id,folder,'verified','test suite and the worker\'s smoke checks pass on master')
         native=deliver_native(repo)
         step(db,id,folder,'delivered','native engine rebuilt through the fenced path' if native else 'no native change; fresh MCP clients load the new adapter')

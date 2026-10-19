@@ -25,8 +25,13 @@ supervisor:
    root cause, its verification and up to five smoke test files
    (`test/<name>.test.mjs`; nothing else is accepted or run).
 4. On `fixed`, the supervisor (not the model) rebases the branch onto
-   `master` and fast-forwards the main checkout's `master`. It retries for up
-   to 15 minutes while master moves; a conflict stops with Needs input.
+   `master`, then, before master moves, vets the rebased diff and runs the
+   suite and smoke tests in the worktree. The diff may only touch
+   `mcps/smart-record/`, must be text with no file over 1 MB, and must add no
+   line shaped like a credential (AWS, GitHub, OpenAI, Slack, Google, 1Password
+   service tokens, private keys). Then it fast-forwards the main checkout's
+   `master`, retrying for up to 15 minutes while master moves. A conflict or a
+   failed check stops with Needs input and nothing merged.
 5. Removes the worktree and branch, then runs `bin/dotfiles-publish` (six
    tries). An unpublished merge stays on local master for the next publish.
 6. Re-runs `node --test test/*.test.mjs` and the worker's smoke test files on
@@ -72,7 +77,9 @@ The worker runs unattended with Taylor's configured Codex sandbox policy
 (currently full access) and `approval_policy="never"`. Report text is kept out
 of its instructions and labelled untrusted, but the worker still reads it, so a
 crafted report could try to steer it. Gating or sandboxing the worker trades
-that risk against automatic repair; Taylor chose automatic repair.
+that risk against automatic repair; Taylor chose automatic repair. The merge
+gate limits what reaches master and origin to text changes inside the service
+with no credential-shaped lines; it cannot judge whether a change is benign.
 
 Implementation reference: [OpenAI non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode).
 The worker keeps private attempt files even though the CLI rollout is not

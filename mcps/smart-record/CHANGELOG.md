@@ -14,7 +14,10 @@
 - Every finished attempt sends a macOS notification that opens the ticket's
   `trace.html`. The worker's smoke checks are restricted to existing
   `test/<name>.test.mjs` files run with `node --test`; model output is never
-  executed as a command. A failed post-merge check files a follow-on ticket
+  executed as a command. Before master moves, the rebased diff must stay
+  inside `mcps/smart-record/`, be text under 1 MB per file and add no
+  credential-shaped lines, and the suite and smoke tests must pass on the
+  rebased branch. A failed post-merge check files a follow-on ticket
   (`parent_ticket`, at most two generations).
 - `test/paired-map.test.mjs` reads the expected adapter version from
   `server.mjs` instead of a stale `0.19.1`.

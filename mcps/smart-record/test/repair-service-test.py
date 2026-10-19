@@ -92,6 +92,25 @@ class Pipeline(unittest.TestCase):
   self.assertEqual(r.smoke_files(self.repo,['test/ok.test.mjs']),['test/ok.test.mjs'])
   for bad in [['rm','-rf','/'],'test/../../x.test.mjs','test/missing.test.mjs','/bin/sh','test/ok.test.mjs; rm -rf ~']:
    with self.assertRaises(r.Halt):r.smoke_files(self.repo,[bad])
+ def vet(self,name,content):
+  path,branch=r.make_worktree(self.repo,self.id,2);target=path/name;target.parent.mkdir(parents=True,exist_ok=True)
+  (target.write_bytes if isinstance(content,bytes) else target.write_text)(content);r.git(path,'add','-A');r.git(path,'commit','-qm','fix')
+  try:r.vet_diff(path);return None
+  except r.Halt as h:return h.detail
+  finally:r.remove_worktree(self.repo,path,branch)
+ def test_vetting_allows_text_inside_the_service(self):
+  self.assertIsNone(self.vet('mcps/smart-record/src/x.mjs','export const x=1\n'))
+ def test_vetting_refuses_paths_binaries_large_files_and_credentials(self):
+  self.assertIn('outside',self.vet('bin/evil','echo hi\n'))
+  self.assertIn('binary',self.vet('mcps/smart-record/blob.bin',bytes(range(256))*4))
+  self.assertIn('1 MB',self.vet('mcps/smart-record/big.txt','x'*(1024*1024+1)))
+  self.assertIn('credential',self.vet('mcps/smart-record/src/k.mjs','const k="ghp_'+'A'*36+'"\n'))
+  self.assertIn('credential',self.vet('mcps/smart-record/src/k.txt','-----BEGIN OPENSSH PRIVATE KEY-----\n'))
+ def test_pre_merge_check_failure_leaves_master_alone(self):
+  path,branch=r.make_worktree(self.repo,self.id,2);self.commit(path,'fix.txt','x\n','fix');before=r.git(self.repo,'rev-parse','HEAD').stdout
+  def refuse(tree):raise r.Halt('needs_input','tests fail on the rebased branch')
+  with self.assertRaises(r.Halt):r.integrate(self.repo,path,branch,deadline_s=5,pause_s=0,before_merge=refuse)
+  self.assertEqual(r.git(self.repo,'rev-parse','HEAD').stdout,before);r.remove_worktree(self.repo,path,branch)
  def test_prompt_carries_no_report_text(self):
   prompt=r.worker_prompt(Path('/w'),'b',Path('/t'),Path('/repo'))
   self.assertIn('/t/incident.json',prompt);self.assertIn('untrusted',prompt);self.assertNotIn('Incident data',prompt)
@@ -116,7 +135,7 @@ class EndToEnd(Pipeline):
 import json,subprocess,sys
 args=sys.argv;sys.stdin.read();out=args[args.index('--output-last-message')+1]
 if {commit!r}:
- open('fix.txt','w').write('fixed');subprocess.run(['git','add','-A']);subprocess.run(['git','commit','-qm','Fix the reported defect'])
+ open('mcps/smart-record/fix.txt','w').write('fixed');subprocess.run(['git','add','-A']);subprocess.run(['git','commit','-qm','Fix the reported defect'])
 json.dump(dict(state={state!r},summary='fixed it',root_cause='an off-by-one',verification='suite passes',smoke=['test/ok.test.mjs'],limits='none'),open(out,'w'))
 """);script.chmod(0o755);return script
  def run_worker(self,script,smoke_ok=True):
@@ -138,15 +157,15 @@ json.dump(dict(state={state!r},summary='fixed it',root_cause='an off-by-one',ver
  def test_fixed_report_ships_and_leaves_no_worktree(self):
   final,_=self.run_worker(self.fake_codex())
   self.assertEqual(final['state'],'ready_for_use',final.get('worker_outcome'));self.assertEqual(final['release']['commits'][0]['subject'],'Fix the reported defect')
-  self.assertTrue((self.repo/'fix.txt').exists());self.assertFalse(r.worktree_path(self.repo,final['ticket_id']).exists())
+  self.assertTrue((self.repo/'mcps/smart-record/fix.txt').exists());self.assertFalse(r.worktree_path(self.repo,final['ticket_id']).exists())
   self.assertEqual(r.git(self.repo,'branch','--list','--format=%(refname:short)','smart-record-repair/*').stdout.strip(),'')
   folder=r.BASE/final['ticket_id'];self.assertTrue((folder/'trace.html').exists());self.assertNotIn('Export fails',(folder/'prompt.txt').read_text())
-  self.assertIn('Export fails',(folder/'incident.json').read_text());self.assertEqual([s['step'] for s in final['trace']][:3],['worktree','worker','merged'])
+  self.assertIn('Export fails',(folder/'incident.json').read_text());self.assertEqual([s['step'] for s in final['trace']][:4],['worktree','worker','pre_merge','merged'])
  def test_unfixed_attempt_cleans_up_and_keeps_master(self):
   before=r.git(self.repo,'rev-parse','HEAD').stdout
   final,_=self.run_worker(self.fake_codex('cannot_reproduce',commit=False))
   self.assertEqual(final['state'],'cannot_reproduce');self.assertNotEqual(r.git(self.repo,'rev-parse','HEAD').stdout,before)  # the fixture's own test commit only
-  self.assertFalse(r.worktree_path(self.repo,final['ticket_id']).exists());self.assertFalse((self.repo/'fix.txt').exists())
+  self.assertFalse(r.worktree_path(self.repo,final['ticket_id']).exists());self.assertFalse((self.repo/'mcps/smart-record/fix.txt').exists())
  def test_post_merge_failure_files_a_follow_on(self):
   final,filed=self.run_worker(self.fake_codex(),smoke_ok=False)
   self.assertEqual(final['state'],'needs_input');self.assertEqual(filed[0]['parent_ticket'],final['ticket_id']);self.assertTrue(final['follow_on'].startswith('bug_'))
