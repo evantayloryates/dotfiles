@@ -7,8 +7,8 @@ import { join } from 'node:path'
 const scratch = mkdtempSync(join(tmpdir(), 'classifier-guard-'))
 process.env.CLASSIFIER_JOBS_DIR = join(scratch, 'jobs')
 process.env.CLASSIFIER_PROFILES_DIR = join(scratch, 'profiles')
-const { createJob } = await import('../lib/jobs.mjs')
-const { screenExamples, screenWithModel } = await import('../lib/profiles.mjs')
+const { createJob } = await import('../src/lib/jobs.mjs')
+const { screenExamples, screenWithModel } = await import('../src/lib/profiles.mjs')
 const items = [
   'Hey coach, it is Maria Delgado. Running about 10 minutes late to our Thursday session, so sorry!',
   'My knee has been aching since the trail run in Boise last weekend, should I skip leg day?',

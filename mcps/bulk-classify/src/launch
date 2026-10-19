@@ -8,10 +8,14 @@ set -euo pipefail
 # inherited OPENAI_API_KEY (a personal org) can never reach it. The scope
 # decides where jobs live: inside the harness (its HOME is ~/.zdr-harness/home)
 # jobs stay in ~/.zdr-harness; anywhere else they go to ~/.local/state.
-# See classifier/README.md.
+# See ../README.md.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-. "${SCRIPT_DIR}/../../../src/lib/resolve-binary.sh"
-. "${SCRIPT_DIR}/../../../src/lib/read-env.sh"
+REPO="$(cd "${SCRIPT_DIR}/../../.." && pwd -P)"
+. "${REPO}/src/lib/resolve-binary.sh"
+. "${REPO}/src/lib/read-env.sh"
+
+# Started by mcps/_shared/bin/run: $1 is the profile, not "cli".
+[[ -n "${MCP_PROFILE:-}" ]] && shift
 
 if [[ "$HOME" == */.zdr-harness/home ]]; then
   SCOPE=zdr
@@ -21,7 +25,7 @@ else
   REAL_HOME="$HOME"
 fi
 
-ENV_FILE="${SCRIPT_DIR}/../.env"
+ENV_FILE="${REPO}/apps/zdr-agent/.env"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="${REAL_HOME}/.zdr-harness/.env"
 KEY="$(ENV_FILE="$ENV_FILE" env_get KICKOFF_OPENAI_ZDR_API_KEY)" || {
   echo "classifier: KICKOFF_OPENAI_ZDR_API_KEY is missing from the ZDR harness secrets file" >&2
@@ -29,10 +33,10 @@ KEY="$(ENV_FILE="$ENV_FILE" env_get KICKOFF_OPENAI_ZDR_API_KEY)" || {
 }
 NODE="$(resolve_binary node)"
 
-ENTRY="${SCRIPT_DIR}/classifier/server.mjs"
+ENTRY="${SCRIPT_DIR}/server.mjs"
 if [[ "${1:-}" == cli ]]; then
   shift
-  ENTRY="${SCRIPT_DIR}/classifier/cli.mjs"
+  ENTRY="${SCRIPT_DIR}/cli.mjs"
 fi
 
 exec env -i \

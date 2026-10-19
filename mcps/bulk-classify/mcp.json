@@ -1,0 +1,14 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "bulk-classify",
+  "description": "Classify texts into labels you choose, from a handful to 200,000, on the Kickoff ZDR OpenAI key.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "toolPrefix": "classify_",
+  "env": {
+    "KICKOFF_OPENAI_ZDR_API_KEY": { "from": ["file:${repo}/apps/zdr-agent/.env", "file:~/.zdr-harness/.env"] }
+  },
+  "cli": ["classifier"],
+  "harnesses": { "claude": {}, "codex": { "tool_timeout_sec": 120 } },
+  "test": "node --test test/*.test.mjs"
+}

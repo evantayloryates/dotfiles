@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# The classifier CLI (see apps/zdr-agent/mcps/classifier/README.md).
-exec "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../apps/zdr-agent/mcps/classifier-mcp" cli "$@"
+# The classifier CLI (see mcps/bulk-classify/README.md).
+exec "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../mcps/bulk-classify/src/launch" cli "$@"

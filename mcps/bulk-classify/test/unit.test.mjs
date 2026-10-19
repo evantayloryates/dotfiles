@@ -9,12 +9,12 @@ const scratch = mkdtempSync(join(tmpdir(), 'classifier-test-'))
 process.env.CLASSIFIER_JOBS_DIR = join(scratch, 'jobs')
 process.env.CLASSIFIER_PROFILES_DIR = join(scratch, 'profiles')
 
-const { normalizeText, looksLikeInjection, findIdentifiers, scrub, dedupeKey } = await import('../lib/text.mjs')
-const { buildTaxonomy } = await import('../lib/taxonomy.mjs')
-const { readRowsFromFile, toItems, checkDataPath } = await import('../lib/input.mjs')
-const { createJob, readResults, readState, findJob, prune } = await import('../lib/jobs.mjs')
-const { screenExamples } = await import('../lib/profiles.mjs')
-const { scan } = await import('../lib/knn-core.mjs')
+const { normalizeText, looksLikeInjection, findIdentifiers, scrub, dedupeKey } = await import('../src/lib/text.mjs')
+const { buildTaxonomy } = await import('../src/lib/taxonomy.mjs')
+const { readRowsFromFile, toItems, checkDataPath } = await import('../src/lib/input.mjs')
+const { createJob, readResults, readState, findJob, prune } = await import('../src/lib/jobs.mjs')
+const { screenExamples } = await import('../src/lib/profiles.mjs')
+const { scan } = await import('../src/lib/knn-core.mjs')
 
 test('normalisation gates and repairs', () => {
   assert.deepEqual(normalizeText('   ').status, 'unclassifiable')

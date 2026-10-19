@@ -189,7 +189,7 @@ Unexpected errors return only an error code, never a path.
 | Harness | Where |
 |---|---|
 | ZDR harness | `opencode/opencode.json` `mcp.classifier` (command `{env:ZDR_HARNESS_CLASSIFIER_MCP}`) and nine `classifier_classify_*` allows; prompt sections in `zdr.md` and `analyst.md` |
-| Claude Code | `claude mcp add classifier --scope user -- ~/dotfiles/apps/zdr-agent/mcps/classifier-mcp` |
+| Claude Code | `claude mcp add classifier --scope user -- ~/dotfiles/mcps/bulk-classify/src/launch` |
 | Codex | `~/.codex/config.toml` `[mcp_servers.classifier]`, `tool_timeout_sec = 120`; one paragraph in `~/.codex/AGENTS.md` (without it Codex never found the tools) |
 | Cursor | `~/.cursor/mcp.json` `mcpServers.classifier` |
 

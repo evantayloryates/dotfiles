@@ -48,7 +48,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `apps/zdr-agent/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
 | `apps/zdr-agent/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
 | `apps/zdr-agent/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the Field Notes bot is in (see [Slack](#slack)) |
-| `apps/zdr-agent/mcps/classifier/` + `classifier-mcp` | Bulk text classification on the ZDR key; also registered in Claude Code, Codex and Cursor, with a separate job store there (see [`mcps/classifier/README.md`](mcps/classifier/README.md)) |
+| `mcps/bulk-classify/` + `classifier-mcp` | Bulk text classification on the ZDR key; also registered in Claude Code, Codex and Cursor, with a separate job store there (see [`mcps/classifier/README.md`](mcps/classifier/README.md)) |
 | `apps/zdr-agent/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
 | `apps/zdr-agent/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |

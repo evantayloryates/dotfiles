@@ -1,8 +1,8 @@
-// classifier MCP server: label many texts with caller-chosen labels, fast.
+// bulk-classify MCP server: label many texts with caller-chosen labels, fast.
 // Same server in every harness (ZDR harness, Claude Code, Codex, Cursor); the
-// launcher (../classifier-mcp) supplies the key and the scope. See README.md.
+// launcher (src/launch) supplies the key and the scope. See README.md.
 
-import { serveMcp } from '../../../../mcps/_shared/kernel/mcp-stdio.mjs'
+import { serveMcp } from '../../_shared/kernel/mcp-stdio.mjs'
 import { callerFrom, cancelJob, classifyTexts, GUIDE, init, jobResults, profilesText, sampleTexts, saveProfileText, startJob, waitJob } from './lib/service.mjs'
 
 const log = (...a) => console.error('[classifier]', ...a)
