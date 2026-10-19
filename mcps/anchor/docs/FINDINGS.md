@@ -859,6 +859,28 @@ processes were left running.
       now counts only test processes, since the live anchor's services may
       run.
 
+62. **B3: signals foundation.** A digest is now only a question of
+    presentation.
+    - **One stream:** `events.jsonl`, schema v1, numbered events. Every
+      ledger entry also becomes a signal, alongside new events for pin
+      moves, discovery misses, upgrades (both builds), and a release the
+      first time anchor sees a channel move.
+    - **Never text:** counts, codes, versions and ids only. No arguments,
+      results, error text or ticket titles; sessions are hashed.
+    - **A snapshot** of each service (calls, errors, fallbacks, crashes,
+      last error, releases, active tickets) is rebuilt from the stream on
+      start.
+    - **`anchor:signals {since, limit?, kinds?}`** returns the events after
+      a cursor, the next cursor and the snapshot, overlaid with live
+      process states and channels.
+    - **Housekeeping:** the stream rotates at 5 MB, keeps three old files,
+      and a cursor reads across them. The dashboard export now counts calls
+      from the stream.
+    - Signals suite 13/13 (including a daemon restart rebuilding the same
+      snapshot without repeating releases, and a gap-free cursor across
+      rotation); the upgrade suite checks each drain's signal (13/13). All
+      17 suites pass.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 

@@ -15,16 +15,18 @@ const lines = (f) => (existsSync(f) ? readFileSync(f, 'utf8').trim().split('\n')
 const ledger = lines(join(P.stateDir, 'ledger.jsonl'))
 const median = (xs) => { const s = xs.slice().sort((a, b) => a - b); return s.length ? s[Math.floor((s.length - 1) / 2)] : null }
 
-// Calls per service and operation.
+// Calls per service and operation, from the signals stream (signals.mjs):
+// the same events any other client reads.
 const ops = {}
-for (const r of ledger) {
-  if (!r.target || r.late) continue
-  const k = r.target
+const events = [...readdirSync(P.stateDir).filter((f) => /^events-\d+\.jsonl$/.test(f)).sort().map((f) => join(P.stateDir, f)), join(P.stateDir, 'events.jsonl')].flatMap(lines)
+for (const e of events) {
+  if (!['call', 'error', 'fallback'].includes(e.kind)) continue
+  const k = `${e.service}:${e.op}`
   const o = (ops[k] ||= { target: k, calls: 0, errors: 0, fallbacks: 0, codes: {}, ms: [] })
+  if (e.kind === 'fallback') { o.fallbacks++; continue }
   o.calls++
-  if (r.ok === false) { o.errors++; o.codes[r.code || 'error'] = (o.codes[r.code || 'error'] || 0) + 1 }
-  if ((r.attempts || []).length > 1) o.fallbacks++
-  if (typeof r.ms === 'number') o.ms.push(r.ms)
+  if (e.kind === 'error') { o.errors++; o.codes[e.code || 'error'] = (o.codes[e.code || 'error'] || 0) + 1 }
+  if (typeof e.ms === 'number') o.ms.push(e.ms)
 }
 const calls = Object.values(ops).map(({ ms, ...o }) => ({ ...o, medianMs: median(ms), errorRate: o.calls ? o.errors / o.calls : 0, fallbackRate: o.calls ? o.fallbacks / o.calls : 0 })).sort((a, b) => b.calls - a.calls)
 const coldStarts = ledger.filter((r) => r.event?.type === 'started').map((r) => ({ service: r.event.service, ms: r.event.coldStartMs, at: r.at }))

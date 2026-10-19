@@ -64,9 +64,10 @@ const BUILD = buildId()
 const DRAIN_MS = Number(process.env.ANCHOR_DRAIN_MS || 30_000)
 let draining = false
 let inflight = 0
-function drain() {
+function drain(to) {
   if (draining) return
   draining = true
+  anchor.signal('upgrade', { previous: BUILD, build: to || 'unknown' })
   log('draining: build', BUILD, 'is no longer on disk')
   const until = Date.now() + DRAIN_MS
   const t = setInterval(() => {
@@ -85,7 +86,7 @@ const BUILD_CHECK_MS = Number(process.env.ANCHOR_BUILD_CHECK_MS || 30_000)
 setInterval(() => {
   let disk
   try { disk = buildId() } catch { return }
-  if (disk !== BUILD) { log('code on disk changed:', BUILD, '->', disk); drain() }
+  if (disk !== BUILD) { log('code on disk changed:', BUILD, '->', disk); drain(disk) }
 }, BUILD_CHECK_MS).unref()
 
 const server = createServer((conn) => {
@@ -107,7 +108,7 @@ const server = createServer((conn) => {
     try {
       let result
       if (method === 'ping') result = { ok: true, pid: process.pid, build: BUILD, draining }
-      else if (method === 'drain') { drain(); result = { draining: true, inflight: inflight - 1, jobs: anchor.activeJobs() } }
+      else if (method === 'drain') { drain(params.build); result = { draining: true, inflight: inflight - 1, jobs: anchor.activeJobs() } }
       else if (method === 'hello') result = await anchor.hello(params)
       else if (method === 'discover') result = await anchor.discover(params)
       else if (method === 'describe') result = await anchor.describe(params)

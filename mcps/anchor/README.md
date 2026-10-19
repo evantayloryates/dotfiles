@@ -42,6 +42,15 @@ and can send a sandboxed fixer to repair them.
   `ANCHOR_ALLOW_DESKTOP_FIXER=1` is set for a supervised run.
 - **Discovery** (`src/discovery.mjs`): a keyword first pass over service
   manifests, with per-service relevance hooks.
+- **Signals** (`src/signals.mjs`): one event stream (`events.jsonl`,
+  schema v1) of calls, errors, fallbacks, crashes, restarts, releases, pin
+  moves, tickets, discovery and upgrades (counts, codes and versions, never
+  arguments or results), plus each service's current state.
+  `anchor:signals {since}` returns what changed after a cursor and where
+  everything stands, so a digest or dashboard is only a question of
+  presentation.
+- **Updates** (`src/build.mjs`): the daemon drains and restarts itself when
+  the code on disk changes; open chats move to it on their next call.
 - **Alerts and dashboard** (`src/alerts.mjs`, `src/export-dashboard.mjs`).
 
 ## Running

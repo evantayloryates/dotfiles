@@ -76,6 +76,8 @@ await sleep(2500)
 const d = await third.call('anchor_run', { calls: [{ target: 'echo:echo', args: { text: 'no new chat' } }] })
 check('the daemon notices new code by itself and an open chat moves to it', d.data[0].ok && pid() && pid() !== pidBefore, JSON.stringify({ d: d.data[0], pidBefore, now: pid() }))
 
+const ups = readFileSync(join(P.stateDir, 'events.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).filter((e) => e.kind === 'upgrade')
+check('each drain is recorded as an upgrade signal with both builds', ups.length >= 3 && ups.every((e) => e.previous && e.build && e.previous !== e.build), JSON.stringify(ups.slice(0, 3)))
 for (const h of [old, fresh, third]) await h.close()
 killDaemon()
 rmSync(SALT, { force: true })

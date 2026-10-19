@@ -20,6 +20,7 @@ import { resolve as resolveChannels, route, readChannels, releaseInfo, SLUG, INF
 import { TicketBook } from './tickets.mjs'
 import { buildIndex, firstPass, needHash } from './discovery.mjs'
 import { buildId } from './build.mjs'
+import { Signals } from './signals.mjs'
 
 const MAX_NIGHTLY_AGE_MS = Number(process.env.ANCHOR_MAX_NIGHTLY_AGE_MS || 72 * 3600_000)
 
@@ -36,6 +37,7 @@ const STANDARD_OPS = {
   'job.result': 'Results of finished job handles: {handles}',
   'job.cancel': 'Cancel running job handles: {handles}',
   status: 'Health of the anchor and every service it has started, and nightlies that keep falling back',
+  signals: 'What changed and where things stand: {since?: cursor, limit?, kinds?: [...]} -> events after the cursor, the next cursor, and each service\'s current state. Counts and codes only.',
   pin: 'This chat\'s release pins: {action: "show" | "refresh" | "release", service?}. A chat stays on the releases it first used; a hotfix, or the promotion of its nightly, moves it forward. refresh re-pins to the current releases; release follows the channels on every call.',
   'ticket.list': 'Tickets you hit or filed (mine: false for all), by priority: {mine?, service?, state?, active?, limit?}',
   'ticket.get': 'Tickets by id: {ids: [...]}',
@@ -67,7 +69,31 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
   const supervisors = new Map()
   const ctxCachePath = join(stateDir, 'session-context-cache.json')
   const ctxCache = readJson(ctxCachePath, {})
-  const ledger = (entry) => appendFileSync(join(stateDir, 'ledger.jsonl'), JSON.stringify({ at: new Date().toISOString(), mode, ...entry }) + '\n')
+  // Signals (signals.mjs): every ledger entry also becomes a schema'd event
+  // in the stream clients read with anchor:signals. Daemon only.
+  const signals = mode === 'daemon' ? new Signals(stateDir) : null
+  const signal = (kind, facts) => { try { return signals?.emit(kind, facts) } catch (err) { log(`signal failed: ${err.message}`) } }
+  const EVENT_KINDS = { crashed: 'crash', started: 'start', backoff: 'backoff', quarantined: 'quarantined', op_quarantined: 'op_quarantined', recycled: 'recycled', drift: 'drift', nightly_overdue: 'nightly_overdue', hotfix_needed: 'hotfix_needed', discover: 'discover', hello: 'session_start', restored: 'daemon_start', pin_move: 'pin_move', discovery_miss: 'discovery_miss', release: 'release' }
+  function signalFrom(entry) {
+    if (entry.target) {
+      const [service, op] = String(entry.target).split(':')
+      if (service === 'anchor' || entry.deferred) return
+      const last = entry.attempts?.at?.(-1)
+      signal(entry.ok ? 'call' : 'error', { service, op, version: last?.version, code: entry.ok ? undefined : entry.code, ms: entry.ms, session: entry.session })
+      if ((entry.attempts || []).length > 1) signal('fallback', { service, op, from: entry.attempts[0].version, to: last?.version, session: entry.session })
+      return
+    }
+    const e = entry.event
+    if (!e?.type) return
+    const [svc, ver] = e.service ? String(e.service).split('@') : []
+    if (e.type.startsWith('ticket_')) return signal(e.type, { service: svc, ticket: e.ticket, ticketKind: e.kind, lane: e.lane, state: e.state })
+    const kind = EVENT_KINDS[e.type]
+    if (kind) signal(kind, { service: svc, version: ver ?? e.version, op: e.op, session: e.session, settledBy: e.settledBy, matches: e.matches, client: e.client, channel: e.channel, from: e.from, to: e.to, build: e.build })
+  }
+  const ledger = (entry) => {
+    appendFileSync(join(stateDir, 'ledger.jsonl'), JSON.stringify({ at: new Date().toISOString(), mode, ...entry }) + '\n')
+    signalFrom(entry)
+  }
   const now = () => Date.now()
 
   // ---- tickets --------------------------------------------------------------
@@ -132,7 +158,7 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
   if (sessionLog.skipped + recordLog.skipped + jobLog.skipped) {
     ledger({ event: { type: 'journal_skipped_lines', sessions: sessionLog.skipped, records: recordLog.skipped, jobs: jobLog.skipped } })
   }
-  ledger({ event: { type: 'restored', sessions: sessions.size, records: records.size, jobs: jobs.size, lostJobs } })
+  ledger({ event: { type: 'restored', sessions: sessions.size, records: records.size, jobs: jobs.size, lostJobs, build: buildId() } })
 
   function compactAll() {
     const sRecs = []
@@ -186,7 +212,23 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
     return out
   }
   const opsOf = (man) => man?.operations || {}
-  const channelsOf = (id) => resolveChannels(servicesDir, stateDir, id, { maxNightlyAgeMs: MAX_NIGHTLY_AGE_MS })
+  // A release becomes a signal the first time anchor sees the channel move
+  // (release.mjs runs in its own process). Seeded from the stream's state,
+  // so a daemon restart does not repeat old releases.
+  const seenChannels = {}
+  const channelsOf = (id) => {
+    const r = resolveChannels(servicesDir, stateDir, id, { maxNightlyAgeMs: MAX_NIGHTLY_AGE_MS })
+    if (signals && r.released) {
+      const seen = (seenChannels[id] ||= { stable: signals.services[id]?.stable ?? null, nightly: signals.services[id]?.nightly ?? null })
+      for (const c of ['stable', 'nightly']) {
+        if ((r.ch[c] ?? null) !== seen[c]) {
+          ledger({ event: { type: 'release', service: id, channel: c, from: seen[c], to: r.ch[c] ?? null } })
+          seen[c] = r.ch[c] ?? null
+        }
+      }
+    }
+    return r
+  }
   // What a service presents to discovery: its stable release, else its
   // nightly, else its working folder. Operations only in nightly are listed too.
   function serving(id, man) {
@@ -262,6 +304,7 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
     if (moves.length) {
       setPin(s, id, { stable, nightly, at })
       addNote(s, `${id}: this chat's release pin moved forward: ${moves.join('; ')}.`)
+      ledger({ event: { type: 'pin_move', service: id, session: s.handle, from: `${pin.stable || '-'}/${pin.nightly || '-'}`, to: `${stable || '-'}/${nightly || '-'}` } })
     }
     if (stable === ch.stable && nightly === ch.nightly) return res
     return { ...res, stable: releaseInfo(servicesDir, id, stable), nightly: releaseInfo(servicesDir, id, nightly), pinned: { stable, nightly } }
@@ -512,6 +555,7 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
     if (!s.suggested || s.suggested.has(id) || (s.missed ||= new Set()).has(id)) return
     s.missed.add(id)
     appendFileSync(join(stateDir, 'discovery-misses.jsonl'), JSON.stringify({ at: new Date(now()).toISOString(), session: s.handle, service: id }) + '\n')
+    ledger({ event: { type: 'discovery_miss', service: id, session: s.handle } })
   }
 
   function describe({ targets = [] }) {
@@ -758,6 +802,18 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
       const config = { build: buildId(), stateDir, servicesDir, alerts: process.env.ANCHOR_ALERT_BACKEND || 'notify', alertSound: process.env.ANCHOR_ALERT_SOUND === 'on', fixers: process.env.ANCHOR_DISPATCH_CMD ? 'headless' : 'off', review: process.env.ANCHOR_REVIEW !== 'off', desktopFixer: process.env.ANCHOR_ALLOW_DESKTOP_FIXER === '1' }
       return { ok: true, value: { mode, config, sessions: sessions.size, records: records.size, jobs: jobs.size, services: Object.fromEntries([...supervisors].map(([id, s]) => [id, { ...s.status(), drift: s.drift }])), fallingBack: fallbackStatus() } }
     }
+    if (op === 'signals') {
+      if (!signals) return { ok: false, code: 'unavailable', error: 'signals are kept by the daemon; this chat is in degraded mode' }
+      const out = signals.since(args.since ?? 0, { limit: args.limit, kinds: args.kinds })
+      // Live overlay: process state and channels as they are this moment.
+      for (const svc of out.state.services) {
+        const sup = [...supervisors].filter(([k]) => k === svc.service || k.startsWith(`${svc.service}@`)).map(([, v]) => v.status().state)
+        svc.process = sup.length ? sup : ['idle']
+        const ch = readChannels(stateDir, svc.service)
+        if (ch.stable !== undefined) { svc.stable = ch.stable; svc.nightly = ch.nightly }
+      }
+      return { ok: true, value: out }
+    }
     if (op === 'pin') {
       const action = args.action || 'show'
       if (!['show', 'refresh', 'release'].includes(action)) return { ok: false, code: 'bad_args', error: 'pin needs action "show", "refresh" or "release" (service optional)' }
@@ -821,7 +877,7 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
   }
 
   const activeJobs = () => [...jobs.values()].filter((j) => j.state === 'running').length
-  return { hello, discover, describe, run, shutdown, sessions, supervisors, mode, book, hooks, activeJobs }
+  return { hello, discover, describe, run, shutdown, sessions, supervisors, mode, book, hooks, activeJobs, signal }
 }
 
 function readJson(path, fallback) {

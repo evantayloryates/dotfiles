@@ -7,7 +7,7 @@ export ANCHOR_ALERT_BACKEND=log
 export ANCHOR_STATE_DIR="${ANCHOR_STATE_DIR:-$HOME/.cache/anchor-lab/test-state}"
 export ANCHOR_SERVICES_DIR="${ANCHOR_SERVICES_DIR:-$PWD/test/services}"
 total=0; failed=0
-for s in basic supervision recovery persistence policy channels tickets fixer headless modern alerts gateway pins discovery dashboard upgrade "$@"; do
+for s in basic supervision recovery persistence policy channels tickets fixer headless modern alerts gateway pins discovery dashboard upgrade signals "$@"; do
   out=$(timeout 600 node test/scenarios-$s.mjs 2>&1 | grep -E "^FAIL|[0-9]+/[0-9]+ passed" | tr '\n' ' ')
   echo "$s: $out"
   case "$out" in *FAIL*|"") failed=$((failed+1));; esac
