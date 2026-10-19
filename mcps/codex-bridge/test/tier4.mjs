@@ -22,7 +22,7 @@ import { promisify } from 'node:util'
 const execFileP = promisify(execFile)
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(HERE, '..')
-const LAUNCHER = join(ROOT, 'bin', 'codex-bridge-mcp')
+const LAUNCHER = join(ROOT, 'src', 'launch')
 const CODEX = '/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex'
 const STATE_DIR = process.env.CODEX_BRIDGE_STATE_DIR || join(homedir(), '.local', 'state', 'codex-bridge')
 const PRESSURE_DIR = join(STATE_DIR, 'pressure')

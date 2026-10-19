@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { test } from 'node:test'
-import { EvidenceStore } from '../lib/capability-evidence.mjs'
+import { EvidenceStore } from '../src/lib/capability-evidence.mjs'
 
 const receipt = { session_id: 'owned', caller: 'test', action_id: 'one', provider: 'fixture', target: { bundle_id: 'test.fixture' },
   clock_domain: 'CLOCK_UPTIME_RAW', start_ns: '9007199254740993', end_ns: '9007199254740995',

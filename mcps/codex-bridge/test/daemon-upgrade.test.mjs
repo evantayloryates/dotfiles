@@ -20,7 +20,7 @@ after(() => rmSync(root, { recursive: true, force: true }))
 
 // Namespace import: run against an older appserver.mjs, the pure helpers are
 // undefined and only those cases fail; the AppServer cases still run.
-const appserver = await import('../lib/appserver.mjs')
+const appserver = await import('../src/lib/appserver.mjs')
 const { AppServer } = appserver
 
 const BUNDLED = '0.162.0-alpha.17.2'

@@ -4,7 +4,7 @@
 // initialize=0 and thread-owner-discovery=1. Version errors fail closed.
 import net from 'node:net'
 import {execFileSync} from 'node:child_process'
-import {resolveCodexBinary} from '../codex-bridge/lib/codex-paths.mjs'
+import {resolveCodexBinary} from '../../mcps/codex-bridge/src/lib/codex-paths.mjs'
 import {lstatSync} from 'node:fs'
 import {homedir} from 'node:os'
 import {join} from 'node:path'

@@ -14,7 +14,7 @@
       "Safari"
     ],
     "commands": [
-      "mkdir -p \"$SCRATCH\" && cp /Users/taylor/dotfiles/src/codex-bridge/scenarios/fixtures/paste-test.html \"$SCRATCH/paste-test.html\""
+      "mkdir -p \"$SCRATCH\" && cp /Users/taylor/dotfiles/mcps/codex-bridge/test/scenarios/fixtures/paste-test.html \"$SCRATCH/paste-test.html\""
     ]
   },
   "task": "You may click, type and use menus inside Safari only; use Computer Use only, never the browser surface or cua.getTab; never focus Google Chrome; do not touch any other app or window. Goal: paste into web fields. Open Safari by name, open a new window (Command+N), Command+L, type exactly file:///Users/taylor/.local/state/codex-bridge/pressure/scratch/paste-test.html and press Return. Click Field A (textarea) and insert safari-A-ok with paste(); click Field B (contenteditable) and insert safari-B-ok with paste(). Read the window title from the accessibility tree (the page mirrors both values as 'paste-test: A=... B=...'). Take one screenshot with emit enabled. Cleanup: close the window (Command+W), and quit Safari only if cua.getState() showed it was not running before you started; report anything left.",

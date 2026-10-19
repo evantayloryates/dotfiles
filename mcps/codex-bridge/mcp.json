@@ -1,0 +1,11 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "codex-bridge",
+  "description": "Delegates macOS Computer Use tasks to the local Codex agent over the Codex app-server protocol, plus local capability-evidence tools.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "requires": ["app:ChatGPT"],
+  "cli": ["codex-bridge"],
+  "harnesses": { "claude": {} },
+  "test": "node --test test/*.test.mjs"
+}

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 import { test } from 'node:test'
-import { EvidenceStore, validateFact, validateReceipt } from '../lib/capability-evidence.mjs'
-import { evidenceHandler } from '../lib/evidence-tools.mjs'
+import { EvidenceStore, validateFact, validateReceipt } from '../src/lib/capability-evidence.mjs'
+import { evidenceHandler } from '../src/lib/evidence-tools.mjs'
 
 const entity = { bundle_id: 'test.fixture', app_version: '1', app_build: '1', os_build: 'test', provider: 'fixture', provider_version: '1', surface: 'native-menu', capture_mode: 'isolated', display_profile: 'test-2x' }
 const fact = { entity, capability: 'child-menu', result: 'pass', sample_count: 1, observed_at: '2026-01-01T00:00:00Z', expires_at: '2027-01-01T00:00:00Z', evidence_refs: ['/tmp/fixture-evidence.json'], limits: 'Synthetic; no real app guarantee.' }
@@ -70,7 +70,7 @@ test('interrupted publication leaves no partial entry; corruption is reported', 
 }))
 
 test('four independent writers preserve 32 distinct entries and deduplicate common entries', () => temporary(async (store, root) => {
-  const modulePath = new URL('../lib/capability-evidence.mjs', import.meta.url).href
+  const modulePath = new URL('../src/lib/capability-evidence.mjs', import.meta.url).href
   await Promise.all(Array.from({ length: 4 }, (_, writer) => new Promise((resolve, reject) => {
     const code = `import { EvidenceStore } from ${JSON.stringify(modulePath)}; const s = new EvidenceStore(${JSON.stringify(root)}); const f = ${JSON.stringify(fact)}; s.put('facts', f); for(let n=0;n<8;n++) s.put('facts', {...f, limits: 'writer-${writer}-' + n});`
     const child = spawn(process.execPath, ['--input-type=module', '-e', code], { stdio: ['ignore', 'ignore', 'pipe'] })

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { parseTableHeader, readCodexConfig, trimmedRoster } from '../lib/codex-config.mjs'
+import { parseTableHeader, readCodexConfig, trimmedRoster } from '../src/lib/codex-config.mjs'
 
 const CONFIG = `
 model = "gpt-5"

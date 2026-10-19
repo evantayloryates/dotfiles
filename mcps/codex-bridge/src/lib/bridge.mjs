@@ -45,7 +45,7 @@ export function gitRev() {
   // Guarded so a Mac without developer tools never gets git's install
   // dialog from an MCP server start (a leftover of the kind this bridge
   // exists to avoid). `--dirty` marks a tree with uncommitted changes.
-  if (!existsSync(join(BRIDGE_DIR, '..', '..', '.git'))) return null
+  if (!existsSync(join(BRIDGE_DIR, '..', '..', '..', '.git'))) return null
   try {
     return execFileSync('git', ['-C', BRIDGE_DIR, 'describe', '--always', '--dirty', '--abbrev=7'], { encoding: 'utf8', timeout: 5000 }).trim()
   } catch {

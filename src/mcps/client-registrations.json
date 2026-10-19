@@ -94,6 +94,14 @@
     "notion-kickoff"
    ],
    "env": {}
+  },
+  "codex-bridge": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "codex-bridge"
+   ],
+   "env": {}
   }
  },
  "removed_servers": {

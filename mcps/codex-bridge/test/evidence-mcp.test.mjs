@@ -52,7 +52,7 @@ function output(result, key) {
   return result.structuredContent[key]
 }
 
-test('evidence MCP mutation and readback work with transport/model paths forbidden', () => server('../server.mjs', async (request, state) => {
+test('evidence MCP mutation and readback work with transport/model paths forbidden', () => server('../src/server.mjs', async (request, state) => {
   const roster = await request('tools/list')
   assert.equal(roster.tools.filter(t => t.name.startsWith('computer_use_')).length, 7)
   const call = (name, args) => request('tools/call', { name, arguments: args })
@@ -95,7 +95,7 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
   assert.deepEqual(readdirSync(state), ['capability-evidence'])
 }))
 
-test('recorder target options are discoverable without engine capture or transport', () => server('../../smart-record/server.mjs', async request => {
+test('recorder target options are discoverable without engine capture or transport', () => server('../../../src/smart-record/server.mjs', async request => {
   const roster = await request('tools/list')
   const aimed = roster.tools.filter(t => ['frame_check', 'frame_outline', 'record_schedule'].includes(t.name))
   assert.equal(aimed.length, 3)

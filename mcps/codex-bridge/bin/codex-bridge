@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# CLI for codex-bridge: preflight, ad-hoc runs, daemon control.
+SCRIPT_DIR="$(dirname "$(/bin/realpath "${BASH_SOURCE[0]}")")"
+. "${SCRIPT_DIR}/../../../src/lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/../src/cli.mjs" "$@"

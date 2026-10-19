@@ -9,7 +9,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
-const launcher = join(HERE, '..', 'bin', 'codex-bridge-mcp')
+const launcher = join(HERE, '..', 'src', 'launch')
 const child = spawn(launcher, [], { stdio: ['pipe', 'pipe', 'inherit'] })
 const rl = createInterface({ input: child.stdout })
 const pending = new Map()

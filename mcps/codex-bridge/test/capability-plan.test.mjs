@@ -3,8 +3,8 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileS
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { EvidenceStore } from '../lib/capability-evidence.mjs'
-import { planCapabilities, validatePlan } from '../lib/capability-planner.mjs'
+import { EvidenceStore } from '../src/lib/capability-evidence.mjs'
+import { planCapabilities, validatePlan } from '../src/lib/capability-planner.mjs'
 
 const entity = { bundle_id: 'test.fixture', app_version: '1', app_build: '1', os_build: 'test', provider: 'fixture', provider_version: '1', surface: 'menu', capture_mode: 'isolated', display_profile: 'test' }
 const now = Date.parse('2026-10-09T05:00:00Z')

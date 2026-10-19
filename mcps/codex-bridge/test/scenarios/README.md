@@ -1,7 +1,7 @@
 # Pressure-test scenarios
 
 One JSON file per scenario, under `<tier>/<name>.json`. Run with
-`node scripts/pressure.mjs`; the plan is in `../docs/pressure-testing.md`.
+`node test/pressure.mjs`; the plan is in `../../docs/pressure-testing.md`.
 
 ```json
 {

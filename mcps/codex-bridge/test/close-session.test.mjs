@@ -6,8 +6,8 @@ import {join} from 'node:path'
 
 const root=mkdtempSync(join(tmpdir(),'bridge-close-contract-'))
 process.env.CODEX_BRIDGE_STATE_DIR=root
-const {Bridge}=await import('../lib/bridge.mjs')
-const {saveState,loadState}=await import('../lib/state.mjs')
+const {Bridge}=await import('../src/lib/bridge.mjs')
+const {saveState,loadState}=await import('../src/lib/state.mjs')
 
 // No backend, model, native client or helper is started. These assertions
 // distinguish the existing public string contract from strict lease cleanup.
