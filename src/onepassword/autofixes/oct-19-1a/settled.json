@@ -1,0 +1,59 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-19T05:05:35.339Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "eec1fdcc4de60ddb06ce0b05aaee67b72d67e231a0d2c1907b376e35d10c827a"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "9af0dfc1d1079ac76cc1527a848cbce2fc40cadc0f164d29116c25c455006896"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "72e8dcc403757ad6228bc93749c1c5dcee47a18cece93e3257d91d5f83f1b672"
+    },
+    {
+      "name": "artifacts/diagnostic-195757f0-ab45-4956-b25d-59c31fda2716.json",
+      "sha256": "b626c740da065dd510b418aa76732c2d5959dd63c05067030cc6c99a7953dc70"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "ca26f6a33297fcf6c54f35e99e2caa1172d108abf91e5acd738e4f175a2abda7"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "1bbc1e444ae00180184ada6d4c043d686f6db654e701c3e3c48300b7cf98fc8d"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "2f12c1faeef9af05903437c0e556ab824aee6ed0d7e18a6b303bd6966e5ae902"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "b029939a39637c0d4401af887e5ba7a016507d3dc23727774a0cd80603683f82"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "d48d3a2298b7ee4661b8dc2d290f360b4e58ca3af39c929da7ec16149448fe0c"
+    },
+    {
+      "name": "artifacts/recent-events.json",
+      "sha256": "c709627add7833c7e8acc9f66e4df1520ede75ad8432bdcc165c7920b6b31481"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "39ef3bfdde3c39ac56118368422ba5b561a40a73fa02ca0d372c5f15ac94a7ec"
+    },
+    {
+      "name": "artifacts/report-review.json",
+      "sha256": "7390c532a4a6578cb7ca239d9a3784b2e9287debeb00ab7fcb5a28f6323dc88e"
+    },
+    {
+      "name": "artifacts/verify.py",
+      "sha256": "8d14ddc6e1d3d253041ed9a3b9ec8e34fe72c167edf4736d304d6fb5fd792f8c"
+    }
+  ],
+  "reportSha256": "6d2e7edc3d91155306b46a71144f7d52b42877cc47d48e4a431e983ba8873ad4"
+}

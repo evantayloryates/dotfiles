@@ -361,6 +361,14 @@ not establish authorization expiry or a broker crash. A successful manual smoke
 check does not update keepalive's stored account status; read the next scheduled
 round separately before claiming that its fault episode has cleared.
 
+The [October 19 early-morning incident](autofixes/oct-19-1a/summary.md) observed
+successful prompted keepalives for both accounts, followed by successful
+metadata-only checks. The alert snapshot still contained the preceding successful
+round; it did not establish a failed authorization attempt. Deployed code,
+signature, unlocked parser state and the advancing heartbeat verified with the
+same broker/keepalive identities. No software repair or extra auth wake was needed;
+the exact renewal trigger remains unproven.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

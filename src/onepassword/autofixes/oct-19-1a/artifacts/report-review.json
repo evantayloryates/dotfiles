@@ -1,0 +1,7 @@
+{
+  "html": "Inspected generated HTML content and responsive/print CSS; human outcome and technical disclosure match the evidence. All local links resolve.",
+  "markdown": "Inspected summary.md; outcome, cause uncertainty, unchanged service and evidence hashes match report.json.",
+  "ui_rendered": false,
+  "reason": "No Computer Use while quarantined.",
+  "passed": true
+}
