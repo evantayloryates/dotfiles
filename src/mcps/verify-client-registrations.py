@@ -55,7 +55,7 @@ def main() -> int:
         trigger = HOME / relative
         if not trigger.is_symlink() or trigger.resolve() != (ROOT / target).resolve():
             errors.append(f"{relative}: canonical dotfiles symlink missing")
-    if not (MANIFEST.parent / "runtime/gmail-fork/index.js").exists():
+    if not (ROOT / "mcps/gmail/src/gmail-fork/index.js").exists():
         errors.append("Gmail fork source missing")
     packages = json.loads((MANIFEST.parent / "runtime/package.json").read_text())["dependencies"]
     for name, version in packages.items():
