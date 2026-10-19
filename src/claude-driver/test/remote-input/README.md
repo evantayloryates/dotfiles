@@ -4,6 +4,23 @@ These assets are diagnostic fixtures, outside the shipped driver and the normal
 isolated test suite. They do not qualify Claude recovery or physical typing.
 The local desktop remains quarantined.
 
+`keeper-resident.test.mjs` uses the linked synthetic
+`keeper-resident-fixture.mjs` to qualify independent clients, durable mutation
+deduplication after a lost reply, stale-token refusal, epoch/private-key/auth
+refusals, live drift and killed-resident pending-intent fencing. These are real
+process/socket/kernel observations with no native UI worker/input. Negative
+cleanup is explicitly task-owned synthetic retirement, not native success.
+
+`keeper-native-resident.mjs` launches only the exact owned remote
+`keeper-native-resident-owner.mjs` composition. A private short control directory
+and long durable evidence directory are separate. The resident uses the reviewed
+native inventory adapter, closes bootstrap IPC, serves two independent Node
+status clients and remains live after their EOFs. Exact request-ID shutdown must
+complete durably before native groups/socket retirement. No app acquisition,
+input, native permission relay, host model or notifier is used. Native lease
+adapters deliberately refuse; this is not actual harness/lease adoption. Control
+keys stay private and are excluded from evidence mirrors.
+
 `keeper-lifetime.test.mjs` and `keeper-fixture.mjs` exercise the isolated
 `candidates/input-keeper/lifetime.mjs` contract with actual owned subprocesses,
 Unix sockets and kernel locks only. No CUA, native helper, app or input is used.

@@ -42,6 +42,15 @@ initial inspector/retirement failure is preserved. This does not qualify native
 lease/input behavior, controller loss or production integration. Cross-harness
 resident ownership and trusted per-lease native adapters remain required.
 
+Resident ownership/control is now implemented as an isolated candidate with14
+focused process checks and a read-only native reconnect gate. Two independent
+Node clients share the same live helper after bootstrap EOF; exact explicit
+shutdown is durable and normal. Lost mutation replies are deduplicated by saved
+request ID/fingerprint. This is not actual harness adoption or native UI lease
+integration; native lease methods still refuse. Existing owner/watchdog binding,
+owned-filter/receiving verification, native failure recovery and physical-input
+qualification remain incomplete. Production is unchanged and quarantined.
+
 Shared-helper1792367275539-1f12122c retains helper8350 across an idle lease gap
 and normal first-client EOF during the second pending input, at95 received
 characters. Exactly one64-character and one4096-character action produce4160

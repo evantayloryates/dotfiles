@@ -71,3 +71,41 @@ lifetime to own a cross-harness keeper. Connect the existing checked UI
 owner/watchdog and independent receiving verification before native lease/input
 qualification. Controller loss and per-lease native adapters are still pending;
 this read-only resource pass does not qualify them. Production stays unchanged.
+
+## Resident control and independent native clients
+
+The new isolated resident control candidate is implemented. One process owns the
+coordinator independently of MCP/CLI client connections. Per-generation private
+keys, exact socket identity, epoch/generation matching and a separate kernel
+guard bind control calls. Long durable paths use an independently verified short
+Unix control directory. Only metadata status/acquire/release/shutdown operations
+exist. Request-ID/fingerprint intent is durable before adapter invocation, so a
+lost reply can be queried without replay. No report text, task, shell command,
+adapter module name or arbitrary native request is executable through control.
+
+Fourteen process checks pass9.127s: six transport/reconnect/uncertainty/refusal
+gates and the eight lifetime gates. In the lost-reply case, the second connection
+observes pending, then receives the original result after the barrier releases;
+the client-start count remains one. Killing the resident retains that pending
+intent and refuses a replacement. A stale completed release can be read back
+without closing a successor. The first14-check pass/producers remain frozen
+separately from the later short-control-path extension. Synthetic cleanup signals
+are distinct from successful native retirement.
+
+Native inventory-only run1792368681373-0c114a6a passes on resident72795ca5 and
+lifetime6eff7ec9. Resident8722 owns resource-host8726/helper8729 after bootstrap
+IPC EOF. Independent Node processes8773/8780 each return the same live helper and
+generation, exit0, and leave the keeper live. Exact shutdown request ID is
+durably completed; resident/MCP/helper exit0, groups/socket absent. Only the
+task-created empty short control directory is removed. Final native helper/
+filter inventory is empty and uv508/caffeinate510 survive.19 files/85080bytes
+with exact producers and nonsecret registration/ledger are mirrored; control
+keys are excluded. No app acquisition, input, permission relay, model or notifier.
+
+This does not qualify actual coding-harness adoption or real native lease
+behavior. The native composition refuses all lease methods. Bind the current
+checked UI owner/watchdog and worker under the same mutex next, keeping the
+keeper outside lease cleanup groups and independent receiving verification in
+the release path. Exact owned-filter admission must not ignore foreign or
+unexplained filters. Native controller-loss/orphan reconciliation and physical
+input remain unqualified; do not ship the new route or clear quarantine yet.

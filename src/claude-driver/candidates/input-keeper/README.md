@@ -44,8 +44,8 @@ own synthetic processes in test cleanup. That cleanup is not a graceful native
 keeper receipt. The original six-check log predates the stricter guardian
 contract and has no frozen source snapshot; it is not final-source proof.
 
-Remaining integration work is material: select the single resident owner/control
-transport for all MCP/CLI clients; implement the trusted per-lease adapters;
+Remaining integration work is material: connect the resident control candidate
+to MCP/CLI callers; implement the trusted per-lease adapters;
 keep a minimal public-MCP native connection alive across zero active leases;
 verify its exact helper/socket/runtime ownership and absence of inherited UI
 locks; bind client retirement and receiving observations to the existing checked
@@ -86,3 +86,33 @@ still refuse. Producer snapshots and original failures stay intact. A startup
 timeout retains the same handle; it never authorizes a second helper launch.
 Controller-channel loss remains an unqualified failure path, not automatic
 cleanup/recovery proof. The shipped call sites remain unchanged and quarantined.
+
+## Resident control candidate
+
+`resident.mjs` hosts the lifetime coordinator independently of bootstrap/control
+connections. Its private state directory holds a per-generation control key,
+registration and durable mutation records. A separate private short control
+directory may hold the Unix socket; clients supply and verify that exact path
+and socket device/inode. No path from a request or stale PID authorizes adoption.
+The kernel generation guard still serializes construction. Only fixed metadata
+status/acquire/release/shutdown operations exist; adapters are linked code.
+Frames/connections are bounded and keys are never logged or returned.
+
+Each mutation records its ID/fingerprint before invocation. Reconnect with that
+exact identity returns pending/completed evidence without calling an adapter
+again. Different arguments under an existing ID refuse. Durable per-request
+files are retained for deduplication; bounding a recent view must not evict the
+only idempotency evidence. A pending record after owner loss stays unresolved.
+`inspectKeeperRequest` reads its exact generation and cannot resume the action.
+Bootstrap/client EOF does not shut down an otherwise live resident. Shutdown is
+explicit and requires the existing independent resource retirement contract.
+
+Six resident process gates plus eight lifetime gates pass9.127s. They use real
+processes, sockets and kernel ownership observations with synthetic resources;
+the transport fixture's leases have no real UI worker/input. First14-check source
+snapshots are retained separately before short-control-path support; final
+sources/logs qualify the final candidate. A fresh read-only native composition
+also passes: resident8722 and helper8729 persist through bootstrap EOF and two
+independent Node client processes, then normal explicit shutdown. Native lease
+methods are deliberately refusing in that composition. This is not actual
+harness adoption, native input, controller-loss recovery or production wiring.

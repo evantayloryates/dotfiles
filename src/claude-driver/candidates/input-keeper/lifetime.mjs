@@ -76,6 +76,11 @@ export async function createKeeperLifetime({evidence,epoch,guardTimeoutMs=1000},
  try{save()}catch(error){releaseGuard();throw error}
  return {
   snapshot:()=>structuredClone(row),
+  inspect:()=>run(async()=>{
+   if(!['idle','leased'].includes(row.phase))return {phase:row.phase,generation:row.generation,epoch,live:false}
+   try{await observe();return {phase:row.phase,generation:row.generation,epoch,live:true,resource:{...row.resource},leaseCount:row.leaseCount}}
+   catch{throw fence('live-resource-inspection-failed')}
+  }),
   start:()=>run(async()=>{
    if(row.phase!=='new')throw refusal('keeper-already-started-or-fenced')
    row.phase='starting';save()

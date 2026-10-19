@@ -1,3 +1,52 @@
+## October 18 shared resident control and native reconnect pass
+
+New isolated resident.mjs owns one coordinator independently of each client
+connection. Private owner/mode-checked state, per-generation control key,
+socket device/inode, epoch and generation bind requests. Only status/acquire/
+release/shutdown exist; no UI task, shell or arbitrary native RPC. Every mutation
+persists its exact request ID/fingerprint before adapter invocation. Reconnect
+returns the existing pending/result record, never reruns it; a new generation
+cannot adopt an unresolved journal/PID. Fresh live inspection now fences drift
+instead of reporting saved readiness. Durable state and a verified short Unix
+control path are separate so long state paths fit macOS socket limits.
+
+Final14 actual-process focused checks pass9.127s: eight lifetime gates plus six
+resident gates for independent client reconnect/bootstrap EOF, lost mutation
+reply with exactly one start, request-ID mismatch/stale tokens, epoch/key/auth
+refusal, live drift fencing and resident SIGKILL with retained pending intent.
+The first14-check pass and exact producers remain separately frozen before the
+short-control-path extension. Negative synthetic cleanup is not native teardown.
+
+Remote inventory-only keeper-native-resident-1792368681373-0c114a6a PASSES on
+resident72795ca5/lifetime6eff7ec9. Resident8722/resource-host8726/helper8729 survive
+bootstrap IPC EOF, then separate Node clients8773/8780 each exit0 after seeing
+the same live helper/generation. After both client EOFs the helper remains live.
+Exact shutdown request87086720-700a-4287-a593-a3a57c625f88 is durably completed;
+resident, MCP and helper exit0, control socket/groups absent, and the task-created
+empty short control directory is removed. Final native helpers/filters absent;
+uv508/caffeinate510 preserved.19files/85080bytes with exact producer sources,
+policies, nonsecret registration and shutdown ledger are verified. Control keys
+are not mirrored. No app acquisition, input, model host, notifier or consent relay.
+
+This proves independent Node client residency, not actual Claude/Codex harness
+adoption or real UI leases. Native lease methods deliberately refuse in this
+composition; controller-loss/native orphan reconciliation remains unfinished.
+Production182ed05d/local quarantine stay unchanged and the full goal incomplete.
+
+NEXT: bind the existing checked UI owner/watchdog and native worker to resident
+lease admission under the same kernel UI mutex. Keep the helper outside lease
+cleanup groups, independently retire worker/MCP peers and settle receiving state
+before release. Add exact owned-filter auditing without ignoring foreign or
+unexplained filters. Then run one strategic remote native input/cancellation
+gate before shipped routing. Do not repeat inventory gates unchanged, adopt
+saved PIDs, restart unrelated services or change the broader Codex bridge.
+All native/synthetic test handles are terminal; no owned process remains.
+Final local readback binds current sources to the native producer snapshots and
+the14-check log/source freeze. Whole195-suite/199-file sets and all hashes plus
+installed identity match the frozen full pass, reused without rerunning it.
+Local configs/quarantine and parked Codex bridge hashes are unchanged. Service
+candidate memory470a772b is independently queried back. Keys remain private.
+
 ## October 18 minimal native keeper adapter passes read-only lifetime gate
 
 Remote keeper-native-1792368194128-6b4d073a passes the actual private-helper /
