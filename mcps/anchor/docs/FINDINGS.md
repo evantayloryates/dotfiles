@@ -709,6 +709,20 @@ processes were left running.
     service host sandboxed. Both change how anchor operates, so they wait
     for Taylor's decision.
 
+    **Taylor's decision (2026-10-19): accept as is.** His direction for later
+    work is to observe services continuously and report their attributes,
+    both what changed and the current state, rather than gate releases.
+    Not part of this pass.
+
+52. **Security review, third pass.** The checked code may no longer fork,
+    loads no native addons (`--no-addons`), and cannot map code as
+    executable from its temp folder or the folder being checked. With no
+    children possible, nothing outlives the probe, so cleaning up its temp
+    folder races nothing. Not done: blocking programs by path in the fixer
+    profile, because a fixer runs a shell and can reach any program through
+    an interpreter; the remaining risk is the one Taylor accepted in finding
+    50. All suites pass, and a real fixer still fixes on the subscription.
+
 **Final pilot** (r7 and r8 through anchor, pooled; baselines r5 and r6
 direct): every phase 3 target met in both harnesses.
 

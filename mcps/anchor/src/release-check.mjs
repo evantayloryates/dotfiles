@@ -28,7 +28,7 @@ const run = (args, timeout, dir) => new Promise((resolve) => {
   }
   const tmp = mkdtempSync(join(tmpdir(), 'anchor-check-'))
   const env = { HOME: process.env.HOME, PATH: '/usr/bin:/bin', TMPDIR: `${tmp}/` }
-  execFile('/usr/bin/sandbox-exec', ['-p', checkProfile(dir, tmp), process.execPath, ...args], { timeout, maxBuffer: 1 << 20, env }, (err, stdout, stderr) => {
+  execFile('/usr/bin/sandbox-exec', ['-p', checkProfile(dir, tmp), process.execPath, '--no-addons', ...args], { timeout, maxBuffer: 1 << 20, env }, (err, stdout, stderr) => {
     rmSync(tmp, { recursive: true, force: true })
     resolve({ err, stdout, stderr })
   })
