@@ -56,13 +56,13 @@ function resolveSource(source, key) {
 
 const env = { ...manifest.env, ...profile.env }
 for (const [key, spec] of Object.entries(env)) {
-  const { from = ['dotfiles-env'], required = true, value } = typeof spec === 'string' ? { from: [spec] } : spec
+  const { from = ['dotfiles-env'], required = true, value, key: sourceKey = key } = typeof spec === 'string' ? { from: [spec] } : spec
   let found = value
   for (const source of from) {
     if (found !== undefined) break
-    found = resolveSource(source, key)
+    found = resolveSource(source, sourceKey)
   }
-  if (found === undefined && required) fatal(`${id}: ${key} not found in ${from.join(', ')}`)
+  if (found === undefined && required) fatal(`${id}: ${sourceKey} not found in ${from.join(', ')}`)
   if (found !== undefined) process.env[key] = found
 }
 process.env.MCP_ID = id

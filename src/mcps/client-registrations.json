@@ -1,102 +1,109 @@
 {
-  "version": 1,
-  "scope": "Canonical fleet registrations; external host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
-  "codex": {
-    "gmail_personal_primary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-primary"
-      ],
-      "startup_timeout_sec": 120.0,
-      "tool_timeout_sec": 120.0
-    },
-    "kickoff-cloudinary": {
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
-      "startup_timeout_sec": 60.0,
-      "tool_timeout_sec": 120.0
-    },
-    "kickoff-notion": {
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-notion-mcp",
-      "disabled_tools": [
-        "API-get-users"
-      ]
-    },
-    "claude-driver": {
-      "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
-      "tool_timeout_sec": 300.0
-    },
-    "gmail_personal_secondary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-secondary"
-      ],
-      "startup_timeout_sec": 120.0,
-      "tool_timeout_sec": 120.0
-    },
-    "gmail_personal_legacy": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-legacy"
-      ],
-      "startup_timeout_sec": 120.0,
-      "tool_timeout_sec": 120.0
-    },
-    "framer": {
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
-      "startup_timeout_sec": 30.0,
-      "tool_timeout_sec": 150.0
-    }
+ "version": 1,
+ "scope": "Canonical fleet registrations; external host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
+ "codex": {
+  "gmail_personal_primary": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-primary"
+   ],
+   "startup_timeout_sec": 120.0,
+   "tool_timeout_sec": 120.0
   },
-  "claude": {
-    "gmail-personal-primary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-primary"
-      ]
-    },
-    "kickoff-cloudinary": {
-      "type": "stdio",
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
-      "args": [],
-      "env": {}
-    },
-    "kickoff-notion": {
-      "type": "stdio",
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-notion-mcp",
-      "args": [],
-      "env": {}
-    },
-    "claude-driver": {
-      "type": "stdio",
-      "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
-      "args": [],
-      "env": {}
-    },
-    "gmail-personal-secondary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-secondary"
-      ]
-    },
-    "gmail-personal-legacy": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "personal-legacy"
-      ]
-    },
-    "framer": {
-      "type": "stdio",
-      "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
-      "args": [],
-      "env": {}
-    }
+  "kickoff-cloudinary": {
+   "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
+   "startup_timeout_sec": 60.0,
+   "tool_timeout_sec": 120.0
   },
-  "removed_servers": {
-    "codex": [
-      "gmail_work_primary"
-    ],
-    "claude": [
-      "gmail-work-primary"
-    ]
+  "claude-driver": {
+   "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
+   "tool_timeout_sec": 300.0
+  },
+  "gmail_personal_secondary": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-secondary"
+   ],
+   "startup_timeout_sec": 120.0,
+   "tool_timeout_sec": 120.0
+  },
+  "gmail_personal_legacy": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-legacy"
+   ],
+   "startup_timeout_sec": 120.0,
+   "tool_timeout_sec": 120.0
+  },
+  "framer": {
+   "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
+   "startup_timeout_sec": 30.0,
+   "tool_timeout_sec": 150.0
+  },
+  "notion-kickoff": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "disabled_tools": [
+    "API-get-users"
+   ],
+   "args": [
+    "notion-kickoff"
+   ]
   }
+ },
+ "claude": {
+  "gmail-personal-primary": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-primary"
+   ]
+  },
+  "kickoff-cloudinary": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
+   "args": [],
+   "env": {}
+  },
+  "claude-driver": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
+   "args": [],
+   "env": {}
+  },
+  "gmail-personal-secondary": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-secondary"
+   ]
+  },
+  "gmail-personal-legacy": {
+   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "args": [
+    "personal-legacy"
+   ]
+  },
+  "framer": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
+   "args": [],
+   "env": {}
+  },
+  "notion-kickoff": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "notion-kickoff"
+   ],
+   "env": {}
+  }
+ },
+ "removed_servers": {
+  "codex": [
+   "gmail_work_primary",
+   "kickoff-notion"
+  ],
+  "claude": [
+   "gmail-work-primary",
+   "kickoff-notion"
+  ]
+ }
 }

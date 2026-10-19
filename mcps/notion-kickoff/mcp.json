@@ -1,0 +1,13 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "notion-kickoff",
+  "description": "Kickoff's Notion workspace through Notion's official MCP server (pinned in package.json).",
+  "kind": "wrapped",
+  "entry": "node_modules/@notionhq/notion-mcp-server/bin/cli.mjs",
+  "profiles": { "default": { "args": ["--transport", "stdio"] } },
+  "env": {
+    "NOTION_TOKEN": { "from": ["dotfiles-env"], "key": "KICKOFF_NOTION_PAT" }
+  },
+  "requires": ["cli:npm ci (installs node_modules)"],
+  "harnesses": { "claude": {}, "codex": { "disabled_tools": ["API-get-users"] } }
+}

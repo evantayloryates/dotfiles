@@ -156,6 +156,10 @@
               "value": {
                 "description": "A fixed, non-secret value.",
                 "type": "string"
+              },
+              "key": {
+                "description": "Name to read from the source when it differs from the variable the service gets, e.g. NOTION_TOKEN read from KICKOFF_NOTION_PAT.",
+                "type": "string"
               }
             }
           }
