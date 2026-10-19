@@ -183,7 +183,8 @@ def vet_diff(path,base,head):
     names=[]
     for line in git(path,*RAW,'diff','--raw','--no-renames','--no-ext-diff','--no-textconv',base,head).stdout.splitlines():
         meta,name=line.split('\t',1);old_mode,new_mode,_,_,status=meta.lstrip(':').split()
-        if not norm(name).startswith(ALLOWED_PREFIX):raise Halt('needs_input',f'The fix changes {name}, outside {ALLOWED_PREFIX}; nothing was merged.')
+        # Exact, ASCII-only allow check; case-folding is only for the deny list.
+        if not name.isascii() or not name.startswith(ALLOWED_PREFIX):raise Halt('needs_input',f'The fix changes {name!r}, outside {ALLOWED_PREFIX} or not a plain ASCII path; nothing was merged.')
         if control_plane(name):
             raise Halt('needs_input',f'The fix changes {name}, part of the repair pipeline; it waits for Taylor and nothing was merged.')
         if status=='D':continue
@@ -204,7 +205,9 @@ def config_snapshot(repo):
     """Repository-local git config plus the hooks and info directories, so an
     attempt that quietly adds hooks, drivers or attributes is not merged."""
     common=Path(git(repo,'rev-parse','--git-common-dir').stdout.strip())
-    common=common if common.is_absolute() else repo/common;digest=hashlib.sha256(git(repo,'config','--local','--list',check=False).stdout.encode())
+    common=common if common.is_absolute() else repo/common
+    # Every config scope and include, with where each value came from.
+    digest=hashlib.sha256(git(repo,'config','--list','--show-origin','--includes',check=False).stdout.encode())
     for sub in ['hooks','info']:
         for f in sorted((common/sub).rglob('*')) if (common/sub).exists() else []:
             if f.is_file():digest.update(str(f.relative_to(common)).encode());digest.update(f.read_bytes());digest.update(oct(f.stat().st_mode).encode())
@@ -382,6 +385,10 @@ def worker(db,id,repo=None):
             try:process.communicate(prompt.encode(),timeout=CODEX_TIMEOUT)
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid,15);raise Halt('dispatch_uncertain',f'The worker exceeded {CODEX_TIMEOUT//60} minutes; its partial work is in attempt.patch.')
+            finally:
+                # Nothing the worker started keeps running past this point.
+                try:os.killpg(process.pid,9)
+                except ProcessLookupError:pass
         if process.returncode:raise Halt('needs_input','The Codex worker failed; see worker.log')
         result=json.loads((folder/'result.json').read_text())
         step(db,id,folder,'worker',f"{result['state']}: {result['summary']}\n\nVerification: {result['verification']}\n\nLimits: {result['limits']}",root_cause=result['root_cause'])

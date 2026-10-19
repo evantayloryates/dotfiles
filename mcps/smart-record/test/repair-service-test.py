@@ -105,6 +105,8 @@ class Pipeline(unittest.TestCase):
   self.assertIsNone(self.vet('mcps/smart-record/src/x.mjs','export const x=1\n'))
  def test_vetting_refuses_paths_binaries_large_files_and_credentials(self):
   self.assertIn('outside',self.vet('bin/evil','echo hi\n'))
+  self.assertIn('outside',self.vet('MCPS/smart-record/x.txt','x\n'))
+  self.assertIn('ASCII',self.vet('mcps/smart-record/caf\u00e9.txt','x\n'))
   self.assertIn('binary',self.vet('mcps/smart-record/blob.bin',bytes(range(256))*4))
   self.assertIn('1 MB',self.vet('mcps/smart-record/big.txt','x'*(1024*1024+1)))
   self.assertIn('credential',self.vet('mcps/smart-record/src/k.mjs','const k="ghp_'+'A'*36+'"\n'))
