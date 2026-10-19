@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
-# Start a fleet MCP: run <mcp-id> [profile]. Harness registrations point here.
+# Start a fleet MCP: run <mcp-id> [profile] [args...]. Harness registrations
+# point here. A service whose start needs more than declared env (a clean
+# environment, a secret broker, a credential check) names an executable
+# "launcher" in mcp.json; it is exec'd directly with MCP_ID, MCP_PROFILE,
+# MCP_DIR and MCP_REPO set and the profile as $1. Everything else goes
+# through the Node launcher, which loads declared env and serves tools/.
 set -euo pipefail
 SHARED="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MCPS="$(dirname "$SHARED")"
+id="${1:-}"
+[[ "$id" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] || { echo "usage: run <mcp-id> [profile] [args...]" >&2; exit 64; }
+dir="${MCPS}/${id}"
+[[ -f "${dir}/mcp.json" ]] || { echo "[run] no mcps/${id}/mcp.json" >&2; exit 78; }
+launcher="$(/usr/bin/plutil -extract launcher raw -o - "${dir}/mcp.json" 2>/dev/null || true)"
+if [[ -n "$launcher" ]]; then
+  shift
+  profile="${1:-default}"
+  [[ $# -gt 0 ]] && shift
+  export MCP_ID="$id" MCP_PROFILE="$profile" MCP_DIR="$dir" MCP_REPO="$(dirname "$MCPS")"
+  exec "${dir}/${launcher}" "$profile" "$@"
+fi
 . "${SHARED}/../../src/lib/resolve-binary.sh"
 exec "$(resolve_binary node)" "${SHARED}/kernel/launch.mjs" "$@"

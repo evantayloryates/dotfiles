@@ -15,8 +15,8 @@
 //      removed before it runs, rows streamed and cut off at the cap.
 //
 // Two ways in, one implementation:
-//   MCP stdio server (no arguments)         kickoff-stage-db-mcp
-//   CLI (a command)                         kickoff-stage-db-mcp query "SELECT ..." [--out FILE]
+//   MCP stdio server (no arguments)         mcps/_shared/bin/run db-kickoff-stage
+//   CLI (a command)                         kickoff-stage-db query "SELECT ..." [--out FILE]
 //
 // See README.md beside this file.
 
@@ -64,7 +64,7 @@ const sha12 = (s) => createHash('sha256').update(s).digest('hex').slice(0, 12)
 let mysql
 function driver() {
   if (mysql) return mysql
-  if (!OPT) throw new ToolError('KICKOFF_STAGE_DB_OPT is not set; start this server through kickoff-stage-db-mcp')
+  if (!OPT) throw new ToolError('KICKOFF_STAGE_DB_OPT is not set; start this server through mcps/_shared/bin/run db-kickoff-stage')
   try {
     mysql = createRequire(join(OPT, 'noop.js'))('mysql2')
   } catch {

@@ -1,8 +1,8 @@
-// node --test src/mcps/kickoff-stage-db/test/
+// node --test mcps/db-kickoff-stage/test/
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { cell, fileFormat, renderRows, uniqueNames } from '../lib/format.mjs'
-import { checkSql, scan, shape, ToolError } from '../lib/sql.mjs'
+import { cell, fileFormat, renderRows, uniqueNames } from '../src/lib/format.mjs'
+import { checkSql, scan, shape, ToolError } from '../src/lib/sql.mjs'
 
 const ok = (sql, expect) => assert.equal(checkSql(sql), expect ?? checkSql(sql))
 const bad = (sql, re) => assert.throws(() => checkSql(sql), (e) => e instanceof ToolError && re.test(e.message), sql)

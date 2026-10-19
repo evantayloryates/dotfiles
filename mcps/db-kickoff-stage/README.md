@@ -129,14 +129,14 @@ Most of this is already done on Taylor's Mac.
 3. Register it:
 
    ```sh
-   claude mcp add kickoff-stage-db -s user -- /Users/taylor/dotfiles/src/mcps/kickoff-stage-db-mcp
+   claude mcp add kickoff-stage-db -s user -- /Users/taylor/dotfiles/mcps/db-kickoff-stage/bin/kickoff-stage-db
    ```
 
    Codex (`~/.codex/config.toml`):
 
    ```toml
    [mcp_servers.kickoff-stage-db]
-   command = "/Users/taylor/dotfiles/src/mcps/kickoff-stage-db-mcp"
+   command = "/Users/taylor/dotfiles/mcps/db-kickoff-stage/bin/kickoff-stage-db"
    startup_timeout_sec = 20.0
    tool_timeout_sec = 330.0
    ```
@@ -144,7 +144,7 @@ Most of this is already done on Taylor's Mac.
 4. Add the CLI to the shell:
 
    ```sh
-   ln -s /Users/taylor/dotfiles/src/mcps/kickoff-stage-db-mcp ~/.local/bin/kickoff-stage-db
+   ln -s /Users/taylor/dotfiles/mcps/db-kickoff-stage/bin/kickoff-stage-db ~/.local/bin/kickoff-stage-db
    ```
 
 The launcher reads only its three keys from `.env` and starts node with a
@@ -168,7 +168,7 @@ error says the password was rejected.
 ## Tests
 
 ```sh
-node --test src/mcps/kickoff-stage-db/test/unit.test.mjs   # statement checks, formats (offline)
-node src/mcps/kickoff-stage-db/test/online.mjs             # live: 22 cases through the launcher over MCP stdio
-node src/mcps/kickoff-stage-db/test/online.mjs --vpn       # + disconnects the VPN and quits Tunnelblick to prove recovery
+node --test mcps/db-kickoff-stage/test/unit.test.mjs   # statement checks, formats (offline)
+node mcps/db-kickoff-stage/test/online.mjs             # live: 22 cases through the launcher over MCP stdio
+node mcps/db-kickoff-stage/test/online.mjs --vpn       # + disconnects the VPN and quits Tunnelblick to prove recovery
 ```

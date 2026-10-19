@@ -1,6 +1,6 @@
 // Live pressure test against staging, through the real launcher over MCP
 // stdio. Prints a verdict, time and answer size per case, never row data.
-//   node src/mcps/kickoff-stage-db/test/online.mjs [--only name,name] [--vpn]
+//   node mcps/db-kickoff-stage/test/online.mjs [--only name,name] [--vpn]
 // --vpn also disconnects Tunnelblick (and quits it) to prove recovery.
 
 import { spawn, execFileSync } from 'node:child_process'
@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 
-const LAUNCHER = new URL('../../kickoff-stage-db-mcp', import.meta.url).pathname
+const LAUNCHER = new URL('../src/launch', import.meta.url).pathname
 const args = process.argv.slice(2)
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : null
 const withVpn = args.includes('--vpn')
@@ -261,7 +261,7 @@ await check('connection-cap-waits', async () => {
   const { createRequire } = await import('node:module')
   const mysql = createRequire(join(process.env.HOME, '.local/share/kickoff-stage-db/node_modules/noop.js'))('mysql2/promise')
   const u = new URL(readFileSync(join(process.env.HOME, 'dotfiles/.env'), 'utf8').match(/^KICKOFF_STAGE_DB_URL=(.*)$/m)[1])
-  const ca = readFileSync(new URL('../../../zdr-harness/certs/rds-global-bundle.pem', import.meta.url), 'utf8')
+  const ca = readFileSync(new URL('../src/certs/rds-global-bundle.pem', import.meta.url), 'utf8')
   const hogs = []
   for (let i = 0; i < 14; i++) {
     try {

@@ -1,0 +1,17 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "db-kickoff-stage",
+  "description": "Read-only SQL against Kickoff's STAGING database (kudos_staging) over the Tunnelblick VPN. Not production.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "toolPrefix": "stage_",
+  "env": {
+    "KICKOFF_STAGE_DB_URL": { "from": ["dotfiles-env"], "required": false },
+    "KICKOFF_STAGE_DB_VPN": { "from": ["dotfiles-env"], "required": false },
+    "KICKOFF_STAGE_DB_VPN_AUTOCONNECT": { "from": ["dotfiles-env"], "required": false }
+  },
+  "requires": ["vpn:tunnelblick", "file:~/.local/share/kickoff-stage-db/node_modules"],
+  "cli": ["kickoff-stage-db"],
+  "harnesses": { "claude": {}, "codex": { "startup_timeout_sec": 20, "tool_timeout_sec": 330 } },
+  "test": "node --test test/*.test.mjs"
+}

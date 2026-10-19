@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Human CLI for db-kickoff-stage: kickoff-stage-db query "SELECT ..." etc.
+set -euo pipefail
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"; SOURCE="$(readlink "$SOURCE")"; [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+unset MCP_PROFILE
+exec "$(cd -P "$(dirname "$SOURCE")" && pwd)/../src/launch" "$@"
