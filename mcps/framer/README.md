@@ -1,16 +1,15 @@
 # Shared Framer MCP
 
-The `framer-mcp` launcher is a zero-dependency MCP stdio adapter. A single
+`src/mcp.mjs` (started by `mcps/_shared/bin/run framer`) is a zero-dependency MCP stdio adapter. A single
 per-user LaunchAgent broker starts at login and restarts if it exits. Both
 Codex and Claude connect to its 0600 Unix socket, so their sessions and
 verified learnings use the same state. The broker pins the official Framer
 Agent CLI to `@framer/agent@0.0.47` in `runtime/package-lock.json`; it does
 not run `setup` or write skills. Reinstall with
-`npm ci --prefix src/mcps/framer/runtime --ignore-scripts --no-audit --no-fund`.
+`npm ci --prefix mcps/framer/src/runtime --ignore-scripts --no-audit --no-fund`.
 
-Install the broker with `python3 src/mcps/framer/install.py`, then apply
-`python3 src/mcps/install-client-registrations.py --apply` and verify with
-`python3 src/mcps/verify-client-registrations.py`.
+Install the broker with `python3 mcps/framer/src/install.py`, then apply
+the fleet registrations (see `mcps/README.md`).
 
 The tools require an explicit project ID and branch ID for any code execution.
 Use `framer_projects`, `framer_branches`, then `framer_select_branch` when the

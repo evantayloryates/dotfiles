@@ -34,9 +34,12 @@
    "tool_timeout_sec": 120.0
   },
   "framer": {
-   "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "startup_timeout_sec": 30.0,
-   "tool_timeout_sec": 150.0
+   "tool_timeout_sec": 150.0,
+   "args": [
+    "framer"
+   ]
   },
   "notion-kickoff": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
@@ -78,8 +81,10 @@
   },
   "framer": {
    "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/src/mcps/framer-mcp",
-   "args": [],
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "framer"
+   ],
    "env": {}
   },
   "notion-kickoff": {

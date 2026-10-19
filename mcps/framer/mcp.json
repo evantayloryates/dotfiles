@@ -1,0 +1,13 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "framer",
+  "description": "Shared, branch-guarded Framer Agent CLI broker; this server is a thin stdio adapter to its private socket.",
+  "kind": "relay",
+  "entry": "src/mcp.mjs",
+  "toolPrefix": "framer_",
+  "services": [
+    { "label": "com.taylor.framer-broker", "run": ["node", "src/service.mjs"], "keepAlive": true }
+  ],
+  "requires": ["cli:npm ci --prefix src/runtime (pins @framer/agent)"],
+  "harnesses": { "claude": {}, "codex": { "startup_timeout_sec": 30, "tool_timeout_sec": 150 } }
+}

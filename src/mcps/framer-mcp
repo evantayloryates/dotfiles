@@ -1,2 +1,0 @@
-#!/bin/sh
-exec /opt/homebrew/bin/node /Users/taylor/dotfiles/src/mcps/framer/mcp.mjs
