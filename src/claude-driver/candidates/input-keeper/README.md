@@ -45,7 +45,7 @@ keeper receipt. The original six-check log predates the stricter guardian
 contract and has no frozen source snapshot; it is not final-source proof.
 
 Remaining integration work is material: select the single resident owner/control
-transport for all MCP/CLI clients; implement bounded trusted native adapters;
+transport for all MCP/CLI clients; implement the trusted per-lease adapters;
 keep a minimal public-MCP native connection alive across zero active leases;
 verify its exact helper/socket/runtime ownership and absence of inherited UI
 locks; bind client retirement and receiving observations to the existing checked
@@ -54,3 +54,35 @@ or unexplained filters. Qualify the adapter first with a remote read-only native
 lifetime gate, then one strategic input/failure gate. The earlier default-socket
 shared-helper handoff qualifies its recorded topology, not a new private adapter.
 Production changes, physical-input clearance and the full goal remain pending.
+
+## Read-only native resource adapter
+
+`native-resource.mjs` and `resource-host.mjs` are restricted to the existing exact
+Theo Air owner. The parent keeps the tracked child handle and bounded IPC;
+fixed start/probe/close methods do not accept tasks, arbitrary JS, consent or
+native RPC. Startup refuses preexisting helpers, uses the reviewed production
+helper factory and signature/hash inspection, and opens one public MCP using
+only `await cua.getState()`. Every permission request is refused. Native inventory
+text is reduced to a hash/byte count, never saved as app/window content. Helper
+and MCP share the resource host group, outside UI lease groups, with no passed
+UI-lock descriptor. Descriptor and socket ownership are independently inspected.
+
+Read-only gate1792368194128-6b4d073a passes: one exact helper/socket persists
+through1/5s idle observations with a connected Unix endpoint; the UI lock can be
+acquired after its parent releases it while the keeper stays live. Final
+MCP/helper/host exits0 normally, socket/group absent, no native helper/filter.
+No app acquisition/input, host/model, native notifier or permission relay ran.
+This qualifies resource lifetime only. It does not implement native lease
+admission, receiving settlement, cross-harness residency or owner-loss recovery.
+
+First1792368103491-87146149 remains failed: self-inclusion of the short-lived ps
+inspector makes lsof/retirement fail after successful inventory. Helper exit0
+is recorded; normal full client/host retirement is unqualified. Its exact sole
+remaining owned controller was signalled only after independent native absence
+and source/parent verification. `process-observation.mjs` fixes exact-inspector
+and zombie exclusion; three contracts cover that boundary and descriptor field
+identity. Changed-set lsof observation retries are bounded and stable errors
+still refuse. Producer snapshots and original failures stay intact. A startup
+timeout retains the same handle; it never authorizes a second helper launch.
+Controller-channel loss remains an unqualified failure path, not automatic
+cleanup/recovery proof. The shipped call sites remain unchanged and quarantined.

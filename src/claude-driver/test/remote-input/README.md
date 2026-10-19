@@ -12,6 +12,17 @@ gates and unimplemented native/resident integration. Negative cases preserve
 durable failure fences and clean up only their own synthetic children; those
 signals never count as a passing native close.
 
+`keeper-native.mjs` tests the remote-only native resource candidate through
+fixed start/probe/close IPC. It uses public `cua.getState()` inventory only,
+refuses all permission requests and never acquires an app, injects input or
+starts a model host/notifier. Exact private helper/socket identity must persist
+across idle observations, independently lack the UI-lock descriptor, then
+retire normally with its MCP/resource host. A timeout keeps the same handle
+and forbids duplicate startup. Preserve original failures and scoped controller
+retirement separately. `keeper-observation.test.mjs` covers the exact ps-inspector
+exclusion and descriptor identity used by this candidate; no native runtime runs
+in those three checks. None of this changes the shipped owner/factory routing.
+
 `shared-helper-candidate.mjs` is restricted to the existing Theo Air fixture
 owner and reviewed runtime/human grants. It requires an absent default socket
 and empty native baseline, starts one exact owned helper, and retains two public

@@ -40,3 +40,34 @@ retirement on Theo Air before using it for input. Keep local quarantine enabled;
 do not adopt/control a preexisting helper, change native auth or replay the old
 two-private-helper input test. Exact source/runtime binding and the full
 completion audit remain required before the goal can finish.
+
+## Minimal native resource lifetime qualified
+
+Remote read-only gate1792368194128-6b4d073a uses the candidate's bounded
+start/probe/close adapter, existing reviewed helper factory and public MCP
+inventory only. Helper8627/group8624 and socket device/inode persist at1/5s with
+one connected Unix endpoint. No UI-lock descriptor appears in the resource
+group, and an independent process acquires that lock after parent release while
+the helper stays alive. MCP/helper/host exit0 normally, socket/group absent;
+final native helpers/filters absent and original uv508/caffeinate510 preserved.
+No native fixture/app acquisition, input, permission relay, actual model host,
+notifier or inference is involved. Inventory text is hashed rather than retained.
+
+First1792368103491-87146149 stays failed. Its successful inventory and recorded
+normal native helper exit are narrower proof; scanner self-inclusion caused
+descriptor/peer-retirement refusal. Sole remaining owned host8563 received a
+verified scoped SIGTERM after native absence; no normal host/client receipt is
+invented. Exact-inspector/zombie exclusion and bounded changed-set retries fix
+the observation boundary; three process/descriptor checks pass. The next native
+gate changes that condition, rather than replaying input. Thirty exact files/
+137343bytes and both original verdicts are retained in the private manifest and
+keeper-native-analysis.json. Current resource-host0e56f1ae/gate61ad7c9b remain
+distinct from initial00d5a25c/137f8974 producer snapshots.
+
+Next establish one resident driver owner per state directory with a private
+local control channel, reusing resource IPC and the generation/kernel guard.
+Per-harness MCP processes and bounded durable-job workers have the wrong
+lifetime to own a cross-harness keeper. Connect the existing checked UI
+owner/watchdog and independent receiving verification before native lease/input
+qualification. Controller loss and per-lease native adapters are still pending;
+this read-only resource pass does not qualify them. Production stays unchanged.

@@ -1,3 +1,48 @@
+## October 18 minimal native keeper adapter passes read-only lifetime gate
+
+Remote keeper-native-1792368194128-6b4d073a passes the actual private-helper /
+public-MCP inventory adapter. Helper8627 stays in resource-host group8624 through
+1/5s idle observations with the same socket device/inode, one connected Unix
+endpoint and no inherited UI-lock descriptor. After the parent closes its own
+UI-lock copy, an independent contender acquires it while the helper remains
+alive. Public inventory succeeds; zero app acquisitions/input/permission relays,
+actual model hosts or native notifiers. MCP/helper/resource host all exit0
+normally and the socket/group disappear. Final native helpers/filters absent;
+uv508/caffeinate510 preserved. This is idle resource lifetime, not lease/input
+integration or physical clearance. Shipped production remains182ed05d/quarantined.
+
+Initial keeper-native-1792368103491-87146149 stays FAILED. Inventory succeeds and
+native helper exit0 is independently recorded, but the scanner included its own
+short-lived ps PID, making lsof/peer-retirement fail. The only remaining exact
+resource host8563 was verified against its parent/source and signalled SIGTERM;
+original host/client normal-retirement receipts are not invented. Its calling
+tool handle then exits1. New process-observation.mjs excludes the exact inspector
+PID and zombies, retries only a changed descriptor-observation set, and does not
+ignore stable lsof errors. Three read-only process/descriptor contracts pass.
+The corrected run changes that condition; no input rerun or permission edit.
+
+Mirrors30files/137343bytes with exact producer snapshots, policies, journals,
+native/helper evidence and first-controller retirement are verified in
+keeper-native-evidence/manifest.json; keeper-native-analysis.json retains both
+original verdicts. Current resource-host0e56f1ae, gate61ad7c9b, scanner2d2e2db3.
+Parent adapter9ee9cf13 exposes fixed start/probe/close only, retains the exact
+handle after startup refusal and never interprets a timeout as permission to
+launch a replacement. Adapter/controller loss and native lease paths remain
+unqualified. All tool handles terminal; no owned native resource left running.
+Fresh local readback verifies current candidate sources match the passing
+producer snapshots; complete195-suite/199-file sets and hashes, installed
+identity and production fingerprint match the frozen full pass, reused without
+rerunning it. Local config/quarantine and parked Codex bridge hashes are
+unchanged. Candidate service memoryda4128c6 is independently queried back.
+
+NEXT: select one resident driver owner per state directory with a private local
+control channel, reusing this bounded resource IPC and generation/kernel guard.
+Bind existing UI owner/watchdog clients and receiving verification to that
+keeper before a strategic native lease/input/failure gate. Per-client MCP and
+bounded durable-job workers cannot themselves provide cross-harness keeper
+lifetime. No general Codex bridge change, saved-PID adoption, foreign-helper
+control, local input or quarantine release. Full goal remains incomplete.
+
 ## October 18 keeper lifetime contract passes eight synthetic process gates
 
 New isolated candidates/input-keeper/lifetime.mjs is not wired into shipped

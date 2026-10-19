@@ -35,10 +35,12 @@ and physical-input safety remain incomplete.
 
 The isolated [keeper lifetime candidate](input-keeper-candidate.md) now passes
 eight actual-process synthetic gates, including registered lock-holder loss and
-durable drift/cleanup fences. No shipped call site imports it and it has no
-native adapter yet. This is ownership-contract evidence, not production
-integration, native cleanup or a completion claim. Cross-harness resident
-ownership, bounded native adapters and strategic native qualification remain.
+durable drift/cleanup fences. No shipped call site imports it. A bounded native
+resource adapter now passes its remote inventory-only idle lifetime gate with
+normal MCP/helper/host retirement and no inherited UI-lock descriptor; the
+initial inspector/retirement failure is preserved. This does not qualify native
+lease/input behavior, controller loss or production integration. Cross-harness
+resident ownership and trusted per-lease native adapters remain required.
 
 Shared-helper1792367275539-1f12122c retains helper8350 across an idle lease gap
 and normal first-client EOF during the second pending input, at95 received
