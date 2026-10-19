@@ -210,15 +210,18 @@ const textOf = (message) =>
 export async function readSession(sessionId, signal) {
   checkId(sessionId)
   const session = await harness('GET', `/session/${encodeURIComponent(sessionId)}`, { signal })
-  if (session?.agent && session.agent !== ZDR_AGENT) {
-    throw new HarnessError(`Session ${sessionId} belongs to the "${session.agent}" agent and cannot be read here. Open it with zdr_open.`)
-  }
   const messages = (await harness('GET', `/session/${encodeURIComponent(sessionId)}/message`, { signal })) || []
+  // Fail closed: the session must be positively owned by the zdr agent, and
+  // every reply in it must be the zdr agent's. A missing field refuses.
+  const replies = messages.filter((m) => m.info?.role === 'assistant')
+  if (session?.agent !== ZDR_AGENT || replies.some((m) => m.info?.agent !== ZDR_AGENT)) {
+    throw new HarnessError(`Session ${sessionId} is not a de-identified zdr session and cannot be read here. Open it with zdr_open.`)
+  }
   const question = textOf(messages.find((m) => m.info?.role === 'user'))
-  const answer = textOf(messages.findLast((m) => m.info?.role === 'assistant' && m.info?.agent === ZDR_AGENT && textOf(m)))
+  const answer = textOf(replies.findLast((m) => textOf(m)))
   return (
     `question: ${scrub(question || '(none)')}\n\nanswer: ${scrub(answer || '(no final answer yet)')}\n\n` +
-    `session_id: ${sessionId}\ntitle: ${session?.title || ''}`
+    `session_id: ${sessionId}\ntitle: ${scrub(session?.title || '')}`
   )
 }
 
