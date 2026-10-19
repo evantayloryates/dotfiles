@@ -2,6 +2,7 @@
 import './env.mjs'
 import { execSync } from 'node:child_process'
 import { rmSync, mkdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { startHarness } from './client.mjs'
 import { paths } from '../src/paths.mjs'
 
@@ -76,6 +77,17 @@ check('hello reused generated session context', /generated for/.test(h2.init.ins
 
 await h.close()
 await h2.close()
+// First run: a state folder that does not exist yet is created.
+{
+  const fresh = join(P.stateDir, '..', 'test-state-fresh-' + process.pid)
+  rmSync(fresh, { recursive: true, force: true })
+  const f = await startHarness({ name: 'first-run', env: { ANCHOR_STATE_DIR: fresh } })
+  const r = await f.call('anchor_run', { calls: [{ target: 'echo:echo', args: { text: 'first' } }] })
+  check('a first run creates its state folder and works', r.data[0].ok && r.data[0].value === 'first', JSON.stringify(r.data[0]))
+  await f.close()
+  try { execSync(`pkill -f "${P.daemon} --state ${fresh}"`) } catch {}
+  rmSync(fresh, { recursive: true, force: true })
+}
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.detail ? `\n      ${r.detail.slice(0, 400)}` : ''}`)
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} passed`)
 try { execSync(`pkill -f "${P.daemon} --state ${P.stateDir}"`) } catch {}

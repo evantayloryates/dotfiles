@@ -19,6 +19,7 @@ import { idempotencyOf, mayRerun, manifestProblems } from './policy.mjs'
 import { resolve as resolveChannels, route, readChannels, releaseInfo, SLUG, INFRA_CODES, PRE_EXEC_CODES } from './channels.mjs'
 import { TicketBook } from './tickets.mjs'
 import { buildIndex, firstPass, needHash } from './discovery.mjs'
+import { buildId } from './build.mjs'
 
 const MAX_NIGHTLY_AGE_MS = Number(process.env.ANCHOR_MAX_NIGHTLY_AGE_MS || 72 * 3600_000)
 
@@ -753,7 +754,9 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
       return { ok: true, value: handles.map(view) }
     }
     if (op === 'status') {
-      return { ok: true, value: { mode, sessions: sessions.size, records: records.size, jobs: jobs.size, services: Object.fromEntries([...supervisors].map(([id, s]) => [id, { ...s.status(), drift: s.drift }])), fallingBack: fallbackStatus() } }
+      // The configuration this daemon runs with, so real use can be checked.
+      const config = { build: buildId(), stateDir, servicesDir, alerts: process.env.ANCHOR_ALERT_BACKEND || 'notify', alertSound: process.env.ANCHOR_ALERT_SOUND === 'on', fixers: process.env.ANCHOR_DISPATCH_CMD ? 'headless' : 'off', review: process.env.ANCHOR_REVIEW !== 'off', desktopFixer: process.env.ANCHOR_ALLOW_DESKTOP_FIXER === '1' }
+      return { ok: true, value: { mode, config, sessions: sessions.size, records: records.size, jobs: jobs.size, services: Object.fromEntries([...supervisors].map(([id, s]) => [id, { ...s.status(), drift: s.drift }])), fallingBack: fallbackStatus() } }
     }
     if (op === 'pin') {
       const action = args.action || 'show'

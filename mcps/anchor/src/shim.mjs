@@ -3,7 +3,7 @@
 // is gone, and falls back to an embedded core (degraded mode) when it cannot.
 
 import { spawn } from 'node:child_process'
-import { appendFileSync, openSync } from 'node:fs'
+import { appendFileSync, mkdirSync, openSync } from 'node:fs'
 import { createConnection } from 'node:net'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
@@ -105,6 +105,8 @@ async function ensureDaemon() {
     if (await upToDate()) return true
   } catch {}
   // Not running: start it (launchd does this in production), then wait.
+  // First run: the state folder may not exist yet.
+  mkdirSync(P.stateDir, { recursive: true })
   const out = openSync(join(P.stateDir, 'anchord.log'), 'a')
   // --state names the state folder on the command line, so tooling can stop
   // one anchor without touching others (suites, pilot runs).

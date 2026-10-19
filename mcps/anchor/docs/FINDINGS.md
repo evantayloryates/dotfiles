@@ -788,6 +788,23 @@ processes were left running.
       working and is told once, and a third build replaces the second.
       All 16 suites pass (302 checks).
 
+    (continued)
+
+56. **A2: release settings, and a first-run bug.**
+    - **The launcher** (`src/launch`) now sets: notification alerts with
+      sound off, the sandboxed headless fixer on the subscription, and the
+      review gate on. It unsets anything that would weaken them (review
+      off, desktop fixer, sandbox off).
+    - **`anchor:status` reports the configuration** (`config`: build,
+      folders, alerts, fixers, review, desktop fixer). Read back through
+      `mcps/_shared/bin/run anchor`: notify, silent, headless, review on.
+    - **The bug:** the front end opened the daemon's log in the state folder
+      before creating the folder. The first real start would have failed,
+      because `~/.local/state/mcps/anchor` did not exist yet; the suites
+      never saw it because they create their state folder first. Fixed,
+      with a first-run check in the basic suite (27/27). This landed before
+      the front-end freeze takes effect at the restart.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 
