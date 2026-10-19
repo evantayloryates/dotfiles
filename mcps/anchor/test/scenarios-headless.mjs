@@ -8,10 +8,11 @@ import { startHarness } from './client.mjs'
 import { paths } from '../src/paths.mjs'
 
 const P = paths()
-const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey', 'loadtime']
+const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey', 'loadtime', 'sneaky', 'mute']
 const ENV = {
   ANCHOR_DISPATCH_CMD: JSON.stringify([process.execPath, 'src/fixer-headless.mjs']),
   ANCHOR_HEADLESS_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-headless.mjs')]),
+  ANCHOR_REVIEW_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-reviewer.mjs')]),
   ANCHOR_FIXER_TIMEOUT_MS: '3000',
   ANCHOR_DISPATCH_TIMEOUT_MS: '30000',
   ANCHOR_DISPATCH_MAX_ATTEMPTS: '3',
@@ -89,6 +90,9 @@ check('an errored run fails with its error', /headless run failed: API error: ov
 check('changes to the folder structure are refused', /changed the service's folder structure/.test(why('restructure')) && !existsSync('test/services/restructure/lib'), why('restructure'))
 check('a fixer on API-key auth is stopped before doing anything and escalated at once', /not on Taylor's subscription \(apiKeySource ANTHROPIC_API_KEY\)/.test(why('apikey')) && by('apikey')?.state === 'escalated' && by('apikey')?.attempts === 1, why('apikey'))
 check('the fix records subscription auth and its notional cost', /subscription auth, notional cost \$0\.12/.test(why('fixit')), why('fixit'))
+check('an approved review lets the fix through, and the ticket says so', by('fixit')?.state === 'fixed' && /review approved \(risk low\)/.test(why('fixit')), why('fixit'))
+check('a fix that adds reach is rejected by review, escalated, never applied', by('sneaky')?.state === 'escalated' && /code review rejected the change \(risk high\).*child_process/.test(why('sneaky')) && by('sneaky')?.attempts === 1, why('sneaky'))
+check('no verdict from review fails closed', by('mute')?.state === 'escalated' && /code review gave no verdict/.test(why('mute')), why('mute'))
 check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => !['fixit', 'loadtime'].includes(id)).every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
 
 await h.close()

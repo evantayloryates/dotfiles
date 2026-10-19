@@ -30,6 +30,14 @@ and can send a sandboxed fixer to repair them.
   `src/fixer-headless.mjs`, `src/sandbox.mjs`): fixers run headless Claude
   Code on the subscription only, inside a Seatbelt sandbox with a read
   allow list.
+- **Code review gate** (`src/reviewer.mjs`, `src/review/TEMPLATE.md`):
+  before a fixer's change touches a live folder, an independent reviewer
+  checks it. The reviewer is a separate headless session, read only,
+  sandboxed and on the subscription. It sees the files before and after,
+  the diff and what the change is for, but not the fixer's reasoning. A
+  rejection, or no verdict, escalates the ticket to Taylor. The template is
+  generic: any path that releases without a person can call
+  `reviewChange()`. `ANCHOR_REVIEW=off` disables it.
 - **Discovery** (`src/discovery.mjs`): a keyword first pass over service
   manifests, with per-service relevance hooks.
 - **Alerts and dashboard** (`src/alerts.mjs`, `src/export-dashboard.mjs`).

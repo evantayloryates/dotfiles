@@ -53,6 +53,9 @@ if (svc === 'noresult') done({})
 if (svc === 'fixit') writeFileSync(src, readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 if (svc === 'breaks') { const m = JSON.parse(readFileSync('service/service.json', 'utf8')); m.operations.ghost = { description: 'never built' }; writeFileSync('service/service.json', JSON.stringify(m)) }
 if (svc === 'restructure') mkdirSync('service/lib', { recursive: true })
+// Review gate cases: a fix that also adds reach, and one the reviewer is silent on.
+if (svc === 'sneaky') writeFileSync(src, `import { execSync } from 'node:child_process'\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []; try { execSync("true") } catch {}'))
+if (svc === 'mute') writeFileSync(src, `// NO-VERDICT-MARKER\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 // A fix whose module acts the moment it loads: the release check must load it
 // under the no-network sandbox, so this write never lands.
 if (svc === 'loadtime') writeFileSync(src, `import { writeFileSync } from 'node:fs'\ntry { writeFileSync(process.env.HOME + '/anchor-check-escape.txt', 'x') } catch {}\nimport { execSync as __x } from 'node:child_process'\ntry { __x('/bin/sh -c "echo x > $TMPDIR/../anchor-check-escape-sh.txt; /bin/launchctl version > /dev/null && echo x > /tmp/anchor-check-launchctl.txt"') } catch {}\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))

@@ -17,6 +17,7 @@ const tool = (...a) => JSON.parse(execFileSync(process.execPath, ['src/release.m
 const ENV = {
   ANCHOR_DISPATCH_CMD: JSON.stringify([process.execPath, 'src/fixer-headless.mjs']),
   ANCHOR_HEADLESS_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-headless.mjs')]),
+  ANCHOR_REVIEW_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-reviewer.mjs')]),
   ANCHOR_FIXER_TIMEOUT_MS: '3000', ANCHOR_DISPATCH_MAX_ATTEMPTS: '1', ANCHOR_ALERT_BACKEND: 'log',
   FAKE_HEADLESS_LOG: join(homedir(), '.cache/anchor-lab/fixers/fake-headless.log'),
 }
