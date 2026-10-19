@@ -267,7 +267,7 @@ const DownloadAttachmentSchema = z.object({
     messageId: z.string().describe("ID of the email message containing the attachment"),
     attachmentId: z.string().describe("ID of the attachment to download"),
     filename: z.string().optional().describe("Filename to save the attachment as (if not provided, uses original filename)"),
-    savePath: z.string().optional().describe("Directory path to save the attachment (defaults to current directory)"),
+    savePath: z.string().optional().describe("Directory path to save the attachment (defaults to ~/Downloads/gmail-attachments). Existing files are never overwritten."),
 });
 // Main function
 async function main() {
@@ -1077,7 +1077,7 @@ async function main() {
                         const data = attachmentResponse.data.data;
                         const buffer = Buffer.from(data, 'base64url');
                         // Determine save path and filename
-                        const savePath = validatedArgs.savePath || process.cwd();
+                        const savePath = validatedArgs.savePath || path.join(os.homedir(), 'Downloads', 'gmail-attachments');
                         let filename = validatedArgs.filename;
                         if (!filename) {
                             // Get original filename from message if not provided
@@ -1117,15 +1117,27 @@ async function main() {
                         if (path.dirname(fullPath) !== baseDir) {
                             throw new Error(`Refusing to write attachment outside ${baseDir}`);
                         }
-                        if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isSymbolicLink()) {
-                            throw new Error(`Refusing to overwrite symlink ${fullPath}`);
+                        // Never overwrite: a name like .zshrc in a trusted folder must not replace
+                        // the real file. Hidden names get a prefix; taken names get a numbered suffix.
+                        if (filename.startsWith('.')) filename = `attachment${filename}`;
+                        const parsed = path.parse(filename);
+                        let target = path.resolve(baseDir, filename);
+                        for (let n = 1; ; n++) {
+                            try {
+                                fs.writeFileSync(target, buffer, { flag: 'wx', mode: 0o600 });
+                                break;
+                            } catch (err) {
+                                if (err.code !== 'EEXIST' || n > 999) throw err;
+                                filename = `${parsed.name} (${n})${parsed.ext}`;
+                                target = path.resolve(baseDir, filename);
+                            }
                         }
-                        fs.writeFileSync(fullPath, buffer, { mode: 0o600 });
+                        const savedPath = target;
                         return {
                             content: [
                                 {
                                     type: "text",
-                                    text: `Attachment downloaded successfully:\nFile: ${filename}\nSize: ${buffer.length} bytes\nSaved to: ${fullPath}`,
+                                    text: `Attachment downloaded successfully:\nFile: ${filename}\nSize: ${buffer.length} bytes\nSaved to: ${savedPath}`,
                                 },
                             ],
                         };
