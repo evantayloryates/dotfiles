@@ -123,6 +123,9 @@ export async function summarizeObject(client, item) {
 
 export async function runArchive({ db, client, log = () => {}, now = Date.now(), maxMinutes = 50, overlapDays = 3, days: onlyDays, startConcurrency = 32, maxConcurrency = 128, runId, trigger = 'manual', minFreeGb = 15, shouldStop = () => false, beat = () => {}, outageMinutes = 20, probeMs = 15_000 }) {
   const deadline = Date.now() + maxMinutes * 60_000 // wall clock; `now` only fixes which days count
+  // Listing and sealing times are compared with `now`-based dates, so stamp them on the run's clock.
+  const wall0 = Date.now()
+  const clock = () => new Date(now + (Date.now() - wall0)).toISOString()
   const today = new Date(now).toISOString().slice(0, 10)
   const sealBefore = new Date(now - overlapDays * 86_400_000).toISOString().slice(0, 10)
   const throttle = new Throttle({ start: startConcurrency, max: maxConcurrency, onChange: (dir, limit) => log({ event: 'concurrency', dir, limit }) })
@@ -240,7 +243,7 @@ export async function runArchive({ db, client, log = () => {}, now = Date.now(),
     }
     if (token || listCut) break
     if (!settledListing) {
-      q.listed.run(n, new Date().toISOString(), day)
+      q.listed.run(n, clock(), day)
       s.days_listed++
       log({ event: 'day_listed', day, objects: n })
     }
@@ -326,7 +329,7 @@ export async function runArchive({ db, client, log = () => {}, now = Date.now(),
     q.dayStats.run(c.done || 0, c.failed || 0, c.missing || 0, c.bytes || 0, day)
     const settled = (c.pending || 0) === 0 && (c.failed || 0) === (c.dead || 0)
     if (day < sealBefore && settled) {
-      tx(() => { q.seal.run(new Date().toISOString(), day); q.dropKeys.run(day) })
+      tx(() => { q.seal.run(clock(), day); q.dropKeys.run(day) })
       s.sealed.push(day)
       log({ event: 'day_sealed', day, done: c.done, failed: c.failed || 0, missing: c.missing || 0 })
     }
