@@ -369,6 +369,14 @@ signature, unlocked parser state and the advancing heartbeat verified with the
 same broker/keepalive identities. No software repair or extra auth wake was needed;
 the exact renewal trigger remains unproven.
 
+The [October 19 app-lock incident](autofixes/oct-19-5a/summary.md) confirmed a
+timestamped lock at 05:51:43 Eastern while the broker and keepalive remained
+healthy. Matching deployed hashes, signature, parser state, an advancing heartbeat,
+81 synthetic tests and a version-only wrapper check verified without restarting
+either process. No code change was warranted. The account successes at 05:48
+predated the lock and do not prove current authorization; unlock and any required
+native consent remain Taylor's actions, with recovery owning the auth wake.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:
