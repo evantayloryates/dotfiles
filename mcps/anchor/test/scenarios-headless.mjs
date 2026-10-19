@@ -51,8 +51,16 @@ for (const id of SVCS) {
   tool('release', id); tool('promote', id)
   original[id] = { index: read(id, 'index.mjs'), manifest: read(id, 'service.json') }
 }
+// B2: a gateway service whose server crashes when used. It releases fine,
+// fails on stable with nothing to fall back to, and must never get a fixer.
+rmSync('test/services/gw', { recursive: true, force: true }); mkdirSync('test/services/gw', { recursive: true })
+writeFileSync('test/services/gw/service.json', JSON.stringify({ description: 'gw gateway test service', version: '2026-10-19.001', operations: { get: { description: 'Read.', class: 'read' } } }, null, 2))
+writeFileSync('test/services/gw/gateway.json', JSON.stringify({ command: [process.execPath, join(P.lab, 'test/fake-gateway-server.mjs')], startTimeoutMs: 10000 }))
+writeFileSync('test/services/gw/GUIDE.md', '# gw\n')
+tool('release', 'gw'); tool('promote', 'gw')
 const h = await startHarness({ name: 'chat-headless', env: ENV })
 for (const id of SVCS) await h.call('anchor_run', { calls: [{ target: `${id}:get`, args: { x: 'bad' } }] })
+await h.call('anchor_run', { calls: [{ target: 'gw:get', args: {} }] })
 const list = async () => (await h.call('anchor_run', { calls: [{ target: 'anchor:ticket.list', args: { mine: false } }] })).data[0].value
 const until = Date.now() + 40000
 let tickets = []
@@ -95,6 +103,9 @@ check('a fix that adds reach is rejected by review, escalated, never applied', b
 const plantWs = wsOf('planter')
 check('a planted review folder is ignored: the review runs in a fresh folder of its own', by('planter')?.state === 'fixed' && plantWs && !existsSync(join(plantWs, 'service', 'diff.txt')) && !existsSync(join(plantWs, 'service', 'before')) && !existsSync('test/services/planter/diff.txt'), JSON.stringify({ state: by('planter')?.state, plantWs }))
 check('an answer with two verdicts counts as no verdict', by('twice')?.state === 'escalated' && /code review gave no verdict/.test(why('twice')), why('twice'))
+const gw = (await list()).find((t) => t.service === 'gw' && t.kind === 'hotfix')
+const alertsLog = readFileSync(join(P.stateDir, 'notifications.log'), 'utf8')
+check('a gateway service gets a ticket and an alert, never a fixer', gw?.state === 'escalated' && /no fixer sent: gw is a gateway service/.test(JSON.stringify(gw.history)) && !(gw.history || []).some((h) => h.state === 'dispatched') && alertsLog.includes(`ticket:${gw.id}`), JSON.stringify({ gw: gw && { state: gw.state, history: gw.history }}))
 check('no verdict from review fails closed', by('mute')?.state === 'escalated' && /code review gave no verdict/.test(why('mute')), why('mute'))
 check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => !['fixit', 'loadtime', 'planter'].includes(id)).every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
 
@@ -104,6 +115,7 @@ console.log(`\n${results.filter((x) => x.ok).length}/${results.length} passed`)
 killDaemon()
 try { execSync('pkill -f fake-headless.mjs') } catch {}
 for (const id of SVCS) rmSync(`test/services/${id}`, { recursive: true, force: true })
+rmSync('test/services/gw', { recursive: true, force: true })
 rmSync(SECRET_DIR, { recursive: true, force: true })
 sockServer.close(); rmSync(PROBE_SOCK, { force: true })
 rmSync(join(homedir(), 'anchor-check-escape.txt'), { force: true })

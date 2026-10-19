@@ -7,13 +7,16 @@
 //   {"outcome":"failed","reason":"..."}
 // The daemon stays the only writer of tickets: fixers report, it records.
 //
+// Gateway services (a gateway.json) are never dispatched: their tickets are
+// escalated to Taylor with the reason, and he gets an alert.
+//
 // Lanes: hotfix tickets are dispatched at once, one per service at a time.
 // Standard tickets (when enabled) go one at a time fleet-wide, highest
 // priority first. A failed or timed-out attempt reopens the ticket with a
 // backoff; after maxAttempts it is escalated to Taylor.
 
 import { spawn } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 export class Dispatcher {
@@ -58,6 +61,15 @@ export class Dispatcher {
 
   dispatch(ticket) {
     const t = this.book.get(ticket.id)
+    // A gateway service's code is a fleet server in mcps/<id>, which a
+    // fixer's copy of the anchor service folder does not contain: no fixer
+    // can help, so the ticket goes straight to Taylor (B2).
+    if (existsSync(join(this.servicesDir, t.service, 'gateway.json'))) {
+      const reason = `no fixer sent: ${t.service} is a gateway service, its code lives in mcps/${t.service} in the dotfiles repo, which fixers cannot reach`
+      this.book.setState(t.id, 'escalated', { note: reason })
+      this.notify('ESCALATED', `${t.id} ${t.service}: ${t.title} (${reason})`, t.id)
+      return
+    }
     const attempt = (t.attempts || 0) + 1
     this.busyServices.add(t.service)
     if (t.lane === 'standard') this.standardRunning++

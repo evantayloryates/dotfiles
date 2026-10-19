@@ -812,6 +812,19 @@ processes were left running.
     in `~/.claude.json` was compared before and after: unchanged, nothing
     removed. Rollback is `claude mcp remove -s user anchor`.
 
+58. **A4: restart done; anchor is live in this session** (2026-10-19). After
+    Taylor's restart the session had anchor's three tools and its
+    instructions. The live daemon runs from `~/.local/state/mcps/anchor` on
+    the build on disk, with the release settings, and 13 chats connected at
+    once.
+59. **B2: gateway services get tickets and alerts, never fixers.** A
+    gateway service's code is the fleet server in `mcps/<id>`; a fixer's
+    copy of the anchor service folder holds only its manifest. The
+    dispatcher now escalates such a ticket at once, saying why no fixer was
+    sent, and Taylor gets an alert. Headless 28/28, with a fake gateway
+    server that releases fine and crashes on use: hotfix ticket escalated,
+    never dispatched, alert raised.
+
     From here the front end is frozen (playbook rule): later changes go to
     the daemon side, which the drain delivers.
 
