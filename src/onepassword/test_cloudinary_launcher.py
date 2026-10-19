@@ -16,7 +16,7 @@ class CloudinaryLauncherTests(unittest.TestCase):
             root = Path(tmp)
             for directory in ['src/mcps', 'src/lib', 'bin']:
                 (root / directory).mkdir(parents=True)
-            shutil.copy2(DOTFILES / 'src/mcps/kickoff-cloudinary-mcp', root / 'src/mcps/launcher')
+            shutil.copy2(DOTFILES / 'mcps/.archive/kickoff-cloudinary/src/launch', root / 'src/mcps/launcher')
             shutil.copy2(DOTFILES / 'src/lib/read-env.sh', root / 'src/lib/read-env.sh')
             (root / 'src/lib/resolve-binary.sh').write_text('resolve_binary() { printf "%s/bin/%s" "$DOTFILES_DIR" "$1"; }\n')
             (root / '.env').write_text('KICKOFF_CLOUDINARY_CLOUD_NAME=' + cloud + '\nUNRELATED_SECRET=should-not-load\n')

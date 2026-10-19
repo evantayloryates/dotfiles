@@ -4,6 +4,8 @@
   kck rearm                         ask: "Rearm for 6:50p today? [Y/n]" (Enter = yes), or step through
                                     year, month, day, hour (1-12), minute, am/pm under a live preview
   kck rearm -m10 -d18 -h15 -min30   no questions: use these parts, the rest default to now (America/New_York)
+  kck rearm --slot dev ...          the fleet's dev call (slot 4: David Whitmore / Dana Ashby, S3TOD9C7O)
+                                    instead of Taylor's slot-3 call (Carl Jones / Cristal, APXP2TVRK), the default
 
 The default offered is the last time used for the current call, else the next 5-minute mark after now.
 Runs ~/src/github/kickoff/.scratch/mono-smoke/rearm.sh, which moves the same call and pre-creates its Twilio
@@ -159,8 +161,11 @@ def save_state(call_id, at):
     STATE.write_text(json.dumps(state, indent=2) + '\n')
 
 
+SLOT = '3'
+
+
 def current_call():
-    out = subprocess.run(['bash', str(REARM), '--call-id'], capture_output=True, text=True)
+    out = subprocess.run(['bash', str(REARM), '--slot', SLOT, '--call-id'], capture_output=True, text=True)
     if out.returncode != 0:
         raise SystemExit(f'kck rearm: could not read the smoke call (is Docker up?)\n{out.stderr.strip()}')
     return (out.stdout.split() or ['none'])[0]
@@ -190,7 +195,7 @@ def read_links():
 
 def run_rearm(at, call_id):
     args = ['-y', str(at.year), '-mo', str(at.month), '-d', str(at.day), '-h', str(at.hour), '-min', str(at.minute)]
-    proc = subprocess.run(['bash', str(REARM), *args], capture_output=True, text=True)
+    proc = subprocess.run(['bash', str(REARM), '--slot', SLOT, *args], capture_output=True, text=True)
     for line in proc.stdout.splitlines():
         if line.startswith('CALL_ID='):
             call_id = line.split('=', 1)[1].strip()
@@ -202,7 +207,10 @@ def run_rearm(at, call_id):
         for l in detail[-6:]:
             print(color(f'   {l}', '90'))
         raise SystemExit(proc.returncode or 1)
-    print(f'✅ Rearm Succeeded for call {call_id}')
+    print(f'✅ Rearm Succeeded for call {call_id}' + (' (dev slot 4)' if SLOT == 'dev' else ''))
+    if SLOT == 'dev':
+        print(f"🔗 Meeting:   {link('http://localhost:3040/meet/S3TOD9C7O')}  (sign in with yarn dev:login on slot 4)")
+        return call_id
     links = read_links()
     print()
     print(f"🔗 Client:    {link(links['CLIENT']) if 'CLIENT' in links else '(no client link in links.env)'}")
@@ -215,19 +223,41 @@ def run_rearm(at, call_id):
     return call_id
 
 
+def take_slot(args):
+    """Pull --slot/-s (3 or dev) out of args; default 3."""
+    global SLOT
+    rest, i = [], 0
+    while i < len(args):
+        a = args[i]
+        if a in ('--slot', '-s'):
+            SLOT = args[i + 1] if i + 1 < len(args) else ''
+            i += 2
+            continue
+        if a.startswith('--slot='):
+            SLOT = a.split('=', 1)[1]
+        else:
+            rest.append(a)
+        i += 1
+    SLOT = {'d': 'dev', '4': 'dev'}.get(SLOT, SLOT)
+    if SLOT not in ('3', 'dev'):
+        raise SystemExit('kck rearm: --slot must be 3 or dev')
+    return rest
+
+
 def main():
     now = datetime.now(ET)
+    sys.argv[1:] = take_slot(sys.argv[1:])
     if sys.argv[1:] and sys.argv[1] in ('-?', '--help', 'help'):
         print(__doc__.strip())
         return
     call_id = current_call()
     if sys.argv[1:]:
         at = parse_flags(sys.argv[1:], now)
-        print(f'Rearm for {describe(at, now)}')
+        print(f"Rearm {'dev call ' if SLOT == 'dev' else ''}for {describe(at, now)}")
     else:
         stored = load_state().get(call_id)
         at = datetime.fromisoformat(stored).astimezone(ET) if stored else next_five(now)
-        got = input(f'Rearm for {describe(at, now)}? [Y/n] ').strip().lower()
+        got = input(f"Rearm {'dev call ' if SLOT == 'dev' else ''}for {describe(at, now)}? [Y/n] ").strip().lower()
         if got not in ('', 'y', 'yes'):
             at = ask_parts(at)
     new_id = run_rearm(at, call_id) or call_id

@@ -1,0 +1,17 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "db-sca-prod",
+  "description": "Read-only Postgres for the sca production database over an SSH tunnel through the ops bastion.",
+  "kind": "wrapped",
+  "launcher": "src/launch",
+  "env": {
+    "SPBK_BASTION_HOST": "dotfiles-env",
+    "SPBK_BASTION_USER": "dotfiles-env",
+    "SCA_PROD_DB_HOST": "dotfiles-env",
+    "SCA_PROD_DB_NAME": "dotfiles-env",
+    "SCA_PROD_DB_USER": "dotfiles-env",
+    "SCA_READ_ONLY_FIVETRAN_PROD_DB_PASSWORD": "dotfiles-env"
+  },
+  "requires": ["file:~/.ssh/spbk-ops.pem"],
+  "harnesses": { "codex": { "enabled": false } }
+}

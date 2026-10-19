@@ -11,11 +11,6 @@
    "startup_timeout_sec": 120.0,
    "tool_timeout_sec": 120.0
   },
-  "kickoff-cloudinary": {
-   "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
-   "startup_timeout_sec": 60.0,
-   "tool_timeout_sec": 120.0
-  },
   "claude-driver": {
    "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
    "tool_timeout_sec": 300.0
@@ -61,12 +56,6 @@
     "personal-primary"
    ]
   },
-  "kickoff-cloudinary": {
-   "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
-   "args": [],
-   "env": {}
-  },
   "claude-driver": {
    "type": "stdio",
    "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
@@ -105,11 +94,13 @@
  "removed_servers": {
   "codex": [
    "gmail_work_primary",
-   "kickoff-notion"
+   "kickoff-notion",
+   "kickoff-cloudinary"
   ],
   "claude": [
    "gmail-work-primary",
-   "kickoff-notion"
+   "kickoff-notion",
+   "kickoff-cloudinary"
   ]
  }
 }
