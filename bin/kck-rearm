@@ -6,10 +6,12 @@
   kck rearm -m10 -d18 -h15 -min30   no questions: use these parts, the rest default to now (America/New_York)
   kck rearm --slot dev ...          the fleet's dev call (slot 4: David Whitmore / Dana Ashby, S3TOD9C7O)
                                     instead of Taylor's slot-3 call (Carl Jones / Cristal, APXP2TVRK), the default
+  kck rearm --recording off ...     arm the room with recording paused; the default is on, so live captions run
 
 The default offered is the last time used for the current call, else the next 5-minute mark after now.
 Runs ~/src/github/kickoff/.scratch/mono-smoke/rearm.sh, which moves the same call and pre-creates its Twilio
-room with recording off. Last-used times are kept in ~/.local/state/kck-rearm/last.json, keyed by call id.
+room with recording on (or off with --recording off), reading the state back from Twilio and the app.
+Last-used times are kept in ~/.local/state/kck-rearm/last.json, keyed by call id.
 """
 import json
 import os
@@ -162,6 +164,7 @@ def save_state(call_id, at):
 
 
 SLOT = '3'
+RECORDING = 'on'
 
 
 def current_call():
@@ -195,7 +198,7 @@ def read_links():
 
 def run_rearm(at, call_id):
     args = ['-y', str(at.year), '-mo', str(at.month), '-d', str(at.day), '-h', str(at.hour), '-min', str(at.minute)]
-    proc = subprocess.run(['bash', str(REARM), '--slot', SLOT, *args], capture_output=True, text=True)
+    proc = subprocess.run(['bash', str(REARM), '--slot', SLOT, '--recording', RECORDING, *args], capture_output=True, text=True)
     for line in proc.stdout.splitlines():
         if line.startswith('CALL_ID='):
             call_id = line.split('=', 1)[1].strip()
@@ -207,7 +210,7 @@ def run_rearm(at, call_id):
         for l in detail[-6:]:
             print(color(f'   {l}', '90'))
         raise SystemExit(proc.returncode or 1)
-    print(f'✅ Rearm Succeeded for call {call_id}' + (' (dev slot 4)' if SLOT == 'dev' else ''))
+    print(f'✅ Rearm Succeeded for call {call_id}' + (' (dev slot 4)' if SLOT == 'dev' else '') + f', recording {RECORDING}')
     if SLOT == 'dev':
         print(f"🔗 Meeting:   {link('http://localhost:3040/meet/S3TOD9C7O')}  (sign in with yarn dev:login on slot 4)")
         return call_id
@@ -224,8 +227,8 @@ def run_rearm(at, call_id):
 
 
 def take_slot(args):
-    """Pull --slot/-s (3 or dev) out of args; default 3."""
-    global SLOT
+    """Pull --slot/-s (3 or dev, default 3) and --recording/-r (on or off, default on) out of args."""
+    global SLOT, RECORDING
     rest, i = [], 0
     while i < len(args):
         a = args[i]
@@ -233,14 +236,22 @@ def take_slot(args):
             SLOT = args[i + 1] if i + 1 < len(args) else ''
             i += 2
             continue
+        if a in ('--recording', '-r'):
+            RECORDING = args[i + 1] if i + 1 < len(args) else ''
+            i += 2
+            continue
         if a.startswith('--slot='):
             SLOT = a.split('=', 1)[1]
+        elif a.startswith('--recording='):
+            RECORDING = a.split('=', 1)[1]
         else:
             rest.append(a)
         i += 1
     SLOT = {'d': 'dev', '4': 'dev'}.get(SLOT, SLOT)
     if SLOT not in ('3', 'dev'):
         raise SystemExit('kck rearm: --slot must be 3 or dev')
+    if RECORDING not in ('on', 'off'):
+        raise SystemExit('kck rearm: --recording must be on or off')
     return rest
 
 

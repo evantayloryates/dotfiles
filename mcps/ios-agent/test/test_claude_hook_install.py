@@ -16,7 +16,7 @@ class HookInstallTests(unittest.TestCase):
                         'hooks': {'Stop': [{'hooks': [{'type': 'command', 'command': 'existing'}]}]}}
             path.write_text(json.dumps(original))
             old = path.read_bytes()
-            self.assertEqual(install(path, True)['addedEntries'], 4)
+            self.assertEqual(install(path, True)['addedEntries'], 3)
             self.assertEqual(path.read_bytes(), old)
             self.assertTrue(install(path)['changed'])
             data = json.loads(path.read_text())
@@ -69,13 +69,27 @@ class HookInstallTests(unittest.TestCase):
             path = Path(folder) / 'settings.json'
             expected = json.loads(SOURCE.read_text())
             data = json.loads(json.dumps(expected))
-            for event in ('Stop', 'StopFailure', 'SessionEnd'):
+            for event in ('Stop', 'StopFailure'):
                 data['hooks'][event][0]['hooks'][0]['timeout'] = 90
                 if event == 'Stop': data['hooks'][event].append(expected['hooks'][event][0])
+            # A SessionEnd entry an older install wrote: retired, so removed.
+            data['hooks']['SessionEnd'] = [json.loads(json.dumps(expected['hooks']['Stop'][0]))]
             path.write_text(json.dumps(data))
-            self.assertEqual(install(path)['updatedEntries'], 3)
+            result = install(path)
+            self.assertEqual((result['updatedEntries'], result['removedSessionEnd']), (3, 1))
             self.assertEqual(json.loads(path.read_text()), expected)
             self.assertFalse(install(path)['changed'])
+
+    def test_retired_session_end_removal_keeps_foreign_hooks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'settings.json'
+            expected = json.loads(SOURCE.read_text())
+            foreign = {'hooks': [{'type': 'command', 'command': 'echo', 'args': ['bye']}]}
+            data = json.loads(json.dumps(expected))
+            data['hooks']['SessionEnd'] = [json.loads(json.dumps(expected['hooks']['Stop'][0])), foreign]
+            path.write_text(json.dumps(data))
+            self.assertEqual(install(path)['removedSessionEnd'], 1)
+            self.assertEqual(json.loads(path.read_text())['hooks']['SessionEnd'], [foreign])
 
 
 if __name__ == '__main__': unittest.main()

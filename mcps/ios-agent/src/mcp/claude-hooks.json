@@ -1,74 +1,56 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "^mcp__ios-agent__ios_(begin|web_begin|web_open|system_begin)$",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": [
-              "/Users/taylor/dotfiles/mcps/ios-agent/src/claude-begin-hook.mjs",
-              "--main-agent-only"
-            ],
-            "timeout": 5
-          }
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "^mcp__ios-agent__ios_(begin|web_begin|web_open|system_begin)$",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node",
+                        "args": [
+                            "/Users/taylor/dotfiles/mcps/ios-agent/src/claude-begin-hook.mjs",
+                            "--main-agent-only"
+                        ],
+                        "timeout": 5
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "mcp_tool",
+                        "server": "ios-agent",
+                        "tool": "ios_harness_end",
+                        "input": {
+                            "event": "${hook_event_name}",
+                            "sessionId": "${session_id}",
+                            "promptId": "${prompt_id}",
+                            "agentId": "${agent_id}"
+                        },
+                        "timeout": 150
+                    }
+                ]
+            }
+        ],
+        "StopFailure": [
+            {
+                "hooks": [
+                    {
+                        "type": "mcp_tool",
+                        "server": "ios-agent",
+                        "tool": "ios_harness_end",
+                        "input": {
+                            "event": "${hook_event_name}",
+                            "sessionId": "${session_id}",
+                            "promptId": "${prompt_id}",
+                            "agentId": "${agent_id}"
+                        },
+                        "timeout": 150
+                    }
+                ]
+            }
         ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "mcp_tool",
-            "server": "ios-agent",
-            "tool": "ios_harness_end",
-            "input": {
-              "event": "${hook_event_name}",
-              "sessionId": "${session_id}",
-              "promptId": "${prompt_id}",
-              "agentId": "${agent_id}"
-            },
-            "timeout": 150
-          }
-        ]
-      }
-    ],
-    "StopFailure": [
-      {
-        "hooks": [
-          {
-            "type": "mcp_tool",
-            "server": "ios-agent",
-            "tool": "ios_harness_end",
-            "input": {
-              "event": "${hook_event_name}",
-              "sessionId": "${session_id}",
-              "promptId": "${prompt_id}",
-              "agentId": "${agent_id}"
-            },
-            "timeout": 150
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "mcp_tool",
-            "server": "ios-agent",
-            "tool": "ios_harness_end",
-            "input": {
-              "event": "${hook_event_name}",
-              "sessionId": "${session_id}",
-              "promptId": "${prompt_id}",
-              "agentId": "${agent_id}"
-            },
-            "timeout": 150
-          }
-        ]
-      }
-    ]
-  }
+    }
 }

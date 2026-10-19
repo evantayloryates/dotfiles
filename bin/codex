@@ -1,0 +1,16 @@
+#!/bin/sh
+# Codex CLI, always the same build as the shared background daemon.
+#
+# The ChatGPT app installs and updates Codex's shared app-server daemon from
+# its own (alpha) builds under ~/.codex/packages/app-server-daemon/current.
+# The standalone CLI (~/.local/bin/codex, stable channel) drifts behind it,
+# and the two cannot share the daemon: feature defaults differ by version
+# ("Background server has incompatible feature settings", 2026-10-19:
+# 0.159.3 against 0.163.0-alpha). Running the daemon's own CLI keeps the
+# terminal and the daemon in step; without a daemon release, the standalone
+# CLI runs as before.
+set -eu
+daemon="$HOME/.codex/packages/app-server-daemon/current/bin/codex"
+standalone="$HOME/.codex/packages/standalone/current/bin/codex"
+if [ -x "$daemon" ]; then exec "$daemon" "$@"; fi
+exec "$standalone" "$@"
