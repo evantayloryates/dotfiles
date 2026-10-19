@@ -8,7 +8,8 @@
 
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { paths } from './paths.mjs'
@@ -19,11 +20,18 @@ const HOST = fileURLToPath(new URL('./service-host.mjs', import.meta.url))
 
 // ANCHOR_CHECK_SANDBOX=1 (set by fixers before releasing their own change):
 // the probes that run the service's code run under a no-network sandbox.
+// Sandboxed probes get a minimal environment and a private temp folder,
+// removed afterwards.
 const run = (args, timeout, dir) => new Promise((resolve) => {
-  const [bin, argv] = process.env.ANCHOR_CHECK_SANDBOX === '1' && dir
-    ? ['/usr/bin/sandbox-exec', ['-p', checkProfile(dir), process.execPath, ...args]]
-    : [process.execPath, args]
-  execFile(bin, argv, { timeout, maxBuffer: 1 << 20 }, (err, stdout, stderr) => resolve({ err, stdout, stderr }))
+  if (!(process.env.ANCHOR_CHECK_SANDBOX === '1' && dir)) {
+    return execFile(process.execPath, args, { timeout, maxBuffer: 1 << 20 }, (err, stdout, stderr) => resolve({ err, stdout, stderr }))
+  }
+  const tmp = mkdtempSync(join(tmpdir(), 'anchor-check-'))
+  const env = { HOME: process.env.HOME, PATH: '/usr/bin:/bin', TMPDIR: `${tmp}/` }
+  execFile('/usr/bin/sandbox-exec', ['-p', checkProfile(dir, tmp), process.execPath, ...args], { timeout, maxBuffer: 1 << 20, env }, (err, stdout, stderr) => {
+    rmSync(tmp, { recursive: true, force: true })
+    resolve({ err, stdout, stderr })
+  })
 })
 const lastError = (stderr) => String(stderr).split('\n').map((l) => l.trim()).filter((l) => /Error/.test(l) && !/^Node\.js v/.test(l)).pop() || String(stderr).trim().split('\n').pop()
 

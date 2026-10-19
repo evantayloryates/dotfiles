@@ -684,6 +684,23 @@ processes were left running.
     reveal. With mDNSResponder allowed, a real fixer fixed `mend` on the
     subscription.
 
+51. **Security review, second pass: the check sandbox.** The new check
+    profile let checked code inherit the daemon's environment, write to
+    shared temp folders and start other programs. Starting `launchctl`
+    could submit a job that runs outside the sandbox.
+    - **Check profile:** it may now run only node itself. It gets
+      `HOME`, `PATH` and a private temp folder (deleted afterwards) as its
+      whole environment, and the LaunchServices and quarantine denials
+      match the fixer profile.
+    - **Fixer profile:** `launchctl`, `osascript` and `open` are denied
+      (fixers still need a shell).
+
+    Fixers write only `.mjs`, `.js`, `.json` and `.md` files, so no native
+    addon can reach system services. Headless 22/22: 15 escape probes all
+    denied, including `launchctl`, and a load-time module that tries a
+    shell and `launchctl` leaves no file. All suites pass, and a real fixer
+    still fixes on the subscription.
+
 50. **Open exposure, for Taylor.** Once released, a fixer's code runs in
     the service host like any service: unsandboxed, with the daemon's
     rights. The sandbox covers writing and checking the fix, not running

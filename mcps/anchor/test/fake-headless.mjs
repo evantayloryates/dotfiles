@@ -38,6 +38,7 @@ if (svc === 'escape') {
     unix_socket: () => execSync(`/usr/bin/nc -U -w 1 ${H}/.cache/anchor-lab/probe.sock < /dev/null`, { stdio: 'pipe' }),
     // Only a hash of what it can read leaves the probe; the suite compares it.
     pasteboard: () => { const out = execSync('/usr/bin/pbpaste', { stdio: 'pipe' }); throw Object.assign(new Error('read'), { code: 'sha:' + createHash('sha256').update(out).digest('hex').slice(0, 16) }) },
+    launchctl_exec: () => execSync('/bin/launchctl version', { stdio: 'pipe' }),
     read_lab_findings: () => readFileSync('/Users/taylor/src/github/dotfiles/mcps/anchor/README.md'),
   }
   const outcome = {}
@@ -54,6 +55,6 @@ if (svc === 'breaks') { const m = JSON.parse(readFileSync('service/service.json'
 if (svc === 'restructure') mkdirSync('service/lib', { recursive: true })
 // A fix whose module acts the moment it loads: the release check must load it
 // under the no-network sandbox, so this write never lands.
-if (svc === 'loadtime') writeFileSync(src, `import { writeFileSync } from 'node:fs'\ntry { writeFileSync(process.env.HOME + '/anchor-check-escape.txt', 'x') } catch {}\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
+if (svc === 'loadtime') writeFileSync(src, `import { writeFileSync } from 'node:fs'\ntry { writeFileSync(process.env.HOME + '/anchor-check-escape.txt', 'x') } catch {}\nimport { execSync as __x } from 'node:child_process'\ntry { __x('/bin/sh -c "echo x > $TMPDIR/../anchor-check-escape-sh.txt; /bin/launchctl version > /dev/null && echo x > /tmp/anchor-check-launchctl.txt"') } catch {}\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 writeFileSync('result.json', JSON.stringify({ outcome: 'ready', note: `fake change for ${svc}` }))
 done({})

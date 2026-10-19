@@ -63,6 +63,9 @@ export function profile(workspace, { extraReads = [] } = {}) {
     '(allow file-write* (literal "/dev/null") (literal "/dev/zero") (literal "/dev/dtracehelper") (regex #"^/dev/tty") (regex #"^/dev/fd/") (regex #"^/dev/ptmx$") (regex #"^/dev/ttys"))',
     '; No asking other processes to act outside the sandbox: AppleEvents to',
     '; other apps, and app launches through LaunchServices (`open`).',
+    '; No handing work to something outside the sandbox: launchd jobs,',
+    '; AppleScript, app launches.',
+    '(deny process-exec (literal "/bin/launchctl") (literal "/usr/bin/osascript") (literal "/usr/bin/open"))',
     '(deny appleevent-send)',
     '; No local sockets (anchor\'s own daemon, the 1Password broker, other',
     '; agents) and no pasteboard: the model API is reached over TCP only.',
@@ -107,9 +110,11 @@ export function prepare(workspace, cli, { extraReads = [] } = {}) {
 }
 
 // Profile for running code a fixer wrote (the release check's probes): no
-// network at all, no writes outside temp, and home-folder reads limited to the
-// allow list plus the folder being checked.
-export function checkProfile(dir) {
+// network, no programs but node, writes only to a private temp folder, and
+// home-folder reads limited to the allow list plus the folder being checked.
+// Fixers write only .mjs, .js, .json and .md files, so no native addon can
+// reach the system's services another way.
+export function checkProfile(dir, tmp) {
   const d = real(dir)
   const allow = [...READ_ALLOW.map(real), d]
   return [
@@ -117,9 +122,12 @@ export function checkProfile(dir) {
     '(allow default)',
     '(deny network*)',
     '(deny file-write* (subpath "/"))',
-    '(allow file-write* (literal "/dev/null") (regex #"^/dev/fd/") (subpath "/private/tmp") (subpath "/private/var/folders"))',
+    `(allow file-write* (literal "/dev/null") (regex #"^/dev/fd/") (subpath ${q(real(tmp))}))`,
+    '; It may run node and nothing else: no shell, no launchctl, no helpers.',
+    '(deny process-exec*)',
+    `(allow process-exec (literal ${q(real(process.execPath))}))`,
     '(deny appleevent-send)',
-    '(deny mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.lsd.open") (global-name "com.apple.pasteboard.1"))',
+    '(deny mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.lsd.mapdb") (global-name "com.apple.lsd.open") (global-name "com.apple.coreservices.quarantine-resolver") (global-name "com.apple.pasteboard.1"))',
     ...SECRET_READS.map((p) => `(deny file-read* (subpath ${q(real(p))}))`),
     '(deny file-read* (subpath "/Users"))',
     `(allow file-read* (literal ${q(join(H, '.CFUserTextEncoding'))}))`,
