@@ -64,12 +64,18 @@ export function serveMcp({ name, version, instructions, tools, resources = [], l
       case 'initialize': {
         const requested = params?.protocolVersion
         client = params?.clientInfo || null
-        return reply(id, {
+        const respond = (text) => reply(id, {
           protocolVersion: SUPPORTED_PROTOCOLS.includes(requested) ? requested : SUPPORTED_PROTOCOLS[0],
           capabilities: resources.length ? { tools: {}, resources: {} } : { tools: {} },
           serverInfo: { name, version },
-          instructions,
+          instructions: text,
         })
+        // instructions may be a function of the client's identity, computed
+        // per connection (the anchor composes them from every service).
+        if (typeof instructions !== 'function') return respond(instructions)
+        return void Promise.resolve()
+          .then(() => instructions(client))
+          .then(respond, (err) => { log(`instructions failed: ${err.message}`); respond(undefined) })
       }
       case 'ping':
         return reply(id, {})
