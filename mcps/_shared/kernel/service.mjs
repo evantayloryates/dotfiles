@@ -82,13 +82,52 @@ function standardTools({ prefix, guide, releases, id }) {
   ]
 }
 
+// Checks arguments against the tool's inputSchema before its handler runs:
+// required keys, no unknown keys when additionalProperties is false, JSON
+// types and enums. Handlers can rely on these instead of re-checking.
+const TYPE = {
+  string: (v) => typeof v === 'string',
+  number: (v) => typeof v === 'number' && Number.isFinite(v),
+  integer: Number.isInteger,
+  boolean: (v) => typeof v === 'boolean',
+  array: Array.isArray,
+  object: (v) => v !== null && typeof v === 'object' && !Array.isArray(v),
+}
+
+export function checkArgs(schema = {}, args = {}) {
+  const props = schema.properties || {}
+  for (const key of schema.required || []) if (args[key] === undefined) return `"${key}" is required`
+  for (const [key, value] of Object.entries(args)) {
+    const spec = props[key]
+    if (!spec) {
+      if (schema.additionalProperties === false) return `unknown argument "${key}"; allowed: ${Object.keys(props).join(', ') || 'none'}`
+      continue
+    }
+    if (spec.type && TYPE[spec.type] && !TYPE[spec.type](value)) return `"${key}" must be a ${spec.type}`
+    if (spec.enum && !spec.enum.includes(value)) return `"${key}" must be one of ${spec.enum.join(', ')}`
+    if (spec.type === 'array' && spec.items?.type && !value.every(TYPE[spec.items.type] || (() => true))) return `"${key}" must be an array of ${spec.items.type}`
+  }
+  return null
+}
+
+function guarded(tool) {
+  return {
+    ...tool,
+    handler: (args = {}, ctx) => {
+      const problem = checkArgs(tool.inputSchema, args)
+      if (problem) throw Object.assign(new Error(problem), { expected: true })
+      return tool.handler(args, ctx)
+    },
+  }
+}
+
 export async function serveService(dir, { log = (...a) => console.error(...a) } = {}) {
   const manifest = await loadManifest(dir)
   const releases = parseChangelog(await readOptional(join(dir, 'CHANGELOG.md')))
   const guide = await readOptional(join(dir, 'GUIDE.md'))
   const own = await loadTools(dir)
   const prefix = manifest.toolPrefix || ''
-  const tools = [...own, ...standardTools({ prefix, guide, releases, id: manifest.id })]
+  const tools = [...own, ...standardTools({ prefix, guide, releases, id: manifest.id })].map(guarded)
   const names = new Set()
   for (const t of tools) {
     if (names.has(t.name)) throw new Error(`duplicate tool name ${t.name}`)

@@ -14,6 +14,9 @@ export default {
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   handler: async ({ action }, { signal }) => {
+    // Belt and braces with the kernel's schema check: only these two
+    // subcommands may reach the CLI (never run, stop, export or log).
+    if (action !== 'status' && action !== 'start') throw Object.assign(new Error('action must be status or start'), { expected: true })
     const r = await harnessCli(['terra-archive', action], { signal, timeoutMs: 120_000 })
     return [r.stdout, r.ok ? '' : r.stderr].filter(Boolean).join('\n')
   },
