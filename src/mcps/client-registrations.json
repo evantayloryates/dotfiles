@@ -3,8 +3,9 @@
  "scope": "Canonical fleet registrations; external host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
  "codex": {
   "gmail_personal_primary": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-primary"
    ],
    "startup_timeout_sec": 120.0,
@@ -20,16 +21,18 @@
    "tool_timeout_sec": 300.0
   },
   "gmail_personal_secondary": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-secondary"
    ],
    "startup_timeout_sec": 120.0,
    "tool_timeout_sec": 120.0
   },
   "gmail_personal_legacy": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-legacy"
    ],
    "startup_timeout_sec": 120.0,
@@ -52,8 +55,9 @@
  },
  "claude": {
   "gmail-personal-primary": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-primary"
    ]
   },
@@ -70,14 +74,16 @@
    "env": {}
   },
   "gmail-personal-secondary": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-secondary"
    ]
   },
   "gmail-personal-legacy": {
-   "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
+    "gmail",
     "personal-legacy"
    ]
   },

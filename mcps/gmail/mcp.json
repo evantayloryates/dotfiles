@@ -1,0 +1,22 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "gmail",
+  "description": "Taylor's personal Gmail accounts through a focused fork of gmail-mcp-multiauth; one profile per account.",
+  "kind": "wrapped",
+  "launcher": "src/launch",
+  "profiles": {
+    "personal-primary": {},
+    "personal-secondary": {},
+    "personal-legacy": {}
+  },
+  "env": {
+    "PERSONAL_GMAIL_APP_SECRET": { "from": ["dotfiles-env"] }
+  },
+  "requires": ["file:~/.gmail-mcp-accounts/<profile>/credentials.json"],
+  "cli": ["auth-gmail-account"],
+  "harnesses": {
+    "claude": {},
+    "claude-desktop": {},
+    "codex": { "startup_timeout_sec": 120, "tool_timeout_sec": 120 }
+  }
+}

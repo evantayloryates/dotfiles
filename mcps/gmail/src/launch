@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+# Account = profile. Started by mcps/_shared/bin/run gmail <account>, or
+# directly as src/launch <account> (gmail-mcp/run-gmail-mcp is a symlink here
+# for Claude desktop's registration).
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"; SOURCE="$(readlink "$SOURCE")"; [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+REPO="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+
+account="${1:-}"
+if [[ -z "$account" ]]; then
+  echo "Usage: $0 <personal-primary|personal-secondary|personal-legacy> [gmail-mcp-multiauth args...]" >&2
+  exit 64
+fi
+shift || true
+
+case "$account" in
+  personal-primary|personal-secondary|personal-legacy)
+    ;;
+  *)
+    echo "Unknown Gmail MCP account: $account" >&2
+    exit 64
+    ;;
+esac
+
+# Refuse a credentialless account before allocating a Node server or loading secrets.
+credential_file="${HOME}/.gmail-mcp-accounts/${account}/credentials.json"
+if ! python3 - "$credential_file" <<'CHECK'
+import json
+from pathlib import Path
+import sys
+try:
+    p = Path(sys.argv[1])
+    data = json.loads(p.read_text())
+    valid = bool(data.get("refresh_token")) and not (p.stat().st_mode & 0o077)
+except (OSError, ValueError):
+    valid = False
+sys.exit(0 if valid else 1)
+CHECK
+then
+  echo "Gmail account ${account} needs private OAuth credentials; run ${REPO}/mcps/gmail/bin/auth-gmail-account ${account} and complete Google sign-in." >&2
+  exit 78
+fi
+
+. "${REPO}/src/lib/read-env.sh"
+. "${REPO}/src/lib/resolve-binary.sh"
+export ENV_FILE="${REPO}/.env"
+gmail_env="$(env_export PERSONAL_GMAIL_APP_SECRET)"
+eval "$gmail_env"
+unset gmail_env
+# env_export emits shell assignments; explicitly export the one required child value.
+export PERSONAL_GMAIL_APP_SECRET
+
+: "${PERSONAL_GMAIL_APP_SECRET:?PERSONAL_GMAIL_APP_SECRET is required in /Users/taylor/dotfiles/.env}"
+
+state_dir="${HOME}/.gmail-mcp-accounts/${account}"
+mkdir -p "$state_dir"
+chmod 700 "${HOME}/.gmail-mcp-accounts" "$state_dir"
+
+oauth_file="$(mktemp "${TMPDIR:-/tmp}/gmail-mcp-oauth.XXXXXX")"
+chmod 600 "$oauth_file"
+
+cleanup() {
+  rm -f "$oauth_file"
+}
+trap cleanup EXIT
+# A signal ends the script through exit, so the EXIT trap still removes the file.
+trap 'exit 129' HUP; trap 'exit 130' INT; trap 'exit 143' TERM
+
+python3 - "$oauth_file" <<'PY'
+import json
+import os
+import sys
+
+oauth_file = sys.argv[1]
+client_secret = os.environ["PERSONAL_GMAIL_APP_SECRET"]
+payload = {
+    "installed": {
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "client_id": "273820616934-0vft5b75pd6o762fgkhhtv9c1hr60pjf.apps.googleusercontent.com",
+        "client_secret": client_secret,
+        "project_id": "project-0ea65f1d-557b-427d-8f5",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "redirect_uris": ["http://localhost"],
+    }
+}
+with open(oauth_file, "w", encoding="utf-8") as f:
+    json.dump(payload, f)
+PY
+
+export GMAIL_OAUTH_PATH="$oauth_file"
+export GMAIL_CREDENTIALS_PATH="${state_dir}/credentials.json"
+export GMAIL_ACCOUNT_NAME="$account"
+
+# Not exec: the EXIT trap must remove the temporary OAuth client file.
+"$(resolve_binary node)" "${SCRIPT_DIR}/gmail-fork/index.js" "$@"
