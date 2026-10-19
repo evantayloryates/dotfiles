@@ -7,7 +7,7 @@ that need sensitive Kickoff data. It runs only on Kickoff's **zero-data-retentio
 MCP tool, and only the harness's final answer comes back.
 
 ```
-Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──HTTP──▶ opencode serve :4096
+Claude Code / Codex ──zdr_ask──▶ zdr-agent MCP (mcps/zdr-agent) ──HTTP──▶ opencode serve :4096
                                                                          ├─▶ api.openai.com (ZDR project)
                                                                          ├─▶ mcp.amplitude.com (OAuth)
                                                                          ├─▶ bugsnag.mcp.smartbear.com (token)
@@ -39,7 +39,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/bin/zdr-harness` | Wrapper: preflight checks + isolated environment |
 | `src/launchd/com.taylor.zdr-harness.plist` | Keeps `zdr-harness serve` running |
 | `src/launchd/com.taylor.zdr-harness-tunnel.plist` | Keeps the SSM tunnel to the production read replica open |
-| `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
+| `mcps/zdr-agent/` | Zero-dependency MCP bridge for Claude Code / Codex (fleet service) |
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
 | `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, `KICKOFF_CLOUDINARY_*`,
 `KICKOFF_ZDR_AWS_*`. `~/.zdr-harness/.env` is a fallback if this is absent |
@@ -548,12 +548,12 @@ ln -sf ~/dotfiles/src/launchd/com.taylor.zdr-harness.plist ~/Library/LaunchAgent
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.zdr-harness.plist
 
 # Clients
-claude mcp add zdr-ask -s user -- /Users/taylor/dotfiles/src/mcps/zdr-ask-mcp
-codex mcp add zdr-ask -- /Users/taylor/dotfiles/src/mcps/zdr-ask-mcp
+claude mcp add zdr-agent -s user -- /Users/taylor/src/github/dotfiles/mcps/_shared/bin/run zdr-agent
+codex mcp add zdr-agent -- /Users/taylor/src/github/dotfiles/mcps/_shared/bin/run zdr-agent
 ```
 
 Answers can take minutes. In `~/.codex/config.toml` set `tool_timeout_sec = 600`
-under `[mcp_servers.zdr-ask]`; for Claude Code set `MCP_TOOL_TIMEOUT=600000`.
+under `[mcp_servers.zdr-agent]`; for Claude Code set `MCP_TOOL_TIMEOUT=600000`.
 
 ## Changing the tool allowlist
 

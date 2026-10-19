@@ -5,8 +5,10 @@ import {transcriptPath} from './peer-direct.mjs'
 import {DriverError} from './paths.mjs'
 const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
 const fail=()=>{throw new DriverError('native peer receipt journal unavailable or changed; reconcile without replay',{category:'outcome_unknown',detail:{retrySafe:false}})}
+// Desktop and CLI ids differ for pool-claimed/imported chats; the caller binds
+// the CLI id to the saved record before arming.
 function identity(rec){
- if(!uuid.test(rec?.sessionId||'')||rec.hostSessionId!=='local_'+rec.sessionId||typeof rec.cwd!=='string'||!rec.cwd.startsWith('/')||!Number.isInteger(rec.pid)||rec.pid<2||typeof rec.procStart!=='string'||!rec.procStart)fail()
+ if(!uuid.test(rec?.sessionId||'')||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(rec.hostSessionId||'')||typeof rec.cwd!=='string'||!rec.cwd.startsWith('/')||!Number.isInteger(rec.pid)||rec.pid<2||typeof rec.procStart!=='string'||!rec.procStart)fail()
  return {cliSessionId:rec.sessionId,sessionId:rec.hostSessionId,cwd:rec.cwd,pid:rec.pid,procStart:rec.procStart}
 }
 function journal(rec,fn){

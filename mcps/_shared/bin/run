@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Start a fleet MCP: run <mcp-id> [profile]. Harness registrations point here.
+set -euo pipefail
+SHARED="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+. "${SHARED}/../../src/lib/resolve-binary.sh"
+exec "$(resolve_binary node)" "${SHARED}/kernel/launch.mjs" "$@"

@@ -1,22 +1,14 @@
-#!/usr/bin/env node
-// zdr-ask: a zero-dependency MCP stdio server that lets non-ZDR agents (Claude
-// Code, Codex) ask questions of the local ZDR harness without loading raw
-// Amplitude/BugSnag data into their own context. Only the harness's final answer
-// text comes back. See ../../zdr-harness/README.md.
-//
-// Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0 on
-// stdin/stdout. Logs go to stderr only.
+// Client for the local ZDR harness (OpenCode server on 127.0.0.1:4096). Lets
+// non-ZDR agents (Claude Code, Codex) ask questions without loading raw
+// Amplitude/BugSnag/production data into their own context: only the harness's
+// de-identified final answer comes back. See src/zdr-harness/README.md.
 
 import { execFile } from 'node:child_process'
-import { createInterface } from 'node:readline'
 
 const BASE_URL = process.env.ZDR_HARNESS_URL || 'http://127.0.0.1:4096'
 const PASSWORD = process.env.ZDR_HARNESS_PASSWORD
 const WORK_DIR = process.env.ZDR_HARNESS_WORK_DIR || `${process.env.HOME}/.zdr-harness/work`
 const ASK_TIMEOUT_MS = Number(process.env.ZDR_ASK_TIMEOUT_MS || 10 * 60 * 1000)
-// Servers are read from the harness rather than listed here, so one added
-// there is covered without editing this bridge.
-const SUPPORTED_PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05']
 // The harness runs two agents. `zdr` de-identifies its answer to HIPAA Safe
 // Harbor because this bridge hands it to a context with no BAA; `analyst`
 // answers in full for the app UI. Only `zdr` output may cross this boundary.
@@ -24,19 +16,17 @@ const ZDR_AGENT = 'zdr'
 const SESSION_ID = /^ses_[A-Za-z0-9]+$/
 const deepLink = (id) => `open -a "ZDR Harness" --args --session ${id}`
 
-const log = (...args) => console.error('[zdr-ask]', ...args)
+const log = (...args) => console.error('[zdr-agent]', ...args)
 
-if (!PASSWORD) {
-  log('ZDR_HARNESS_PASSWORD is not set; refusing to start')
-  process.exit(1)
-}
 
 const AUTH = `Basic ${Buffer.from(`opencode:${PASSWORD}`).toString('base64')}`
 
 // ---------------------------------------------------------------------------
 // Harness HTTP client
 
-class HarnessError extends Error {}
+export class HarnessError extends Error {
+  expected = true
+}
 
 async function harness(method, path, { body, signal } = {}) {
   let res
@@ -92,7 +82,7 @@ async function ensureMcpConnected(signal) {
   }
   if (down.length) {
     log(`degraded: ${down.join('; ')}`)
-    return `[zdr-ask] Degraded harness: ${down.join('; ')}. Answer used the remaining servers.\n\n`
+    return `[zdr-agent] Degraded harness: ${down.join('; ')}. Answer used the remaining servers.\n\n`
   }
   return ''
 }
@@ -105,7 +95,7 @@ function scrub(text) {
     .replace(/(?<![\w.])(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?![\w.])/g, '[redacted-phone]')
 }
 
-async function ask({ question, session_id, format }, signal) {
+export async function ask({ question, session_id, format }, signal) {
   const degraded = await ensureMcpConnected(signal)
   let sessionId = session_id
 
@@ -126,7 +116,7 @@ async function ask({ question, session_id, format }, signal) {
 
   if (!sessionId) {
     const session = await harness('POST', '/session', {
-      body: { title: `zdr-ask: ${question.slice(0, 60)}` },
+      body: { title: `zdr-agent: ${question.slice(0, 60)}` },
       signal,
     })
     sessionId = session.id
@@ -180,7 +170,7 @@ async function ask({ question, session_id, format }, signal) {
   )
 }
 
-function openInApp(sessionId) {
+export function openInApp(sessionId) {
   if (!SESSION_ID.test(sessionId)) throw new HarnessError(`"${sessionId}" is not a session id`)
   return new Promise((resolve, reject) => {
     execFile('/usr/bin/open', ['-a', 'ZDR Harness', '--args', '--session', sessionId], (err) => {
@@ -190,160 +180,10 @@ function openInApp(sessionId) {
   })
 }
 
-async function listSessions(signal) {
+export async function listSessions(signal) {
   const sessions = await harness('GET', '/session?limit=20', { signal })
   if (!sessions?.length) return 'No ZDR harness sessions yet.'
   return sessions
     .map((s) => `${s.id}  ${new Date(s.time?.updated || s.time?.created).toISOString()}  ${s.title || ''}`)
     .join('\n')
 }
-
-// ---------------------------------------------------------------------------
-// MCP protocol
-
-const TOOLS = [
-  {
-    name: 'zdr_ask',
-    title: 'Ask the ZDR harness',
-    description:
-      "Ask Kickoff's zero-data-retention harness a question about Amplitude analytics, BugSnag errors, " +
-      'PostHog product data, production Lambda logs in CloudWatch, the live production database and call transcripts, ' +
-      'or Slack (including #rd-bugs-and-feature-requests, which is read only through this tool, never the Slack connector). ' +
-      'The harness runs the tool calls on a ZDR OpenAI key and returns only a de-identified answer ' +
-      '(counts, rates, error classes, object IDs, links; never user identifiers or raw payloads). ' +
-      'Pass session_id from a previous answer to ask a follow-up in the same conversation. ' +
-      'Answers can take a few minutes.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        question: { type: 'string', description: 'The question. Include the project, date range and any filters.' },
-        session_id: { type: 'string', description: 'Optional session_id from a previous zdr_ask answer. Sessions started in the app cannot be continued here.' },
-        format: { type: 'string', enum: ['text', 'json'], description: 'json returns {answer, figures, filters, withheld} for further computation.' },
-      },
-      required: ['question'],
-      additionalProperties: false,
-    },
-    annotations: { readOnlyHint: true, openWorldHint: true },
-  },
-  {
-    name: 'zdr_open',
-    title: 'Open a harness session in the app',
-    description:
-      'Open a ZDR harness session in ZDR Harness.app on Taylor\'s screen, where it is shown in full including ' +
-      'anything the de-identified answer had to withhold. Use this when the answer says a field was withheld.',
-    inputSchema: {
-      type: 'object',
-      properties: { session_id: { type: 'string', description: 'The session_id to open.' } },
-      required: ['session_id'],
-      additionalProperties: false,
-    },
-    annotations: { readOnlyHint: true, openWorldHint: false },
-  },
-  {
-    name: 'zdr_sessions',
-    title: 'List ZDR harness sessions',
-    description: 'List the 20 most recent ZDR harness sessions (id, last update, title).',
-    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    annotations: { readOnlyHint: true, openWorldHint: false },
-  },
-]
-
-const inflight = new Map()
-
-function send(message) {
-  process.stdout.write(`${JSON.stringify(message)}\n`)
-}
-
-const reply = (id, result) => send({ jsonrpc: '2.0', id, result })
-const fail = (id, code, message) => send({ jsonrpc: '2.0', id, error: { code, message } })
-
-async function callTool(id, params) {
-  const { name, arguments: args = {} } = params || {}
-  const controller = new AbortController()
-  inflight.set(id, controller)
-  try {
-    let text
-    if (name === 'zdr_ask') {
-      if (typeof args.question !== 'string' || !args.question.trim()) {
-        return fail(id, -32602, 'zdr_ask requires a non-empty "question" string')
-      }
-      if (args.session_id !== undefined && typeof args.session_id !== 'string') {
-        return fail(id, -32602, '"session_id" must be a string')
-      }
-      if (args.format !== undefined && !['text', 'json'].includes(args.format)) {
-        return fail(id, -32602, '"format" must be "text" or "json"')
-      }
-      text = await ask(args, controller.signal)
-    } else if (name === 'zdr_open') {
-      if (typeof args.session_id !== 'string') return fail(id, -32602, 'zdr_open requires "session_id"')
-      text = await openInApp(args.session_id)
-    } else if (name === 'zdr_sessions') {
-      text = await listSessions(controller.signal)
-    } else {
-      return fail(id, -32602, `Unknown tool: ${name}`)
-    }
-    reply(id, { content: [{ type: 'text', text }], isError: false })
-  } catch (err) {
-    if (controller.signal.aborted) return // cancelled: the client expects no response
-    const message = err instanceof HarnessError ? err.message : `zdr-ask internal error: ${err.message}`
-    if (!(err instanceof HarnessError)) log(err)
-    reply(id, { content: [{ type: 'text', text: message }], isError: true })
-  } finally {
-    inflight.delete(id)
-  }
-}
-
-function handle(message) {
-  if (Array.isArray(message) || typeof message !== 'object' || message === null || message.jsonrpc !== '2.0') {
-    return fail(message?.id ?? null, -32600, 'Invalid Request')
-  }
-  const { id, method, params } = message
-  const isNotification = id === undefined
-
-  if (isNotification) {
-    if (method === 'notifications/cancelled') inflight.get(params?.requestId)?.abort()
-    return
-  }
-
-  switch (method) {
-    case 'initialize': {
-      const requested = params?.protocolVersion
-      return reply(id, {
-        protocolVersion: SUPPORTED_PROTOCOLS.includes(requested) ? requested : SUPPORTED_PROTOCOLS[0],
-        capabilities: { tools: {} },
-        serverInfo: { name: 'zdr-ask', version: '1.0.0' },
-        instructions:
-          'Use zdr_ask for any question that needs Amplitude or BugSnag data. Never try to fetch that data another way.',
-      })
-    }
-    case 'ping':
-      return reply(id, {})
-    case 'tools/list':
-      return reply(id, { tools: TOOLS })
-    case 'tools/call':
-      return void callTool(id, params)
-    default:
-      return fail(id, -32601, `Method not found: ${method}`)
-  }
-}
-
-const rl = createInterface({ input: process.stdin })
-rl.on('line', (line) => {
-  if (!line.trim()) return
-  let message
-  try {
-    message = JSON.parse(line)
-  } catch {
-    return fail(null, -32700, 'Parse error')
-  }
-  try {
-    handle(message)
-  } catch (err) {
-    log(err)
-    if (message?.id !== undefined) fail(message.id, -32603, 'Internal error')
-  }
-})
-rl.on('close', () => {
-  for (const controller of inflight.values()) controller.abort()
-  process.exit(0)
-})

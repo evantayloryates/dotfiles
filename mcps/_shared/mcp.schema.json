@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mcp.schema.json",
+  "title": "Fleet MCP service manifest (mcps/<id>/mcp.json)",
+  "type": "object",
+  "required": ["id", "description", "kind"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "description": "Must equal the folder name. Lowercase kebab-case, starts and ends with a letter or digit.",
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "description": { "description": "One line, reused in registrations.", "type": "string" },
+    "kind": {
+      "description": "custom: we wrote it. wrapped: launches a pinned upstream package. relay: a thin front for a daemon or remote service.",
+      "enum": ["custom", "wrapped", "relay"]
+    },
+    "entry": {
+      "description": "Module to run, relative to the service folder. Omit to serve tools/ with the standard service runtime.",
+      "type": "string"
+    },
+    "instructions": { "description": "Short server instructions the harness puts in the model's prompt. Long usage goes in GUIDE.md.", "type": "string" },
+    "toolPrefix": { "description": "Prefix every tool name carries, e.g. \"zdr_\". Also names the standard tools (<prefix>guide).", "type": "string", "pattern": "^[a-z][a-z0-9]*_$" },
+    "profiles": {
+      "description": "Instances of this service. Registered as <id>-<profile>; \"default\" registers as <id>.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "args": { "type": "array", "items": { "type": "string" } },
+          "env": { "$ref": "#/$defs/env" },
+          "harnesses": { "$ref": "#/$defs/harnesses" }
+        }
+      }
+    },
+    "env": { "$ref": "#/$defs/env" },
+    "harnesses": { "$ref": "#/$defs/harnesses" },
+    "services": {
+      "description": "Background daemons this service needs; the installer generates LaunchAgents from these.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "run"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "pattern": "^com\\.taylor\\.[a-z0-9.-]+$" },
+          "run": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "keepAlive": { "type": "boolean" }
+        }
+      }
+    },
+    "requires": {
+      "description": "Things that must exist first: mcp:<id>, app:<name>, vpn:<name>, file:<path>.",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^(mcp|app|vpn|file|cli):.+$" }
+    },
+    "test": { "description": "Command that runs this service's tests from its folder.", "type": "string" }
+  },
+  "$defs": {
+    "env": {
+      "description": "Environment keys and where to read them. Names and sources only, never values.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/$defs/source" },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": { "type": "array", "items": { "$ref": "#/$defs/source" }, "minItems": 1 },
+              "required": { "type": "boolean" },
+              "value": { "description": "A fixed, non-secret value.", "type": "string" }
+            }
+          }
+        ]
+      }
+    },
+    "source": {
+      "description": "dotfiles-env (repo .env), file:<path> (~, ${repo}, ${service} expand), or process (inherited environment).",
+      "type": "string",
+      "pattern": "^(dotfiles-env|process|file:.+)$"
+    },
+    "harnesses": {
+      "description": "Where to register this service. A key present means registered; its object holds per-harness settings.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claude": { "type": "object" },
+        "claude-desktop": { "type": "object" },
+        "codex": { "type": "object" },
+        "opencode": { "type": "object" }
+      }
+    }
+  }
+}

@@ -53,3 +53,6 @@ __pycache__/
 # Private app-owned MCP invocation configuration; canonical files stay local.
 /src/mcps/host-config/*.json
 /src/mcps/host-config/*.toml
+
+# MCP fleet: sealed per-version releases
+/mcps/*/dist/

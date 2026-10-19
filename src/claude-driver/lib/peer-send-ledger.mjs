@@ -17,7 +17,7 @@ function location(id,dir){
 function validate(row,id){
  const c=row?.cursor,t=row?.target
  if(!row||Object.keys(row).some(k=>!['schemaVersion','operationId','messageId','runtimeBuild','payloadDigest','target','cursor','phase','createdAt','receipt'].includes(k))||row.schemaVersion!==1||! /^[a-f0-9]{64}$/.test(row.runtimeBuild||'')||! /^[a-f0-9]{64}$/.test(row.payloadDigest||'')||row.operationId!==id||!uuid.test(row.messageId||'')||!['outcome_unknown','received'].includes(row.phase)||!Number.isSafeInteger(row.createdAt)||!t||!c)fail()
- if(Object.keys(t).sort().join(',')!=='cwd,hostSessionId,pid,procStart,sessionId'||!uuid.test(t.sessionId||'')||t.hostSessionId!=='local_'+t.sessionId||typeof t.cwd!=='string'||!t.cwd.startsWith('/')||!Number.isInteger(t.pid)||t.pid<2||typeof t.procStart!=='string'||!t.procStart||t.procStart.length>100)fail()
+ if(Object.keys(t).sort().join(',')!=='cwd,hostSessionId,pid,procStart,sessionId'||!uuid.test(t.sessionId||'')||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(t.hostSessionId||'')||typeof t.cwd!=='string'||!t.cwd.startsWith('/')||!Number.isInteger(t.pid)||t.pid<2||typeof t.procStart!=='string'||!t.procStart||t.procStart.length>100)fail()
  if(Object.keys(c).sort().join(',')!=='cliSessionId,cwd,dev,ino,observedAt,offset,pid,procStart,sessionId'||c.cliSessionId!==t.sessionId||c.sessionId!==t.hostSessionId||c.cwd!==t.cwd||c.pid!==t.pid||c.procStart!==t.procStart||['dev','ino','offset','observedAt'].some(k=>!Number.isSafeInteger(c[k])||c[k]<0)||c.observedAt!==row.createdAt)fail()
  if(row.phase==='received'){
   const r=row.receipt

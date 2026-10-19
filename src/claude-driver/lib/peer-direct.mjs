@@ -157,7 +157,9 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
   if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError('direct transport is not qualified for this peer version',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
   if(target.live?.procStart&&target.live.procStart!==rec.procStart)throw new DriverError('peer native process epoch changed',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
-  if(rec.sessionId!==target.sessionId.replace(/^local_/,''))throw new DriverError('peer CLI session identity mismatch',{category:'peer_refused'})
+  // Pool-claimed and imported chats keep a CLI session id that differs from
+  // their desktop id; callers holding the saved record pass it explicitly.
+  if(rec.sessionId!==(target.cliSessionId||target.sessionId.replace(/^local_/,'')))throw new DriverError('peer CLI session identity mismatch',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
   // Immediate routing is an experimental idle-only service wake, never a
   // generic interruption primitive. A fresh record must agree with the target.
   if(priority==='now'&&(rec.version!=='2.1.289'||target.live?.status!=='idle'||rec.status!=='idle'))throw new DriverError('immediate peer routing requires the same reviewed idle native peer',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})

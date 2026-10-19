@@ -10,7 +10,7 @@ channel readers, 14 read-only tools of Slack's own MCP server signed in as Taylo
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
-(`src/mcps/zdr-ask`).
+(`mcps/zdr-agent`).
 `ZDR Harness.app` (`app/`) is the native viewer. **README.md is the source of
 truth**: design, lockdown, app, verification. Read it before changing anything.
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "example-service",
+  "description": "One line on what this service lets an agent do.",
+  "kind": "custom",
+  "toolPrefix": "example_",
+  "instructions": "One or two sentences on when to use this service. Details go in GUIDE.md.",
+  "env": {},
+  "harnesses": { "claude": {}, "codex": {} },
+  "test": "node --test test/*.test.mjs"
+}

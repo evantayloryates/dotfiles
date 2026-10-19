@@ -1,3 +1,35 @@
+## October 18 launchd delivery: peer-direct works once pool-chat identity is fixed
+
+VERIFIED 2026-10-19T00:39Z (EDT 20:39 Oct 18). A one-shot LaunchAgent
+(parent `/sbin/launchd`, no caller session) ran `send_message --transport
+peer-direct --operation_id launchd-test-1792370356` to kanban-watcher
+`local_9bb95133…`. It returned `delivery:"received"` with native user record
+`84e0f0d5…` at 00:39:16.991Z. The target answered "launchd test received" at
+00:39:23Z, and no approval card appeared (target in bypass).
+
+Root causes of the earlier failures:
+1. Direct CLI `send_message` (no job) takes the ordinary route, which refuses
+   with `bad_args` outside `driver_submit` by design.
+2. `driver_submit` job `jcc01c92…` hit dead controller processes (primary
+   87665 and standby 89119 both gone). Automatic pair bootstrap
+   `j27890407…` quiesced and retired both, then the primary import produced no
+   native peer within ~30 s (`native-peer-unobserved`). The result was
+   `native_controller_recovery_unresolved`, retrySafe:false. The controller stays
+   down until the continuation contract runs; this fix does not repair it.
+3. peer-direct itself refused with `peer CLI session identity mismatch`.
+   `peer-direct.mjs deliver()`, `peer-receipt.mjs` and `peer-send-ledger.mjs`
+   all assumed CLI id == desktop id minus `local_`, which is false for
+   pool-claimed and imported chats (kanban-watcher's CLI id is `ce20a585…`).
+   Fix: `direct-recipient.mjs` passes the verified `cliSessionId` to
+   `deliver()`, and the receipt and ledger validators accept any valid
+   `local_<uuid>`. The binding to the saved record's cliSessionId is still
+   enforced before arming. New test `peer-direct-pool-identity.test.mjs`; all
+   125 peer/receipt/steer tests pass.
+
+Recipe: guide.md "Sending from launchd or another non-interactive job".
+Limit: peer-direct never wakes an evicted chat; that still needs a live
+controller (ordinary route) or a human.
+
 ## October 18 valid paste route still corrupts an independent active client
 
 VERIFIED FAILURE on unchanged production182ed05d/nativef21c31c0. Buffered logs

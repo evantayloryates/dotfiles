@@ -32,7 +32,7 @@ export async function sendDirectRecipient({operationId,session,message,timeoutMs
     if(!peer||peer.entrypoint!=='claude-desktop'||peer.sessionId!==(current.cliSessionId||rec.sessionId.slice(6)))throw new DriverError('direct recipient native identity unavailable',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
     if(realpathSync(peer.cwd)!==realpathSync(current.cwd))throw new DriverError('direct recipient cwd identity mismatch',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
     const wakeSignal=AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(remaining())])
-    await deliver({sessionId:rec.sessionId,permissionMode:current.permissionMode,live:{pid:peer.pid,procStart:peer.procStart}},message,{signal:wakeSignal,timeoutMs:remaining(),onPrepared:async meta=>{
+    await deliver({sessionId:rec.sessionId,cliSessionId:peer.sessionId,permissionMode:current.permissionMode,live:{pid:peer.pid,procStart:peer.procStart}},message,{signal:wakeSignal,timeoutMs:remaining(),onPrepared:async meta=>{
      check();if(meta.pid!==peer.pid||meta.procStart!==peer.procStart)throw unknown(operationId)
      const result=await armPeerSend({operationId,rec:peer,messageId:meta.msgId,payloadDigest},{signal:wakeSignal,timeoutMs:remaining()})
      armed=true;if(!result.canPublish)throw unknown(operationId)

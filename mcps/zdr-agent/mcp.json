@@ -1,0 +1,26 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "zdr-agent",
+  "description": "Ask Kickoff's zero-data-retention harness questions about production data and get de-identified answers.",
+  "kind": "relay",
+  "toolPrefix": "zdr_",
+  "instructions": "Use zdr_ask for any question that needs Amplitude, BugSnag, PostHog, CloudWatch, production database, call transcript or restricted Slack data. Never try to fetch that data another way.",
+  "env": {
+    "ZDR_HARNESS_PASSWORD": {
+      "from": [
+        "file:${repo}/src/zdr-harness/.env",
+        "file:~/.zdr-harness/.env"
+      ]
+    }
+  },
+  "requires": [
+    "app:ZDR Harness"
+  ],
+  "harnesses": {
+    "claude": {},
+    "codex": {
+      "tool_timeout_sec": 600
+    }
+  },
+  "test": "node --test test/*.test.mjs"
+}

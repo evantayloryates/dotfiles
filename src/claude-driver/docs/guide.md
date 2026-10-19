@@ -974,6 +974,43 @@ interrupt continues to require the native stop route. Default transport is uncha
 A native2.1.299 scratch trial verified busy submission followed by complete first
 response and exact follow-up response through durable steer_session.
 
+### Sending from launchd or another non-interactive job (October 18)
+
+A launchd job (or cron, or any process outside a desktop chat) prompts a
+desktop session with the controller-free peer-direct route:
+
+```sh
+~/dotfiles/src/claude-driver/bin/claude-driver send_message --session local_<id> \
+  --transport peer-direct --operation_id <stable-id> --receipt_timeout_sec 20 --message "<text>"
+```
+
+- It needs only the target's own process to be live (the chat has been used
+  since the app started and has not been evicted). It never wakes a dead chat.
+- Exit 0 prints `delivery:"received"` with the native user record; the target
+  sees a `<cross-session-message from-name="claude-driver">` user turn. A
+  bypass-mode target shows no approval card.
+- Use one `operation_id` per logical message (for example derived from the
+  event range). On failure, retry with the same id and the same message: an
+  uncertain publication reconciles from the ledger and is never resent; a
+  conflicting payload under the same id refuses. Never mint a new id to retry
+  an `outcome_unknown`.
+- `peer_unqualified`, `broker_dead` or `peer_refused` with `dispatched:false`
+  mean nothing was sent (target not live, or identity changed); retrying is safe.
+
+Do not use the default (ordinary) `send_message` from a job:
+- Called directly it refuses with `[bad_args] ordinary send requires a durable
+  job, exact enrolled controller…`, because the ordinary route only runs inside
+  a `driver_submit` job.
+- Through `driver_submit` it depends on the enrolled controller pair being
+  live. When both controller processes have exited, maintenance tries an
+  automatic pair bootstrap. If the re-imported primary's native peer never
+  appears, it ends `native_controller_recovery_unresolved` with
+  `retrySafe:false`; that recovery needs the continuation contract above.
+
+Pool-claimed and imported chats have a CLI session id that differs from their
+desktop id. Before the October 18 fix, peer-direct refused every such chat with
+`peer CLI session identity mismatch`. See the October 18 finding.
+
 Native stop requires both a recognized exact-target accepted receipt and same-epoch
 idle. Declined/unfamiliar receipts refuse replacement even if idle appears later.
 Reconnect-pending stop remains outcome_unknown/retrySafe:false; no replacement
