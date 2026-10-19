@@ -1,0 +1,95 @@
+{
+  "description": "Echo text and add numbers; a healthy reference service.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "echo": {
+      "description": "Return the text.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "add": {
+      "description": "Add two numbers.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number"
+          },
+          "b": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "a",
+          "b"
+        ]
+      }
+    },
+    "pixel": {
+      "description": "Return a 1x1 image.",
+      "class": "read"
+    },
+    "count": {
+      "description": "Increment a counter; dedupes on the idempotency key.",
+      "class": "write",
+      "idempotency": "keyed",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "bump": {
+      "description": "Increment a counter with no deduplication.",
+      "class": "write",
+      "idempotency": "none",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "slow_echo": {
+      "description": "Return the text after a delay.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "ms": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    }
+  }
+}

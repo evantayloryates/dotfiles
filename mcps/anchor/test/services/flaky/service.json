@@ -1,0 +1,19 @@
+{
+  "description": "Deliberately unreliable service for crash testing.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "ok": {
+      "description": "Succeeds."
+    },
+    "crash": {
+      "description": "Kills the process with an uncaught error.",
+      "class": "write"
+    },
+    "vary": {
+      "description": "Crashes with a different message every time."
+    },
+    "hang": {
+      "description": "Never answers."
+    }
+  }
+}

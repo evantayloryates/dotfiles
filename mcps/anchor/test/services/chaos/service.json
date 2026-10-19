@@ -1,0 +1,9 @@
+{
+  "description": "Crashes on its own shortly after every start, with a different error each time.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "ping": {
+      "description": "Answers if still alive."
+    }
+  }
+}

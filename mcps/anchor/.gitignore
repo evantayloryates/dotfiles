@@ -1,0 +1,10 @@
+# Sealed releases and services the suites create or import.
+dist/
+test/services/*/dist/
+test/services/db-kickoff-stage/
+test/services/zdr-agent/
+test/services/calc/
+test/services/mend/
+test/services/pinny/
+test/services/relev/
+test/services/hangrel/

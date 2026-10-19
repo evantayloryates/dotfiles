@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Launcher for anchor's front end (the stdio MCP server). It starts the
+# daemon on first use; runtime state lives in ~/.local/state/mcps/anchor
+# unless ANCHOR_STATE_DIR says otherwise. Registered nowhere yet: see
+# README.md. Started by mcps/_shared/bin/run: $1 is the profile.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO="$(cd "${SCRIPT_DIR}/../../.." && pwd -P)"
+. "${REPO}/src/lib/resolve-binary.sh"
+[[ -n "${MCP_PROFILE:-}" ]] && shift
+exec "$(resolve_binary node)" --no-warnings "${SCRIPT_DIR}/shim.mjs" "$@"

@@ -1,0 +1,12 @@
+{
+  "description": "Manifest and handlers disagree, for drift tests.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "declared_and_built": {
+      "description": "Works."
+    },
+    "declared_only": {
+      "description": "Declared but never implemented."
+    }
+  }
+}

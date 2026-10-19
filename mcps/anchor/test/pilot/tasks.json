@@ -1,0 +1,207 @@
+[
+ {
+  "id": "t01",
+  "kind": "single",
+  "prompt": "Use the fleet's echo service to echo the exact text pilot-ok-7 and tell me what came back.",
+  "expect": {
+   "answer": [
+    "pilot-ok-7"
+   ]
+  }
+ },
+ {
+  "id": "t02",
+  "kind": "single",
+  "prompt": "Using the fleet's add operation, add 1234 and 5678.",
+  "expect": {
+   "answer": [
+    "6,?912"
+   ]
+  }
+ },
+ {
+  "id": "t03",
+  "kind": "single",
+  "prompt": "How many tables in the Kickoff staging database have names starting with 'coach'?",
+  "expect": {
+   "answer": [
+    "\\b{coachTables}\\b"
+   ]
+  }
+ },
+ {
+  "id": "t04",
+  "kind": "single",
+  "prompt": "What is the latest zdr-agent release version?",
+  "expect": {
+   "answer": [
+    "{zdrLatest}"
+   ]
+  }
+ },
+ {
+  "id": "t05",
+  "kind": "batch",
+  "prompt": "Using the fleet's add operation, compute 2+3, 10+20 and 100+200.",
+  "expect": {
+   "answer": [
+    "\\b5\\b",
+    "\\b30\\b",
+    "\\b300\\b"
+   ]
+  }
+ },
+ {
+  "id": "t06",
+  "kind": "batch",
+  "prompt": "Run SELECT 6*7 AS answer on the Kickoff staging database, then echo that number back through the fleet's echo service. Tell me the number.",
+  "expect": {
+   "answer": [
+    "\\b42\\b"
+   ]
+  }
+ },
+ {
+  "id": "t07",
+  "kind": "job",
+  "prompt": "Have the fleet's slow service work for 20000 ms and tell me how many ms it reports it worked.",
+  "expect": {
+   "answer": [
+    "20,?000"
+   ]
+  }
+ },
+ {
+  "id": "t08",
+  "kind": "job",
+  "prompt": "Start the fleet's slow service working for 15000 ms; while it runs, add 4 and 4 with the add operation. Report both results.",
+  "expect": {
+   "answer": [
+    "15,?000",
+    "\\b8\\b"
+   ]
+  }
+ },
+ {
+  "id": "t09",
+  "kind": "single",
+  "prompt": "How many entries does the ledger's checking account have, including voided ones?",
+  "expect": {
+   "answer": [
+    "\\b4\\b|\\bfour\\b"
+   ]
+  }
+ },
+ {
+  "id": "t10",
+  "kind": "note",
+  "prompt": "What is the checking account's total in the ledger?",
+  "expect": {
+   "answer": [
+    "1,?537\\.6"
+   ],
+   "noteOp": "ledger:net"
+  }
+ },
+ {
+  "id": "t11",
+  "kind": "bug",
+  "prompt": "What is the balance of the ledger's savings account?",
+  "expect": {
+   "ticket": "ledger",
+   "flag": "fail|error|crash|bug|wrong|incorrect|unavailable|could ?n.t|cannot|can.t|unable"
+  }
+ },
+ {
+  "id": "t12",
+  "kind": "bug",
+  "prompt": "Convert 250 cents to dollars using the ledger's convert operation.",
+  "expect": {
+   "ticket": "ledger",
+   "flag": "2\\.50?|wrong|incorrect|bug"
+  }
+ },
+ {
+  "id": "t13",
+  "kind": "schema",
+  "prompt": "A form gave me the values '7' and '8' as text. Add them with the fleet's add operation.",
+  "expect": {
+   "answer": [
+    "\\b15\\b"
+   ]
+  }
+ },
+ {
+  "id": "t14",
+  "kind": "single",
+  "prompt": "According to the ledger service's guide, what currency are its amounts in?",
+  "expect": {
+   "answer": [
+    "USD|dollar"
+   ]
+  }
+ },
+ {
+  "id": "t15",
+  "kind": "single",
+  "prompt": "Is the zdr-agent server healthy right now? Check its status.",
+  "expect": {
+   "answer": [
+    "healthy"
+   ]
+  }
+ },
+ {
+  "id": "t16",
+  "kind": "discover",
+  "prompt": "How many tables in the Kickoff staging database have names starting with 'user'? Find the right service yourself.",
+  "expect": {
+   "answer": [
+    "\\b{userTables}\\b|\\bfour\\b"
+   ]
+  }
+ },
+ {
+  "id": "t17",
+  "kind": "note",
+  "prompt": "The ledger can export an account's entries. What is the rent amount in the checking account?",
+  "expect": {
+   "answer": [
+    "1,?450"
+   ],
+   "noteOp": "ledger:entries"
+  }
+ },
+ {
+  "id": "t18",
+  "kind": "bug",
+  "prompt": "Get the balances of both the checking and the savings account in the ledger.",
+  "expect": {
+   "answer": [
+    "1,?537\\.6"
+   ],
+   "ticket": "ledger",
+   "flag": "fail|error|crash|bug|wrong|incorrect|unavailable|could ?n.t|cannot|can.t|unable"
+  }
+ },
+ {
+  "id": "t19",
+  "kind": "single",
+  "prompt": "What version of the ledger service is running?",
+  "expect": {
+   "answer": [
+    "2026-10-19\\.001"
+   ]
+  }
+ },
+ {
+  "id": "t20",
+  "kind": "single",
+  "prompt": "What is the net total of the ledger's savings account (voided entries excluded)?",
+  "expect": {
+   "answer": [
+    "504\\.12"
+   ]
+  }
+ }
+]

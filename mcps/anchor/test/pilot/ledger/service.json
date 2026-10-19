@@ -1,0 +1,142 @@
+{
+  "description": "A small bookkeeping ledger with checking and savings accounts: entries, totals, balances and cents conversion.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "entries": {
+      "description": "List the entries of one account.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "total": {
+      "description": "Sum of an account's entries.",
+      "class": "read",
+      "notice": "deprecated: total also counts voided entries, so it overstates the account. Use ledger:net for the real total.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "net": {
+      "description": "Sum of an account's entries, excluding voided ones.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "export": {
+      "description": "Export an account's entries as CSV text.",
+      "class": "read",
+      "notice": "retired: export reads last month's snapshot and will be removed. Use ledger:entries for current entries.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "balance": {
+      "description": "Current balance of an account, in dollars.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "enum": [
+              "checking",
+              "savings"
+            ]
+          }
+        },
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "convert": {
+      "description": "Convert an amount in cents to dollars.",
+      "class": "read",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cents": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cents"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "keywords": [
+    "money",
+    "dollars",
+    "cents",
+    "finance",
+    "bookkeeping",
+    "bank",
+    "account",
+    "accounts",
+    "checking",
+    "savings",
+    "balance",
+    "interest",
+    "rent",
+    "csv",
+    "voided",
+    "totals"
+  ]
+}

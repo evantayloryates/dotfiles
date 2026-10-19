@@ -1,0 +1,15 @@
+{
+  "description": "Two read operations, one of which crashes the process; for crash attribution tests.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "boom": {
+      "description": "Reads, then crashes the process.",
+      "class": "read"
+    },
+    "wait": {
+      "description": "Reads for 150 ms and answers.",
+      "class": "read",
+      "notice": "renamed soon: call pair:wait_v2 once it ships."
+    }
+  }
+}

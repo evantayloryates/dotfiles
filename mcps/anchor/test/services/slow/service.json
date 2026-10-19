@@ -1,0 +1,22 @@
+{
+  "description": "Long-running work with progress, for job handling.",
+  "version": "2026-10-19.001",
+  "operations": {
+    "work": {
+      "description": "Work for ms milliseconds, reporting progress.",
+      "strategy": "job",
+      "class": "write",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ms": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ms"
+        ]
+      }
+    }
+  }
+}

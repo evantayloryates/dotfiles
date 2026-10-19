@@ -1,0 +1,85 @@
+{"need": "Use the fleet's echo service to echo the exact text pilot-ok-7 and tell me what came back.", "services": ["echo"], "source": "pilot"}
+{"need": "Using the fleet's add operation, add 1234 and 5678.", "services": ["echo"], "source": "pilot"}
+{"need": "How many tables in the Kickoff staging database have names starting with 'coach'?", "services": ["db-kickoff-stage"], "source": "pilot"}
+{"need": "What is the latest zdr-agent release version?", "services": ["zdr-agent"], "source": "pilot"}
+{"need": "Using the fleet's add operation, compute 2+3, 10+20 and 100+200.", "services": ["echo"], "source": "pilot"}
+{"need": "Run SELECT 6*7 AS answer on the Kickoff staging database, then echo that number back through the fleet's echo service.", "services": ["db-kickoff-stage", "echo"], "source": "pilot"}
+{"need": "Have the fleet's slow service work for 20000 ms and tell me how many ms it reports it worked.", "services": ["slow"], "source": "pilot"}
+{"need": "Start the fleet's slow service working for 15000 ms; while it runs, add 4 and 4 with the add operation.", "services": ["slow", "echo"], "source": "pilot"}
+{"need": "How many entries does the ledger's checking account have, including voided ones?", "services": ["ledger"], "source": "pilot"}
+{"need": "What is the checking account's total in the ledger?", "services": ["ledger"], "source": "pilot"}
+{"need": "What is the balance of the ledger's savings account?", "services": ["ledger"], "source": "pilot"}
+{"need": "Convert 250 cents to dollars using the ledger's convert operation.", "services": ["ledger"], "source": "pilot"}
+{"need": "A form gave me the values '7' and '8' as text. Add them with the fleet's add operation.", "services": ["echo"], "source": "pilot"}
+{"need": "According to the ledger service's guide, what currency are its amounts in?", "services": ["ledger"], "source": "pilot"}
+{"need": "Is the zdr-agent server healthy right now? Check its status.", "services": ["zdr-agent"], "source": "pilot"}
+{"need": "How many tables in the Kickoff staging database have names starting with 'user'?", "services": ["db-kickoff-stage"], "source": "pilot"}
+{"need": "The ledger can export an account's entries. What is the rent amount in the checking account?", "services": ["ledger"], "source": "pilot"}
+{"need": "Get the balances of both the checking and the savings account in the ledger.", "services": ["ledger"], "source": "pilot"}
+{"need": "What version of the ledger service is running?", "services": ["ledger"], "source": "pilot"}
+{"need": "What is the net total of the ledger's savings account (voided entries excluded)?", "services": ["ledger"], "source": "pilot"}
+{"need": "Repeat the phrase 'hello fleet' back to me.", "services": ["echo"], "source": "variant"}
+{"need": "What's 17 plus 25?", "services": ["echo"], "source": "variant"}
+{"need": "Sum these numbers for me: 3, 9.", "services": ["echo"], "source": "variant"}
+{"need": "Which columns does the coaches table have in staging?", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "Describe the structure of the sessions table in the staging DB.", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "Run this SQL against staging: SELECT COUNT(*) FROM users", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "Is the staging database reachable over the VPN right now?", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "List tables in kudos_staging that mention 'workout'.", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "Show me the indexes on the messages table in staging.", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "How many daily active users did Kickoff have in production last week?", "services": ["zdr-agent"], "source": "variant"}
+{"need": "What are the top BugSnag errors in production this week?", "services": ["zdr-agent"], "source": "variant"}
+{"need": "Ask the zero-data-retention harness how many clients churned in September.", "services": ["zdr-agent"], "source": "variant"}
+{"need": "What changed in the most recent zdr-agent release?", "services": ["zdr-agent"], "source": "variant"}
+{"need": "Read the zdr-agent usage guide.", "services": ["zdr-agent"], "source": "variant"}
+{"need": "Which Amplitude events fire most often in production?", "services": ["zdr-agent"], "source": "variant"}
+{"need": "List the voided entries in the checking account.", "services": ["ledger"], "source": "variant"}
+{"need": "How much interest did the savings account earn?", "services": ["ledger"], "source": "variant"}
+{"need": "What's the real total of checking, not counting voided rows?", "services": ["ledger"], "source": "variant"}
+{"need": "Turn 1999 cents into dollars.", "services": ["ledger"], "source": "variant"}
+{"need": "Export the savings account entries as CSV.", "services": ["ledger"], "source": "variant"}
+{"need": "Run a 5 second job with progress updates so I can watch it.", "services": ["slow"], "source": "variant"}
+{"need": "Kick off a long-running piece of work and give me a handle to check later.", "services": ["slow"], "source": "variant"}
+{"need": "Count how many times 'deploy' has been bumped.", "services": ["echo"], "source": "variant"}
+{"need": "Give me a 1x1 test pixel image.", "services": ["echo"], "source": "variant"}
+{"need": "Echo 'ping' after a short delay.", "services": ["echo"], "source": "variant"}
+{"need": "Compare the staging users table count with the ledger's checking entries count.", "services": ["db-kickoff-stage", "ledger"], "source": "variant"}
+{"need": "Check whether zdr-agent and the staging database are both up.", "services": ["zdr-agent", "db-kickoff-stage"], "source": "variant"}
+{"need": "Add the checking net total to the savings net total.", "services": ["ledger", "echo"], "source": "variant"}
+{"need": "Query staging for the number of coaches, then echo it back.", "services": ["db-kickoff-stage", "echo"], "source": "variant"}
+{"need": "Find a SQL table about payments in staging and tell me its row count.", "services": ["db-kickoff-stage"], "source": "variant"}
+{"need": "Send an email to my accountant.", "services": [], "source": "edge-none"}
+{"need": "Book a flight to Denver for Friday.", "services": [], "source": "edge-none"}
+{"need": "What's the weather in Boston?", "services": [], "source": "edge-none"}
+{"need": "Translate this paragraph into Spanish.", "services": [], "source": "edge-none"}
+{"need": "Resize this photo to 512 pixels wide.", "services": [], "source": "edge-none"}
+{"need": "How much money do we have?", "services": ["ledger"], "source": "edge-ambiguous"}
+{"need": "Is everything healthy?", "services": ["zdr-agent", "db-kickoff-stage"], "source": "edge-ambiguous"}
+{"need": "How many users are there?", "services": ["db-kickoff-stage", "zdr-agent"], "source": "edge-ambiguous"}
+{"need": "What's the latest version?", "services": ["zdr-agent", "ledger"], "source": "edge-ambiguous"}
+{"need": "Show me the totals.", "services": ["ledger"], "source": "edge-ambiguous"}
+{"need": "Run it again but slower.", "services": ["slow"], "source": "edge-ambiguous"}
+{"need": "Check the database.", "services": ["db-kickoff-stage"], "source": "edge-ambiguous"}
+{"need": "Compare production churn from the ZDR harness with the number of client rows in staging.", "services": ["zdr-agent", "db-kickoff-stage"], "source": "edge-multi"}
+{"need": "Work for 2 seconds, then echo 'done', then tell me the ledger's checking balance.", "services": ["slow", "echo", "ledger"], "source": "edge-multi"}
+{"need": "Get the savings net total and the zdr-agent release version.", "services": ["ledger", "zdr-agent"], "source": "edge-multi"}
+{"need": "dollars from cents 4200", "services": ["ledger"], "source": "edge-terse"}
+{"need": "stg tbl count coach*", "services": ["db-kickoff-stage"], "source": "edge-terse"}
+{"need": "BUGSNAG TOP ERRORS PROD", "services": ["zdr-agent"], "source": "edge-terse"}
+{"need": "\u00bfCu\u00e1l es el saldo de la cuenta de ahorros?", "services": ["ledger"], "source": "edge-language"}
+{"need": "echo", "services": ["echo"], "source": "edge-terse"}
+{"need": "How many rows are in the staging coaches table?", "services": ["db-kickoff-stage"], "source": "holdout"}
+{"need": "Which app versions are most common among users in staging?", "services": ["db-kickoff-stage"], "source": "holdout"}
+{"need": "Did crash reports spike in production after Tuesday's release?", "services": ["zdr-agent"], "source": "holdout"}
+{"need": "Pull the funnel conversion for onboarding from production analytics.", "services": ["zdr-agent"], "source": "holdout"}
+{"need": "Tell me what's in the savings account.", "services": ["ledger"], "source": "holdout"}
+{"need": "Was the duplicate payroll entry voided?", "services": ["ledger"], "source": "holdout"}
+{"need": "How many dollars is 73 cents?", "services": ["ledger"], "source": "holdout"}
+{"need": "Multiply-free check: add 0.1 and 0.2.", "services": ["echo"], "source": "holdout"}
+{"need": "Say 'ready' back to me.", "services": ["echo"], "source": "holdout"}
+{"need": "Simulate a 3 second task and report progress.", "services": ["slow"], "source": "holdout"}
+{"need": "Is the ZDR harness connected to BugSnag right now?", "services": ["zdr-agent"], "source": "holdout"}
+{"need": "What columns hold timestamps in the staging messages table?", "services": ["db-kickoff-stage"], "source": "holdout"}
+{"need": "Order me a pizza.", "services": [], "source": "holdout"}
+{"need": "Schedule a meeting with Sam tomorrow.", "services": [], "source": "holdout"}
+{"need": "Compare the checking balance with the number of users in staging.", "services": ["ledger", "db-kickoff-stage"], "source": "holdout"}

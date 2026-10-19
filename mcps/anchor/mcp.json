@@ -1,0 +1,9 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "anchor",
+  "description": "One front end to the fleet: three tools (discover, describe, run) over supervised services, release channels, tickets and fixers.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "harnesses": {},
+  "test": "sh test/run-all.sh"
+}

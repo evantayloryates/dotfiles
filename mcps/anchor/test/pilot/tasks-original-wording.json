@@ -1,0 +1,24 @@
+[
+ {
+  "id": "t10",
+  "kind": "note",
+  "prompt": "Use ledger:total to get the checking account's total.",
+  "expect": {
+   "answer": [
+    "1,?537\\.6"
+   ],
+   "noteOp": "ledger:net"
+  }
+ },
+ {
+  "id": "t17",
+  "kind": "note",
+  "prompt": "Use ledger:export to get the checking account's entries, and tell me the rent amount.",
+  "expect": {
+   "answer": [
+    "1,?450"
+   ],
+   "noteOp": "ledger:entries"
+  }
+ }
+]
