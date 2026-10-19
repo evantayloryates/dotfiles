@@ -49,6 +49,13 @@
    "args": [
     "notion-kickoff"
    ]
+  },
+  "smart-record": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "tool_timeout_sec": 3700.0,
+   "args": [
+    "smart-record"
+   ]
   }
  },
  "claude": {
@@ -100,6 +107,14 @@
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
     "codex-bridge"
+   ],
+   "env": {}
+  },
+  "smart-record": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "smart-record"
    ],
    "env": {}
   }

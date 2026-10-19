@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
   <!--
-    smart-record capture engine (src/smart-record/README.md). Runs in the
+    smart-record capture engine (mcps/smart-record/README.md). Runs in the
     logged-in GUI session only, starts at login, restarts if it crashes.
-    The bundle is built into data/ by src/smart-record/build.py and holds its
+    The bundle is built into data/ by mcps/smart-record/src/build.py and holds its
     own Screen Recording grant.
 
     NOTE: launchd does not expand ~ or $HOME, so paths are absolute.

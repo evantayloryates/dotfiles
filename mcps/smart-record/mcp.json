@@ -1,0 +1,15 @@
+{
+  "$schema": "../_shared/mcp.schema.json",
+  "id": "smart-record",
+  "description": "Agent-driven screen recording on an always-on ScreenCaptureKit engine: aim and check frames, scheduled frame-accurate recordings, sessions, marks, review and export.",
+  "kind": "custom",
+  "launcher": "src/launch",
+  "services": [
+    { "label": "com.taylor.smart-record", "run": ["../../data/smart-record/smart-recordd.app/Contents/MacOS/smart-recordd"], "keepAlive": true },
+    { "label": "com.taylor.smart-record.widget-host", "run": ["../../data/smart-record/widget/Smart Record Control.app/Contents/MacOS/smart-record-control"], "keepAlive": true }
+  ],
+  "requires": ["cli:swiftc (Command Line Tools) to build the engine", "cli:ffmpeg and ffprobe for media readers (optional)"],
+  "cli": ["smart-record"],
+  "harnesses": { "claude": {}, "codex": { "tool_timeout_sec": 3700 } },
+  "test": "node --test test/*.test.mjs"
+}

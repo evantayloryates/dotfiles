@@ -1,14 +1,1 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-# MCP launcher for smart-record (stdio). Registered by `smart-record install`
-# in Claude Code and Codex as:
-#   /Users/taylor/dotfiles/src/smart-record/bin/smart-record-mcp
-# Resolves node explicitly: GUI-launched MCP servers inherit a minimal PATH.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
-NODE="$(resolve_binary node)"
-# Optional reader dependency. Keep capture/status available when it is absent;
-# a requested media map will report its existing bounded probe error.
-. "${SCRIPT_DIR}/../lib/reader-dependencies.sh"
-exec "$NODE" "${SCRIPT_DIR}/../server.mjs" "$@"
+../../../mcps/smart-record/src/launch

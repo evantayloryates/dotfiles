@@ -95,7 +95,7 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
   assert.deepEqual(readdirSync(state), ['capability-evidence'])
 }))
 
-test('recorder target options are discoverable without engine capture or transport', () => server('../../../src/smart-record/server.mjs', async request => {
+test('recorder target options are discoverable without engine capture or transport', () => server('../../smart-record/src/server.mjs', async request => {
   const roster = await request('tools/list')
   const aimed = roster.tools.filter(t => ['frame_check', 'frame_outline', 'record_schedule'].includes(t.name))
   assert.equal(aimed.length, 3)

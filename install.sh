@@ -148,12 +148,12 @@ if [[ "$(uname)" == "Darwin" ]]; then
 
   # com.taylor.smart-record: the screen-recording engine agents drive through
   # the smart-record MCP. Built with swiftc (Command Line Tools are enough);
-  # skipped when no Swift toolchain is installed. See src/smart-record/README.md.
+  # skipped when no Swift toolchain is installed. See mcps/smart-record/README.md.
   if xcrun --find swiftc >/dev/null 2>&1; then
-    if bash "$DOTFILES_DIR/src/smart-record/install.sh" >/dev/null; then
+    if bash "$DOTFILES_DIR/mcps/smart-record/src/install.sh" >/dev/null; then
       log "🎥 Built + loaded com.taylor.smart-record LaunchAgent"
     else
-      log "⚠️  smart-record install failed — run src/smart-record/install.sh to see why"
+      log "⚠️  smart-record install failed — run mcps/smart-record/src/install.sh to see why"
     fi
   fi
 fi

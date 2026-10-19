@@ -247,9 +247,9 @@ bootstrap line above reloads it. Log: `~/.zdr-harness/logs/tunnel.log`.
 
 Keeps the smart-record capture engine (`smart-recordd.app`, built into
 `data/smart-record/`) running in the logged-in GUI session: starts at login,
-restarts after a crash. Loaded by `src/smart-record/install.sh`, which the
+restarts after a crash. Loaded by `mcps/smart-record/src/install.sh`, which the
 top-level `install.sh` runs. Everything else, including the one-time Screen
-Recording grant, is in [`../smart-record/README.md`](../smart-record/README.md).
+Recording grant, is in [`mcps/smart-record/README.md`](../../mcps/smart-record/README.md).
 
 ## `com.taylor.agent-resource-monitor`
 

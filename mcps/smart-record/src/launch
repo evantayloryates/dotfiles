@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for smart-record (stdio). Harnesses start it through
+# mcps/_shared/bin/run smart-record; `smart-record install` registers that.
+# Resolves node explicitly: GUI-launched MCP servers inherit a minimal PATH.
+# Resolves its own realpath so the link at
+# src/smart-record/bin/smart-record-mcp resolves to this folder.
+SCRIPT_DIR="$(dirname "$(/bin/realpath "${BASH_SOURCE[0]}")")"
+# Started by mcps/_shared/bin/run: $1 is the profile.
+[[ -n "${MCP_PROFILE:-}" ]] && shift
+. "${SCRIPT_DIR}/../../../src/lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+# Optional reader dependency. Keep capture/status available when it is absent;
+# a requested media map will report its existing bounded probe error.
+. "${SCRIPT_DIR}/lib/reader-dependencies.sh"
+exec "$NODE" "${SCRIPT_DIR}/server.mjs" "$@"
