@@ -22,13 +22,14 @@ supervisor:
    `CHANGELOG.md`, runs the suite in the worktree and commits on its branch.
    It does not push, merge, publish, build or install the engine, or touch the
    main checkout. It returns `fixed`, `needs_input` or `cannot_reproduce`, a
-   root cause, its verification and up to five smoke commands.
+   root cause, its verification and up to five smoke test files
+   (`test/<name>.test.mjs`; nothing else is accepted or run).
 4. On `fixed`, the supervisor (not the model) rebases the branch onto
    `master` and fast-forwards the main checkout's `master`. It retries for up
    to 15 minutes while master moves; a conflict stops with Needs input.
 5. Removes the worktree and branch, then runs `bin/dotfiles-publish` (six
    tries). An unpublished merge stays on local master for the next publish.
-6. Re-runs `node --test test/*.test.mjs` and the worker's smoke commands on
+6. Re-runs `node --test test/*.test.mjs` and the worker's smoke test files on
    master. When the engine's sources changed, it rebuilds through the fenced
    `smart-record build` path (waits for an idle boundary, up to two hours).
 7. Smoke-tests the live service through `mcps/_shared/bin/run smart-record`:

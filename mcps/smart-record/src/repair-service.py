@@ -110,9 +110,11 @@ MAX_GENERATION=2  # automatic follow-on tickets after a failed post-merge check
 CODEX_TIMEOUT=int(os.environ.get('SMART_RECORD_REPAIR_TIMEOUT_S','2700'))
 CODEX_CANDIDATES=[Path('/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex'),Path('/Applications/Codex.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex')]
 NOTIFY=Path.home()/'.claude/skills/notify-macos/scripts/notify.py'
+# Model output never becomes a command: smoke checks are test files only.
+SMOKE_PATTERN=r'^test/[A-Za-z0-9_.-]+\.test\.mjs$'
 RESULT_SCHEMA={'type':'object','additionalProperties':False,'required':['state','summary','root_cause','verification','smoke','limits'],'properties':{
     'state':{'type':'string','enum':['fixed','needs_input','cannot_reproduce']},'summary':{'type':'string'},'root_cause':{'type':'string'},
-    'verification':{'type':'string'},'smoke':{'type':'array','maxItems':5,'items':{'type':'array','minItems':1,'maxItems':32,'items':{'type':'string'}}},'limits':{'type':'string'}}}
+    'verification':{'type':'string'},'smoke':{'type':'array','maxItems':5,'items':{'type':'string'}},'limits':{'type':'string'}}}
 
 class Halt(Exception):
     """A pipeline stop with a ticket state and a human-readable reason."""
@@ -248,6 +250,16 @@ def step(db,id,folder,name,detail,**fields):
         row.update(fields,updated_at=now());put(db,row)
     write_trace(folder,row);return row
 
+def smoke_files(repo,names):
+    """The worker's smoke checks: existing test files under the service's test/."""
+    root=(repo/SERVICE/'test').resolve();out=[]
+    for name in names[:5]:
+        if not isinstance(name,str) or not re.fullmatch(SMOKE_PATTERN,name):raise Halt('needs_input',f'Rejected smoke entry {name!r}: only test/<name>.test.mjs files are run')
+        path=(repo/SERVICE/name).resolve()
+        if path.parent!=root or not path.is_file():raise Halt('needs_input',f'Smoke test {name} does not exist on master')
+        out.append(name)
+    return out
+
 def worker_overrides(repo):
     """Codex -c overrides that switch off MCP servers and plugins for the worker."""
     return json.loads(subprocess.check_output([node_binary(),str(repo/SERVICE/'src/lib/repair-worker-config.mjs')],text=True,timeout=5))
@@ -261,7 +273,7 @@ You are in a dedicated git worktree at {path} on branch {branch}, based on maste
 4. Verify here: run `node --test test/*.test.mjs` from mcps/smart-record plus checks targeted at the fix. They must pass.
 5. Commit all your changes on this branch (git add -A, clear messages) and leave the worktree clean.
 Do not push, merge, rebase, switch branches, run dotfiles-publish, edit the main checkout at {repo}, build or install the production engine or widget, restart the live engine, kill other processes, change permissions, authenticate, drive UI, or file repair tickets. The supervisor merges your branch into master, publishes, re-runs the tests on master, delivers the native build when Swift sources changed and smoke-tests the live service.
-In `smoke`, give up to five argv commands (no shell; run from mcps/smart-record in the main checkout after the merge) that check this fix specifically, for example ["node","--test","test/x.test.mjs"]; [] if the suite already covers it. If you need Taylor's input, return needs_input with the smallest question. `prior` in the incident file holds earlier attempts and triage notes.'''
+In `smoke`, list up to five test files (paths like "test/x.test.mjs" under mcps/smart-record) that check this fix specifically; the supervisor runs them with `node --test` on master after the merge. [] if the suite already covers it. If you need Taylor's input, return needs_input with the smallest question. `prior` in the incident file holds earlier attempts and triage notes.'''
 
 def file_follow_on(db,parent,detail):
     if parent.get('generation',0)>=MAX_GENERATION:return None
@@ -315,9 +327,10 @@ def worker(db,id,repo=None):
         step(db,id,folder,'published' if published else 'publish_deferred',out if not published else 'origin/master updated',published=published)
         code,out=run_logged(['node','--test',*sorted(str(p.relative_to(repo/SERVICE)) for p in (repo/SERVICE/'test').glob('*.test.mjs'))],repo/SERVICE,1800)
         if code:raise Halt('verify_failed','The test suite fails on master after the merge:\n'+out)
-        for argv in result['smoke']:
-            code,out=run_logged(argv,repo/SERVICE,600)
-            if code:raise Halt('verify_failed',f'Smoke check {argv} fails on master after the merge:\n'+out)
+        smoke_tests=smoke_files(repo,result['smoke'])
+        if smoke_tests:
+            code,out=run_logged(['node','--test',*smoke_tests],repo/SERVICE,600,env={'HOME':str(Path.home()),'PATH':'/usr/bin:/bin:/opt/homebrew/bin'})
+            if code:raise Halt('verify_failed',f'Smoke tests {smoke_tests} fail on master after the merge:\n'+out)
         step(db,id,folder,'verified','test suite and the worker\'s smoke checks pass on master')
         native=deliver_native(repo)
         step(db,id,folder,'delivered','native engine rebuilt through the fenced path' if native else 'no native change; fresh MCP clients load the new adapter')

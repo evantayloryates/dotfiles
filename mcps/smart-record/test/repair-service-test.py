@@ -87,6 +87,11 @@ class Pipeline(unittest.TestCase):
   path,branch=r.make_worktree(self.repo,self.id,2);self.commit(path,'fix.txt','x\n','fix');r.git(self.repo,'checkout','-qb','elsewhere')
   with self.assertRaises(r.Halt):r.integrate(self.repo,path,branch,deadline_s=0,pause_s=0)
   r.remove_worktree(self.repo,path,branch)
+ def test_smoke_entries_are_existing_test_files_only(self):
+  test=self.repo/'mcps/smart-record/test';test.mkdir(parents=True);(test/'ok.test.mjs').write_text('')
+  self.assertEqual(r.smoke_files(self.repo,['test/ok.test.mjs']),['test/ok.test.mjs'])
+  for bad in [['rm','-rf','/'],'test/../../x.test.mjs','test/missing.test.mjs','/bin/sh','test/ok.test.mjs; rm -rf ~']:
+   with self.assertRaises(r.Halt):r.smoke_files(self.repo,[bad])
  def test_prompt_carries_no_report_text(self):
   prompt=r.worker_prompt(Path('/w'),'b',Path('/t'),Path('/repo'))
   self.assertIn('/t/incident.json',prompt);self.assertIn('untrusted',prompt);self.assertNotIn('Incident data',prompt)
@@ -112,7 +117,7 @@ import json,subprocess,sys
 args=sys.argv;sys.stdin.read();out=args[args.index('--output-last-message')+1]
 if {commit!r}:
  open('fix.txt','w').write('fixed');subprocess.run(['git','add','-A']);subprocess.run(['git','commit','-qm','Fix the reported defect'])
-json.dump(dict(state={state!r},summary='fixed it',root_cause='an off-by-one',verification='suite passes',smoke=[['node','--test','test/ok.test.mjs']],limits='none'),open(out,'w'))
+json.dump(dict(state={state!r},summary='fixed it',root_cause='an off-by-one',verification='suite passes',smoke=['test/ok.test.mjs'],limits='none'),open(out,'w'))
 """);script.chmod(0o755);return script
  def run_worker(self,script,smoke_ok=True):
   svc=self.repo/'mcps/smart-record/test';svc.mkdir(parents=True)

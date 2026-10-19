@@ -12,7 +12,9 @@
 - The report now reaches the worker as `incident.json`; the prompt is fixed
   text. The worker no longer pushes or installs anything itself.
 - Every finished attempt sends a macOS notification that opens the ticket's
-  `trace.html`. A failed post-merge check files a follow-on ticket
+  `trace.html`. The worker's smoke checks are restricted to existing
+  `test/<name>.test.mjs` files run with `node --test`; model output is never
+  executed as a command. A failed post-merge check files a follow-on ticket
   (`parent_ticket`, at most two generations).
 - `test/paired-map.test.mjs` reads the expected adapter version from
   `server.mjs` instead of a stale `0.19.1`.
