@@ -2,6 +2,7 @@
 // nochange reports ready without edits; breaks introduces drift; hangs never
 // ends; noresult ends without result.json; errored fails the run; restructure
 // adds a folder. Logs argv, cwd and env names for assertions.
+import { createHash } from 'node:crypto'
 import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 const argv = process.argv.slice(2)
@@ -32,6 +33,11 @@ if (svc === 'escape') {
     // 6.4: reads outside the allow list, including a secret no list names.
     read_fresh_secret: () => readFileSync(join(H, 'anchor-secret-test/secret.txt')),
     read_documents: () => execSync(`ls ${H}/Documents`, { stdio: 'pipe' }),
+    // A unix socket the suite listens on (stand-in for anchor's daemon or the
+    // 1Password broker), and the pasteboard.
+    unix_socket: () => execSync(`/usr/bin/nc -U -w 1 ${H}/.cache/anchor-lab/probe.sock < /dev/null`, { stdio: 'pipe' }),
+    // Only a hash of what it can read leaves the probe; the suite compares it.
+    pasteboard: () => { const out = execSync('/usr/bin/pbpaste', { stdio: 'pipe' }); throw Object.assign(new Error('read'), { code: 'sha:' + createHash('sha256').update(out).digest('hex').slice(0, 16) }) },
     read_lab_findings: () => readFileSync('/Users/taylor/src/github/dotfiles/mcps/anchor/README.md'),
   }
   const outcome = {}
@@ -46,5 +52,8 @@ if (svc === 'noresult') done({})
 if (svc === 'fixit') writeFileSync(src, readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 if (svc === 'breaks') { const m = JSON.parse(readFileSync('service/service.json', 'utf8')); m.operations.ghost = { description: 'never built' }; writeFileSync('service/service.json', JSON.stringify(m)) }
 if (svc === 'restructure') mkdirSync('service/lib', { recursive: true })
+// A fix whose module acts the moment it loads: the release check must load it
+// under the no-network sandbox, so this write never lands.
+if (svc === 'loadtime') writeFileSync(src, `import { writeFileSync } from 'node:fs'\ntry { writeFileSync(process.env.HOME + '/anchor-check-escape.txt', 'x') } catch {}\n` + readFileSync(src, 'utf8').replace(/const CRASH = \[[^\]]*\]/, 'const CRASH = []'))
 writeFileSync('result.json', JSON.stringify({ outcome: 'ready', note: `fake change for ${svc}` }))
 done({})

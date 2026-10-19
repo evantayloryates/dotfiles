@@ -64,6 +64,12 @@ export function profile(workspace, { extraReads = [] } = {}) {
     '; No asking other processes to act outside the sandbox: AppleEvents to',
     '; other apps, and app launches through LaunchServices (`open`).',
     '(deny appleevent-send)',
+    '; No local sockets (anchor\'s own daemon, the 1Password broker, other',
+    '; agents) and no pasteboard: the model API is reached over TCP only.',
+    '(deny network-outbound (remote unix-socket))',
+    '; except name resolution, which macOS does through mDNSResponder\'s socket.',
+    '(allow network-outbound (remote unix-socket (path-literal "/private/var/run/mDNSResponder")))',
+    '(deny mach-lookup (global-name "com.apple.pasteboard.1"))',
     '(deny mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.lsd.mapdb") (global-name "com.apple.lsd.open") (global-name "com.apple.coreservices.quarantine-resolver"))',
     '; Reads: no secrets, listed or not.',
     ...SECRET_READS.map((p) => `(deny file-read* (subpath ${q(real(p))}))`),
@@ -98,4 +104,26 @@ export function prepare(workspace, cli, { extraReads = [] } = {}) {
   // CLAUDE_CODE_TMPDIR moves it inside the workspace with everything else.
   // zsh writes here-documents to $TMPPREFIX (default /tmp/zsh): keep them in the workspace too.
   return { wrapper, env: { CLAUDE_CONFIG_DIR: config, TMPDIR: tmp + '/', CLAUDE_CODE_TMPDIR: tmp, TMPPREFIX: join(tmp, 'zsh') } }
+}
+
+// Profile for running code a fixer wrote (the release check's probes): no
+// network at all, no writes outside temp, and home-folder reads limited to the
+// allow list plus the folder being checked.
+export function checkProfile(dir) {
+  const d = real(dir)
+  const allow = [...READ_ALLOW.map(real), d]
+  return [
+    '(version 1)',
+    '(allow default)',
+    '(deny network*)',
+    '(deny file-write* (subpath "/"))',
+    '(allow file-write* (literal "/dev/null") (regex #"^/dev/fd/") (subpath "/private/tmp") (subpath "/private/var/folders"))',
+    '(deny appleevent-send)',
+    '(deny mach-lookup (global-name "com.apple.coreservices.launchservicesd") (global-name "com.apple.lsd.open") (global-name "com.apple.pasteboard.1"))',
+    ...SECRET_READS.map((p) => `(deny file-read* (subpath ${q(real(p))}))`),
+    '(deny file-read* (subpath "/Users"))',
+    `(allow file-read* (literal ${q(join(H, '.CFUserTextEncoding'))}))`,
+    ...allow.map((p) => `(allow file-read* (subpath ${q(p)}))`),
+    ...[...new Set(allow.flatMap(ancestors))].map((x) => `(allow file-read-metadata (literal ${q(x)}))`),
+  ].join('\n') + '\n'
 }

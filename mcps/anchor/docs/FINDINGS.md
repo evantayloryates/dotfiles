@@ -662,6 +662,36 @@ processes were left running.
     - all 15 suites pass in place;
     - the launcher answers through `mcps/_shared/bin/run anchor`.
 
+49. **Security review: three fixes.** An automated review of the published
+    code raised three findings.
+    - **Ticket service names.** `ticket.report` accepted any `service`
+      string, which later becomes a folder path for fixers. It now accepts
+      only a known service id, and both fixers refuse a ticket whose
+      service is not a plain id (tickets suite 21/21).
+    - **Fixer sandbox.** Outbound Unix sockets are now denied: anchor's own
+      daemon, the 1Password broker and other agents' sockets. The only
+      exception is mDNSResponder, which macOS needs to resolve names.
+      Pasteboard lookups are denied too.
+    - **Fixer code checked outside the sandbox.** The release check loaded
+      a fixer's code unsandboxed. Under `ANCHOR_CHECK_SANDBOX=1` (set by
+      both fixers) its probes now run with no network, no writes outside
+      temp and the home-folder read allow list.
+
+    Headless 22/22: socket and pasteboard probes denied, and a fix that
+    writes a file the moment it loads passes the check without the file
+    appearing. The first real fixer under the new profile failed: denying
+    every Unix socket also blocked DNS, which the fake fixer could not
+    reveal. With mDNSResponder allowed, a real fixer fixed `mend` on the
+    subscription.
+
+50. **Open exposure, for Taylor.** Once released, a fixer's code runs in
+    the service host like any service: unsandboxed, with the daemon's
+    rights. The sandbox covers writing and checking the fix, not running
+    it. Closing this means either a human approval before a fixer's
+    release goes live (at least on the hotfix lane), or running every
+    service host sandboxed. Both change how anchor operates, so they wait
+    for Taylor's decision.
+
 **Final pilot** (r7 and r8 through anchor, pooled; baselines r5 and r6
 direct): every phase 3 target met in both harnesses.
 

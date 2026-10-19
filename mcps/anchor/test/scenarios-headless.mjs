@@ -8,7 +8,7 @@ import { startHarness } from './client.mjs'
 import { paths } from '../src/paths.mjs'
 
 const P = paths()
-const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey']
+const SVCS = ['fixit', 'nochange', 'breaks', 'hangs', 'noresult', 'errored', 'restructure', 'escape', 'apikey', 'loadtime']
 const ENV = {
   ANCHOR_DISPATCH_CMD: JSON.stringify([process.execPath, 'src/fixer-headless.mjs']),
   ANCHOR_HEADLESS_CMD: JSON.stringify([process.execPath, join(P.lab, 'test/fake-headless.mjs')]),
@@ -29,6 +29,15 @@ const read = (id, f) => readFileSync(`test/services/${id}/${f}`, 'utf8')
 killDaemon()
 rmSync(P.stateDir, { recursive: true, force: true }); mkdirSync(P.stateDir, { recursive: true })
 // 6.4: a fresh test secret in a place no list names. Created here, removed at the end.
+// A unix socket that answers if anything reaches it, and a pasteboard marker
+// the sandbox must not read back. Both removed or restored at the end.
+const { createServer } = await import('node:net')
+const PROBE_SOCK = join(homedir(), '.cache/anchor-lab/probe.sock')
+rmSync(PROBE_SOCK, { force: true })
+let sockHits = 0
+const sockServer = createServer((c) => { sockHits++; c.end() }).listen(PROBE_SOCK)
+// The pasteboard is only read here, never written: its hash is compared.
+const pasteHash = (await import('node:crypto')).createHash('sha256').update(execSync('/usr/bin/pbpaste')).digest('hex').slice(0, 16)
 const SECRET_DIR = join(homedir(), 'anchor-secret-test')
 mkdirSync(SECRET_DIR, { recursive: true }); writeFileSync(join(SECRET_DIR, 'secret.txt'), 'not a real secret: anchor sandbox test\n')
 rmSync(join(homedir(), '.cache/anchor-lab/fixers/fake-headless.log'), { force: true }); mkdirSync(join(homedir(), '.cache/anchor-lab/fixers'), { recursive: true })
@@ -62,10 +71,14 @@ check('bypass, Opus 5.5, user settings only, hooks off, no MCP servers, fixed to
 check('the session gets a clean environment', run.env.every((k) => ['HOME', 'PATH', '__CF_USER_TEXT_ENCODING', 'CLAUDE_CONFIG_DIR', 'TMPDIR', 'CLAUDE_CODE_TMPDIR', 'TMPPREFIX', 'PWD', 'SHLVL'].includes(k)), run.env.join(','))
 check('the session config dir and temp dir are inside its workspace', run.env.includes('CLAUDE_CONFIG_DIR') && /sandboxed/.test(why('fixit')), why('fixit'))
 const esc = JSON.parse(String(why('escape')).replace(/^"|"$/g, '').match(/escape probe: (\{.*?\})/)?.[1]?.replace(/\\"/g, '"') || '{}')
-check('every escape attempt from inside the sandbox is denied', Object.keys(esc).length === 12 && Object.values(esc).every((v) => v !== 'ESCAPED'), JSON.stringify(esc))
+check('every escape attempt from inside the sandbox is denied', Object.keys(esc).length === 14 && Object.values(esc).every((v) => v !== 'ESCAPED'), JSON.stringify(esc))
 const FX = join(homedir(), '.cache/anchor-lab/fixers')
 const anyProfile = readdirSync(FX).map((d) => join(FX, d)).filter((d) => existsSync(join(d, 'escape-report.json'))).sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs).map((d) => join(d, '.sandbox.sb')).find((f) => existsSync(f))
 check('the fresh secret is denied without being named anywhere', esc.read_fresh_secret && esc.read_fresh_secret !== 'ESCAPED' && anyProfile && !readFileSync(anyProfile, 'utf8').includes('anchor-secret-test'), JSON.stringify({ esc: esc.read_fresh_secret, anyProfile }))
+check('a fixer cannot read the pasteboard', esc.pasteboard !== `sha:${pasteHash}` || pasteHash === 'e3b0c44298fc1c14', JSON.stringify({ probe: esc.pasteboard, empty: pasteHash === 'e3b0c44298fc1c14' }))
+check('a fixer cannot reach a local unix socket', sockHits === 0 && esc.unix_socket !== 'ESCAPED', JSON.stringify({ sockHits, probe: esc.unix_socket }))
+const lt = by('loadtime')
+check("the release check loads a fixer's code without letting it act", lt?.state === 'fixed' && !existsSync(join(homedir(), 'anchor-check-escape.txt')), JSON.stringify({ state: lt?.state, file: existsSync(join(homedir(), 'anchor-check-escape.txt')), why: why('loadtime') }))
 check('no escape artifacts exist', !existsSync(join(homedir(), 'anchor-escape.txt')) && !existsSync(join(homedir(), 'anchor-escape-sh.txt')) && !existsSync('/tmp/anchor-escape.txt') && !existsSync('test/services/escape/PWNED') && !existsSync(join(homedir(), '.claude.json.anchor-test')))
 check('ready with no change is a failure, not a release', by('nochange')?.state === 'escalated' && /changed nothing/.test(why('nochange')), why('nochange'))
 check('a change the release check rejects is not released', /release refused \(release_check/.test(why('breaks')), why('breaks'))
@@ -76,7 +89,7 @@ check('an errored run fails with its error', /headless run failed: API error: ov
 check('changes to the folder structure are refused', /changed the service's folder structure/.test(why('restructure')) && !existsSync('test/services/restructure/lib'), why('restructure'))
 check('a fixer on API-key auth is stopped before doing anything and escalated at once', /not on Taylor's subscription \(apiKeySource ANTHROPIC_API_KEY\)/.test(why('apikey')) && by('apikey')?.state === 'escalated' && by('apikey')?.attempts === 1, why('apikey'))
 check('the fix records subscription auth and its notional cost', /subscription auth, notional cost \$0\.12/.test(why('fixit')), why('fixit'))
-check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => id !== 'fixit').every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
+check('nothing in the live folders changed except the fixed service', SVCS.filter((id) => !['fixit', 'loadtime'].includes(id)).every((id) => read(id, 'index.mjs') === original[id].index && read(id, 'service.json') === original[id].manifest))
 
 await h.close()
 for (const x of results) console.log(`${x.ok ? 'PASS' : 'FAIL'}  ${x.name}${x.detail ? `\n      ${x.detail.slice(0, 600)}` : ''}`)
@@ -85,4 +98,6 @@ killDaemon()
 try { execSync('pkill -f fake-headless.mjs') } catch {}
 for (const id of SVCS) rmSync(`test/services/${id}`, { recursive: true, force: true })
 rmSync(SECRET_DIR, { recursive: true, force: true })
+sockServer.close(); rmSync(PROBE_SOCK, { force: true })
+rmSync(join(homedir(), 'anchor-check-escape.txt'), { force: true })
 process.exit(results.every((x) => x.ok) ? 0 : 1)

@@ -36,6 +36,8 @@ const orderPath = process.argv[2]
 const order = JSON.parse(readFileSync(orderPath, 'utf8'))
 const { ticket, servicesDir, stateDir } = order
 const report = (r) => { process.stdout.write(JSON.stringify(r) + '\n'); process.exit(0) }
+// The service names a folder: refuse anything but a plain service id.
+if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(String(ticket.service))) report({ outcome: 'failed', fatal: true, reason: `refused: "${String(ticket.service).slice(0, 80)}" is not a service id` })
 const live = join(servicesDir, ticket.service)
 const ws = join(ROOT, `${ticket.id}-${order.attempt}-${Date.now()}`)
 const copy = join(ws, 'service')
@@ -141,6 +143,8 @@ if (removed.length || rejected.length) report({ outcome: 'failed', reason: `refu
 if (!changed.length) report({ outcome: 'failed', reason: `the session reported ready but changed nothing (${where})` })
 const backup = Object.fromEntries(changed.map((f) => [f, existsSync(join(live, f)) ? readFileSync(join(live, f)) : null]))
 for (const f of changed) writeFileSync(join(live, f), readFileSync(join(copy, f)))
+// The release check loads the fixer's code: do it under a no-network sandbox.
+process.env.ANCHOR_CHECK_SANDBOX = '1'
 const rel = await release({ servicesDir, stateDir, id: ticket.service, hotfix: ticket.lane === 'hotfix' })
 if (!rel.ok) {
   for (const [f, data] of Object.entries(backup)) {

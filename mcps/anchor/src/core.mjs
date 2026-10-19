@@ -25,6 +25,7 @@ const MAX_NIGHTLY_AGE_MS = Number(process.env.ANCHOR_MAX_NIGHTLY_AGE_MS || 72 * 
 const DEFAULT_DEADLINE_MS = 15_000
 const CONTEXT_BUDGET_MS = Number(process.env.ANCHOR_CONTEXT_BUDGET_MS || 300)
 const CONTEXT_WORKER = fileURLToPath(new URL('./context-worker.mjs', import.meta.url))
+export const SERVICE_ID = /^[a-z0-9][a-z0-9_-]{0,63}$/
 const DAY = 24 * 3600_000
 const SESSION_TTL_MS = 7 * DAY
 const RECORD_TTL_MS = DAY
@@ -724,6 +725,8 @@ export function createAnchor({ servicesDir, stateDir, mode = 'daemon', log = () 
     if (op === 'ticket.get') return { ok: true, value: [].concat(args.ids || []).map((id) => book.view(book.get(id)) || { id, error: 'no such ticket' }) }
     if (op === 'ticket.report') {
       if (!args.service || !args.title) return { ok: false, code: 'bad_args', error: 'ticket.report needs service and title (detail and op optional)' }
+      // The service names a folder fixers work in: only a known service id.
+      if (!SERVICE_ID.test(String(args.service)) || !manifests()[args.service]) return { ok: false, code: 'bad_args', error: `ticket.report: no service "${String(args.service).slice(0, 80)}"`, available: Object.keys(manifests()) }
       const t = book.record({ kind: 'report', service: args.service, op: args.op, fingerprint: args.title, title: args.title, detail: args.detail, session: s?.handle })
       return { ok: true, value: { ticket: t.id, state: t.state, occurrences: t.count, hint: 'You will get a note here when it is fixed; check with anchor:ticket.get.' } }
     }

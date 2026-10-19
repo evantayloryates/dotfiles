@@ -13,11 +13,17 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { paths } from './paths.mjs'
 import { manifestProblems, idempotencyOf } from './policy.mjs'
+import { checkProfile } from './sandbox.mjs'
 
 const HOST = fileURLToPath(new URL('./service-host.mjs', import.meta.url))
 
-const run = (args, timeout) => new Promise((resolve) => {
-  execFile(process.execPath, args, { timeout, maxBuffer: 1 << 20 }, (err, stdout, stderr) => resolve({ err, stdout, stderr }))
+// ANCHOR_CHECK_SANDBOX=1 (set by fixers before releasing their own change):
+// the probes that run the service's code run under a no-network sandbox.
+const run = (args, timeout, dir) => new Promise((resolve) => {
+  const [bin, argv] = process.env.ANCHOR_CHECK_SANDBOX === '1' && dir
+    ? ['/usr/bin/sandbox-exec', ['-p', checkProfile(dir), process.execPath, ...args]]
+    : [process.execPath, args]
+  execFile(bin, argv, { timeout, maxBuffer: 1 << 20 }, (err, stdout, stderr) => resolve({ err, stdout, stderr }))
 })
 const lastError = (stderr) => String(stderr).split('\n').map((l) => l.trim()).filter((l) => /Error/.test(l) && !/^Node\.js v/.test(l)).pop() || String(stderr).trim().split('\n').pop()
 
@@ -36,7 +42,7 @@ export async function checkService(dir, id = dir.split('/').pop()) {
   errors.push(...manifestProblems(man))
   const declared = Object.keys(man.operations || {})
 
-  const inspect = await run([HOST, dir, '--inspect'], 5000)
+  const inspect = await run([HOST, dir, '--inspect'], 5000, dir)
   let handlers = null
   let opHashes = {}
   if (inspect.err) errors.push(`module fails to load: ${inspect.err.killed ? 'timed out after 5 s' : lastError(inspect.stderr)}`)
@@ -61,7 +67,7 @@ export async function checkService(dir, id = dir.split('/').pop()) {
 
   if (existsSync(join(dir, 'context.mjs'))) {
     const probe = `const m = await import(${JSON.stringify(pathToFileURL(join(dir, 'context.mjs')).href)}); const t0 = Date.now(); const t = await m.sessionContext?.({ clientInfo: { name: 'release-check' }, session: 'as_check' }); process.stdout.write(JSON.stringify({ type: typeof t, length: String(t ?? '').length, ms: Date.now() - t0 }))`
-    const ctx = await run(['--input-type=module', '-e', probe], 3000)
+    const ctx = await run(['--input-type=module', '-e', probe], 3000, dir)
     if (ctx.err) warnings.push(`context.mjs fails: ${ctx.err.killed ? 'timed out' : lastError(ctx.stderr)}`)
     else {
       const c = JSON.parse(ctx.stdout || '{}')

@@ -30,6 +30,8 @@ const order = JSON.parse(readFileSync(orderPath, 'utf8'))
 const resultPath = `${orderPath}.result.json`
 const { ticket } = order
 const report = (r) => { process.stdout.write(JSON.stringify(r) + '\n'); process.exit(0) }
+// The service names a folder in the brief: refuse anything but a plain id.
+if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(String(ticket.service))) report({ outcome: 'failed', fatal: true, reason: `refused: "${String(ticket.service).slice(0, 80)}" is not a service id` })
 
 // The driver from a daemon: no desktop-session environment, so Tier B work
 // goes through the broker instead of being handed back to a caller.
@@ -56,7 +58,7 @@ function brief() {
     `- The service's working folder: ${join(order.servicesDir, ticket.service)} (edit index.mjs and service.json only as the fix needs).`,
     // The release must land in this anchor's own folders, which need not be
     // the defaults (tests and pilots run on their own).
-    `- The release tool: run \`ANCHOR_STATE_DIR=${order.stateDir} ANCHOR_SERVICES_DIR=${order.servicesDir} node src/release.mjs release ${ticket.service}${ticket.lane === 'hotfix' ? ' --hotfix' : ''}\` from ${LAB}. It runs the release check; if it refuses, fix what it reports and try again.`,
+    `- The release tool: run \`ANCHOR_CHECK_SANDBOX=1 ANCHOR_STATE_DIR=${order.stateDir} ANCHOR_SERVICES_DIR=${order.servicesDir} node src/release.mjs release ${ticket.service}${ticket.lane === 'hotfix' ? ' --hotfix' : ''}\` from ${LAB}. It runs the release check; if it refuses, fix what it reports and try again.`,
     `- Do not commit, publish or touch anything outside the service's working folder and the release tool. Anchor's code lives in the dotfiles repo (mcps/anchor).`,
     '',
     'When done, write exactly one JSON object to this file and end your turn:',

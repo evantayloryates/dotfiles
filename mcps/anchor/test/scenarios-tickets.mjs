@@ -71,6 +71,8 @@ let r = await runA([{ target: 'anchor:ticket.report', args: { service: 'echo', t
 const rep = r.data[0].value.ticket
 r = await runB([{ target: 'anchor:ticket.report', args: { service: 'echo', title: 'echo add returns stale value' } }])
 check('similar reports from two chats join one ticket', r.data[0].value.ticket === rep && r.data[0].value.occurrences === 2, JSON.stringify(r.data))
+const badIds = await runB([{ target: 'anchor:ticket.report', args: { service: '../../etc', title: 'x' } }, { target: 'anchor:ticket.report', args: { service: 'nosuch', title: 'x' } }])
+check('ticket.report accepts only a known service id', badIds.data.every((d) => d.code === 'bad_args'), JSON.stringify(badIds.data))
 r = await runB([{ target: 'anchor:ticket.report', args: { service: 'echo', title: 'echo pixel image is the wrong size' } }])
 check('a different report opens a new ticket', r.data[0].value.ticket !== rep, JSON.stringify(r.data))
 
