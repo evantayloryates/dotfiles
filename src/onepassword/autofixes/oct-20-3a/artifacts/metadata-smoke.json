@@ -1,0 +1,7 @@
+{
+  "command": "/Users/taylor/dotfiles/bin/op --version",
+  "exit_code": 0,
+  "stdout_stderr": "discarded",
+  "authenticated_checks": "skipped while app locked",
+  "additional_auth_wake": false
+}

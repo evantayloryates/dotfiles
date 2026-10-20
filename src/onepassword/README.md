@@ -394,6 +394,15 @@ synthetic tests passed. Deployed hashes, signature, parser state and heartbeat
 verified with unchanged broker/keepalive identities. No code change was
 warranted; the retained generic error does not establish the exact failure cause.
 
+The [October 20 app-lock incident](autofixes/oct-20-3a/summary.md) confirmed a
+timestamped lock at 03:05:34 Eastern with matching deployed code and signature,
+an advancing heartbeat, and unchanged broker PID, PTY and keepalive PID.
+All 81 targeted synthetic tests and a version-only wrapper check passed.
+No code change was warranted. Successful account checks at 03:01 predated
+the lock and do not establish current authorization. Authenticated smoke checks
+were skipped while locked; Taylor owns unlock/native consent and recovery owns
+any authorization wake.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

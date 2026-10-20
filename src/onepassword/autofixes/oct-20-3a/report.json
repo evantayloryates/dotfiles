@@ -1,0 +1,28 @@
+{
+  "outcome": "no_change",
+  "headline": "Normal 1Password app lock; broker healthy",
+  "summary": "1Password locked at 03:05:34 Eastern on October 20. The broker and keepalive remained healthy. No software repair is warranted; unlocking the app and any required native consent remain Taylor’s actions.",
+  "cause": "The bounded timestamped log parser found a genuine lock event at 2026-10-20T07:05:34.183+00:00, matching saved keepalive state. This is an app lock, not evidence of a broker crash, stale watchdog or parser failure. The lock trigger is not established. Both last successful account calls occurred at 03:01 Eastern, before the lock, so those historical successes do not establish current authorization.",
+  "resolution": "No implementation changes, installation, process restart or extra authorization wake were needed. The existing lock suppression is operating as intended. README.md now links this incident and its verified limits; no candidate fix was required.",
+  "verification": "artifacts/parser-check.json confirms readable logs and agreement with saved lock state without saving raw lines. artifacts/deployed-hashes.json confirms source/deployed worker and keepalive hashes, running keepalive hash, build stamp and codesign validation. artifacts/baseline.json and final-status.json show broker PID/session 1213, /dev/ttys000 and keepalive PID 1214 preserved, heartbeat advancing from 03:06:06 to 03:06:26 Eastern, and unchanged historical account state while locked. artifacts/python-tests.json records 44 passing isolated tests; node-tests.json records 37 passing tests. artifacts/metadata-smoke.json records wrapper --version exit 0 with both output streams discarded; authenticated checks were skipped while locked. artifacts/chat-check.json verifies the exact title, dotfiles directory, Pinned section, strongest advertised supported model gpt-6-astra and high reasoning.",
+  "activation": "Existing signed service remains running unchanged. Nothing is staged and no next-load activation is required. Unlock 1Password when access is needed and complete native consent if requested; recovery owns the authorization wake.",
+  "limitations": "Current account authorization was not tested while the app was locked. A successful version check proves wrapper responsiveness, not vault authorization. The reason the app locked and notification click behavior were not tested. No Computer Use or live Claude tests were performed.",
+  "docs": "Reviewed src/onepassword/README.md, src/onepassword/agent-contract.md and src/onepassword/autofixes/AGENTS.md. Updated README.md with the October 20 incident evidence and authorization limits. The shared contract and autofix guidance already cover this ordinary-lock case; no contract change or sync was needed.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-120f9462-ba02-4754-b8c8-13045b152080.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/verify.py"
+  ]
+}

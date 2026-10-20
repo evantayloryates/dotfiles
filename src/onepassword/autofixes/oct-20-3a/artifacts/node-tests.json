@@ -1,0 +1,14 @@
+{
+  "files": [
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ],
+  "exit_code": 0,
+  "counts": {
+    "tests": 37,
+    "pass": 37,
+    "fail": 0
+  },
+  "output_saved": false
+}
