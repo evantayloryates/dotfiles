@@ -1,0 +1,71 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-20T01:07:36.828Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "d21550b994075556f14f3804157208e9d57b31653b54299e4ab956238e334c1a"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "dad78a5de0ad103950b608e9afbc96107b7aad6b8f03f90d3a7134f56efcd7fd"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "72e8dcc403757ad6228bc93749c1c5dcee47a18cece93e3257d91d5f83f1b672"
+    },
+    {
+      "name": "artifacts/diagnostic-8e515755-5738-4dce-957b-1dc929bc6e63.json",
+      "sha256": "407bcaa994f37b33e436c17d7d1409b64852cad483aa2a22863f397e28a048ce"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "750b0cc66da2c849dea197c5ef7e8d37e6ea0d1359a7b45164f67c65636b0753"
+    },
+    {
+      "name": "artifacts/identity-check.json",
+      "sha256": "11b17df287f6a0188dfeb94dc46d89489ab57c6b75293387f902326ac6e4a22d"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "ece7e579314a62b6686874659fe4280869cd204dbcc0c0b431849016b970679e"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "ef6597a7432d175042724a22e759cef0873968f342d43e902cd6e880408ec01d"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "68a1ef476150a100b37d6453332f5e4371c0c542c44b3d8cbff647d1e2294cb0"
+    },
+    {
+      "name": "artifacts/python-diagnostic-original-cwd.json",
+      "sha256": "531bf3ad78e218d85d15946dc2ffe1a89af9095576008c751726f3b85c0dd905"
+    },
+    {
+      "name": "artifacts/python-diagnostic-rerun.json",
+      "sha256": "f2367e30c8a12f74c5307f30ffc00d86fab68fdc23b7c1cf25453e1bdb621fd0"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "402d6f1727014f44a5b6c24cdb7aab3b54e9669472873ddc228c949350c397b2"
+    },
+    {
+      "name": "artifacts/recent-events.json",
+      "sha256": "07b2badfe88a3cf5bf535f50a416be3799223bbe91280acd32d1bc912db50ec7"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "877a798d11f4a9d0ab33a9ebe57c199a52a3ae410a7c06d74e23627f061933d4"
+    },
+    {
+      "name": "artifacts/report-review.json",
+      "sha256": "0907cc4a6058c66ec5ea3712b128467b62ce91be36b3f4387307c12e7a4080ea"
+    },
+    {
+      "name": "artifacts/verify.py",
+      "sha256": "39004caa45ade4106b87ba6afe5e4c66e3b5fb09b238f1b3dd57d0e17fced408"
+    }
+  ],
+  "reportSha256": "6abad36247d9077bee588d57c7ebe81efe519104a26420e0fefecfc28cc5c0b7"
+}

@@ -1,0 +1,10 @@
+{
+  "html_and_markdown_content_reviewed": true,
+  "report_fields_match": true,
+  "local_links_resolve": true,
+  "responsive_layout_source_reviewed": true,
+  "visual_render_performed": false,
+  "reason": "Computer Use quarantined; HTML source and structure inspected without UI",
+  "claims_reconciled_with_artifacts": true,
+  "initial_test_failure_disclosed": true
+}

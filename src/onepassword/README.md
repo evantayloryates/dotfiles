@@ -377,6 +377,15 @@ either process. No code change was warranted. The account successes at 05:48
 predated the lock and do not prove current authorization; unlock and any required
 native consent remain Taylor's actions, with recovery owning the auth wake.
 
+The [October 19 evening incident](autofixes/oct-19-9p/summary.md) observed
+successful prompted keepalives for both accounts at 21:05 Eastern, followed by
+successful independent metadata checks. Its alert snapshot contained the prior
+successful round while authorization was still in progress. Deployed hashes,
+signature, unlocked parser state and an advancing heartbeat verified with the
+same broker and keepalive identities. No repair or additional auth wake was
+needed; neither the generic diagnostic category nor a successful prompted call
+establishes a broker failure or the exact authorization-renewal trigger.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

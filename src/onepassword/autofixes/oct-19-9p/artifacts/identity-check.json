@@ -1,0 +1,11 @@
+{
+  "broker_identity_preserved": true,
+  "keepalive_identity_preserved": true,
+  "heartbeat_advanced": true,
+  "heartbeat_before": "2026-10-19T21:05:56-0400",
+  "heartbeat_after": "2026-10-19T21:06:16-0400",
+  "broker_alive": true,
+  "broker_process_metadata": "1213   918      0 ttys000  /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+  "keepalive_alive": true,
+  "keepalive_process_metadata": "1214   918      0 ??       /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python"
+}

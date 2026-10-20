@@ -1,0 +1,14 @@
+[
+  {
+    "slot": 0,
+    "exit_code": 0,
+    "seconds": 1.223,
+    "output_discarded": true
+  },
+  {
+    "slot": 1,
+    "exit_code": 0,
+    "seconds": 1.017,
+    "output_discarded": true
+  }
+]

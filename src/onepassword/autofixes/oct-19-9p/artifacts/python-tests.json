@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_keepalive",
+    "test_op_agent",
+    "test_recovery",
+    "test_activation",
+    "test_agent_guidance"
+  ],
+  "cwd": "src/onepassword",
+  "exit_code": 1,
+  "seconds": 12.63,
+  "summary": [
+    "Ran 44 tests in 12.453s",
+    "FAILED (failures=1)"
+  ],
+  "raw_output_saved": false
+}

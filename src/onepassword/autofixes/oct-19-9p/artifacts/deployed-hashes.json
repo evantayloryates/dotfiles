@@ -1,0 +1,15 @@
+{
+  "keepalive.py": {
+    "source": "74b0f48c3f3f1a03f3efde949c1c834e1c93f1373219585568c3da90f3d3f0f7",
+    "deployed": "74b0f48c3f3f1a03f3efde949c1c834e1c93f1373219585568c3da90f3d3f0f7",
+    "equal": true
+  },
+  "op_agent.py": {
+    "source": "32a7f5f175335224bde6d4bface53242fde5cac87dbcc2315ec94660b1eef8a2",
+    "deployed": "32a7f5f175335224bde6d4bface53242fde5cac87dbcc2315ec94660b1eef8a2",
+    "equal": true
+  },
+  "running_keepalive_matches": true,
+  "build_stamp_matches": true,
+  "signature_valid": true
+}
