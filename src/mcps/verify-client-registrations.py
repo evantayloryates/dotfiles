@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tomllib
 
@@ -19,8 +20,8 @@ def main() -> int:
     actual = {"codex": codex.get("mcp_servers", {}), "claude": claude.get("mcpServers", {})}
     errors = []
     desktop = json.loads((HOME / "Library/Application Support/Claude/claude_desktop_config.json").read_text()).get("mcpServers", {})
-    for name, config in expected["claude"].items():
-        if name.startswith("gmail-") and any(desktop.get(name, {}).get(k) != v for k, v in config.items()):
+    for name, config in expected.get("claude-desktop", {}).items():
+        if any(desktop.get(name, {}).get(k) != v for k, v in config.items()):
             errors.append(f"claude-desktop/{name}: registration differs")
     for name in expected.get("removed_servers", {}).get("claude", []):
         if name in desktop:
@@ -51,7 +52,9 @@ def main() -> int:
         settings = json.loads(settings_path.read_text())
         if any("playwright" in name.lower() and enabled for name, enabled in settings.get("enabledPlugins", {}).items()):
             errors.append("Claude Playwright plugin remains enabled")
-    for relative, target in [("Library/Application Support/Claude/claude_desktop_config.json", "src/mcps/host-config/claude-desktop.json"), (".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "mcps/ios-agent/src/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "mcps/ios-agent/src/com.taylor.ios-agent.metro.plist")]:
+    # Claude desktop's config is app-owned: the app rewrites it (preferences,
+    # paths), replacing any symlink, so it is checked by content above.
+    for relative, target in [(".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "mcps/ios-agent/src/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "mcps/ios-agent/src/com.taylor.ios-agent.metro.plist")]:
         trigger = HOME / relative
         if not trigger.is_symlink() or trigger.resolve() != (ROOT / target).resolve():
             errors.append(f"{relative}: canonical dotfiles symlink missing")
@@ -62,6 +65,9 @@ def main() -> int:
         package_path = MANIFEST.parent / "runtime/node_modules" / name / "package.json"
         if not package_path.exists() or json.loads(package_path.read_text()).get("version") != version:
             errors.append(f"{name}: local runtime missing or version differs")
+    generated = subprocess.run([sys.executable, str(MANIFEST.with_name("generate-client-registrations.py")), "--check"], capture_output=True, text=True)
+    if generated.returncode != 0:
+        errors.append("client-registrations.json is out of date with mcps/*/mcp.json (run generate-client-registrations.py)")
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

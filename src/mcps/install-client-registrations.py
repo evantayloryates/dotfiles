@@ -26,6 +26,7 @@ def write_private(path, text):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--desktop-later", action="store_true", help="apply Codex and Claude Code now; leave Claude desktop for a run with the app quit")
     args = parser.parse_args()
     manifest = json.loads((ROOT / "client-registrations.json").read_text())
     codex_path = Path.home() / ".codex/config.toml"
@@ -80,11 +81,14 @@ def main():
     desktop_servers = desktop.setdefault("mcpServers", {})
     for name in manifest.get("removed_servers", {}).get("claude", []):
         desktop_servers.pop(name, None)
-    # Desktop has an independent shared MCP pool. Manage only Gmail here.
-    for name, desired in manifest["claude"].items():
-        if name.startswith("gmail-"):
-            desktop_servers.setdefault(name, {}).update(desired)
-    if args.apply and json.dumps(desktop, sort_keys=True) != original_desktop:
+    # Desktop has its own MCP pool: manage exactly the fleet's claude-desktop
+    # registrations (generated from the manifests) and leave the rest alone.
+    for name, desired in manifest.get("claude-desktop", {}).items():
+        desktop_servers[name] = dict(desired)
+    desktop_changes = json.dumps(desktop, sort_keys=True) != original_desktop
+    if args.apply and desktop_changes and args.desktop_later:
+        print("Claude desktop registrations left for later: quit the Claude app, then run this installer with --apply")
+    elif args.apply and desktop_changes:
         running = subprocess.run(["/usr/bin/pgrep", "-x", "Claude"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if running.returncode == 0:
             raise SystemExit("Claude desktop is running and caches MCP configuration. Quit it at a safe point before --apply; disk-only changes can be overwritten. No files changed.")
@@ -94,7 +98,8 @@ def main():
         desktop_path.parent.mkdir(parents=True, exist_ok=True)
         write_private(codex_path, updated)
         write_private(claude_path, json.dumps(claude, indent=2) + "\n")
-        write_private(desktop_path, json.dumps(desktop, indent=2) + "\n")
+        if desktop_changes and not args.desktop_later:
+            write_private(desktop_path, json.dumps(desktop, indent=2) + "\n")
         print("Applied fleet registrations from dotfiles; private host state preserved")
     else:
         print("Validated installation plan; pass --apply to install")

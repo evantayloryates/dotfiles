@@ -10,13 +10,29 @@
     "personal-legacy": {}
   },
   "env": {
-    "PERSONAL_GMAIL_APP_SECRET": { "from": ["dotfiles-env"] }
+    "PERSONAL_GMAIL_APP_SECRET": {
+      "from": [
+        "dotfiles-env"
+      ]
+    }
   },
-  "requires": ["file:~/.gmail-mcp-accounts/<profile>/credentials.json"],
-  "cli": ["auth-gmail-account"],
+  "requires": [
+    "file:~/.gmail-mcp-accounts/<profile>/credentials.json"
+  ],
+  "cli": [
+    "auth-gmail-account"
+  ],
   "harnesses": {
     "claude": {},
     "claude-desktop": {},
-    "codex": { "startup_timeout_sec": 120, "tool_timeout_sec": 120 }
+    "codex": {
+      "startup_timeout_sec": 120,
+      "tool_timeout_sec": 120,
+      "names": {
+        "personal-primary": "gmail_personal_primary",
+        "personal-secondary": "gmail_personal_secondary",
+        "personal-legacy": "gmail_personal_legacy"
+      }
+    }
   }
 }

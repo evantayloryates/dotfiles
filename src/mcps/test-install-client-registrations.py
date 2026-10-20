@@ -22,11 +22,13 @@ class DesktopInstallTests(unittest.TestCase):
             desktop.parent.mkdir(parents=True)
             original = {'preferences': {'keep': True}, 'mcpServers': {'unrelated': {'command': 'keep'}, 'gmail-work-primary': {'command': 'old'}}}
             desktop.write_text(json.dumps(original))
-            manifest = {'codex': {}, 'claude': {'gmail-personal-primary': {'command': '/local/gmail', 'args': ['personal-primary']}}, 'removed_servers': {'claude': ['gmail-work-primary']}}
+            manifest = {'codex': {}, 'claude': {}, 'claude-desktop': {'gmail-personal-primary': {'command': '/local/gmail', 'args': ['personal-primary']}}, 'removed_servers': {'claude': ['gmail-work-primary']}}
             (home/'client-registrations.json').write_text(json.dumps(manifest))
             with patch.object(m,'ROOT',home), patch.object(m.Path,'home',return_value=home), patch('sys.argv',['installer','--apply']):
                 with patch.object(m.subprocess,'run',return_value=SimpleNamespace(returncode=0)):
                     with self.assertRaisesRegex(SystemExit,'No files changed'):m.main()
+                self.assertEqual(json.loads(desktop.read_text()),original)
+                with patch('sys.argv',['installer','--apply','--desktop-later']), patch.object(m.subprocess,'run',side_effect=AssertionError('desktop-later should not check app')):m.main()
                 self.assertEqual(json.loads(desktop.read_text()),original)
                 with patch.object(m.subprocess,'run',return_value=SimpleNamespace(returncode=1)):m.main()
                 installed=json.loads(desktop.read_text())

@@ -5,9 +5,13 @@ versioned, portable, and available on any machine that clones this repo.
 
 ## Client registrations and resource use
 
-`client-registrations.json` is the canonical fleet configuration for Gmail,
-Cloudinary, Notion, claude-driver and Framer. Apply it with
-`python3 src/mcps/install-client-registrations.py --apply`, then run
+Each fleet manifest (`mcps/*/mcp.json`, key `harnesses`) says which clients
+register the service: `claude`, `claude-desktop`, `codex`. Edit the manifest,
+then run `python3 src/mcps/generate-client-registrations.py` to rebuild
+`client-registrations.json`; never edit that file by hand except its
+`removed_servers` lists (names that must stay unregistered). Apply it with
+`python3 src/mcps/install-client-registrations.py --apply` (Claude desktop
+must be quit; `--desktop-later` applies Codex and Claude Code only), then run
 `python3 src/mcps/verify-client-registrations.py`. The installer changes only
 managed fields, preserves other servers and private app state, and writes host
 files privately. Codex and Claude invocation paths are symlinks to the real files in
@@ -150,6 +154,6 @@ or mutate media. Verify the specific operation before claiming it is available.
 
 ## Claude desktop Gmail initialization
 
-Claude desktop's shared MCP pool reads `Library/Application Support/Claude/claude_desktop_config.json`, independently of Claude Code's `~/.claude.json`. Both are covered by `install-client-registrations.py` and `verify-client-registrations.py`. Work Gmail is retired; personal primary, secondary and legacy are canonical.
+Claude desktop's shared MCP pool reads `Library/Application Support/Claude/claude_desktop_config.json`, independently of Claude Code's `~/.claude.json`. Both are covered by `install-client-registrations.py` and `verify-client-registrations.py`. The app rewrites its config file, replacing any symlink, so the verifier checks its content only. Work Gmail is retired; personal primary, secondary and legacy are canonical.
 
 Claude caches this desktop configuration and can replace external edits (including a symlink) with its in-memory copy. Remove obsolete entries through Developer settings when the app is running. For installation or adding accounts, quit Claude at a safe point, run the installer with `--apply`, reconcile the ignored canonical `host-config/claude-desktop.json` and install its trigger symlink, then reopen Claude. The installer refuses a desktop registration change while Claude is running. Verify each account shows Running in Developer settings and inspect fresh shared-pool initialization logs; a standalone launcher test does not prove desktop adoption. Do not restart active chats without authorization.

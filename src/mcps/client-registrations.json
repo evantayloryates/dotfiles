@@ -1,15 +1,20 @@
 {
- "version": 1,
- "scope": "Canonical fleet registrations; external host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
+ "version": 2,
+ "scope": "Generated from mcps/*/mcp.json by generate-client-registrations.py; edit the manifests, not this file. External host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
  "codex": {
-  "gmail_personal_primary": {
+  "anchor": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
-    "gmail",
-    "personal-primary"
+    "anchor"
    ],
-   "startup_timeout_sec": 120.0,
-   "tool_timeout_sec": 120.0
+   "tool_timeout_sec": 120
+  },
+  "bulk-classify": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "bulk-classify"
+   ],
+   "tool_timeout_sec": 120
   },
   "claude-driver": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
@@ -18,14 +23,39 @@
    ],
    "tool_timeout_sec": 300.0
   },
+  "db-kickoff-stage": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "db-kickoff-stage"
+   ],
+   "startup_timeout_sec": 20,
+   "tool_timeout_sec": 330
+  },
+  "framer": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "framer"
+   ],
+   "startup_timeout_sec": 30,
+   "tool_timeout_sec": 150
+  },
+  "gmail_personal_primary": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "gmail",
+    "personal-primary"
+   ],
+   "startup_timeout_sec": 120,
+   "tool_timeout_sec": 120
+  },
   "gmail_personal_secondary": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
     "gmail",
     "personal-secondary"
    ],
-   "startup_timeout_sec": 120.0,
-   "tool_timeout_sec": 120.0
+   "startup_timeout_sec": 120,
+   "tool_timeout_sec": 120
   },
   "gmail_personal_legacy": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
@@ -33,48 +63,56 @@
     "gmail",
     "personal-legacy"
    ],
-   "startup_timeout_sec": 120.0,
-   "tool_timeout_sec": 120.0
+   "startup_timeout_sec": 120,
+   "tool_timeout_sec": 120
   },
-  "framer": {
+  "ios-agent": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "startup_timeout_sec": 30.0,
-   "tool_timeout_sec": 150.0,
    "args": [
-    "framer"
-   ]
+    "ios-agent"
+   ],
+   "tool_timeout_sec": 150
   },
   "notion-kickoff": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "disabled_tools": [
-    "API-get-users"
-   ],
    "args": [
     "notion-kickoff"
+   ],
+   "disabled_tools": [
+    "API-get-users"
    ]
   },
   "smart-record": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "tool_timeout_sec": 3700.0,
    "args": [
     "smart-record"
-   ]
+   ],
+   "tool_timeout_sec": 3700
   },
-  "ios-agent": {
+  "zdr-agent": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "tool_timeout_sec": 150.0,
    "args": [
-    "ios-agent"
-   ]
+    "zdr-agent"
+   ],
+   "tool_timeout_sec": 600
   }
  },
  "claude": {
-  "gmail-personal-primary": {
+  "anchor": {
+   "type": "stdio",
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
-    "gmail",
-    "personal-primary"
-   ]
+    "anchor"
+   ],
+   "env": {}
+  },
+  "bulk-classify": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "bulk-classify"
+   ],
+   "env": {}
   },
   "claude-driver": {
    "type": "stdio",
@@ -83,6 +121,98 @@
     "claude-driver"
    ],
    "env": {}
+  },
+  "codex-bridge": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "codex-bridge"
+   ],
+   "env": {}
+  },
+  "db-kickoff-stage": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "db-kickoff-stage"
+   ],
+   "env": {}
+  },
+  "framer": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "framer"
+   ],
+   "env": {}
+  },
+  "gmail-personal-primary": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "gmail",
+    "personal-primary"
+   ],
+   "env": {}
+  },
+  "gmail-personal-secondary": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "gmail",
+    "personal-secondary"
+   ],
+   "env": {}
+  },
+  "gmail-personal-legacy": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "gmail",
+    "personal-legacy"
+   ],
+   "env": {}
+  },
+  "ios-agent": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "ios-agent"
+   ],
+   "env": {}
+  },
+  "notion-kickoff": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "notion-kickoff"
+   ],
+   "env": {}
+  },
+  "smart-record": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "smart-record"
+   ],
+   "env": {}
+  },
+  "zdr-agent": {
+   "type": "stdio",
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "zdr-agent"
+   ],
+   "env": {}
+  }
+ },
+ "claude-desktop": {
+  "gmail-personal-primary": {
+   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
+   "args": [
+    "gmail",
+    "personal-primary"
+   ]
   },
   "gmail-personal-secondary": {
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
@@ -98,52 +228,21 @@
     "personal-legacy"
    ]
   },
-  "framer": {
-   "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "args": [
-    "framer"
-   ],
-   "env": {}
-  },
-  "notion-kickoff": {
-   "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "args": [
-    "notion-kickoff"
-   ],
-   "env": {}
-  },
-  "codex-bridge": {
-   "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "args": [
-    "codex-bridge"
-   ],
-   "env": {}
-  },
-  "smart-record": {
-   "type": "stdio",
-   "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
-   "args": [
-    "smart-record"
-   ],
-   "env": {}
-  },
   "ios-agent": {
-   "type": "stdio",
    "command": "/Users/taylor/src/github/dotfiles/mcps/_shared/bin/run",
    "args": [
     "ios-agent"
-   ],
-   "env": {}
+   ]
   }
  },
  "removed_servers": {
   "codex": [
    "gmail_work_primary",
    "kickoff-notion",
-   "kickoff-cloudinary"
+   "kickoff-cloudinary",
+   "posthog",
+   "cloudflare",
+   "cloudflare-kickoff"
   ],
   "claude": [
    "gmail-work-primary",
