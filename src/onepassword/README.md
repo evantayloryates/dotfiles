@@ -386,6 +386,14 @@ same broker and keepalive identities. No repair or additional auth wake was
 needed; neither the generic diagnostic category nor a successful prompted call
 establishes a broker failure or the exact authorization-renewal trigger.
 
+The [October 19 late-evening incident](autofixes/oct-19-10p/summary.md) observed
+generic exit 1 for both accounts at 21:33, 21:41 and 21:48 Eastern. Normal
+keepalive calls recovered and cleared the fault at 21:55 without repair or an
+agent-requested auth wake. Both independent metadata checks and 44 targeted
+synthetic tests passed. Deployed hashes, signature, parser state and heartbeat
+verified with unchanged broker/keepalive identities. No code change was
+warranted; the retained generic error does not establish the exact failure cause.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

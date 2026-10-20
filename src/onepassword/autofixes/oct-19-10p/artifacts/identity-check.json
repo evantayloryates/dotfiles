@@ -1,0 +1,7 @@
+{
+  "broker_unchanged": true,
+  "keepalive_pid_unchanged": true,
+  "keepalive_started_unchanged": true,
+  "heartbeat_advanced": true,
+  "fault_cleared": true
+}
