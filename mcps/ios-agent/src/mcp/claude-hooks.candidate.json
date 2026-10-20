@@ -68,6 +68,25 @@
                     }
                 ]
             }
+        ],
+        "SessionEnd": [
+            {
+                "matcher": "clear",
+                "hooks": [
+                    {
+                        "type": "mcp_tool",
+                        "server": "ios-agent",
+                        "tool": "ios_harness_end",
+                        "input": {
+                            "event": "${hook_event_name}",
+                            "sessionId": "${session_id}",
+                            "promptId": "${prompt_id}",
+                            "agentId": "${agent_id}"
+                        },
+                        "timeout": 150
+                    }
+                ]
+            }
         ]
     }
 }

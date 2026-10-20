@@ -28,7 +28,7 @@ def install(path, dry=False):
             legacy = json.loads(json.dumps(entry))
             if event == 'PreToolUse':
                 legacy['matcher'] = '^mcp__ios-agent__ios_(begin|web_begin|system_begin)$'
-            elif event in ('Stop', 'StopFailure'):
+            elif event in ('Stop', 'StopFailure', 'SessionEnd'):
                 for hook in legacy.get('hooks', []):
                     if hook.get('type') == 'mcp_tool' and hook.get('server') == 'ios-agent' and hook.get('tool') == 'ios_harness_end':
                         hook['timeout'] = 90
@@ -41,11 +41,17 @@ def install(path, dry=False):
             if entry not in current:
                 current.append(entry)
                 added += 1
-    # Retired: SessionEnd. Claude Code cannot make MCP calls at SessionEnd (the
-    # client is gone), so this hook failed on every exit; the server's own
-    # disconnect cleanup retires the connection's sessions instead.
+    # Retired: the unscoped SessionEnd entry. Claude Code can make MCP calls at
+    # SessionEnd only when the session ends by /clear (reason "clear"): the
+    # MCP connection carries on into the next session. On exit, headless end,
+    # desktop archive and delete (reasons prompt_input_exit and other) the
+    # client is gone and the hook failed every time; the server's disconnect
+    # cleanup covers those. Smoke-tested 2026-10-19. The entry in
+    # claude-hooks.json is scoped with matcher "clear".
     removed = 0
     for entry in list(hooks.get('SessionEnd', [])):
+        if entry.get('matcher'):
+            continue
         ours = [h for h in entry.get('hooks', []) if h.get('type') == 'mcp_tool' and h.get('server') == 'ios-agent' and h.get('tool') == 'ios_harness_end']
         if ours and len(ours) == len(entry.get('hooks', [])):
             hooks['SessionEnd'].remove(entry)

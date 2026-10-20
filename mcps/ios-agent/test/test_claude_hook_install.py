@@ -16,7 +16,7 @@ class HookInstallTests(unittest.TestCase):
                         'hooks': {'Stop': [{'hooks': [{'type': 'command', 'command': 'existing'}]}]}}
             path.write_text(json.dumps(original))
             old = path.read_bytes()
-            self.assertEqual(install(path, True)['addedEntries'], 3)
+            self.assertEqual(install(path, True)['addedEntries'], 4)
             self.assertEqual(path.read_bytes(), old)
             self.assertTrue(install(path)['changed'])
             data = json.loads(path.read_text())
@@ -72,8 +72,9 @@ class HookInstallTests(unittest.TestCase):
             for event in ('Stop', 'StopFailure'):
                 data['hooks'][event][0]['hooks'][0]['timeout'] = 90
                 if event == 'Stop': data['hooks'][event].append(expected['hooks'][event][0])
-            # A SessionEnd entry an older install wrote: retired, so removed.
-            data['hooks']['SessionEnd'] = [json.loads(json.dumps(expected['hooks']['Stop'][0]))]
+            # An unscoped SessionEnd entry an older install wrote: retired, so
+            # removed; the scoped (matcher "clear") one stays.
+            data['hooks']['SessionEnd'].append(json.loads(json.dumps(expected['hooks']['Stop'][0])))
             path.write_text(json.dumps(data))
             result = install(path)
             self.assertEqual((result['updatedEntries'], result['removedSessionEnd']), (3, 1))
@@ -89,7 +90,11 @@ class HookInstallTests(unittest.TestCase):
             data['hooks']['SessionEnd'] = [json.loads(json.dumps(expected['hooks']['Stop'][0])), foreign]
             path.write_text(json.dumps(data))
             self.assertEqual(install(path)['removedSessionEnd'], 1)
-            self.assertEqual(json.loads(path.read_text())['hooks']['SessionEnd'], [foreign])
+            self.assertEqual(json.loads(path.read_text())['hooks']['SessionEnd'], [foreign, expected['hooks']['SessionEnd'][0]])
+
+    def test_session_end_hook_is_scoped_to_clear(self):
+        entry = json.loads(SOURCE.read_text())['hooks']['SessionEnd']
+        self.assertEqual([e.get('matcher') for e in entry], ['clear'])
 
 
 if __name__ == '__main__': unittest.main()
