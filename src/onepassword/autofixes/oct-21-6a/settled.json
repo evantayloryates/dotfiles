@@ -1,0 +1,55 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-21T11:00:04.945Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "db3a6fe5ac9a9cbc62e1c646707ab92e8b6ffeb37db0c33b2cd86a1910ad9c32"
+    },
+    {
+      "name": "artifacts/broker-tests.json",
+      "sha256": "5d479666cae1467f5312de77d7d20ef3c5375037028f0145dc089841f735e4eb"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "9bc608f4af5fc1aee4f3db5ba5672b697ee9cb3f7244ecda6627938244975f50"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "69bcda136730f2a418e28c57bae60c30adfe83da2c77ce8d318345b7ffd36038"
+    },
+    {
+      "name": "artifacts/diagnostic-e7c023ed-0eec-466b-89bc-569d3c37a12b.json",
+      "sha256": "425c82b1b29479b2bae38ca1b0038901be78db2aae92a12244b9a5e345263afb"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "67d9f32f4c49f7e98ce9fa058771baff85d770e47372697aa06d025671b93ea6"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "831195bf1ebea321d54b2f9ade80e4cdceba726ec9d12eb6d5789e5b6a856fb7"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "2ffe7fbc0cd1952b5229e3260474ae1b7620e62e3102f0f41e3bb705023a5cc8"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "e101084669639ee98fce12bf8089db6dc708540e14ae8856adab9b32573c5750"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "022e195125cc2ecec64caa572dce4c645f29359359d0b6318bf163a9894ac7bd"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "39ef3bfdde3c39ac56118368422ba5b561a40a73fa02ca0d372c5f15ac94a7ec"
+    },
+    {
+      "name": "artifacts/verify.py",
+      "sha256": "8e47210d6b7ee570729ee9927f62aad3e38648576838418a2786ba82a443d3eb"
+    }
+  ],
+  "reportSha256": "e4572b78aa68a234f83446848a944a0328242dff8b53a396d641bdfba1d49a6c"
+}

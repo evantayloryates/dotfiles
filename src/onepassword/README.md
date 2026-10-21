@@ -421,6 +421,14 @@ No code change was warranted. The account successes at 00:53 predated the lock
 and do not establish current authorization. Authenticated checks stayed skipped
 while locked; Taylor owns unlock/native consent and recovery owns any auth wake.
 
+The [October 21 morning app-lock incident](autofixes/oct-21-6a/summary.md)
+confirmed a timestamped lock at 06:58:53 Eastern. Deployed code and signature,
+the advancing heartbeat, and broker PID/PTY and keepalive identity all verified;
+81 targeted synthetic tests and a version-only wrapper check passed.
+No software repair was warranted. Account successes at 06:53 predated the lock
+and do not establish current authorization. Authenticated checks were skipped
+while locked; Taylor owns unlock/native consent and recovery owns any auth wake.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:
