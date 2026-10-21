@@ -1,0 +1,30 @@
+{
+  "outcome": "no_change",
+  "headline": "Recovered normally; no broker repair warranted",
+  "summary": "Both accounts returned generic CLI errors during six scheduled keepalive rounds from 23:07 through 23:42 Eastern on October 20. The normal keepalive recovered both accounts and cleared this episode at 23:49:54. Fresh independent metadata checks after midnight succeeded for both accounts. No software change, restart or extra authorization wake was needed.",
+  "cause": "The retained evidence establishes transient CLI exit-1 failures, not their exact upstream cause. No authorization-timeout status or new prompted success appears in the incident window. The initial snapshot caught slot 0 failing before slot 1 finished its round; the sanitized timeline confirms both subsequently failed. Parser/watchdog checks independently verified an unlocked app, readable timestamped lock evidence, advancing heartbeat, matching deployed code and valid signature. No broker/parser/watchdog defect was identified.",
+  "resolution": "No implementation change was warranted. Existing scheduled keepalive calls recovered without agent intervention. The broker worker, PTY and keepalive process were preserved. Added this verified incident and its limits to README.md; no candidate or installation was necessary.",
+  "verification": "artifacts/timeline.json records six failed rounds followed by six successful rounds through 00:25 Eastern. episode-resolution.json ties fault_started and fault_resolved to this exact episode and shows no current fault. deployed-hashes.json verifies worker/keepalive source equality, running keepalive hash, build stamp and code signature. parser-check.json confirms readable timestamped evidence and agreement with saved unlocked state. baseline.json and final-status.json verify broker PID/session 1213, /dev/ttys000 and keepalive PID 1214 preserved with an advancing heartbeat. metadata-smoke.json and authenticated-smoke.json record successful version and per-account vault-list checks with stdout/stderr discarded. python-tests.json records 44 passing isolated tests; node-tests.json records 37 passing tests. chat-check.json verifies the exact title, dotfiles directory, Pinned section, strongest advertised supported model gpt-6-astra and high reasoning.",
+  "activation": "Existing deployed code remains running. Nothing is staged and no restart, installer or next-load activation is required.",
+  "limitations": "The exact cause of the temporary CLI failures is not recoverable from the retained generic error evidence. Current metadata access and fault clearance are verified; no human authentication action is currently indicated. Archive scheduling is separate from verified archive completion.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md with the incident evidence and causal limits. The shared agent contract and autofix rules already cover this outcome and remain unchanged; sync-agent-guidance.py is unnecessary.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/authenticated-smoke.json",
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-568987a2-3642-46b6-a921-428a875ea2a3.json",
+    "artifacts/episode-resolution.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/timeline.json"
+  ]
+}

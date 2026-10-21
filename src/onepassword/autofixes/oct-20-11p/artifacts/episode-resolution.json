@@ -1,0 +1,15 @@
+{
+  "episode_events": [
+    {
+      "ts": "2026-10-20T23:07:08-0400",
+      "event": "fault_started",
+      "episode": "d5b541b2-ca51-40be-b130-4af1d9e249b0"
+    },
+    {
+      "ts": "2026-10-20T23:49:54-0400",
+      "event": "fault_resolved",
+      "episode": "d5b541b2-ca51-40be-b130-4af1d9e249b0"
+    }
+  ],
+  "current_fault_episode": null
+}

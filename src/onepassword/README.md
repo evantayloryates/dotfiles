@@ -403,6 +403,16 @@ the lock and do not establish current authorization. Authenticated smoke checks
 were skipped while locked; Taylor owns unlock/native consent and recovery owns
 any authorization wake.
 
+The [October 20 late-evening incident](autofixes/oct-20-11p/summary.md) recorded
+six regular keepalive rounds with generic exit 1 for both accounts from 23:07
+through 23:42 Eastern. Normal calls recovered and cleared the episode at 23:49,
+without repair. Independent metadata checks, matching deployed hashes and
+signature, parser state, advancing heartbeat and 81 targeted synthetic tests
+verified with broker PID/PTY and keepalive PID preserved. No code change or
+additional authorization wake was warranted. The retained generic errors do not
+establish the exact trigger; successful recovery is not proof of authorization
+expiry, a network fault or a parser/watchdog defect.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

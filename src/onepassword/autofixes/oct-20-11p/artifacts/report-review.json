@@ -1,0 +1,12 @@
+{
+  "reports": [
+    "summary.html",
+    "summary.md"
+  ],
+  "content_reviewed": true,
+  "local_links_valid": true,
+  "html_source_layout_reviewed": true,
+  "browser_rendered": false,
+  "no_computer_use": true,
+  "notes": "Reviewed generated prose against evidence; HTML has responsive viewport, bounded main width, scalable heading and wrapping links. Source inspection only under UI quarantine."
+}

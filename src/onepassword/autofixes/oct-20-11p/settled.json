@@ -1,0 +1,59 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-21T04:28:03.369Z",
+  "artifacts": [
+    {
+      "name": "artifacts/authenticated-smoke.json",
+      "sha256": "440ec07be667f412935c49baf53524b2a5105907194422369b9a455e3fb9960b"
+    },
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "cb0703fc36a64be5170d74aa497dfae5f4f346688aaa9fc0131c25ea0e23c585"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "0513c6f813da1e68b833e57d123243db55fbef03c6f1e20450774d910c49ca68"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "69bcda136730f2a418e28c57bae60c30adfe83da2c77ce8d318345b7ffd36038"
+    },
+    {
+      "name": "artifacts/diagnostic-568987a2-3642-46b6-a921-428a875ea2a3.json",
+      "sha256": "6cc1d44e45ff5d2163728e57e141bdbd4c873e001107abacd29012fc5096949f"
+    },
+    {
+      "name": "artifacts/episode-resolution.json",
+      "sha256": "6289c474e1b6b08be88a0ef55d10b031b357539a9445583e2318cce7549df014"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "13785b4575d6e6dde082bd92f373ee8ec513545de3cb2ca224bdac775b73f8a1"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "831195bf1ebea321d54b2f9ade80e4cdceba726ec9d12eb6d5789e5b6a856fb7"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "adfbcdfea8bc82d415a2856f3704319a414c4696b4d2756790021afc4ba85f1b"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "f891cb578803ec21163eb663e592974d8de1610c116ad78b51a4befab6ac415a"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "edde2a161b6deb0b5dd34426f1b337869cd263a54f8218effee5373b2cbc344a"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "877a798d11f4a9d0ab33a9ebe57c199a52a3ae410a7c06d74e23627f061933d4"
+    },
+    {
+      "name": "artifacts/timeline.json",
+      "sha256": "b9603134e762df67bbca9ae817d966c05de7163ee2b9389e637fee2e20afcb5c"
+    }
+  ],
+  "reportSha256": "d6d8da8f0c02a76e9da399463bdecd1daa85fdd1964b503a0a06f7aeb3e18fb8"
+}
