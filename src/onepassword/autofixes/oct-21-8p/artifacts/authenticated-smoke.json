@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "slot": 0,
+      "exit_code": 0,
+      "error_categories": [],
+      "seconds": 1.07
+    },
+    {
+      "slot": 1,
+      "exit_code": 0,
+      "error_categories": [],
+      "seconds": 1.01
+    }
+  ],
+  "stdout": "discarded",
+  "stderr": "classified in memory then discarded; no raw output saved",
+  "retry": false,
+  "auth_wake_requested": false
+}

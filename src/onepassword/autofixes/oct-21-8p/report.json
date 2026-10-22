@@ -1,0 +1,30 @@
+{
+  "outcome": "no_change",
+  "headline": "Both accounts recovered; no broker repair needed",
+  "summary": "Both accounts returned generic CLI errors during three scheduled rounds at 20:44, 20:51 and 20:58 Eastern on October 21. Each passed an independent metadata-only check. The scheduled 21:05 round then succeeded for both accounts and cleared the fault episode.",
+  "cause": "The original trigger is unknown: retained metadata reports exit 1 and generic error, not an authorization timeout. This does not establish authorization expiry, a network fault or a broker crash. Parser/watchdog checks independently verified an unlocked app, matching deployed code and signature, and a progressing heartbeat. The initial alert contained a mixed snapshot because it was saved between account checks.",
+  "resolution": "No software defect requiring a change was established. Both accounts recovered without a patch, restart, installation or agent-requested auth wake. No candidate or staged implementation is needed; no permissions or native consent were changed.",
+  "verification": "81 targeted synthetic tests passed: 31 keepalive/recovery/activation/guidance, 13 isolated broker and 37 Node incident/dispatch/archive tests. Version-only and single vault-list metadata checks for both accounts exited 0; stdout was discarded and no raw stderr was retained. Deployed worker and keepalive hashes, running keepalive hash, build stamp and app signature matched. Timestamped parser output matched stored state. Final readback at 21:06 Eastern verified last successes at 21:05:51/52, null fault episode, heartbeat age 8 seconds, broker PID 1213, PTY /dev/ttys000 and keepalive PID 1214 unchanged. Native metadata verified the exact title, dotfiles cwd, Pinned section and strongest advertised model gpt-6-astra at high reasoning.",
+  "activation": "The existing broker and keepalive remain running unchanged. Nothing is staged and no activation command or service restart is required. Normal keepalive scheduling continues.",
+  "limitations": "The exact cause of the earlier generic errors cannot be recovered from the retained diagnostic category. Successful current checks establish recovery, not the historic trigger. No human action is required for this resolved episode; any future Touch ID/macOS consent remains Taylor's action, with recovery owning authorization wakes. Archive is a separate final step and is not established by this report.",
+  "docs": "Reviewed src/onepassword/README.md, src/onepassword/agent-contract.md and src/onepassword/autofixes/AGENTS.md. Updated README.md with this incident and the distinction between generic CLI errors and broker faults. Existing contract and autofix guidance already cover the result and remain unchanged.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/parser-check.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/authenticated-smoke.json",
+    "artifacts/python-tests.json",
+    "artifacts/broker-tests.json",
+    "artifacts/node-tests.json",
+    "artifacts/timeline.json",
+    "artifacts/final-status.json",
+    "artifacts/chat-check.json",
+    "artifacts/release-gate.json",
+    "artifacts/docs-review.json"
+  ]
+}

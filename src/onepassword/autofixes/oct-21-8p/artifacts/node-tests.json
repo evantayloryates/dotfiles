@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "tests": 37,
+  "duration_seconds": 0.362,
+  "passed": true,
+  "raw_output_saved": false,
+  "suites": [
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ]
+}

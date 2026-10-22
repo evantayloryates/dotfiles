@@ -1,0 +1,8 @@
+{
+  "all_report_fields_in_html": true,
+  "all_links_resolve": true,
+  "human_and_technical_sections": true,
+  "viewport_present": true,
+  "markdown_reviewed": true,
+  "inspection": "HTML content, links and responsive CSS reviewed statically; no browser or Computer Use used."
+}

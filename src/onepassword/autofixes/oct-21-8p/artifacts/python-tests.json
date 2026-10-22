@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "tests": 31,
+  "duration_seconds": 6.199,
+  "passed": true,
+  "raw_output_saved": false,
+  "suites": [
+    "test_keepalive",
+    "test_recovery",
+    "test_activation",
+    "test_agent_guidance"
+  ]
+}

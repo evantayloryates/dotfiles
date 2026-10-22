@@ -1,0 +1,15 @@
+{
+  "reviewed": [
+    "src/onepassword/README.md",
+    "src/onepassword/agent-contract.md",
+    "src/onepassword/autofixes/AGENTS.md"
+  ],
+  "contract_change_required": false,
+  "reason": "README records this verified recovered incident and the limit of generic exit-1 evidence. The reviewed contract and autofix instructions already cover these distinctions; no contract change or guidance sync is needed.",
+  "runtime_implementation_changed": false,
+  "installer_or_activation_run": false,
+  "auth_wake_requested": false,
+  "updated": [
+    "src/onepassword/README.md"
+  ]
+}

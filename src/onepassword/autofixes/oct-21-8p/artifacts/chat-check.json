@@ -1,0 +1,52 @@
+{
+  "threadId": "01a16111-2b96-7b40-94e7-08d00bbaed70",
+  "titleMatches": true,
+  "cwd": "/Users/taylor/src/github/dotfiles",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "high",
+  "section": {
+    "id": "01984de2-8f74-7c91-a3b2-5c5e937cf318",
+    "name": "Pinned",
+    "appearance": null
+  },
+  "strongestSupported": "gpt-6-astra",
+  "pinnedSection": "01984de2-8f74-7c91-a3b2-5c5e937cf318",
+  "readbackKeys": [
+    "thread",
+    "readState"
+  ],
+  "threadKeys": [
+    "id",
+    "environments",
+    "extra",
+    "sessionId",
+    "forkedFromId",
+    "parentThreadId",
+    "preview",
+    "ephemeral",
+    "section",
+    "sectionEnteredAt",
+    "projectId",
+    "historyMode",
+    "modelProvider",
+    "model",
+    "reasoningEffort",
+    "createdAt",
+    "updatedAt",
+    "recencyAt",
+    "status",
+    "path",
+    "cwd",
+    "cliVersion",
+    "originator",
+    "source",
+    "canAcceptDirectInput",
+    "threadSource",
+    "agentNickname",
+    "agentRole",
+    "gitInfo",
+    "name",
+    "daybreakEnabled",
+    "turns"
+  ]
+}

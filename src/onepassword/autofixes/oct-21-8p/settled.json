@@ -1,0 +1,59 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-22T01:06:19.850Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "177d0469cab43565d4d96e4297ac666d7672091322774d06bcad63b62afd6226"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "69bcda136730f2a418e28c57bae60c30adfe83da2c77ce8d318345b7ffd36038"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "54ffec0c099f45807dba6a8e4d98ccd414afe4fe104388914b67cb6ccad01d88"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "57a5d81b1f5712b4fdc30656c6bf3bb445f557986acb4da926b83031e7c9ce1c"
+    },
+    {
+      "name": "artifacts/authenticated-smoke.json",
+      "sha256": "aa84f8f262c1a0f343b5266ed59e12ec0b618cda5e780fee487970058d221f7c"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "620cad235f39c98e91bde8c91515c33677f0725e286c1ce1f4ddd8af3bf0986a"
+    },
+    {
+      "name": "artifacts/broker-tests.json",
+      "sha256": "abcedd6ef594dffacd59cbe18cc1703f143ef0b40e20b5a56d6d207e43452eeb"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "4395578c0ebca251c010071a4b601fead7ff3a53a880bf88c27cb169d88d4ec1"
+    },
+    {
+      "name": "artifacts/timeline.json",
+      "sha256": "a3349eaf0b22a1c22b9981562124806943f965800361dd2ddf5f6d851121b62d"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "1094a4cbe4d7e68a554cc83de251f43c2c24ee8d7e56f8db308c0a25d2aa463e"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "9cc70e9653e077ed1396e4ad7e53fa6849aeaf3393cca8687afb7a247af5e116"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "877a798d11f4a9d0ab33a9ebe57c199a52a3ae410a7c06d74e23627f061933d4"
+    },
+    {
+      "name": "artifacts/docs-review.json",
+      "sha256": "93714838a6632ea488d2be2eb9b25e459acf6d7d8508eeab6c563a98aa258f40"
+    }
+  ],
+  "reportSha256": "99d8848eb19953e5738bda7cd4265e9d7afdd5a00914a9eb53e108aa4c5adf9b"
+}
