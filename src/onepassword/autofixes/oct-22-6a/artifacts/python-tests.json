@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "tests": 31,
+  "duration_seconds": 6.205,
+  "passed": true,
+  "raw_output_saved": false,
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_keepalive",
+    "test_recovery",
+    "test_activation",
+    "test_agent_guidance"
+  ],
+  "cwd": "/Users/taylor/src/github/dotfiles/src/onepassword"
+}

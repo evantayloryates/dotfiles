@@ -449,6 +449,15 @@ No software repair or extra auth wake was warranted. Roughly twelve hours
 since the preceding successful prompted calls is consistent with renewal,
 but neither that timing nor the generic diagnostic category proves its trigger.
 
+The [October 22 morning app-lock incident](autofixes/oct-22-6a/summary.md)
+confirmed a timestamped lock at 06:55:57 Eastern. Matching deployed code and
+signature, an advancing heartbeat, and unchanged broker PID/PTY and keepalive
+PID verified normal lock handling. All 81 targeted synthetic tests and a
+version-only wrapper check passed; no software repair was warranted.
+Account successes at 06:49 predated the lock and do not establish current
+authorization. Authenticated checks were skipped while locked; Taylor owns
+unlock/native consent and recovery owns any authorization wake.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

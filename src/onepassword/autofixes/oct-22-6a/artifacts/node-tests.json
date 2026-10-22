@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "tests": 37,
+  "duration_seconds": 0.383,
+  "passed": true,
+  "raw_output_saved": false,
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ],
+  "cwd": "/Users/taylor/src/github/dotfiles"
+}
