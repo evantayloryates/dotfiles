@@ -98,12 +98,15 @@ def evaluate(root, state):
         records.append((d['started_at'],p,d))
     chunks=[]; current=[]; previous=None
     for _,p,d in sorted(records):
-        if previous is None or previous['recovered'] or (dt.datetime.fromisoformat(d['started_at'])-dt.datetime.fromisoformat(previous['last'])).total_seconds()>35:
+        # A sampling gap is unknown coverage, not 30 verified quiet samples.
+        if previous is None or previous['recovered']:
             if current: chunks.append(current)
             current=[]
         samples=d.get('samples',[]); quiet=0
         for row in reversed(samples):
-            if any((t.get('cpu_percent') or 0)>=30 for t in row.get('targets',[])):break
+            if row.get('collection_health','ok')!='ok':break
+            targets=row.get('targets',[])
+            if any(t.get('cpu_percent') is None or t['cpu_percent']>=30 for t in targets):break
             quiet+=1
         recovered=quiet>=30
         current.append((p,d,samples,recovered))
@@ -134,8 +137,15 @@ def evaluate(root, state):
             if recovered:events.append(dict(id=group+':recovery',kind='recovery',**evidence))
     # Coalesce onset + diagnostics + recovery found together into one callback per incident.
     grouped={}
+    acknowledged=set(state.get('acknowledged',[]))
+    acknowledged_diagnostics={eid.partition(':diagnostics:')[2] for eid in acknowledged
+                              if ':diagnostics:' in eid}
     for event in {e['id']:e for e in events}.values():
-        if event['id'] not in state.get('acknowledged',[]):grouped.setdefault(event['incident'],[]).append(event)
+        if event['id'] in acknowledged:continue
+        # An earlier false onset may have accepted this same diagnostic under
+        # a rotated bundle ID. Its exact callback must not be queued again.
+        if event['kind']=='diagnostics' and event['id'].partition(':diagnostics:')[2] in acknowledged_diagnostics:continue
+        grouped.setdefault(event['incident'],[]).append(event)
     return grouped
 
 def run(root=ROOT, send=True):

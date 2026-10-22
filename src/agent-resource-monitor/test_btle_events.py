@@ -57,4 +57,21 @@ class RelayTests(unittest.TestCase):
    groups=e.evaluate(r,s)
    self.assertEqual(list(groups),['episode-first'])
    self.assertEqual([x['id'] for x in groups['episode-first']],['episode-first:diagnostics:2026-10-11T20:10:05+00:00'])
+ def test_sampling_gap_and_timeout_do_not_create_new_onset_or_replay_diagnostic(self):
+  with tempfile.TemporaryDirectory() as f:
+   r=Path(f)
+   def episode(name,start,last,checked_at,rows):
+    p=r/name
+    p.write_text(json.dumps(dict(started_at=start,last_sample_at=last,samples=rows)))
+    p.with_suffix('.diagnostics.json').write_text(json.dumps(dict(checked_at=checked_at,stack_capture=dict(status='timeout'))))
+   hot=lambda:dict(collection_health='ok',targets=[dict(pid=86841,cpu_percent=99)])
+   timeout=lambda:dict(collection_health='timeout',targets=[])
+   episode('episode-first.json','2026-10-11T20:00:00+00:00','2026-10-11T20:05:00+00:00','first-check',[hot()]*40)
+   episode('episode-second.json','2026-10-11T20:06:00+00:00','2026-10-11T20:07:00+00:00','second-check',[hot()]*10+[timeout()]*30)
+   s={'created_at':e.BASELINE,'acknowledged':['episode-first:onset','episode-first:diagnostics:first-check',
+      'episode-second:onset','episode-second:diagnostics:second-check']}
+   self.assertEqual(e.evaluate(r,s),{})
+   episode('episode-third.json','2026-10-11T20:08:00+00:00','2026-10-11T20:09:00+00:00','third-check',[hot()]*10)
+   self.assertEqual(list(e.evaluate(r,s)),['episode-first'])
+   self.assertEqual([x['id'] for x in e.evaluate(r,s)['episode-first']],['episode-first:diagnostics:third-check'])
 if __name__=='__main__':unittest.main()
