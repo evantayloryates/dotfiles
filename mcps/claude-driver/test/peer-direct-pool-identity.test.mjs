@@ -17,8 +17,8 @@ mkdirSync(peers);const folder=join(app,'claude-code-sessions','a','o');mkdirSync
 writeFileSync(join(folder,sid+'.json'),JSON.stringify({sessionId:sid,cliSessionId:cli,cwd:root,title:'synthetic pool recipient',permissionMode:'bypassPermissions'}))
 writeFileSync(join(peers,process.pid+'.json'),JSON.stringify(peer));writeFileSync(join(peers,process.pid+'.'+createHash('sha256').update(socket).digest('hex')+'.key'),JSON.stringify({peerToken:'a'.repeat(32),procStart:start}),{mode:0o600})
 const journal=transcriptPath(peer);mkdirSync(join(journal,'..'),{recursive:true});writeFileSync(journal,'')
-let frames=0
-const server=createServer({allowHalfOpen:true},s=>{let buf='';s.on('error',()=>{});s.on('data',d=>{buf+=d;const lines=buf.split('\n');for(const line of lines.slice(0,-1)){let f;try{f=JSON.parse(line)}catch{continue}if(f.type==='user'){frames++;assert.equal(f.session_id,cli);appendFileSync(journal,JSON.stringify({type:'user',uuid:'receipt-'+frames,sessionId:cli,origin:{kind:'peer',msg_id:f.msg_id},timestamp:new Date().toISOString(),message:{content:'x'}})+'\n');s.end()}}buf=lines.at(-1)})})
+let frames=0,queuedMode=false
+const server=createServer({allowHalfOpen:true},s=>{let buf='';s.on('error',()=>{});s.on('data',d=>{buf+=d;const lines=buf.split('\n');for(const line of lines.slice(0,-1)){let f;try{f=JSON.parse(line)}catch{continue}if(f.type==='user'){frames++;assert.equal(f.session_id,cli);appendFileSync(journal,JSON.stringify(queuedMode?{type:'attachment',isSidechain:false,uuid:'receipt-'+frames,sessionId:cli,timestamp:new Date().toISOString(),attachment:{type:'queued_command',prompt:'x',origin:{kind:'peer',from:'unknown',verifiedPeerPid:1,msg_id:f.msg_id,name:'claude-driver',fromMode:'bypass',body:'x'}}}:{type:'user',uuid:'receipt-'+frames,sessionId:cli,origin:{kind:'peer',msg_id:f.msg_id},timestamp:new Date().toISOString(),message:{content:'x'}})+'\n');s.end()}}buf=lines.at(-1)})})
 await new Promise(r=>server.listen(socket,r));after(async()=>{await new Promise(r=>server.close(r));rmSync(root,{recursive:true,force:true})})
 test('deliver without the saved CLI id refuses before any frame',async()=>{
  await assert.rejects(deliver({sessionId:sid,permissionMode:'bypassPermissions',live:{pid:peer.pid,procStart:start}},'x',{timeoutMs:2000}),e=>e.category==='peer_refused'&&e.detail?.dispatched===false)
@@ -37,4 +37,12 @@ test('current desktop CLI 2.1.304 is accepted and an unlisted version refuses be
  await assert.rejects(deliver({sessionId:sid,cliSessionId:cli,permissionMode:'bypassPermissions',live:{pid:peer.pid,procStart:start}},'x',{timeoutMs:2000}),e=>e.category==='peer_unqualified'&&e.detail?.dispatched===false)
  assert.equal(frames,before+1)
  writeFileSync(join(peers,process.pid+'.json'),JSON.stringify(peer))
+})
+test('a busy recipient queues the frame as a queued_command attachment, which counts as the native receipt',async()=>{
+ queuedMode=true
+ try{
+  const before=frames,r=await sendDirectRecipient({operationId:'busy-queued',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
+  assert.equal(r.delivery,'received');assert.equal(r.receiptSource,'native-peer-queued-record');assert.equal(r.applied,false);assert.equal(frames,before+1)
+  assert.equal((await sendDirectRecipient({operationId:'busy-queued',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})).reused,true);assert.equal(frames,before+1)
+ }finally{queuedMode=false}
 })

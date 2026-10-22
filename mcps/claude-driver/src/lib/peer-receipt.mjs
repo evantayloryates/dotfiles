@@ -34,9 +34,13 @@ export function readPeerReceipt(rec,cursor,msgId,{now=Date.now()}={}){
   let receipt=null
   if(end>=0)for(const line of buf.subarray(0,end).toString('utf8').split('\n')){
    let row;try{row=JSON.parse(line)}catch{continue}
-   if(row?.type!=='user'||row.isSidechain===true||row.sessionId!==target.cliSessionId||row.origin?.kind!=='peer'||row.origin.msg_id!==msgId||typeof row.uuid!=='string'||! /^[A-Za-z0-9_-]{1,200}$/.test(row.uuid))continue
+   // An idle recipient records a peer frame as a user row. A busy one queues it:
+   // the frame lands as a queued_command attachment with the same peer origin.
+   const queued=row?.type==='attachment'&&row.attachment?.type==='queued_command'
+   const origin=queued?row.attachment.origin:row?.origin
+   if(!(row?.type==='user'||queued)||row.isSidechain===true||row.sessionId!==target.cliSessionId||origin?.kind!=='peer'||origin.msg_id!==msgId||typeof row.uuid!=='string'||! /^[A-Za-z0-9_-]{1,200}$/.test(row.uuid))continue
    const at=Date.parse(row.timestamp);if(!Number.isFinite(at)||at<cursor.observedAt||at>now)continue
-   receipt={sessionId:target.sessionId,messageId:msgId,nativeUserId:row.uuid,receivedAt:row.timestamp,receiptSource:'native-peer-user-record',applied:false}
+   receipt={sessionId:target.sessionId,messageId:msgId,nativeUserId:row.uuid,receivedAt:row.timestamp,receiptSource:queued?'native-peer-queued-record':'native-peer-user-record',applied:false}
    break
   }
   return {receipt,cursor:{...cursor,offset:cursor.offset+(end<0?0:end+1)},hasMore:stat.size>cursor.offset+(end<0?0:end+1),bytesRead:bytes}

@@ -21,7 +21,7 @@ function validate(row,id){
  if(Object.keys(c).sort().join(',')!=='cliSessionId,cwd,dev,ino,observedAt,offset,pid,procStart,sessionId'||c.cliSessionId!==t.sessionId||c.sessionId!==t.hostSessionId||c.cwd!==t.cwd||c.pid!==t.pid||c.procStart!==t.procStart||['dev','ino','offset','observedAt'].some(k=>!Number.isSafeInteger(c[k])||c[k]<0)||c.observedAt!==row.createdAt)fail()
  if(row.phase==='received'){
   const r=row.receipt
-  if(!r||Object.keys(r).sort().join(',')!=='applied,messageId,nativeUserId,receiptSource,receivedAt,sessionId'||r.sessionId!==t.hostSessionId||r.messageId!==row.messageId||r.applied!==false||r.receiptSource!=='native-peer-user-record'||typeof r.nativeUserId!=='string'||! /^[A-Za-z0-9_-]{1,200}$/.test(r.nativeUserId)||!Number.isFinite(Date.parse(r.receivedAt))||Date.parse(r.receivedAt)<row.createdAt)fail()
+  if(!r||Object.keys(r).sort().join(',')!=='applied,messageId,nativeUserId,receiptSource,receivedAt,sessionId'||r.sessionId!==t.hostSessionId||r.messageId!==row.messageId||r.applied!==false||!['native-peer-user-record','native-peer-queued-record'].includes(r.receiptSource)||typeof r.nativeUserId!=='string'||! /^[A-Za-z0-9_-]{1,200}$/.test(r.nativeUserId)||!Number.isFinite(Date.parse(r.receivedAt))||Date.parse(r.receivedAt)<row.createdAt)fail()
  }else if(row.receipt!==undefined)fail()
  return row
 }
