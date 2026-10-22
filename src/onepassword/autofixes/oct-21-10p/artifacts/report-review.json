@@ -1,0 +1,22 @@
+{
+  "html_inspected": true,
+  "markdown_inspected": true,
+  "headings": [
+    "Both accounts authorized successfully; no broker repair needed",
+    "What happened",
+    "What happens next",
+    "Technical evidence and agent handoff",
+    "Cause",
+    "Resolution",
+    "Verification",
+    "Limits and remaining action",
+    "Agent documentation",
+    "Supporting artifacts"
+  ],
+  "evidence_links_resolve": true,
+  "responsive_layout_source_checked": true,
+  "visual_render_performed": false,
+  "reason": "Computer Use prohibited; inspected HTML content and responsive layout source.",
+  "html_sha256": "46a3613d11844776dbe80ea649e8049bcb05f0eb19ad8d8e041714ce20f2999d",
+  "markdown_sha256": "30d20e81aca1ba381b7cc20a342f40c075ac81ff71b20ae628f56a1a74a6c777"
+}

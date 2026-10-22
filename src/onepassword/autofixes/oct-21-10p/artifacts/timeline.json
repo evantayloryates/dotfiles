@@ -1,0 +1,66 @@
+[
+  {
+    "ts": "2026-10-21T21:48:25-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 1.27,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-21T21:48:26-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.81,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-21T21:55:33-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 1.03,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-21T21:55:34-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.67,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-21T22:02:39-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.88,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-21T22:02:40-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "seconds": 0.8,
+    "exit": 0,
+    "slot": 1
+  },
+  {
+    "ts": "2026-10-21T22:09:49-0400",
+    "event": "keepalive",
+    "status": "ok_prompted",
+    "seconds": 5.39,
+    "exit": 0,
+    "slot": 0
+  },
+  {
+    "ts": "2026-10-21T22:09:53-0400",
+    "event": "keepalive",
+    "status": "ok_prompted",
+    "seconds": 3.56,
+    "exit": 0,
+    "slot": 1
+  }
+]

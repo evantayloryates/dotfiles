@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "tests": 13,
+  "duration_seconds": 6.507,
+  "passed": true,
+  "raw_output_saved": false,
+  "suites": [
+    "test_op_agent"
+  ]
+}

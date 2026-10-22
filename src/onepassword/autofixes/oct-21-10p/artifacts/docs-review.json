@@ -1,0 +1,12 @@
+{
+  "reviewed": [
+    "src/onepassword/README.md",
+    "src/onepassword/agent-contract.md",
+    "src/onepassword/autofixes/AGENTS.md"
+  ],
+  "updated": [
+    "src/onepassword/README.md"
+  ],
+  "contract_change_needed": false,
+  "reason": "Existing guidance already covers successful prompted renewal, separated parser/watchdog checks, first-click release gating and no-change settlement. Added the verified incident to README; no behavioral or contract change."
+}

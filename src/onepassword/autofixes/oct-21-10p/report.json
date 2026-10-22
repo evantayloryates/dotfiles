@@ -1,0 +1,31 @@
+{
+  "outcome": "no_change",
+  "headline": "Both accounts authorized successfully; no broker repair needed",
+  "summary": "The 22:09 Eastern keepalive raised an authorization notification while its normal metadata calls were completing. Both accounts succeeded with ok_prompted at 22:09:49 and 22:09:53. Independent metadata checks also succeeded. The broker stayed healthy throughout verification.",
+  "cause": "The alert snapshot retained the preceding successful 22:02 round; authorization_or_unknown is a diagnostic category, not proof of failure. The ensuing calls recorded successful prompted authorization about twelve hours after the previous successful prompted calls. This is consistent with ordinary renewal, but the exact trigger is unproven. No failed authorization call appears in the bounded 21:45-through-verification timeline. Separately, timestamped lock parsing agreed with unlocked state, deployed source and signature verified, and the watchdog heartbeat advanced.",
+  "resolution": "No implementation change, candidate patch, install, restart or additional authorization wake was warranted. Updated only incident evidence and documentation. No Touch ID or macOS consent was approved by the agent.",
+  "verification": "81 targeted synthetic tests passed: 31 keepalive/recovery/activation/guidance, 13 broker and 37 settlement/archive/dispatch. Version-only and both account-scoped vault-list checks exited 0 with stdout/stderr discarded. Deployed worker and keepalive hashes match source, the build stamp and app signature verify, and the running keepalive hash matches. Parser state agrees with persisted state. Heartbeat advanced from 22:09:53 to 22:10:33; broker PID 1213, session 1213, PTY /dev/ttys000 and keepalive PID 1214 were preserved. Chat title, dotfiles cwd, Pinned section and strongest advertised gpt-6-astra/high configuration verified. Supporting results are in artifacts/.",
+  "activation": "The existing installed implementation remains running with the same broker and keepalive processes. Nothing is staged and no activation command or service restart is needed. Normal keepalive continues.",
+  "limitations": "The exact authorization-renewal trigger and physical notification-click behavior were not established. The first-click gate remained false; no fix delivery required release. No current human action is required by the successful checks. Future native authentication remains Taylor\u2019s responsibility; recovery owns any authorization wake. Archive completion is separate from settlement and will require the deferred helper\u2019s readback.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Added this verified incident to README.md. The shared contract already covers the observed behavior and required no change or synchronization; artifacts/docs-review.json records the review.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/authenticated-smoke.json",
+    "artifacts/baseline.json",
+    "artifacts/broker-tests.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-5dc276fd-8e12-42c9-b00f-d94e0207c9c0.json",
+    "artifacts/docs-review.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/timeline.json"
+  ]
+}

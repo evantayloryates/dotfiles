@@ -439,6 +439,16 @@ keepalive PID. No code change was warranted. The original trigger remains
 unknown; generic errors alone do not establish authorization expiry, network
 failure or a broker fault.
 
+The [October 21 late-evening incident](autofixes/oct-21-10p/summary.md) observed
+successful prompted keepalives for both accounts at 22:09 Eastern, followed by
+successful independent metadata checks. Its alert snapshot contained the prior
+successful round while the prompted round was completing. Matching deployed
+code and signature, unlocked parser state, an advancing heartbeat and 81
+synthetic tests verified with broker PID/PTY and keepalive PID preserved.
+No software repair or extra auth wake was warranted. Roughly twelve hours
+since the preceding successful prompted calls is consistent with renewal,
+but neither that timing nor the generic diagnostic category proves its trigger.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

@@ -1,0 +1,63 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-22T02:10:51.799Z",
+  "artifacts": [
+    {
+      "name": "artifacts/authenticated-smoke.json",
+      "sha256": "440ec07be667f412935c49baf53524b2a5105907194422369b9a455e3fb9960b"
+    },
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "7c6f6415d86165955a5ec046d23c682c993b346a1129b16e0939c7ee520090cd"
+    },
+    {
+      "name": "artifacts/broker-tests.json",
+      "sha256": "a19a3ff802b56785b9822f06d385deaa1857e72fbfd001e2ef4dab28f33dc25f"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "e5bb1500ca6579708eae3e495364d420ff44623398deb356f159c71fcf077877"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "69bcda136730f2a418e28c57bae60c30adfe83da2c77ce8d318345b7ffd36038"
+    },
+    {
+      "name": "artifacts/diagnostic-5dc276fd-8e12-42c9-b00f-d94e0207c9c0.json",
+      "sha256": "0dcb5612c7abbb958a6f3d96421e8340e1c8c14e52d1548899ab06214abcead7"
+    },
+    {
+      "name": "artifacts/docs-review.json",
+      "sha256": "4707f1200f75284b865b8297e16d8bc8a51d660eb5ac5ea5455575a6cd450d33"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "577c388972ccdc4a5dfa2fca3a833a937f9c86f2c55dfa24e849f2f541024a39"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "57a5d81b1f5712b4fdc30656c6bf3bb445f557986acb4da926b83031e7c9ce1c"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "76856d29280c016d2bc8193414aa8f19fc246fff052825868f58324d585e8bc5"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "54ffec0c099f45807dba6a8e4d98ccd414afe4fe104388914b67cb6ccad01d88"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "12d38a0b7be8b298e6ede4727423829757540bbf255b4a89654217570c10d87f"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "d2b80eba0e91c7fbfcf5dcd575219368f07aa5416f582db47b34d1d38e0ff2a3"
+    },
+    {
+      "name": "artifacts/timeline.json",
+      "sha256": "b2e72556db2442d10b9bf27c5bb9471a43d5eac7074ba50c4c0a5132eedb0f47"
+    }
+  ],
+  "reportSha256": "84e5906a0dff7f4b2283a939293cea9ad043a7c4df46b61246103acf1be4801c"
+}
