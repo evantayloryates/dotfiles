@@ -36,4 +36,25 @@ class RelayTests(unittest.TestCase):
    s['acknowledged']=[x['id'] for x in events];self.assertEqual(e.evaluate(r,s),{})
    episode('episode-c.json','2026-10-11T20:07:00+00:00','2026-10-11T20:07:30+00:00',[99]*30)
    self.assertEqual(len(e.evaluate(r,s)),1)
+ def test_pruned_first_bundle_keeps_acknowledged_incident_id(self):
+  with tempfile.TemporaryDirectory() as f:
+   r=Path(f)
+   def episode(name,start,last,checked_at=None):
+    p=r/name
+    p.write_text(json.dumps(dict(started_at=start,last_sample_at=last,
+                                 samples=[{'targets':[{'cpu_percent':99}]}])))
+    if checked_at:p.with_suffix('.diagnostics.json').write_text(json.dumps(dict(checked_at=checked_at,stack_capture=dict(status='ok'))))
+    return p
+   first=episode('episode-first.json','2026-10-11T20:00:00+00:00','2026-10-11T20:05:00+00:00')
+   episode('episode-second.json','2026-10-11T20:05:05+00:00','2026-10-11T20:10:00+00:00','2026-10-11T20:05:05+00:00')
+   s={'created_at':e.BASELINE,'acknowledged':['episode-first:onset','episode-first:diagnostics:2026-10-11T20:05:05+00:00']}
+   self.assertEqual(e.evaluate(r,s),{})
+   first.unlink()
+   # A previous relay version may already have accepted a duplicate onset.
+   s['acknowledged']+=['episode-second:onset','episode-second:diagnostics:2026-10-11T20:05:05+00:00']
+   self.assertEqual(e.evaluate(r,s),{})
+   episode('episode-third.json','2026-10-11T20:10:05+00:00','2026-10-11T20:15:00+00:00','2026-10-11T20:10:05+00:00')
+   groups=e.evaluate(r,s)
+   self.assertEqual(list(groups),['episode-first'])
+   self.assertEqual([x['id'] for x in groups['episode-first']],['episode-first:diagnostics:2026-10-11T20:10:05+00:00'])
 if __name__=='__main__':unittest.main()

@@ -82,31 +82,56 @@ def _focus_events(root, state):
 
 def evaluate(root, state):
     """Rotations stay one incident until 30 consecutive quiet samples."""
+    # Retention can remove the first bundle of an active incident. Reuse the
+    # original incident ID when a retained diagnostic was already acknowledged;
+    # otherwise the oldest remaining bundle looks like a second onset.
+    diagnostic_owner={}
+    for event_id in state.get('acknowledged',[]):
+        incident, separator, checked_at=event_id.partition(':diagnostics:')
+        if separator:
+            diagnostic_owner.setdefault(checked_at,incident)
     records=[]
     for p in root.glob('episode-*.json'):
         if p.name.endswith('.diagnostics.json'): continue
         d=json.loads(p.read_text())
         if d['started_at'] < state['created_at']: continue
         records.append((d['started_at'],p,d))
-    events=[]; previous=None; group=None
+    chunks=[]; current=[]; previous=None
     for _,p,d in sorted(records):
         if previous is None or previous['recovered'] or (dt.datetime.fromisoformat(d['started_at'])-dt.datetime.fromisoformat(previous['last'])).total_seconds()>35:
-            group=p.stem
+            if current: chunks.append(current)
+            current=[]
         samples=d.get('samples',[]); quiet=0
         for row in reversed(samples):
             if any((t.get('cpu_percent') or 0)>=30 for t in row.get('targets',[])):break
             quiet+=1
         recovered=quiet>=30
-        evidence=dict(incident=group,bundle=str(p),last_sample=d.get('last_sample_at'),
-                      peak_cpu=max((t.get('cpu_percent') or 0 for row in samples for t in row.get('targets',[])),default=0))
-        events.append(dict(id=group+':onset',kind='onset',**evidence))
-        diag=p.with_suffix('.diagnostics.json')
-        if diag.exists():
-            diagnostic=json.loads(diag.read_text())
-            capture=diagnostic.get('stack_capture',{})
-            events.append(dict(id=group+':diagnostics:'+str(diagnostic.get('checked_at',capture.get('status'))),kind='diagnostics',stack_status=capture.get('status'),**evidence))
-        if recovered:events.append(dict(id=group+':recovery',kind='recovery',**evidence))
+        current.append((p,d,samples,recovered))
         previous=dict(recovered=recovered,last=d.get('last_sample_at',d['started_at']))
+    if current: chunks.append(current)
+    events=[]
+    for chunk in chunks:
+        group=chunk[0][0].stem
+        # A diagnostic retained within this group ties a pruned first bundle
+        # back to its acknowledged incident. Prefer the oldest acknowledged ID
+        # if a prior relay already emitted an accidental duplicate onset.
+        for p,_,_,_ in chunk:
+            diag=p.with_suffix('.diagnostics.json')
+            if not diag.exists():continue
+            checked_at=str(json.loads(diag.read_text()).get('checked_at'))
+            if checked_at in diagnostic_owner:
+                group=diagnostic_owner[checked_at]
+                break
+        for p,d,samples,recovered in chunk:
+            evidence=dict(incident=group,bundle=str(p),last_sample=d.get('last_sample_at'),
+                          peak_cpu=max((t.get('cpu_percent') or 0 for row in samples for t in row.get('targets',[])),default=0))
+            events.append(dict(id=group+':onset',kind='onset',**evidence))
+            diag=p.with_suffix('.diagnostics.json')
+            if diag.exists():
+                diagnostic=json.loads(diag.read_text())
+                capture=diagnostic.get('stack_capture',{})
+                events.append(dict(id=group+':diagnostics:'+str(diagnostic.get('checked_at',capture.get('status'))),kind='diagnostics',stack_status=capture.get('status'),**evidence))
+            if recovered:events.append(dict(id=group+':recovery',kind='recovery',**evidence))
     # Coalesce onset + diagnostics + recovery found together into one callback per incident.
     grouped={}
     for event in {e['id']:e for e in events}.values():
