@@ -1,17 +1,10 @@
-// Explicit observed symbol profiles; unknown binaries must fail qualification.
-import assert from 'node:assert/strict'
+// The installed public mod API, located by shape (see installed-shape.mjs) so
+// a new CLI build is exercised as-is; a changed shape fails with its role name.
 import {runInNewContext} from 'node:vm'
-import {resolveClaudeBinary,cliVersionFromPath} from '../src/lib/paths.mjs'
-import {installedWindowContaining,cutInstalledFunction} from '../src/lib/installed-source.mjs'
+import {installedModApi} from './installed-shape.mjs'
 export function installedApiFixture(){
- const binary=resolveClaudeBinary(),version=cliVersionFromPath(binary)
- const profiles={
-  '2.1.289':{marker:'var gk=(e,t,o)=>Ny({call:',mcp:'gk',mcpEnd:'var Bp=',tool:'nw',toolEnd:'var sw=',wrap:'Ny',object:'N'},
-  '2.1.299':{marker:'var kT=(e,t,o)=>ES({call:',mcp:'kT',mcpEnd:'var Mf=',tool:'cE',toolEnd:'var lE=',wrap:'ES',object:'L'}
- }
- const p=profiles[version];assert.ok(p,`unqualified installed CLI version: ${version}`)
- const evidence=installedWindowContaining(binary,p.marker,{after:14000})
- const deps={[p.wrap]:x=>x,[p.object]:x=>!!x&&typeof x==='object',Ie:Error}
- const make=(name,end)=>runInNewContext(`(()=>{${cutInstalledFunction(evidence.text,'var '+name+'=',end)};return ${name}})()`,deps,{timeout:1000})
- return {mcp:make(p.mcp,p.mcpEnd),tool:make(p.tool,p.toolEnd),version,sha256:evidence.sha256}
+ const api=installedModApi(),{wrap,object,error}=api.roles
+ const deps={[wrap]:x=>x,[object]:x=>!!x&&typeof x==='object',[error]:Error}
+ const make=({name,code})=>runInNewContext(`(()=>{${code};return ${name}})()`,deps,{timeout:1000})
+ return {mcp:make(api.mcp),tool:make(api.tool),version:api.version}
 }
