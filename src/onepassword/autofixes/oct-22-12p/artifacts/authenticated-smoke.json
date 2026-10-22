@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-22T17:04:06.695550+00:00",
+  "checks": [
+    {
+      "slot": 0,
+      "exit_code": 0
+    },
+    {
+      "slot": 1,
+      "exit_code": 0
+    }
+  ],
+  "stdout_stderr": "discarded",
+  "additional_auth_wake": false,
+  "retry": false
+}

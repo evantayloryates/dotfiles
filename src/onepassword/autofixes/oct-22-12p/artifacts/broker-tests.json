@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "tests": 13,
+  "passed": true,
+  "duration_seconds": 6.485,
+  "raw_output_saved": false,
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "test_op_agent"
+  ]
+}

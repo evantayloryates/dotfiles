@@ -1,0 +1,8 @@
+{
+  "human_and_technical_sections": true,
+  "report_content_matches_html_and_markdown": true,
+  "all_local_links_resolve": true,
+  "responsive_layout_css": true,
+  "review_method": "HTML text, structure, links and responsive CSS inspected; no Computer Use or visual browser session",
+  "markdown_reviewed": true
+}

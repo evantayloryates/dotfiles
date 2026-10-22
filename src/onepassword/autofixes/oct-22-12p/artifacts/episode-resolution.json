@@ -1,0 +1,14 @@
+{
+  "updated": "2026-10-22T13:04:31-0400",
+  "fault_episode_cleared": true,
+  "statuses": [
+    "ok",
+    "ok"
+  ],
+  "matching_resolution_events": [
+    {
+      "ts": "2026-10-22T13:04:11-0400",
+      "incident_episode_matches": true
+    }
+  ]
+}

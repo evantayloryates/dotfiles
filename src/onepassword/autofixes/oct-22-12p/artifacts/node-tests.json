@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "tests": null,
+  "passed": true,
+  "duration_seconds": 0.427,
+  "raw_output_saved": false,
+  "command": [
+    "node",
+    "--test",
+    "test_autofix.mjs",
+    "test_autofix_archive.mjs",
+    "test_recovery_dispatch.mjs"
+  ]
+}

@@ -361,6 +361,15 @@ not establish authorization expiry or a broker crash. A successful manual smoke
 check does not update keepalive's stored account status; read the next scheduled
 round separately before claiming that its fault episode has cleared.
 
+The [October 22 midday incident](autofixes/oct-22-12p/summary.md) recorded
+generic exit 1 for both accounts at 12:50 and 12:57 Eastern. Independent
+metadata checks and the normal 13:04 keepalive round succeeded without repair
+or an agent-requested auth wake. The episode cleared; matching deployed code,
+signature, parser state, advancing heartbeat, 44 Python tests and three Node
+suites verified with broker PID/PTY and keepalive PID preserved. No code change
+was warranted. The retained error category does not establish the exact cause;
+do not equate a transient CLI failure with a parser fault or broker crash.
+
 The [October 19 early-morning incident](autofixes/oct-19-1a/summary.md) observed
 successful prompted keepalives for both accounts, followed by successful
 metadata-only checks. The alert snapshot still contained the preceding successful

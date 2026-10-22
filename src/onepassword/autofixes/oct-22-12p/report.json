@@ -1,0 +1,32 @@
+{
+  "outcome": "no_change",
+  "headline": "Transient CLI failures cleared; no broker repair needed",
+  "summary": "Both accounts returned generic CLI errors at 12:50 and 12:57 Eastern on October 22. Independent metadata-only checks succeeded at 13:04, and the normal keepalive round then succeeded for both accounts and cleared this incident at 13:04:11. The broker stayed running throughout verification.",
+  "cause": "The available evidence establishes transient CLI exit 1, not its exact cause. The sanitized error records do not distinguish authorization expiry, connectivity, or another CLI failure. The app and console were unlocked, deployed code and signature matched, timestamped lock parsing agreed with state, and the heartbeat progressed. No parser/watchdog failure or broker crash was found.",
+  "resolution": "No implementation change, install, restart, auth wake, notification, or permission change was needed. Recovery occurred during the existing keepalive schedule. Only sanitized incident evidence and agent documentation were added.",
+  "verification": "44 synthetic Python tests passed across broker, keepalive, recovery, activation and guidance suites; all three Node incident/recovery suites passed. Wrapper version and one vault-list metadata check per configured account returned exit 0 with stdout/stderr discarded. Deployed op_agent.py and keepalive.py hashes, running keepalive hash, build stamp and code signature verified. Broker PID 1213, session 1213, PTY /dev/ttys000 and keepalive PID 1214 were preserved; heartbeat advanced. The exact episode resolution event and cleared fault state were read back. Chat title, project, Pinned section, strongest advertised model gpt-6-astra and high reasoning verified.",
+  "activation": "The existing broker and keepalive remain running unchanged. Nothing is staged and there is no activation command or service restart to perform. Normal seven-minute keepalives continue.",
+  "limitations": "The exact trigger of the generic CLI failures remains unproven. Metadata checks establish access at verification time, not future authorization. No human action is currently indicated by the verified healthy state; any later unlock, Touch ID or macOS consent remains Taylor’s responsibility and recovery owns auth wakes.",
+  "docs": "Reviewed src/onepassword/README.md, src/onepassword/agent-contract.md and src/onepassword/autofixes/AGENTS.md. Updated README.md with this incident and the distinction between transient CLI errors and broker/parser failure. Existing agent contract and autofix guidance already cover these safeguards; unchanged, so guidance synchronization was unnecessary.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/authenticated-smoke.json",
+    "artifacts/baseline.json",
+    "artifacts/broker-tests.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-07f277f5-e825-4e53-9471-661043e5aa37.json",
+    "artifacts/episode-resolution.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/timeline.json",
+    "artifacts/report-review.json"
+  ]
+}
