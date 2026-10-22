@@ -1,3 +1,29 @@
+## October 21 peer-direct qualified on CLI 2.1.304 after the app upgrade
+
+VERIFIED 2026-10-22T01:55Z (EDT 21:55 Oct 21). The Claude app restart at ~20:25Z
+moved desktop sessions to CLI 2.1.304. VERIFIED_CLI still ended at 2.1.299,
+so every launchd peer-direct send failed with `peer_unqualified` (dispatched:false).
+The kanban-watcher relay went undelivered for ~5.5 h; nothing was sent twice.
+
+Qualification, same shape as 2.1.299 (Oct 15):
+- Live peers on 2.1.304 still report peerProtocol 1 with a messaging socket.
+- Woke scratch `claude-driver-transport-scratch-2026-10-15` (local_c0a18601…)
+  with one native message; new peer pid 20220, CLI 2.1.304, idle.
+- `src/scripts/peer-send.mjs --verify-transcript` (protocol-gated only) sent one
+  next-priority frame, msg_id 7df49909…. Exact native peer user record
+  4abbe6b9… at 01:55:39.924Z (msgIdMatched); terminal reply TRANSPORT_OK at
+  01:55:41.630Z with no tool use. 2.1.304 receipts add origin.from and
+  origin.verifiedPeerPid; the receipt reader ignores them.
+- Added 2.1.304 to VERIFIED_CLI (ordinary next-priority only; the immediate and
+  idle-subscription gates are unchanged). A test covers 2.1.304 acceptance and
+  refusal of an unlisted version before any frame. `peer_unqualified` now names
+  the peer version, protocol and verified list.
+
+Not done: the static installed-binary contract tests
+(native-peer-command-route, native-peer-admitted-package) cut 2.1.299 function
+markers and fail on 2.1.304 independently of this change. Re-cutting them for
+2.1.304 is separate work.
+
 ## October 18 launchd delivery: peer-direct works once pool-chat identity is fixed
 
 VERIFIED 2026-10-19T00:39Z (EDT 20:39 Oct 18). A one-shot LaunchAgent

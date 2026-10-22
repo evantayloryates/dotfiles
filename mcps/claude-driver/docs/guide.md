@@ -974,6 +974,22 @@ interrupt continues to require the native stop route. Default transport is uncha
 A native2.1.299 scratch trial verified busy submission followed by complete first
 response and exact follow-up response through durable steer_session.
 
+### Qualifying a new CLI for peer-direct (October 21)
+
+When the app moves to a new CLI, peer-direct refuses every send with
+`peer_unqualified` (nothing sent, safe to retry) until the version is added to
+`VERIFIED_CLI` in `src/lib/peer-direct.mjs`. Qualify it, don't just add it:
+1. Check a live peer record in `~/.claude/sessions/<pid>.json` still reports
+   `peerProtocol: 1`.
+2. Wake a scratch chat on the new CLI (for example the transport scratch
+   `local_c0a18601…`) with one native message.
+3. Send one frame with `node src/scripts/peer-send.mjs --host-session-id <scratch>
+   --from-mode bypass --from-name claude-driver --verify-transcript --message
+   "… Use no tools. Reply with exactly: TRANSPORT_OK"`. Require `msgIdMatched:true`
+   and a TRANSPORT_OK reply with no tool use.
+4. Add the version with a dated comment, extend
+   `test/peer-direct-pool-identity.test.mjs`, and record the finding.
+
 ### Sending from launchd or another non-interactive job (October 18)
 
 A launchd job (or cron, or any process outside a desktop chat) prompts a

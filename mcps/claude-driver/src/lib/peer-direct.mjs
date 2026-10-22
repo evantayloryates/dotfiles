@@ -31,7 +31,11 @@ const LINE_CAP = 1048576
 // 2.1.299: dedicated scratch native msg_id receipt and terminal TRANSPORT_OK
 // verified on Oct 15. Only ordinary next-priority delivery was qualified;
 // immediate routing and idle subscriptions retain their separate version gates.
-export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299'])
+// 2.1.304: Oct 21 (after the app moved to it) a scratch peer on2.1.304 still
+// reported peerProtocol 1; one ordinary next-priority frame got an exact
+// native msg_id receipt and terminal TRANSPORT_OK reply with no tool use
+// (docs/findings.md, October 21). Immediate/idle gates are unchanged.
+export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299','2.1.304'])
 
 function procStartOf(pid) {
   try {
@@ -155,7 +159,7 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   const deadline=Date.now()+timeoutMs
   const rec = peerRecord(target.sessionId,target.live?.pid)
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
-  if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError('direct transport is not qualified for this peer version',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
+  if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError(`direct transport is not qualified for peer CLI ${rec.version} (protocol ${rec.peerProtocol}); verified: ${VERIFIED_CLI.join(', ')}. Qualify it per docs/guide.md "Qualifying a new CLI for peer-direct"`,{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true,peerVersion:rec.version,peerProtocol:rec.peerProtocol,verifiedCli:[...VERIFIED_CLI]}})
   if(target.live?.procStart&&target.live.procStart!==rec.procStart)throw new DriverError('peer native process epoch changed',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
   // Pool-claimed and imported chats keep a CLI session id that differs from
   // their desktop id; callers holding the saved record pass it explicitly.

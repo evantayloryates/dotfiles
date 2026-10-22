@@ -28,3 +28,13 @@ test('direct recipient send to a chat whose CLI id differs from its desktop id i
  const r=await sendDirectRecipient({operationId:'pool-identity',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
  assert.equal(r.delivery,'received');assert.equal(r.applied,false);assert.equal(frames,1)
 })
+test('current desktop CLI 2.1.304 is accepted and an unlisted version refuses before any frame',async()=>{
+ const before=frames
+ writeFileSync(join(peers,process.pid+'.json'),JSON.stringify({...peer,version:'2.1.304'}))
+ const r=await sendDirectRecipient({operationId:'cli-2-1-304',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
+ assert.equal(r.delivery,'received');assert.equal(frames,before+1)
+ writeFileSync(join(peers,process.pid+'.json'),JSON.stringify({...peer,version:'2.1.999'}))
+ await assert.rejects(deliver({sessionId:sid,cliSessionId:cli,permissionMode:'bypassPermissions',live:{pid:peer.pid,procStart:start}},'x',{timeoutMs:2000}),e=>e.category==='peer_unqualified'&&e.detail?.dispatched===false)
+ assert.equal(frames,before+1)
+ writeFileSync(join(peers,process.pid+'.json'),JSON.stringify(peer))
+})
