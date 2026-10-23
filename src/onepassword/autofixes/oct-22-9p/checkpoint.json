@@ -1,0 +1,39 @@
+{
+  "status": "unresolved_authorization_verification",
+  "at": "2026-10-23T02:58:17.206764+00:00",
+  "episode": "20290d28-7fea-407c-be22-3c148d67db6c",
+  "releaseAuthorized": false,
+  "settled": false,
+  "codeChanged": false,
+  "candidatePrepared": false,
+  "findings": [
+    "Both accounts last succeeded at 20:45 Eastern, then returned generic exit 1 at 20:52 and 20:59.",
+    "A timestamped app lock occurred at 21:05:52 Eastern, after the failures; the later lock cannot explain their original cause.",
+    "The current parser agrees with the app lock. Deployed worker/keepalive hashes, running keepalive hash, build stamp and code signature verify.",
+    "Broker PID 1213, PTY /dev/ttys000 and keepalive PID 1214 were preserved; heartbeat advanced.",
+    "44 Python and 37 Node synthetic tests passed. Wrapper version smoke exited 0; stdout/stderr discarded.",
+    "Authenticated checks were skipped while locked; current account authorization is not verified. The incident episode remains active."
+  ],
+  "nextChangedConditionStep": "Taylor unlocks the 1Password desktop app and handles any native consent. Recovery owns the retry. On follow-up, inspect fresh keepalive account status and episode resolution; once healthy, run one bounded metadata-only check per configured account through /Users/taylor/dotfiles/bin/op with stdout/stderr discarded. If failures persist unlocked, inspect sanitized diagnostic evidence without starting an auth retry loop.",
+  "resumeMechanism": "The original notification click queues the existing release follow-up. Unlocking alone is not proof this chat will resume; Taylor can reply here after unlocking. No new notification or goal was created.",
+  "docsReviewed": [
+    "src/onepassword/README.md",
+    "src/onepassword/agent-contract.md",
+    "src/onepassword/autofixes/AGENTS.md"
+  ],
+  "docsChanged": false,
+  "docsDecision": "Existing guidance already distinguishes lock state, unknown authorization errors, and unresolved diagnosis. No behavior change is established.",
+  "cleanup": "No live implementation changes, installation, restart, active-command interruption, UI automation, secret output, or additional auth wake. Only sanitized incident artifacts were created. Chat remains pinned and unarchived.",
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/final-status.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/parser-check.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/timeline.json",
+    "artifacts/episode-resolution.json",
+    "artifacts/python-tests.json",
+    "artifacts/node-tests.json",
+    "artifacts/chat-check.json"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "threadId": "01a1663e-6ed9-7d03-9dfd-44d56c35b2fb",
+  "titleMatches": true,
+  "cwd": "/Users/taylor/src/github/dotfiles",
+  "model": "gpt-6-astra",
+  "reasoningEffort": "high",
+  "section": {
+    "id": "01984de2-8f74-7c91-a3b2-5c5e937cf318",
+    "name": "Pinned",
+    "appearance": null
+  },
+  "strongestSupported": "gpt-6-astra"
+}
