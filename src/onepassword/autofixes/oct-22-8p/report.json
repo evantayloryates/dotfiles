@@ -1,0 +1,31 @@
+{
+  "outcome": "no_change",
+  "headline": "Broker healthy; transient CLI errors cleared without repair",
+  "summary": "Both accounts returned generic CLI exit 1 during three scheduled rounds at 20:16, 20:23 and 20:30 Eastern on October 22. Independent metadata-only checks succeeded at 20:35. The normal keepalive round succeeded for both accounts at 20:37:54–55 and cleared this exact fault episode at 20:37:55. No software fix, restart or additional authentication wake was needed.",
+  "cause": "The immediate alert trigger was generic CLI exit 1, not broker-unavailable exit 125 or a recorded authorization timeout. Its exact underlying cause is not retained in sanitized diagnostics and remains unknown. Parser/watchdog checks independently found readable logs, an unlocked state matching persisted state, matching source/deployed hashes, valid signature/build provenance and a progressing heartbeat. These findings do not identify authorization expiry or a network failure as the cause.",
+  "resolution": "No code change is warranted after successful independent and scheduled metadata calls, verified episode resolution, current deployment verification and passing synthetic checks. Only sanitized incident evidence and documentation were added. The first-click release gate remained false; no implementation was changed or installed, and no second approval notification was sent.",
+  "verification": "44 Python tests and 37 Node tests passed. Version-only wrapper smoke and both account-scoped vault-list metadata checks exited 0 with stdout/stderr discarded. Deployed worker/keepalive hashes, running keepalive hash, bundle signature and build stamp matched. Parser matched unlocked persisted state; heartbeat advanced. Broker PID 1213, session 1213, PTY /dev/ttys000 and keepalive PID 1214 were preserved. Final state shows both accounts ok and no active fault episode. Chat title, dotfiles cwd, Pinned section, strongest advertised gpt-6-astra model and high reasoning verified. See supporting JSON artifacts.",
+  "activation": "The existing broker and keepalive remain running unchanged. Nothing is staged or awaiting installation; no service reload or user action is required for this recovered episode. The normal seven-minute account keepalive cadence remains active.",
+  "limitations": "The original generic CLI failure cause remains unknown. Successful recovery does not prove uninterrupted authorization or future availability. No secrets, vault contents, raw logs or environment dumps were saved. No Computer Use, Claude UI tests or competing auth retry loop was used. Future Touch ID/macOS consent, if requested by the platform, remains Taylor’s responsibility.",
+  "docs": "Reviewed src/onepassword/README.md, src/onepassword/agent-contract.md and src/onepassword/autofixes/AGENTS.md. Updated README.md with this incident’s verified recovery and the distinction between generic CLI errors and parser/watchdog failure. Existing contract and autofix instructions already cover the outcome and required no change; guidance sync was unnecessary.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": false,
+  "artifacts": [
+    "artifacts/authenticated-smoke.json",
+    "artifacts/baseline.json",
+    "artifacts/chat-check.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-b1f827e9-4b02-477b-8b3c-c3898ee44079.json",
+    "artifacts/episode-resolution.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.json",
+    "artifacts/parser-check.json",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/timeline.json",
+    "artifacts/report-review.json"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "slot": 0,
+      "exit_code": 0,
+      "seconds": 0.98
+    },
+    {
+      "slot": 1,
+      "exit_code": 0,
+      "seconds": 0.88
+    }
+  ],
+  "stdout_stderr": "discarded",
+  "additional_auth_wake": false,
+  "bounded_single_pass": true,
+  "completed_at": "2026-10-23T00:35:50.551215+00:00"
+}

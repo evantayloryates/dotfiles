@@ -1,0 +1,100 @@
+{
+  "event_counts": {
+    "keepalive": 12,
+    "fault_started": 1,
+    "fault_resolved": 1
+  },
+  "calls": [
+    {
+      "ts": "2026-10-22T20:02:26-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.77,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:02:27-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.77,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-22T20:09:31-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.87,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:09:32-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.67,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-22T20:16:37-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 0.26,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:16:37-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 0.14,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-22T20:23:43-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 1.29,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:23:43-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 0.17,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-22T20:30:48-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 0.26,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:30:48-0400",
+      "status": "error",
+      "exit": 1,
+      "seconds": 0.15,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-22T20:37:54-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.77,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-22T20:37:55-0400",
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.67,
+      "slot": 1
+    }
+  ],
+  "resolutions": [
+    {
+      "ts": "2026-10-22T20:37:55-0400",
+      "incident_episode_matches": true
+    }
+  ],
+  "raw_logs_saved": false
+}

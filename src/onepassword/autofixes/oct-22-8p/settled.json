@@ -1,0 +1,63 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-23T00:38:29.279Z",
+  "artifacts": [
+    {
+      "name": "artifacts/authenticated-smoke.json",
+      "sha256": "0310e769a626d824bb18280b0b934051a07cd867a910687a8f9ded1622b39075"
+    },
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "458d40f251c2eea76b27f700da8f59fc70368312118cf0388bc32e7d46235179"
+    },
+    {
+      "name": "artifacts/chat-check.json",
+      "sha256": "9071c3a8dd73eb6f7b3bd2b4ea40d39147b7296b816f641a73438d1591da0400"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "69bcda136730f2a418e28c57bae60c30adfe83da2c77ce8d318345b7ffd36038"
+    },
+    {
+      "name": "artifacts/diagnostic-b1f827e9-4b02-477b-8b3c-c3898ee44079.json",
+      "sha256": "0ca0c18d0ee3ab4c39687fc915de69489d519f44b2e3e5f4b2452fe7212d55d6"
+    },
+    {
+      "name": "artifacts/episode-resolution.json",
+      "sha256": "83f0a2161856ab377490525f517a19307c3a6b38f79bb74a84b81f7ee3d44e09"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "68c5694d5389afdd74e9999df6bbcb2c9c0c0f9c7b6093692d1254e3cd56ec46"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "172c4082d4e1868285ec8c9106c423e7e2557359f5c0c67086067b01cfa95123"
+    },
+    {
+      "name": "artifacts/node-tests.json",
+      "sha256": "27f22d50b8f2c51bcd91dc4c185b1aedd748a259ca00311c72ab4143053d9e50"
+    },
+    {
+      "name": "artifacts/parser-check.json",
+      "sha256": "47560d242676a2d3141753b375c67325d5a0d837409077db320c7145783581c9"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "1ecc90a8e8ccc8ee19586c4905717bbee358878b2ae3f920abc2f515c1783917"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "39ef3bfdde3c39ac56118368422ba5b561a40a73fa02ca0d372c5f15ac94a7ec"
+    },
+    {
+      "name": "artifacts/timeline.json",
+      "sha256": "953f41bb859e4c95e1b4a3f28cc2460ba244b1e35b5104896defc3bac619cce9"
+    },
+    {
+      "name": "artifacts/report-review.json",
+      "sha256": "9e2aebe21a39d2b9f05617bd406eea416ed483fe68fbca3d42e3efba19ad3b67"
+    }
+  ],
+  "reportSha256": "149629309063045d3d228481278adea6130187d13999852b71a2a907e9f39bb7"
+}

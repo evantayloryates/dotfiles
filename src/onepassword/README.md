@@ -467,6 +467,16 @@ Account successes at 06:49 predated the lock and do not establish current
 authorization. Authenticated checks were skipped while locked; Taylor owns
 unlock/native consent and recovery owns any authorization wake.
 
+The [October 22 evening incident](autofixes/oct-22-8p/summary.md) recorded
+three scheduled rounds with generic exit 1 for both accounts from 20:16 through
+20:30 Eastern. Independent metadata checks succeeded, and the regular 20:37
+keepalive round cleared the episode without repair or an extra auth wake.
+Matching deployed hashes and signature, unlocked parser state, an advancing
+heartbeat and 81 targeted synthetic tests verified with broker PID/PTY and
+keepalive PID preserved. No software repair was warranted. The exact trigger
+remains unknown; generic errors and later recovery do not establish authorization
+expiry, a network fault or a parser/watchdog defect.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:
