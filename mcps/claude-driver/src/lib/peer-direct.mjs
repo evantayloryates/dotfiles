@@ -35,7 +35,11 @@ const LINE_CAP = 1048576
 // reported peerProtocol 1; one ordinary next-priority frame got an exact
 // native msg_id receipt and terminal TRANSPORT_OK reply with no tool use
 // (docs/findings.md, October 21). Immediate/idle gates are unchanged.
-export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299','2.1.304'])
+// 2.1.308: Oct 23 (after the Mac and app restart) live peers on 2.1.308 report
+// peerProtocol 1; one ordinary next-priority frame to the transport scratch got
+// an exact native msg_id receipt (msgIdMatched) and a terminal TRANSPORT_OK
+// reply with no tool use (docs/findings.md, October 23). Immediate/idle gates unchanged.
+export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299','2.1.304','2.1.308'])
 
 function procStartOf(pid) {
   try {

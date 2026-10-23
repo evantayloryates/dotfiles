@@ -1,3 +1,12 @@
+## October 23 peer-direct qualified on CLI 2.1.308 after the app upgrade
+
+VERIFIED 2026-10-23T16:01Z. The Mac and app restart around 14:03Z moved desktop sessions to CLI 2.1.308, and every launchd peer-direct send failed with `peer_unqualified` (dispatched:false). The kanban-watcher daemon showed its "Kanban watcher outage" banner to Taylor. Nothing was sent twice.
+
+Qualification, same shape as 2.1.304:
+- Live peers on 2.1.308 still report peerProtocol 1.
+- Woke scratch `claude-driver-transport-scratch-2026-10-15` (local_c0a18601…) with one native message (peer pid 68047, CLI 2.1.308).
+- `src/scripts/peer-send.mjs --verify-transcript` sent one next-priority frame, msg_id 995f7088…, from verifiedPeerPid 68599. Exact native peer user record 96dff057… at 16:01:37.294Z (msgIdMatched); terminal reply TRANSPORT_OK at 16:01:42.679Z with no tool use.
+
 ## October 21 peer-direct qualified on CLI 2.1.304 after the app upgrade
 
 VERIFIED 2026-10-22T01:55Z (EDT 21:55 Oct 21). The Claude app restart at ~20:25Z

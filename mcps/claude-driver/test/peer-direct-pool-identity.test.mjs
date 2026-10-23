@@ -28,14 +28,17 @@ test('direct recipient send to a chat whose CLI id differs from its desktop id i
  const r=await sendDirectRecipient({operationId:'pool-identity',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
  assert.equal(r.delivery,'received');assert.equal(r.applied,false);assert.equal(frames,1)
 })
-test('current desktop CLI 2.1.304 is accepted and an unlisted version refuses before any frame',async()=>{
+test('desktop CLIs 2.1.304 and 2.1.308 are accepted and an unlisted version refuses before any frame',async()=>{
  const before=frames
  writeFileSync(join(peers,process.pid+'.json'),JSON.stringify({...peer,version:'2.1.304'}))
  const r=await sendDirectRecipient({operationId:'cli-2-1-304',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
  assert.equal(r.delivery,'received');assert.equal(frames,before+1)
+ writeFileSync(join(peers,process.pid+'.json'),JSON.stringify({...peer,version:'2.1.308'}))
+ const r8=await sendDirectRecipient({operationId:'cli-2-1-308',session:sid,message:'PRIVATE_PROMPT',timeoutMs:3000})
+ assert.equal(r8.delivery,'received');assert.equal(frames,before+2)
  writeFileSync(join(peers,process.pid+'.json'),JSON.stringify({...peer,version:'2.1.999'}))
  await assert.rejects(deliver({sessionId:sid,cliSessionId:cli,permissionMode:'bypassPermissions',live:{pid:peer.pid,procStart:start}},'x',{timeoutMs:2000}),e=>e.category==='peer_unqualified'&&e.detail?.dispatched===false)
- assert.equal(frames,before+1)
+ assert.equal(frames,before+2)
  writeFileSync(join(peers,process.pid+'.json'),JSON.stringify(peer))
 })
 test('a busy recipient queues the frame as a queued_command attachment, which counts as the native receipt',async()=>{
