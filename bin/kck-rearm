@@ -6,10 +6,11 @@
   kck rearm -m10 -d18 -h15 -min30   no questions: use these parts, the rest default to now (America/New_York)
   kck rearm --slot dev ...          the fleet's dev call (slot 4: David Whitmore / Dana Ashby, S3TOD9C7O)
                                     instead of Taylor's slot-3 call (Carl Jones / Cristal, APXP2TVRK), the default
+  kck rearm --check                 verify the current leased slot and fixture without changing the call
   kck rearm --recording off ...     arm the room with recording paused; the default is on, so live captions run
 
 The default offered is the last time used for the current call, else the next 5-minute mark after now.
-Runs ~/src/github/kickoff/.scratch/mono-smoke/rearm.sh, which moves the same call and pre-creates its Twilio
+Runs ~/src/github/kickoff/dev-tools/call-rig/rearm.sh, which moves the same call and pre-creates its Twilio
 room with recording on (or off with --recording off), reading the state back from Twilio and the app.
 Last-used times are kept in ~/.local/state/kck-rearm/last.json, keyed by call id.
 """
@@ -24,7 +25,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ET = ZoneInfo('America/New_York')
-REARM = Path.home() / 'src/github/kickoff/.scratch/mono-smoke/rearm.sh'
+REARM = Path.home() / 'src/github/kickoff/dev-tools/call-rig/rearm.sh'
 STATE = Path.home() / '.local/state/kck-rearm/last.json'
 FIELDS = ('year', 'month', 'day', 'hour', 'minute')
 DAYS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
@@ -174,7 +175,7 @@ def current_call():
     return (out.stdout.split() or ['none'])[0]
 
 
-LINKS = Path.home() / 'src/github/kickoff/.scratch/mono-smoke/links.env'
+LINKS = Path.home() / 'src/github/kickoff/.scratch/rig/fixtures/3/links.env'
 
 
 def link(url):
@@ -261,6 +262,8 @@ def main():
     if sys.argv[1:] and sys.argv[1] in ('-?', '--help', 'help'):
         print(__doc__.strip())
         return
+    if sys.argv[1:] == ['--check']:
+        raise SystemExit(subprocess.run(['bash', str(REARM), '--slot', SLOT, '--recording', RECORDING, '--check']).returncode)
     call_id = current_call()
     if sys.argv[1:]:
         at = parse_flags(sys.argv[1:], now)
