@@ -1,6 +1,32 @@
 #!/bin/sh
 # speak: stream text to speech through Cartesia (see src/speak/README.md).
 # No forks on the hot path: the binary is rebuilt only when its source is newer.
+disabled="$HOME/.local/state/speak/off"
+case "${1:-}" in
+    --off)
+        if [ "$#" -ne 1 ]; then
+            echo 'speak: --off takes no text' >&2
+            exit 2
+        fi
+        mkdir -p "$disabled" || exit 1
+        echo 'speak: off'
+        exit 0
+        ;;
+    --on)
+        if [ "$#" -ne 1 ]; then
+            echo 'speak: --on takes no text' >&2
+            exit 2
+        fi
+        if [ -d "$disabled" ]; then
+            rmdir "$disabled" || exit 1
+        fi
+        echo 'speak: on'
+        exit 0
+        ;;
+esac
+if [ -d "$disabled" ]; then
+    exit 0
+fi
 dir="${DOTFILES_DIR:-$HOME/dotfiles}/src/speak"
 bin="$dir/.build/speak"
 if [ ! -x "$bin" ] || [ "$dir/speak.swift" -nt "$bin" ]; then

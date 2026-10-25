@@ -8,10 +8,18 @@ speak Build finished, three tests failed.
 speak --init-alt "Same line, the other voice."
 pbpaste | speak
 speak -- --text that starts with a dash
+speak --off
+speak --on
 ```
 
 Everything after the optional voice flag is sent as one literal string. With no
 text arguments, `speak` reads stdin.
+
+`speak --off` silences future calls to `bin/speak` until `speak --on`. Both
+commands work in shells that are already open, without reloading them. While
+off, regular calls exit successfully without compiling, contacting Cartesia, or
+playing audio. Audio that has already started keeps playing. The shared state
+is the directory `~/.local/state/speak/off`.
 
 ## Voice profiles
 
