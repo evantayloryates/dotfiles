@@ -6,7 +6,7 @@ import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { daemonSocketPath, daemonStart, resolveCodexBinary } from '../../mcps/codex-bridge/src/lib/codex-paths.mjs'
-import { connectDaemonTransport } from '../../mcps/codex-bridge/src/lib/transport.mjs'
+import { connectDaemonTransport, installExitHooks, onExitCleanup, spawnStdioTransport } from '../../mcps/codex-bridge/src/lib/transport.mjs'
 import { JsonRpcPeer } from '../../mcps/codex-bridge/src/lib/jsonrpc.mjs'
 
 export const DEFAULT_STATE_DIR = join(homedir(), '.local', 'state', 'guidance-fleet-codex', 'delivery')
@@ -35,23 +35,47 @@ export async function connectAppServer({ startIfAbsent = false } = {}) {
   } catch (error) { peer.close(); throw error }
 }
 
+// A delivery must not leave a fleet chat loaded in the shared managed daemon.
+// Its idle thread lease can outlive a desktop-app restart and make the chat
+// appear to be open in another app. The private child is kept alive while a
+// turn it started runs, then closed so the next desktop instance can load it.
+export async function connectDeliveryAppServer() {
+  const transport = spawnStdioTransport(resolveCodexBinary(), { detached: false })
+  installExitHooks()
+  const unregisterCleanup = onExitCleanup(() => transport.close())
+  const exited = new Promise(resolve => transport.once('close', () => { unregisterCleanup(); resolve() }))
+  const peer = new JsonRpcPeer(transport)
+  peer.waitForExit = () => new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('fleet delivery app-server child did not exit after close')), 5000)
+    exited.then(() => { clearTimeout(timer); resolve() })
+  })
+  peer.on('request', request => request.fail(-32000, 'Fleet delivery cannot approve agent or authentication requests'))
+  try {
+    await peer.request('initialize', { clientInfo: { name: 'taylor-local-fleet-codex', version: '1' }, capabilities: { experimentalApi: true } }, { timeoutMs: 10000 })
+    peer.notify('initialized')
+    return peer
+  } catch (error) { peer.close(); await peer.waitForExit(); throw error }
+}
+
 function observed(turns, clientId) {
   return turns?.find(turn => turn.items?.some(item => item.type === 'userMessage' && item.clientId === clientId)) || null
 }
 
 async function inspect(call, threadId, clientId) {
-  const [thread, queue] = await Promise.all([
-    call('thread/read', { threadId, includeTurns: true }),
+  const [thread, queue, turns] = await Promise.all([
+    call('thread/read', { threadId, includeTurns: false }),
     call('thread/queue/list', { threadId }),
+    call('thread/turns/list', { threadId, limit: 100, sortDirection: 'desc', itemsView: 'summary' }),
   ])
   return {
     thread,
-    turn: observed(thread.thread?.turns, clientId),
+    turn: observed(turns.data, clientId),
     item: queue.data?.find(row => row.clientUserMessageId === clientId),
   }
 }
 
-export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_STATE_DIR, peer, startIfIdle = true }) {
+export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_STATE_DIR, peer,
+  connect = connectDeliveryAppServer, startIfIdle = true, waitIntervalMs = 500 }) {
   if (!/^[0-9a-f-]{36}$/i.test(threadId)) throw new Error('exact Codex thread ID required')
   if (!key || typeof key !== 'string' || !message || typeof message !== 'string') throw new Error('key and message required')
   mkdirSync(stateDir, { recursive: true, mode: 0o700 })
@@ -64,10 +88,15 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
     save(path, state)
   }
   if (state.key !== key || state.threadId !== threadId || state.messageSha256 !== sha(message)) throw new Error('delivery identity already bound to different intent')
+  if (state.phase === 'consumed' && ['completed', 'failed', 'interrupted'].includes(state.turnStatus)) {
+    if (state.turnStatus !== 'completed') throw new Error(`prior delivery turn ${state.turnStatus}; inspect exact turn ${state.turnId}, no replay`)
+    return { phase: state.phase, threadId, clientId: state.clientId, turnId: state.turnId,
+      turnStatus: state.turnStatus, newlyConsumed: false }
+  }
   const previouslyConsumed = state.phase === 'consumed'
 
   const ownPeer = !peer
-  if (!peer) peer = await connectAppServer({ startIfAbsent: true })
+  if (!peer) peer = await connect()
   const call = (method, params) => peer.request(method, params, { timeoutMs: 10000 })
   try {
     let { thread, turn, item } = await inspect(call, threadId, state.clientId)
@@ -91,40 +120,59 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
       if (!item && !turn) throw new Error('queue submission not independently visible; no replay')
     }
     if (turn) {
-      state.phase = 'consumed'; state.turnId = turn.id; save(path, state)
+      state.phase = 'consumed'; state.turnId = turn.id; state.turnStatus = turn.status; save(path, state)
+      if (['failed', 'interrupted'].includes(turn.status)) throw new Error(`delivery turn ${turn.status}; inspect exact turn ${turn.id}, no replay`)
       return { phase: state.phase, threadId, clientId: state.clientId, turnId: turn.id, turnStatus: turn.status, newlyConsumed: !previouslyConsumed }
     }
     state.queueId = item.id; state.phase = 'queued'; save(path, state)
     if (!startIfIdle || !['idle', 'notLoaded'].includes(thread.thread?.status?.type)) {
       return { phase: state.phase, threadId, clientId: state.clientId, queueId: item.id }
     }
+    let ownsTurn = false
     if (thread.thread.status.type === 'notLoaded') {
-      await call('thread/resume', { threadId })
-    } else {
-      try { await call('thread/queue/start', { threadId, queuedSubmissionId: item.id }) }
-      catch (error) {
-        // The desktop may consume it between the queue read and start. Give
-        // readback time to settle, then fail closed if the outcome is unknown.
-        let consumed = false
-        for (let attempt = 0; attempt < 8; attempt += 1) {
-          const latest = await call('thread/read', { threadId, includeTurns: true })
-          if (observed(latest.thread?.turns, state.clientId)) { consumed = true; break }
-          await pause(150)
-        }
-        if (!consumed) throw error
+      try {
+        await peer.request('thread/resume', { threadId, excludeTurns: true }, { timeoutMs: 30000 })
+        ownsTurn = true
+      } catch (error) {
+        if (!/already has an active writer/.test(error.message)) throw error
+        // The desktop owns this chat. Leave the exact queue item for it;
+        // never take over its writer or spin up a second turn.
+        return { phase: 'queued', threadId, clientId: state.clientId, queueId: item.id }
       }
     }
-    for (let attempt = 0; attempt < 8; attempt += 1) {
-      thread = await call('thread/read', { threadId, includeTurns: true })
-      turn = observed(thread.thread?.turns, state.clientId)
-      if (turn) {
-        state.phase = 'consumed'; state.turnId = turn.id; save(path, state)
-        return { phase: state.phase, threadId, clientId: state.clientId, turnId: turn.id, turnStatus: turn.status, newlyConsumed: !previouslyConsumed }
+    try { await call('thread/queue/start', { threadId, queuedSubmissionId: item.id }) }
+    catch (error) {
+      // Resume and desktop pickup can race queue/start. Reconcile the exact
+      // client ID; a failed start must never trigger another queue/add.
+      let consumed = false
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const latest = await inspect(call, threadId, state.clientId)
+        if (latest.turn) { consumed = true; break }
+        await pause(150)
       }
-      await pause(150)
+      if (!consumed) throw error
+    }
+    ownsTurn = true
+    // Closing our private app-server while its own turn is running would
+    // interrupt that turn. Wait for a terminal result before releasing it.
+    while (ownsTurn) {
+      ;({ thread, turn } = await inspect(call, threadId, state.clientId))
+      if (turn) {
+        state.phase = 'consumed'; state.turnId = turn.id; state.turnStatus = turn.status; save(path, state)
+        if (['completed', 'failed', 'interrupted'].includes(turn.status)) {
+          if (turn.status !== 'completed') throw new Error(`delivery turn ${turn.status}; inspect exact turn ${turn.id}, no replay`)
+          return { phase: state.phase, threadId, clientId: state.clientId, turnId: turn.id, turnStatus: turn.status, newlyConsumed: !previouslyConsumed }
+        }
+      }
+      await pause(waitIntervalMs)
     }
     return { phase: 'queued', threadId, clientId: state.clientId, queueId: item.id }
-  } finally { if (ownPeer) peer.close() }
+  } finally {
+    if (ownPeer) {
+      peer.close()
+      await peer.waitForExit?.()
+    }
+  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === realpathSync(resolve(process.argv[1]))) {

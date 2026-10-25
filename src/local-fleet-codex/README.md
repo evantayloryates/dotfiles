@@ -31,6 +31,18 @@ card edit cannot change a retry's identity. Every minute the watcher checks
 Active cards; after 20 minutes without activity it alerts for no structured
 `Assigned: <Codex thread ID>` comment or an idle/unavailable assignee.
 
+Each queue delivery now starts a private app-server child, keeps it alive until
+the turn it starts reaches a terminal state, then closes it. Read-only worker
+status checks use the same short-lived path. The watcher does not resume chats
+in the shared managed app-server daemon: that daemon could retain an idle chat
+across a Codex desktop restart and make the new app say the chat is open in
+another app. If the desktop already owns the chat, the delivery leaves its
+single durable queued item for the desktop instead of taking its writer. A
+failed or interrupted turn is recorded and requires inspection; the watcher
+does not replay the message. An active private turn can still temporarily own
+the chat until it finishes. Check the exact turn and board cursor after a
+restart before treating a queue receipt as completed work.
+
 The manager sends worker briefs through `queue.mjs`, then verifies the worker's
 own card comment. Queue consumption is not task acceptance. `thread.mjs`
 provides bounded read-only turn status when native chat tools are unavailable.
