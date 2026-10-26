@@ -120,3 +120,25 @@ test('an interrupted owned turn is retained for inspection and never replayed', 
     assert.equal(adds, 1)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test('resume may consume the exact queued item before queue/start without a second start', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'codex-fleet-queue-'))
+  let clientId, resumed = false, starts = 0, adds = 0, reads = 0
+  const peer = { request: async (method, params) => {
+    if (method === 'thread/read') { reads += 1; return { thread: { status: { type: 'notLoaded' } } } }
+    if (method === 'thread/queue/list') return { data: clientId && !resumed ? [{ id: 'queue-1', clientUserMessageId: clientId }] : [] }
+    if (method === 'thread/turns/list') return { data: resumed
+      ? [{ id: 'turn-after-resume', status: reads > 4 ? 'completed' : 'inProgress', items: [{ type: 'userMessage', clientId }] }] : [] }
+    if (method === 'thread/queue/add') { adds += 1; clientId = params.clientUserMessageId; return { queuedSubmission: { id: 'queue-1' } } }
+    if (method === 'thread/resume') { resumed = true; return {} }
+    if (method === 'thread/queue/start') { starts += 1; throw new Error('queued-submission-not-found') }
+    throw new Error(`unexpected ${method}`)
+  } }
+  try {
+    const input = { threadId, key: 'resume-consumes', message: 'Test message', stateDir: dir, peer, waitIntervalMs: 0 }
+    assert.equal((await queueMessage(input)).turnStatus, 'completed')
+    assert.equal((await queueMessage(input)).turnId, 'turn-after-resume')
+    assert.equal(adds, 1)
+    assert.equal(starts, 0)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

@@ -13,6 +13,14 @@ export const DEFAULT_STATE_DIR = join(homedir(), '.local', 'state', 'guidance-fl
 const sha = value => createHash('sha256').update(value).digest('hex')
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+export class DeliveryTurnError extends Error {
+  constructor(turnId, turnStatus) {
+    super(`delivery turn ${turnStatus}; inspect exact turn ${turnId}, no replay`)
+    this.turnId = turnId
+    this.turnStatus = turnStatus
+  }
+}
+
 function save(path, state) {
   const tmp = `${path}.${process.pid}.tmp`
   writeFileSync(tmp, JSON.stringify(state, null, 2), { mode: 0o600 })
@@ -89,7 +97,7 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
   }
   if (state.key !== key || state.threadId !== threadId || state.messageSha256 !== sha(message)) throw new Error('delivery identity already bound to different intent')
   if (state.phase === 'consumed' && ['completed', 'failed', 'interrupted'].includes(state.turnStatus)) {
-    if (state.turnStatus !== 'completed') throw new Error(`prior delivery turn ${state.turnStatus}; inspect exact turn ${state.turnId}, no replay`)
+    if (state.turnStatus !== 'completed') throw new DeliveryTurnError(state.turnId, state.turnStatus)
     return { phase: state.phase, threadId, clientId: state.clientId, turnId: state.turnId,
       turnStatus: state.turnStatus, newlyConsumed: false }
   }
@@ -121,7 +129,7 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
     }
     if (turn) {
       state.phase = 'consumed'; state.turnId = turn.id; state.turnStatus = turn.status; save(path, state)
-      if (['failed', 'interrupted'].includes(turn.status)) throw new Error(`delivery turn ${turn.status}; inspect exact turn ${turn.id}, no replay`)
+      if (['failed', 'interrupted'].includes(turn.status)) throw new DeliveryTurnError(turn.id, turn.status)
       return { phase: state.phase, threadId, clientId: state.clientId, turnId: turn.id, turnStatus: turn.status, newlyConsumed: !previouslyConsumed }
     }
     state.queueId = item.id; state.phase = 'queued'; save(path, state)
@@ -140,17 +148,31 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
         return { phase: 'queued', threadId, clientId: state.clientId, queueId: item.id }
       }
     }
-    try { await call('thread/queue/start', { threadId, queuedSubmissionId: item.id }) }
+    // Resuming an unloaded chat may itself consume the queued submission.
+    // Re-read the exact client ID before trying to start it separately.
+    ;({ turn, item } = await inspect(call, threadId, state.clientId))
+    for (let attempt = 0; attempt < 100 && !turn && !item; attempt += 1) {
+      await pause(150)
+      ;({ turn, item } = await inspect(call, threadId, state.clientId))
+    }
+    if (!turn && !item) throw new Error(`post-resume intent uncertain for ${state.clientId}; inspect original intent without replay`)
+    if (!turn && item) try { await call('thread/queue/start', { threadId, queuedSubmissionId: item.id }) }
     catch (error) {
       // Resume and desktop pickup can race queue/start. Reconcile the exact
-      // client ID; a failed start must never trigger another queue/add.
-      let consumed = false
-      for (let attempt = 0; attempt < 8; attempt += 1) {
+      // client ID; a failed start must never trigger another queue/add. Keep
+      // our private writer alive while the consumed turn becomes visible.
+      let reconciled = false
+      for (let attempt = 0; attempt < 100; attempt += 1) {
         const latest = await inspect(call, threadId, state.clientId)
-        if (latest.turn) { consumed = true; break }
+        if (latest.turn) { reconciled = true; break }
+        if (latest.item) {
+          // Another writer still has the original queued item. Leave it in
+          // place; the next observation uses the same durable identity.
+          return { phase: 'queued', threadId, clientId: state.clientId, queueId: latest.item.id }
+        }
         await pause(150)
       }
-      if (!consumed) throw error
+      if (!reconciled) throw new Error(`queue/start uncertain for ${state.clientId}; inspect original intent without replay: ${error.message}`)
     }
     ownsTurn = true
     // Closing our private app-server while its own turn is running would
@@ -160,7 +182,7 @@ export async function queueMessage({ threadId, key, message, stateDir = DEFAULT_
       if (turn) {
         state.phase = 'consumed'; state.turnId = turn.id; state.turnStatus = turn.status; save(path, state)
         if (['completed', 'failed', 'interrupted'].includes(turn.status)) {
-          if (turn.status !== 'completed') throw new Error(`delivery turn ${turn.status}; inspect exact turn ${turn.id}, no replay`)
+          if (turn.status !== 'completed') throw new DeliveryTurnError(turn.id, turn.status)
           return { phase: state.phase, threadId, clientId: state.clientId, turnId: turn.id, turnStatus: turn.status, newlyConsumed: !previouslyConsumed }
         }
       }
