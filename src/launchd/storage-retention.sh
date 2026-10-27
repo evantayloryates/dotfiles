@@ -18,7 +18,7 @@ case "$LAST" in ''|*[!0-9]*) LAST=0;; esac
 K="$HOME/src/github/kickoff"; W="$HOME/src/github/worktrees"; C=default-ki-e3ee9-dev-1
 free_gib() { df -k /System/Volumes/Data | awk 'NR==2{printf "%.1f", $4/1048576}'; }
 act() { if [ $DRY = 1 ]; then echo "  would: $*"; else "$@" && echo "  done: $*"; fi; }
-L="$HOME/Library/Logs/storage-retention.log"; [ -f "$L" ] && tail -n 2000 "$L" > "$L.tmp" 2>/dev/null && mv "$L.tmp" "$L"
+L="$HOME/Library/Logs/storage-retention.log"; [ -f "$L" ] && tail -n 2000 "$L" > "$L.tmp" 2>/dev/null && cat "$L.tmp" > "$L"; rm -f "$L.tmp"
 echo "== $(date '+%F %T') storage-retention $([ $DRY = 1 ] && echo DRY-RUN) free=$(free_gib)G"
 
 # 1. Merged work, whichever orchestrator created it.
