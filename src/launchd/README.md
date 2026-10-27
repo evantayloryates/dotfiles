@@ -87,6 +87,10 @@ never looked at, and the daemon later hung, which it could not tell apart from
    *inside* running containers:
    - `kickoff-devpod-tmp.sh`: live-check source snapshots (`/tmp/*.tar`,
      `/tmp/*-files.txt`) older than a day in the Kickoff DevPod dev container.
+   - `kickoff-devpod-git.sh` (report only): notifies when a DevPod scratch clone is
+     shallow or its git objects pass 4 GB. A shallow clone that fetches from
+     `/workspaces/kickoff` re-receives full history as a new ~1.7 GB pack on every
+     fetch: 34 GB on 2026-10-27. The fix is `git fetch --unshallow` then `git gc`.
 
 ### Hung daemon and size alerts
 
