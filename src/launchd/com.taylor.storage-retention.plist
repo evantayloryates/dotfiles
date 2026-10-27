@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Fires storage-retention.sh every 15 minutes; the script runs only when the last successful
+    run is 6 hours old (state in ~/.local/state/storage-retention), so a window missed while
+    the Mac slept runs at the next fire. See README.md. install.sh symlinks this file into
+    ~/Library/LaunchAgents/.
+  -->
+  <key>Label</key>
+  <string>com.taylor.storage-retention</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/dotfiles/src/launchd/storage-retention.sh</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>900</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/Library/Logs/storage-retention.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/Library/Logs/storage-retention.log</string>
+</dict>
+</plist>

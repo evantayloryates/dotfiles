@@ -305,3 +305,34 @@ does the cleanup instead, daily at 04:40:
 changes the window. It refuses any root outside `~/.cache`. Log:
 `~/Library/Logs/claude-tmp-gc.log`. Transcripts themselves are kept for a year
 (`cleanupPeriodDays: 365` in `~/.claude/settings.json`).
+
+## `com.taylor.storage-retention`
+
+Fires `storage-retention.sh` every 15 minutes; it runs only when the last successful run is
+**6 hours** old (`~/.local/state/storage-retention/last-success`; override with
+`STORAGE_RETENTION_INTERVAL_HOURS`), so a run missed while the Mac slept happens at the next fire.
+
+### Why
+
+Agent work leaves gigabytes behind that nothing collects: on 2026-10-18 the disk fell to 2.7 GiB,
+mostly merged-PR worktrees each carrying a ~3 GB `node_modules`. Docker is separate
+(`com.taylor.docker-prune`).
+
+### What it removes (each under a strict test)
+
+- Kickoff worktrees in `~/src/github/worktrees` whose PR merged, through the fleet's
+  `local-cleanup.sh --apply`. That only acts when the local tip is inside the merged PR head, the
+  tree is clean and no process works there; it never uses `--force`.
+- Codex kickoff worktrees (`~/.codex/worktrees/*/kickoff`) merged more than 24h ago, sitting
+  exactly at the merged head and clean.
+- `node_modules` inside worktree folders git no longer tracks, after 2 days.
+- ios-agent build jobs beyond the newest 2, and Chrome code-sign clones no process holds.
+- Claude scratchpads idle for 14 days.
+- It also APFS-compresses Codex session logs older than 7 days. This is lossless, and a file is
+  kept compressed only if it actually shrank.
+
+It notifies when free space drops below 30 GiB. `--dry-run` lists what it would do.
+
+### Logs
+
+`~/Library/Logs/storage-retention.log`, trimmed to the last 2000 lines.
