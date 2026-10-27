@@ -59,35 +59,48 @@ tokens — a running process keeps the environment it started with.
 
 ## `com.taylor.docker-prune`
 
-Runs `docker-prune.sh` **every 4 hours** (`StartInterval 14400`, plus once at
-load) to stop Docker's disk footprint from creeping.
+Fires `docker-prune.sh` **every 15 minutes** (`StartInterval 900`, plus once at
+load). The script runs a cleanup only when the last *successful* one is **3 hours**
+old or more (`~/.local/state/docker-prune/last-success`; override with
+`DOCKER_PRUNE_INTERVAL_HOURS`). A fire while Docker is down, hung, or the Mac is
+asleep does not count, so an overdue cleanup runs at the first fire after Docker
+is back. Fires that aren't due exit silently.
 
 ### Why
 
-Docker accumulates GB of reclaimable junk over time — untagged `<none>` image
-layers, anonymous volumes orphaned every time a container is recreated, and
-unused build cache. Cleaning it by hand is easy to forget. This agent does it
-automatically.
+Docker accumulates GB of reclaimable junk over time: untagged `<none>` image
+layers, anonymous volumes orphaned every time a container is recreated, unused
+build cache, and single-use files inside long-running containers. On 2026-10-27
+the old 4-hour job had run 44 times and reclaimed 0 B each time. The growth (57 GB
+of containers, 147 GB of volumes) was inside containers and named volumes, which it
+never looked at, and the daemon later hung, which it could not tell apart from
+"not running".
 
 ### What it removes (and what it never touches)
 
-It reuses the same `docker-prune` shell function as the interactive command
-(`src/functions/docker.sh`), so there is one definition of "safe":
+1. The same `docker-prune` shell function as the interactive command
+   (`src/functions/docker.sh`), so there is one definition of "safe":
+   - **Removes:** dangling images, detached anonymous volumes, unused build
+     cache (down to a 5GB floor via `--reserved-space`).
+   - **Never touches:** tagged images, **named** volumes, or any container.
+2. Hooks in `docker-prune.d/*.sh`, each bounded to 10 minutes, for regenerable files
+   *inside* running containers:
+   - `kickoff-devpod-tmp.sh`: live-check source snapshots (`/tmp/*.tar`,
+     `/tmp/*-files.txt`) older than a day in the Kickoff DevPod dev container.
 
-- **Removes:** dangling images, detached anonymous volumes, unused build cache
-  (down to a 5GB floor via `--reserved-space`).
-- **Never touches:** tagged images, **named** volumes (Postgres data, gems,
-  node_modules, etc. — `docker volume prune` without `--all` leaves them alone),
-  or any container, running or stopped.
+### Hung daemon and size alerts
+
+`docker info` gets 30 s. No answer means the daemon is hung: the run logs it and
+shows a macOS notification (at most every 6 hours) asking for a Docker Desktop
+restart. After each run it logs the Mac-side size of `Docker.raw` and notifies when
+that passes `DOCKER_PRUNE_ALERT_GIB` (default 180).
 
 ### Safe to fire anytime
 
-Docker runs **on-demand** on this machine (its Login Items are off), so most
-fires happen while Docker is down. `docker-prune` detects that (`docker info`)
-and no-ops. The wrapper always exits 0, so a Docker-off fire is not a launchd
-"failure". It complements the build-cache GC in `~/.docker/daemon.json`
-(`reservedSpace 5GB` / `maxUsedSpace 20GB`), which caps cache but not images or
-volumes.
+Docker runs on demand on this machine, so many fires happen while Docker is down;
+they log one line and retry at the next fire. The wrapper always exits 0. It
+complements the build-cache GC in `~/.docker/daemon.json` (`reservedSpace 5GB` /
+`maxUsedSpace 20GB`), which caps cache but not images, volumes or container files.
 
 ### Logs
 

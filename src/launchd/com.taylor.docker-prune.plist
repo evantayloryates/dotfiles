@@ -3,9 +3,10 @@
 <plist version="1.0">
 <dict>
   <!--
-    Runs docker-prune.sh every 4 hours to keep Docker's disk footprint from
-    creeping (dangling images, detached anonymous volumes, unused build cache).
-    Safe to fire anytime: it no-ops when Docker isn't running. See README.md.
+    Fires docker-prune.sh every 15 minutes; the script runs a cleanup only when
+    the last successful one is 3 hours old (state in ~/.local/state/docker-prune),
+    so a window missed while Docker was down, hung or the Mac asleep is caught up
+    at the next fire. Safe to fire anytime. See README.md.
 
     NOTE: launchd does not expand ~ or $HOME in ProgramArguments, so the path is
     absolute. install.sh symlinks this file into ~/Library/LaunchAgents/.
@@ -17,9 +18,9 @@
     <string>/bin/zsh</string>
     <string>/Users/taylor/dotfiles/src/launchd/docker-prune.sh</string>
   </array>
-  <!-- Every 4 hours. Coalesced across sleep; multiple missed fires run once on wake. -->
+  <!-- Every 15 minutes (cheap: the script exits at once unless a run is due). -->
   <key>StartInterval</key>
-  <integer>14400</integer>
+  <integer>900</integer>
   <!-- Also run once when the agent loads (login / re-install). -->
   <key>RunAtLoad</key>
   <true/>
