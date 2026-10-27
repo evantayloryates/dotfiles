@@ -13,7 +13,11 @@ for c in ${(f)"$(docker ps --format '{{.Names}}' | grep -E '^default-[a-z0-9]+-[
     done')
   if [[ -n "$bad" ]]; then
     print -- "$c: clones needing attention:\n$bad"
-    osascript -e "display notification \"DevPod clone git store is bloating: ${${(f)bad}[1]}\" with title \"Docker cleanup\"" >/dev/null 2>&1
+    # Text from docker exec is untrusted: keep only safe characters and pass it as an argument,
+    # never inside the AppleScript source.
+    lines=("${(@f)bad}"); first=${lines[1]//[^A-Za-z0-9 ._-]/}
+    msg="DevPod clone git store is bloating: $first"
+    osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title "Docker cleanup"' -e 'end run' -- "${msg[1,200]}" >/dev/null 2>&1
   else
     print -- "$c: scratch clone git stores OK"
   fi

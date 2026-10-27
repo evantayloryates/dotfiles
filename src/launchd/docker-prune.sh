@@ -45,7 +45,7 @@ notify_once() {  # $1 = key, $2 = message; at most once per 6 hours per key
   t=$(cat "$f" 2>/dev/null || echo 0); [[ "$t" == <-> ]] || t=0
   (( now - t < 21600 )) && return
   print -- "$now" > "$f"
-  osascript -e "display notification \"$2\" with title \"Docker cleanup\"" >/dev/null 2>&1
+  osascript -e 'on run argv' -e 'display notification (item 1 of argv) with title "Docker cleanup"' -e 'end run' -- "$2" >/dev/null 2>&1
 }
 
 [[ -f "$LOG" ]] && { tail -n 1000 "$LOG" > "$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG"; }
