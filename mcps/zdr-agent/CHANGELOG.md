@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-02.001
+
+- `zdr_ask` no longer fails at 5 minutes. It sends the question with the
+  harness's async endpoint and polls with short requests, so a long run cannot
+  hit fetch's response-headers limit, which was being reported as "not
+  reachable".
+- After 9 minutes `zdr_ask` returns "Still running" with the `session_id`
+  instead of an error. Collect the answer with `zdr_read`.
+- `zdr_read` takes `wait_seconds` and reports `state`. It no longer passes
+  narration from a running session off as the final answer.
+- A follow-up on a busy session is refused rather than queued.
+
 ## 2026-10-18.002
 
 - `zdr_read`: the question and final de-identified answer of a past session.

@@ -552,8 +552,11 @@ claude mcp add zdr-agent -s user -- /Users/taylor/src/github/dotfiles/mcps/_shar
 codex mcp add zdr-agent -- /Users/taylor/src/github/dotfiles/mcps/_shared/bin/run zdr-agent
 ```
 
-Answers can take minutes. In `~/.codex/config.toml` set `tool_timeout_sec = 600`
-under `[mcp_servers.zdr-agent]`; for Claude Code set `MCP_TOOL_TIMEOUT=600000`.
+Answers can take many minutes. The run lives in the harness: `zdr_ask` polls it
+for up to 9 minutes, then returns "Still running" and the caller collects the
+answer with `zdr_read` and `wait_seconds`. In `~/.codex/config.toml` keep
+`tool_timeout_sec = 600` under `[mcp_servers.zdr-agent]`; for Claude Code set
+`MCP_TOOL_TIMEOUT=600000`.
 
 ## Changing the tool allowlist
 

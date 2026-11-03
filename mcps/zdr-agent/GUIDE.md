@@ -9,6 +9,11 @@ Asking
 - `zdr_ask` runs your question inside the harness and returns only a
   de-identified answer. Include the project, date range and filters. Answers
   can take minutes. Planning a larger piece of work is also just a question.
+- The run lives in the harness, not in your tool call. After 9 minutes `zdr_ask`
+  returns "Still running" with the `session_id`. That is not a failure and the
+  question must not be sent again: call `zdr_read` with `wait_seconds` to
+  collect the answer. A follow-up on a busy session is refused for the same
+  reason.
 - Follow up in the same conversation with the `session_id` from the answer.
   Sessions started in the ZDR Harness app cannot be continued or read here.
 - `format: "json"` returns `{answer, figures, filters, withheld}`.
@@ -17,7 +22,8 @@ Asking
 
 Sessions
 - `zdr_sessions` lists recent sessions with busy or idle state.
-- `zdr_read` returns a past session's question and final answer only.
+- `zdr_read` returns a session's state, question and final answer only.
+  `wait_seconds` (at most 540) waits for a running one to finish.
 - `zdr_abort` stops a busy session.
 
 Harness resources

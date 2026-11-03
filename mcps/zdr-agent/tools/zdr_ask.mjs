@@ -10,7 +10,7 @@ export default {
     'The harness runs the tool calls on a ZDR OpenAI key and returns only a de-identified answer ' +
     '(counts, rates, error classes, object IDs, links; never user identifiers or raw payloads). ' +
     'Pass session_id from a previous answer to ask a follow-up in the same conversation. ' +
-    'Answers can take a few minutes.',
+    'Answers can take many minutes. If it says "Still running", do not ask again: collect the answer with zdr_read and wait_seconds.',
   inputSchema: {
     type: 'object',
     properties: {
