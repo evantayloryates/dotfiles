@@ -1,3 +1,7 @@
+## November 3 peer-direct qualified on CLI 2.1.309
+
+VERIFIED 2026-11-03T20:19Z. The kanban watcher was restarted after a week off and every send failed with `peer_unqualified` on CLI 2.1.309. Live peers on 2.1.309 report peerProtocol 1. `src/scripts/peer-send.mjs --verify-transcript` sent one next-priority frame to the pooled session Runner 1, msg_id c63bc9da…, msgIdMatched true, terminal reply TRANSPORT_OK with no tool use. Immediate and idle gates unchanged.
+
 ## October 23 peer-direct qualified on CLI 2.1.308 after the app upgrade
 
 VERIFIED 2026-10-23T16:01Z. The Mac and app restart around 14:03Z moved desktop sessions to CLI 2.1.308, and every launchd peer-direct send failed with `peer_unqualified` (dispatched:false). The kanban-watcher daemon showed its "Kanban watcher outage" banner to Taylor. Nothing was sent twice.

@@ -39,7 +39,11 @@ const LINE_CAP = 1048576
 // peerProtocol 1; one ordinary next-priority frame to the transport scratch got
 // an exact native msg_id receipt (msgIdMatched) and a terminal TRANSPORT_OK
 // reply with no tool use (docs/findings.md, October 23). Immediate/idle gates unchanged.
-export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299','2.1.304','2.1.308'])
+// 2.1.309: Nov 3 live peers on 2.1.309 report peerProtocol 1; one ordinary
+// next-priority frame to a pooled session got an exact native msg_id receipt
+// (msgIdMatched) and a terminal TRANSPORT_OK reply with no tool use
+// (docs/findings.md, November 3). Immediate/idle gates unchanged.
+export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289','2.1.299','2.1.304','2.1.308','2.1.309'])
 
 function procStartOf(pid) {
   try {
