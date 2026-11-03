@@ -42,10 +42,11 @@ export const recycleMessage = () =>
     'Nothing is deleted: the conversation stays on disk and under "Resume previous session"; only this session\'s live context starts over.',
     'If you are holding anything unresolved for Taylor (an open question, unpushed work, a PR that is not merged or closed), do none of the steps and reply with exactly one line: "recycle declined: <why>".',
     'Otherwise do exactly these steps, nothing else:',
-    '1. ToolSearch query "select:mcp__ccd_pr__get_status,mcp__ccd_pr__unbind_pr,mcp__ccd_session_mgmt__clear_session".',
+    '1. ToolSearch query "select:mcp__ccd_pr__get_status,mcp__ccd_pr__unbind_pr,mcp__ccd_session_mgmt__get_session,mcp__ccd_session_mgmt__detach_session,mcp__ccd_session_mgmt__clear_session".',
     '2. Call mcp__ccd_pr__get_status (session_id "self"). If it reports a bound PR url, call mcp__ccd_pr__unbind_pr with that url. If none is bound, skip.',
-    '3. Reply with exactly one line: "recycled: unbind=<done|none|error: ...>".',
-    '4. As your LAST tool call, call mcp__ccd_session_mgmt__clear_session with session_id "self".',
+    '3. Call mcp__ccd_session_mgmt__get_session with session_id "self". If it reports parentSessionId and detached is not true, call mcp__ccd_session_mgmt__detach_session with session_id "self"; a refusal is fine, so carry on. The next owner of this session must not stay nested under the session that started you.',
+    '4. Reply with exactly one line: "recycled: unbind=<done|none|error: ...> detach=<done|none|refused>".',
+    '5. As your LAST tool call, call mcp__ccd_session_mgmt__clear_session with session_id "self".',
     'Do not run any other tool, and do not touch git, files or any worktree.',
   ].join('\n')
 

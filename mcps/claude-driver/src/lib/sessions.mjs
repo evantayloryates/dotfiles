@@ -54,6 +54,8 @@ export function summarize(rec, { pins = readPins(), live = null } = {}) {
   const s = {}
   for (const k of FIELDS) if (rec[k] !== undefined && rec[k] !== null) s[k] = rec[k]
   s.pinned = pins.has(rec.sessionId)
+  // A side session keeps its parent through clear_session, pool parking and a rename.
+  if (rec.spawnedFrom?.sessionId && !rec.lineageDetached) s.nestedUnder = rec.spawnedFrom.sessionId
   if (live) {
     const l = live.get(rec.sessionId)
     s.live = l ? { pid: l.pid, status: l.status } : null

@@ -1352,6 +1352,12 @@ async function createFromPool(args, ctx) {
   if (args.group) ops.push(...(await groupOps(args.group, [id], ctx)))
   if (args.first_message) ops.push({ op: 'send_message', args: { session_id: id, message: args.first_message } })
   const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null, observationCursor }
+  // Recycling keeps a side session's parent, so the claimed session still nests under whoever started it.
+  const claimedRecord = getRecord(id)
+  if (claimedRecord?.spawnedFrom?.sessionId && !claimedRecord.lineageDetached) {
+    out.nestedUnder = claimedRecord.spawnedFrom.sessionId
+    out.nestedNext = `This pool session is still a side session of ${out.nestedUnder}: it nests there in the sidebar and is archived with it. The parent calls detach_session with this id, or this session calls it with "self".`
+  }
   const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch(async (err) => {
     // A multi-op request may have partially landed. Keep an uncertain claim
     // reserved; only proven pre-dispatch failure can return it to the pool.

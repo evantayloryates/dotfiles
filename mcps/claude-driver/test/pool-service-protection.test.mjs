@@ -28,3 +28,16 @@ test('malformed retained enrollment fails closed without changing pool inventory
  const before=JSON.stringify(pool.poolOf()),bytes=readFileSync(enrollment);writeFileSync(enrollment,'{}')
  try{await assert.rejects(pool.claim(root,{title:'must refuse'}));assert.equal(JSON.stringify(pool.poolOf()),before)}finally{writeFileSync(enrollment,bytes)}
 })
+
+test('the recycle message detaches a side session before clearing it',async()=>{
+ const {recycleMessage}=await import('../src/lib/pool.mjs')
+ const text=recycleMessage()
+ assert.match(text,/detach_session with session_id "self"/)
+ assert.ok(text.indexOf('detach_session with session_id')<text.indexOf('clear_session with session_id'))
+})
+test('summarize reports a side session until it is detached',async()=>{
+ const {summarize}=await import('../src/lib/sessions.mjs')
+ const rec={sessionId:'local_a',spawnedFrom:{sessionId:'local_parent'}}
+ assert.equal(summarize(rec,{pins:new Set()}).nestedUnder,'local_parent')
+ assert.equal(summarize({...rec,lineageDetached:true},{pins:new Set()}).nestedUnder,undefined)
+})
