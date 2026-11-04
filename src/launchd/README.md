@@ -87,6 +87,10 @@ never looked at, and the daemon later hung, which it could not tell apart from
    *inside* running containers:
    - `kickoff-devpod-tmp.sh`: live-check source snapshots (`/tmp/*.tar`,
      `/tmp/*-files.txt`) older than a day in the Kickoff DevPod dev container.
+   - `kickoff-devpod-clones.sh` (report only): logs DevPod scratch clones with no slot
+     lease, no process and no source file touched for 7 days, and notifies when the
+     DevPod has under 40 GiB free. Clones can hold the only copy of uncommitted work,
+     so it never deletes one.
    - `kickoff-devpod-git.sh` (report only): notifies when a DevPod scratch clone is
      shallow or its git objects pass 4 GB. A shallow clone that fetches from
      `/workspaces/kickoff` re-receives full history as a new ~1.7 GB pack on every
@@ -320,9 +324,9 @@ mostly merged-PR worktrees each carrying a ~3 GB `node_modules`. Docker is separ
 
 ### What it removes (each under a strict test)
 
-- Kickoff worktrees in `~/src/github/worktrees` whose PR merged, through the fleet's
-  `local-cleanup.sh --apply`. That only acts when the local tip is inside the merged PR head, the
-  tree is clean and no process works there; it never uses `--force`.
+- Kickoff worktrees in `~/src/github/worktrees` and `~/src/github/kickoff-worktrees` whose PR
+  merged, through the fleet's `local-cleanup.sh --apply`. That only acts when the local tip is
+  inside the merged PR head, the tree is clean and no process works there; it never uses `--force`.
 - Codex kickoff worktrees (`~/.codex/worktrees/*/kickoff`) merged more than 24h ago, sitting
   exactly at the merged head and clean.
 - `node_modules` inside worktree folders git no longer tracks, after 2 days.

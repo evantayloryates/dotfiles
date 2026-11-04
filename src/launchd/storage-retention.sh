@@ -22,13 +22,16 @@ L="$HOME/Library/Logs/storage-retention.log"; [ -f "$L" ] && tail -n 2000 "$L" >
 echo "== $(date '+%F %T') storage-retention $([ $DRY = 1 ] && echo DRY-RUN) free=$(free_gib)G"
 
 # 1. Merged work, whichever orchestrator created it.
-# 1a. ~/src/github/worktrees: the fleet's local-cleanup.sh over every local branch. It removes a worktree
-#     and its local branch only when the newest PR merged, none is open, the local tip is inside the merged
-#     PR head, the worktree is clean, unlocked and no process works in it. Never --force.
+# 1a. ~/src/github/worktrees and ~/src/github/kickoff-worktrees: the fleet's local-cleanup.sh over every
+#     local branch. It removes a worktree and its local branch only when the newest PR merged, none is open,
+#     the local tip is inside the merged PR head, the worktree is clean, unlocked and no process works in it.
+#     Never --force.
 LC="$HOME/.claude/skills/taylor-fleet-manage/scripts/local-cleanup.sh"
 if [ -x "$LC" ] && [ -d "$K" ]; then
-  if [ $DRY = 1 ]; then "$LC" "$K" "$W" | grep -vE '^KEEP'
-  else "$LC" "$K" "$W" --apply | grep -vE '^KEEP'; fi
+  for root in "$W" "$HOME/src/github/kickoff-worktrees"; do
+    if [ $DRY = 1 ]; then "$LC" "$K" "$root" | grep -vE '^KEEP'
+    else "$LC" "$K" "$root" --apply | grep -vE '^KEEP'; fi
+  done
 fi
 # 1b. Codex worktrees (~/.codex/worktrees/*/kickoff): same strict test, by merged PR head, >24h after merge.
 if command -v gh >/dev/null && [ -d "$K" ]; then
