@@ -50,6 +50,7 @@ CONFIG = [
   p('domputer',    '~/src/github/domputer',             'cd', aliases=['dom']),
   p('dotfiles',    '$DOTFILES_DIR',                     'cd', aliases=['dot']),
   p('downloads',   '~/Downloads',                       'cd', aliases=['down', 'Downloads']),
+  p('fridge',      '~/Desktop/fridge',                  'cd', aliases=['Fridge', 'fri']),
   p('gif',         '~/Pictures/gifs',                   'cd', aliases=['gifs']),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
   p('health',      '~/Documents/Health',                'cd', aliases=['Health']),
