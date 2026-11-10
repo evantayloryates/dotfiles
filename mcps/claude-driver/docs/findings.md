@@ -1,3 +1,7 @@
+## November 9 peer-direct qualified on CLI 2.1.317
+
+VERIFIED 2026-11-10T01:43Z (EST 20:43 Nov 9). The desktop app moved to CLI 2.1.317 and every kanban-watcher launchd send failed with `peer_unqualified` (dispatched:false), so nothing was sent twice. Live peers on 2.1.317 report peerProtocol 1. Unarchived the transport scratch `claude-driver-transport-scratch-2026-10-15` (local_c0a18601…) and woke it with one native message (peer pid 72192, CLI 2.1.317, idle). `src/scripts/peer-send.mjs --verify-transcript` sent one next-priority frame, msg_id 2fa9fd15…, from verifiedPeerPid 72933. Exact native peer user record 79e0d453… at 01:43:46.324Z (msgIdMatched); terminal reply TRANSPORT_OK at 01:43:48.628Z with no tool use. Added 2.1.317 to VERIFIED_CLI; immediate and idle gates unchanged.
+
 ## November 3 peer-direct qualified on CLI 2.1.309
 
 VERIFIED 2026-11-03T20:19Z. The kanban watcher was restarted after a week off and every send failed with `peer_unqualified` on CLI 2.1.309. Live peers on 2.1.309 report peerProtocol 1. `src/scripts/peer-send.mjs --verify-transcript` sent one next-priority frame to the pooled session Runner 1, msg_id c63bc9da…, msgIdMatched true, terminal reply TRANSPORT_OK with no tool use. Immediate and idle gates unchanged.
