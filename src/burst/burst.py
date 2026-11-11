@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a parallel Replicate comparison from a clipboard image and prompt."""
+"""Generate a parallel Replicate comparison from a prompt and optional clipboard image."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -71,20 +71,24 @@ def extension(data: bytes) -> str:
 
 
 def run_model(model: str, image_field: str | None, defaults: dict, prompt: str,
-              image_path: Path, output_dir: Path) -> list[Path]:
+              image_path: Path | None, output_dir: Path) -> list[Path]:
     fields = {"prompt": prompt, **defaults}
-    if image_field:
+    if image_field and image_path is not None:
         # Give each concurrent request its own file handle.
         with image_path.open("rb") as image:
             fields[image_field] = [image] if model == "qwen/qwen-image-edit-plus" else image
             result = replicate.run(model, input=fields)
     else:
+        if model == "qwen/qwen-image-edit-plus":
+            raise ValueError("this editing model requires an input image")
+        fields.pop("image_reference_weight", None)
+        fields.pop("strength", None)
         result = replicate.run(model, input=fields)
     outputs = result if isinstance(result, list) else [result]
     if not outputs:
         raise RuntimeError("model returned no images")
     slug = model.split(":", 1)[0].replace("/", "--")
-    if image_field is None:
+    if image_field is None or image_path is None:
         slug += "--text-only"
     paths = []
     for index, output in enumerate(outputs, 1):
@@ -99,7 +103,7 @@ def run_model(model: str, image_field: str | None, defaults: dict, prompt: str,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run eight Replicate models in parallel using the clipboard image.")
+    parser = argparse.ArgumentParser(description="Run Replicate models in parallel with an optional clipboard image.")
     parser.add_argument("prompt", nargs="+", help="Prompt text following the burst command")
     args = parser.parse_args()
     prompt = " ".join(args.prompt).strip()
@@ -109,13 +113,26 @@ def main() -> int:
         parser.error("REPLICATE_API_TOKEN is missing from the environment")
     with tempfile.TemporaryDirectory(prefix="burst-") as scratch:
         image_path = Path(scratch) / "clipboard.png"
-        subprocess.run(["/usr/bin/swift", str(ROOT / "clipboard.swift"), str(image_path)], check=True)
+        clipboard = subprocess.run(["/usr/bin/swift", str(ROOT / "clipboard.swift"), str(image_path)], check=False)
+        if clipboard.returncode == 3:
+            image_path = None
+            print("Clipboard: no image found. Generating from text only.", flush=True)
+        elif clipboard.returncode != 0:
+            print(f"burst: clipboard read failed (exit {clipboard.returncode})", file=sys.stderr)
+            return 1
+        else:
+            print("Clipboard: image found. Sending it as a reference to luma/photon, "
+                  "luma/photon-flash, qwen/qwen-image, and qwen/qwen-image-edit-plus.", flush=True)
+            print("Clipboard: FLUX Schnell, HiDream, Wan, and Recraft use text only.", flush=True)
+        selected = [entry for entry in MODELS if image_path is not None or entry[0] != "qwen/qwen-image-edit-plus"]
+        if image_path is None:
+            print("Skipping qwen/qwen-image-edit-plus: it requires an input image.", flush=True)
         output_dir = next_directory()
         print(f"Saving to {output_dir}", flush=True)
         failures = []
-        with ThreadPoolExecutor(max_workers=len(MODELS)) as pool:
+        with ThreadPoolExecutor(max_workers=len(selected)) as pool:
             jobs = {pool.submit(run_model, model, field, defaults, prompt, image_path, output_dir): model
-                    for model, field, defaults in MODELS}
+                    for model, field, defaults in selected}
             for job in as_completed(jobs):
                 model = jobs[job].split(":", 1)[0]
                 try:
@@ -125,7 +142,7 @@ def main() -> int:
                 except Exception as error:
                     failures.append(model)
                     print(f"✗ {model}: {error}", file=sys.stderr, flush=True)
-        print(f"Finished: {len(MODELS) - len(failures)}/{len(MODELS)} models; {output_dir}")
+        print(f"Finished: {len(selected) - len(failures)}/{len(selected)} models; {output_dir}")
         return 1 if failures else 0
 
 
