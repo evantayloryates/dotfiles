@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+exec uvx --quiet --from 'replicate>=1.0,<2' python /Users/taylor/dotfiles/src/burst/burst.py "$@"
