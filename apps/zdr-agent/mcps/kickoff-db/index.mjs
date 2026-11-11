@@ -23,6 +23,7 @@
 import { exportStates as terraArchiveExport, runs as terraArchiveRuns, start as terraArchiveStartRun, status as terraArchiveStatusRead } from './terra-archive-cli.mjs'
 import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
+import { createPool, PoolBusyError } from './db-pool.mjs'
 import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
@@ -107,10 +108,16 @@ const log = (...args) => console.error('[kickoff-db]', ...args)
 class ToolError extends Error {}
 
 // ---------------------------------------------------------------------------
-// Database connection: one lazily opened, read-only session
+// Database connections: read-only sessions from a small pool, one leased per
+// tool call (db-pool.mjs), so concurrent harness sessions do not queue behind
+// each other's statements.
 
-let conn = null
 let target = null
+const pool = createPool({
+  open: openConnection,
+  max: Number(process.env.KICKOFF_ZDR_DB_MAX_CONNECTIONS || 4),
+  log,
+})
 
 function parseUrl() {
   if (!DB_URL) {
@@ -140,15 +147,22 @@ function parseUrl() {
 const LOST = new Set(['PROTOCOL_CONNECTION_LOST', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT', 'ECONNREFUSED', 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR'])
 function forgetIfLost(err) {
   if (LOST.has(err?.code) || err?.fatal) {
-    conn?.destroy?.()
-    conn = null
+    pool.forget()
     return true
   }
   return false
 }
 
 async function connection() {
-  if (conn) return conn
+  try {
+    return await pool.connection()
+  } catch (err) {
+    if (err instanceof PoolBusyError) throw new ToolError(err.message)
+    throw err
+  }
+}
+
+async function openConnection() {
   target = parseUrl()
   const ca = RDS_CA ? readFileSync(RDS_CA, 'utf8') : undefined
   const ssl = {
@@ -180,11 +194,7 @@ async function connection() {
   await c.query('SET SESSION TRANSACTION READ ONLY')
   await c.query(`SET SESSION MAX_EXECUTION_TIME=${STATEMENT_TIMEOUT_MS}`)
   await c.query("SET SESSION sql_mode=CONCAT(@@sql_mode,',NO_ENGINE_SUBSTITUTION')")
-  c.on('error', (err) => {
-    log('connection lost:', err.code || err.message)
-    conn = null
-  })
-  conn = c
+  c.on('error', (err) => log('connection lost:', err.code || err.message))
   return c
 }
 
@@ -659,6 +669,7 @@ function dbStamp(d) {
 }
 
 async function transcriptExport(args = {}) {
+  const started = Date.now()
   const c = await connection()
   if (args.limit === undefined && args.file_transcript_ids === undefined && args.since === undefined && args.coach_id === undefined && args.client_id === undefined && args.kickoff_call_id === undefined && args.meeting_room_id === undefined) {
     throw new ToolError('Narrow the export: pass since/until, a coach_id or client_id, file_transcript_ids, or an explicit limit.')
@@ -700,7 +711,9 @@ async function transcriptExport(args = {}) {
     ex.error = err instanceof ToolError ? err.message : `internal error (${err.code || err.name})`
     log(`export ${id} failed: ${err.message}`)
   })
-  return exportStatus({ export_id: id, wait_seconds: 90 })
+  // The rest is S3: free the database slot, and stay inside OpenCode's 120 s tool limit.
+  pool.done()
+  return exportStatus({ export_id: id, wait_seconds: Math.max(0, Math.min(90, Math.floor((100_000 - (Date.now() - started)) / 1000))) })
 }
 
 async function runExport(ex, rows) {
@@ -1094,7 +1107,7 @@ let inflight = 0
 let closing = false
 const maybeExit = () => {
   if (!closing || inflight > 0) return
-  conn?.end().catch(() => {})
+  pool.closeAll()
   setTimeout(() => process.exit(0), 100).unref()
 }
 rl.on('close', () => { closing = true; maybeExit() })
@@ -1125,11 +1138,18 @@ rl.on('line', async (line) => {
     if (!handler) return fail(id, -32602, `Unknown tool: ${name}`)
     inflight++
     try {
-      const text = await handler(args)
+      const text = await pool.run(async () => {
+        try {
+          return await handler(args)
+        } catch (err) {
+          // Inside the lease, so a broken connection is destroyed rather than reused.
+          if (forgetIfLost(err)) log('database connection lost; will reconnect on the next call')
+          throw err
+        }
+      })
       reply(id, { content: [{ type: 'text', text }], isError: false })
     } catch (err) {
-      if (forgetIfLost(err)) log('database connection lost; will reconnect on the next call')
-      else if (!(err instanceof ToolError)) log(err)
+      if (!(err instanceof ToolError) && !LOST.has(err?.code) && !err?.fatal) log(err)
       const message = err instanceof ToolError ? err.message : `kickoff-db internal error: ${err.message}`
       reply(id, { content: [{ type: 'text', text: message }], isError: true })
     } finally {
@@ -1143,4 +1163,4 @@ rl.on('line', async (line) => {
   }
 })
 
-process.on('SIGTERM', () => { conn?.end().catch(() => {}); process.exit(0) })
+process.on('SIGTERM', () => { pool.closeAll(); process.exit(0) })

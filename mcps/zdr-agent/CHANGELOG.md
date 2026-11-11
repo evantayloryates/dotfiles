@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-10.001
+
+- Guide: how to ask in parallel (at most 3 asks in flight per agent, about 8
+  overall; one ask for several aggregates; bounded database questions). The
+  harness's database tool now runs up to 4 queries at once instead of one.
+
 ## 2026-11-02.001
 
 - `zdr_ask` no longer fails at 5 minutes. It sends the question with the

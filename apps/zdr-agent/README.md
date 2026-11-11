@@ -458,6 +458,12 @@ without it they fall back to a `nohup` child. TLS is still verified against
 the RDS CA bundle and the replica's real hostname even though the socket says
 `127.0.0.1`.
 
+**Concurrency.** Each tool call leases its own read-only connection from a
+pool of 4 (`KICKOFF_ZDR_DB_MAX_CONNECTIONS`, `db-pool.mjs`). A call that cannot
+get one within 45 s fails with "the production database is busy" rather than
+queueing past OpenCode's 120 s tool limit. Before 2026-11-10 every session
+shared one connection, so parallel asks ran one statement at a time.
+
 **Walls, in order:**
 
 1. `kudos_ro`'s grants and the replica's `read_only`.

@@ -20,6 +20,20 @@ Asking
 - When an answer says a field was withheld, `zdr_open` shows the full session
   on Taylor's screen. Never try to get withheld data another way.
 
+Asking in parallel
+- Every session shares one harness and a pool of 4 production database
+  connections, so parallel asks compete. Keep at most 3 asks in flight per
+  agent, and about 8 across all agents at once.
+- One ask that wants several aggregates over the same tables beats several asks:
+  the harness reads the schema once and runs the queries back to back.
+- Bound every database question: a date range, an indexed filter (ids,
+  `created_at`, `scheduled_at`) and aggregates rather than rows. A statement
+  stops at 30 s, and a full scan of a large table such as `meeting_room_logs`
+  or `sms` usually hits that limit and gets retried narrower, which costs
+  minutes.
+- An answer that says the database is busy means the pool was full for 45 s.
+  Wait a minute and ask again; do not fan out more asks.
+
 Sessions
 - `zdr_sessions` lists recent sessions with busy or idle state.
 - `zdr_read` returns a session's state, question and final answer only.
