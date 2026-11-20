@@ -7,6 +7,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { DESKTOP_CONFIG, DriverError, PEER_SESSIONS_DIR, sessionStores } from './paths.mjs'
+import { inAccount, resolveAccount, storeKey } from './account.mjs'
 
 const FIELDS = ['sessionId', 'cliSessionId', 'title', 'titleSource', 'cwd', 'originCwd', 'isArchived', 'model', 'effort', 'permissionMode', 'worktreePath', 'createdAt', 'lastActivityAt', 'lastFocusedAt', 'prs', 'prUrl', 'prState', 'prNumber', 'completedTurns']
 
@@ -18,10 +19,13 @@ export function readRecord(file) {
   }
 }
 
-// All session records across every account/org store.
-export function allRecords({ includeArchived = true } = {}) {
+// Session records in the resolved account's store (account.mjs), or across
+// every store with allAccounts:true. Never mix stores in a listing.
+export function allRecords({ includeArchived = true, allAccounts = false, account } = {}) {
   const out = []
+  const scope = allAccounts ? null : account === undefined ? resolveAccount() : account
   for (const store of sessionStores()) {
+    if (scope && !inAccount(store, scope)) continue
     for (const f of readdirSync(store.dir)) {
       if (!/^local_.*\.json$/.test(f)) continue
       const file = join(store.dir, f)
@@ -42,11 +46,28 @@ export function findRecordFile(localId) {
   return null
 }
 
+// Global by design: evidence and gates must find a record wherever it lives.
+// User-facing lookups go through resolveSession, which is account-scoped.
 export function getRecord(localId) {
   const file = findRecordFile(localId)
   if (!file) return null
   const rec = readRecord(file)
   return rec ? { ...rec, _file: file } : null
+}
+
+function storeOfFile(file) {
+  for (const s of sessionStores()) if (file.startsWith(s.dir + '/')) return storeKey(s)
+  return null
+}
+
+function requireInAccount(rec) {
+  const account = resolveAccount()
+  const store = rec._store || storeOfFile(rec._file)
+  if (!account || !store || store === account.store) return { ...rec, _store: store }
+  throw new DriverError(
+    `${rec.sessionId} belongs to account store ${store}, not the resolved account ${account.store} (${account.source}); the app cannot see it. Pass account:"${store}" to act on it anyway.`,
+    { category: 'other_account', detail: { sessionId: rec.sessionId, store, account: { store: account.store, source: account.source } } },
+  )
 }
 
 export function summarize(rec, { pins = readPins(), live = null } = {}) {
@@ -81,14 +102,15 @@ export function resolveSession(ref, { allowArchived = true } = {}) {
   if (ref.startsWith('local_')) {
     const rec = getRecord(ref)
     if (!rec) throw new DriverError(`no session record for ${ref}`, { category: 'not_found' })
-    return rec
+    return requireInAccount(rec)
+  }
+  if (/^[0-9a-f-]{36}$/i.test(ref)) {
+    const every = allRecords({ allAccounts: true })
+    const hit = every.find((r) => r.sessionId === `local_${ref}`) || every.find((r) => r.cliSessionId === ref)
+    if (!hit) throw new DriverError(`no session with id ${ref}`, { category: 'not_found' })
+    return requireInAccount(hit)
   }
   const recs = allRecords()
-  if (/^[0-9a-f-]{36}$/i.test(ref)) {
-    const hit = recs.find((r) => r.sessionId === `local_${ref}`) || recs.find((r) => r.cliSessionId === ref)
-    if (!hit) throw new DriverError(`no session with id ${ref}`, { category: 'not_found' })
-    return hit
-  }
   let hits = recs.filter((r) => r.title === ref)
   if (!allowArchived || hits.length > 1) {
     const active = hits.filter((r) => !r.isArchived)
@@ -217,13 +239,16 @@ export function mtime(file) {
   }
 }
 
-// Sidebar groups for the active account/org, from the app's config.
-export function readGroups() {
+// Sidebar groups for the resolved account/org, from the app's config. The app
+// keys both maps by "<accountId>/<orgId>"; keys of another account never mix
+// in. A key that is not in that shape (older app builds) is kept.
+export function readGroups({ account = resolveAccount() } = {}) {
   const prefs=readDesktopConfig().preferences?.epitaxyPrefs || {}
   const scopes = prefs['dframe-group-scopes'] || {}
   const sections=prefs['dframe-code-sections'] || {}
   const out = { groups: [], assignments: {} }
-  for (const key of new Set([...Object.keys(scopes),...Object.keys(sections)])) {
+  const scoped = key => !account || !/^[^/]+\/[^/]+$/.test(key) || key === account.store
+  for (const key of new Set([...Object.keys(scopes),...Object.keys(sections)].filter(scoped))) {
     const scope=scopes[key] || {}
     const groups=new Map((scope.groups||[]).map(g=>[g.id,g]))
     // Creation publishes sections before the native move tool updates the

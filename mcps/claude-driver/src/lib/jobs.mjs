@@ -20,8 +20,15 @@ export const jobFile = id => {
 const canonical = x => Array.isArray(x) ? x.map(canonical) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])) : x
 export const lockedJob = (id, fn) => withLock(`job-${id}`, fn, { timeoutMs: 5000 })
 function alive(pid) { try { process.kill(pid, 0); return true } catch (e) { return e.code !== 'ESRCH' } }
-export async function submitJob({ operation, arguments: args = {}, idempotency_key, timeout_sec = 180 }, ctx = {}) {
+export async function submitJob(params, ctx = {}) {
+  // An account named in the job's own arguments governs submission-time
+  // resolution too; the worker inherits the resolved account through env.
+  const { withAccount } = await import('./account.mjs')
+  return withAccount(params?.arguments?.account, () => submitJobInner(params, ctx))
+}
+async function submitJobInner({ operation, arguments: args = {}, idempotency_key, timeout_sec = 180 }, ctx = {}) {
   const { OPS, validateOp, runOp } = await import('./driver.mjs')
+  const { resolveAccount } = await import('./account.mjs')
   const { callerHostSession, resolveSession } = await import('./sessions.mjs')
   const op = OPS.find(o => o.name === operation)
   if (!op || EXCLUDED.has(operation)&&operation!=='archive_project') throw new DriverError('operation is not submit-capable', { category: 'bad_args' })
@@ -40,7 +47,9 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
     const id = `j${randomUUID().replaceAll('-', '')}`
     // Resolve mutable titles and "self" once at submission. An idempotent
     // reattach uses the original fingerprint and does not re-resolve aliases.
-    const boundArgs = { ...args }
+    const { account: _account, ...unaccounted } = args
+    const boundArgs = { ...unaccounted }
+    const account = resolveAccount()
     if (typeof boundArgs.session === 'string') {
       // These operations prove ownership from retained generation/enrollment
       // evidence because the saved record may have been deleted. Do not make
@@ -57,11 +66,11 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
     let projectArchiveSnapshot
     if(operation==='archive_project'){const plan=await runOp('archive_project',{...args,dry_run:true},{harness:ctx.harness});projectArchiveSnapshot=(await import('./project-archive-control.mjs')).freezeProjectArchivePlan(plan);boundArgs.folder=projectArchiveSnapshot.folder}
     const callerSession = callerHostSession()
-    const job = { id, operation, args: boundArgs,...actionSnapshot,...projectArchiveSnapshot?{projectArchiveSnapshot}:{}, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
+    const job = { id, operation, args: boundArgs, ...(account ? { account: account.store, accountSource: account.source } : {}),...actionSnapshot,...projectArchiveSnapshot?{projectArchiveSnapshot}:{}, callerSession, fingerprint, runtimeBuild:RUNTIME_BUILD, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
     writeJsonAtomic(jobFile(id), job)
     writeJsonAtomic(index, { jobId: id, fingerprint })
     const child = spawn(process.execPath, [fileURLToPath(new URL('../scripts/job-worker.mjs', import.meta.url)), id], {
-      detached: true, stdio: 'ignore', env: { ...process.env, CLAUDE_DRIVER_CALLER_SESSION: callerSession || '', CLAUDE_CODE_ENTRYPOINT: '', CLAUDE_DRIVER_STATE_DIR: STATE_DIR },
+      detached: true, stdio: 'ignore', env: { ...process.env, CLAUDE_DRIVER_CALLER_SESSION: callerSession || '', CLAUDE_CODE_ENTRYPOINT: '', CLAUDE_DRIVER_STATE_DIR: STATE_DIR, ...(account ? { CLAUDE_DRIVER_ACCOUNT: account.store } : {}) },
     })
     await new Promise((resolve, reject) => { child.once('spawn', resolve); child.once('error', reject) }).catch(err => {
       writeJsonAtomic(jobFile(id), { ...job, state: 'failed', error: { category: 'worker_start_failed', message: err.message }, finishedAt: Date.now() })

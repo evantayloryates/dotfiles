@@ -676,6 +676,35 @@ fixtures may retain the lower mode required by their test.
 
 `local_<uuid>` (desktop id), a bare uuid (desktop or CLI id), an exact title
 (refused if ambiguous), or `"self"` for the desktop session hosting you.
+References resolve inside the resolved account only (next section): a title
+never matches another account's session, and an id whose record is in
+another account's store is refused with `other_account`.
+
+### Accounts (November 20)
+
+Taylor can be signed in to a different Claude account than the one a session,
+the broker or a pool member was made in, and the app shows only the current
+account's sessions. The driver resolves one account per call and scopes to it;
+nothing needs switching by hand.
+
+- Resolution, first match wins: the op's `account` argument (every op takes
+  it: accountId, `accountId/orgId`, or a unique prefix of 8+ characters), env
+  `CLAUDE_DRIVER_ACCOUNT`, the store holding the calling desktop session's own
+  record (`source: "desktop-caller"`), else the store whose newest session
+  record was modified last (`source: "most-recent-activity"`, for CLI, Codex
+  and launchd callers). `driver_status.account` and `pool_status.account`
+  report the result; check it before acting for someone else.
+- Scoped: `list_sessions`, session lookups, groups, the bypass pool, the
+  broker and the ordinary-chat controller. A new account starts empty: no
+  pool members, `broker.reason: "not_configured_for_account"`, controller
+  `configured: false`. Other accounts' state is kept under their own key and
+  only counted in status (`driver_status.accounts`, `pool_status.otherAccounts`).
+- A claim never takes another account's member. Recycle finished sessions in
+  the current account to fill its pool; an empty pool means create imports in
+  acceptEdits (`permissionGap`), as before.
+- Pass `account` only for tests and odd cases (inspecting an old account's
+  pool or sessions). Acting on another account's sessions cannot work through
+  the app while it is signed in elsewhere.
 
 ## 5. When something surprises you
 

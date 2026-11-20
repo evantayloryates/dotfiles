@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url'
 import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
+import { accountDir, accountFile, ensureAccountMigration, ownerOfConfig, resolveAccount } from './account.mjs'
 import { deliver } from './peer.mjs'
 import {peerRecord} from './peer-direct.mjs'
 import { cancelRequest, control, enqueue, validatedResult, nativeResultFile, inspectRequest, safeUndispatchedRetry } from './requests.mjs'
@@ -84,9 +85,34 @@ export function heartbeat({native=true}={}) {
   return { resident, state: hb.state, ageMs: age }
 }
 
-export function brokerInfo() {
+// The broker directory has one occupant: broker.json names the broker session
+// of one account. For any other account the broker is "not configured"; that
+// account's own last broker, if it had one, is retained under
+// accounts/<accountId>/broker.json (account.mjs) and reported, never used.
+export function brokerAccountView(account = resolveAccount()) {
+  ensureAccountMigration()
   const info = readJson(BROKER_FILE, null)
-  if (!info?.sessionId) return { configured: false }
+  const owner = info?.sessionId ? ownerOfConfig(info, 'sessionId') : null
+  const retainedFile = account ? accountFile(account.accountId, 'broker.json') : null
+  const retained = retainedFile ? readJson(retainedFile, null) : null
+  // Unknown ownership (no record anywhere, no migration) keeps old behavior.
+  const mine = !!info?.sessionId && (!account || !owner || owner.accountId === account.accountId)
+  return { info, owner, mine, account, retained: retained?.sessionId && retained.sessionId !== info?.sessionId ? retained : null }
+}
+
+export function brokerInfo() {
+  const view = brokerAccountView()
+  const accountRef = view.account ? { accountId: view.account.accountId, orgId: view.account.orgId, source: view.account.source } : null
+  if (view.info?.sessionId && !view.mine) return {
+    configured: false,
+    reason: 'not_configured_for_account',
+    message: `no broker is configured for account ${view.account.accountId}; the broker directory holds account ${view.owner.accountId}'s broker ${view.info.sessionId}, which this account's app cannot see`,
+    account: accountRef,
+    occupant: { accountId: view.owner.accountId, sessionId: view.info.sessionId, ownerVia: view.owner.via },
+    ...(view.retained ? { retainedForAccount: { sessionId: view.retained.sessionId, createdAt: view.retained.createdAt ?? null } } : {}),
+  }
+  const info = view.info
+  if (!info?.sessionId) return { configured: false, ...(accountRef ? { account: accountRef } : {}) }
   const rec = getRecord(info.sessionId)
   const candidate = liveByHost().get(info.sessionId)
   const nativeCandidate=candidate?.entrypoint==='claude-desktop'
@@ -108,6 +134,7 @@ export function brokerInfo() {
   const batch=indexedCheckpointEvidence({sessionId:info.sessionId,live,runtime,entry:loadEntryEvidence(join(BROKER_DIR,'broker-check-entry.json'))})
   return {
     configured: true,
+    ...(accountRef ? { account: accountRef } : {}),
     sessionId: info.sessionId,
     exists: !!rec,
     archived: rec?.isArchived ?? null,
@@ -156,8 +183,18 @@ export async function resumeBrokerRelease({nonce,pid}={}) {
  })
 }
 
+// Records the account the broker belongs to, keeps a keyed copy, and retains
+// the previous occupant's row under its own account before replacing it.
 export function saveBrokerInfo(info) {
-  writeJsonAtomic(BROKER_FILE, info)
+  const view = brokerAccountView()
+  const account = view.account
+  if (view.info?.sessionId && view.owner?.accountId && view.owner.accountId !== account?.accountId) {
+    ensureDir(accountDir(view.owner.accountId))
+    writeJsonAtomic(accountFile(view.owner.accountId, 'broker.json'), view.info)
+  }
+  const row = account ? { ...info, accountId: account.accountId, orgId: account.orgId } : info
+  writeJsonAtomic(BROKER_FILE, row)
+  if (account) { ensureDir(accountDir(account.accountId)); writeJsonAtomic(accountFile(account.accountId, 'broker.json'), row) }
 }
 
 export function newRequestId() {

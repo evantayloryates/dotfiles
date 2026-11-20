@@ -367,7 +367,32 @@ right title and cwd.
 - The bootstrap exchange is the first turn; send the real task with
   `first_message` so it runs visibly.
 
-**The bypass pool** ([lib/pool.mjs](src/lib/pool.mjs), registry key `pool`). The
+**Accounts** ([lib/account.mjs](src/lib/account.mjs), 2026-11-20). The app keeps
+one session store per account and org,
+`claude-code-sessions/<accountId>/<orgId>/`, and shows only the signed-in
+account's sessions. Every call resolves one account, first match wins: the
+op's `account` argument (accountId, `accountId/orgId` or a unique 8+ character
+prefix), env `CLAUDE_DRIVER_ACCOUNT`, the store holding the calling desktop
+session's own record, else the store whose newest `local_*.json` was modified
+last (ties go to the lexically smaller key). `driver_status.account` and
+`pool_status.account` say which and how (`source`). Scoped to that account:
+`list_sessions`, title and id lookups (a session in another store is refused
+with `other_account`), sidebar groups, the pool, the broker and the
+ordinary-chat controller enrollment. Per-account state lives under
+`<stateDir>/accounts/<accountId>/`; the legacy unkeyed files (`broker/broker.json`,
+`session-management-controller.json`) stay in place and keep belonging to the
+account whose store holds their sessions, recorded once in
+`accounts/migration.json`. The broker directory has one occupant: for any other
+account `broker_status` reports `configured:false, reason:
+"not_configured_for_account"` with the occupant, and that account's own last
+broker is retained in `accounts/<accountId>/broker.json`, never used
+automatically. A durable job pins the submitter's account into its worker's
+env. Registry `sessions`/`folders` (what the driver made) stay global: ids are
+unique across accounts.
+
+**The bypass pool** ([lib/pool.mjs](src/lib/pool.mjs), registry key `pools.<accountId>`,
+one pool per account: a claim only takes a member whose record is in the
+resolved account's store; legacy `pool` entries are folded in by record location). The
 app clamps every import to acceptEdits and mints the consent for a raise only
 from Taylor's click on its card, so there is no programmatic way to *make* a
 bypass session. There is a supported way to *reuse* one: a session Taylor

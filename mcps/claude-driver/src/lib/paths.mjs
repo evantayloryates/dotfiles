@@ -72,8 +72,9 @@ export function versions() {
   return { app: appVersion(), cli }
 }
 
-// Every account/org store. The active one is whichever holds the newest
-// local_*.json; verification must still look in all of them.
+// Every account/org store. activeStore() is the newest-record rule, which is
+// also account.mjs's fallback; per-call account resolution (desktop caller,
+// argument, env) lives in account.mjs. Verification still looks in all.
 export function sessionStores() {
   if (!existsSync(SESSIONS_ROOT)) return []
   const out = []
@@ -113,8 +114,9 @@ function safeIsDir(p) {
 // scratch-workspaces/<acct>/<org>/scratch-YYYY-MM-DD-<6 hex>.
 export const SCRATCH_RE = /\/scratch-workspaces\/[^/]+\/[^/]+\/scratch-\d{4}-\d{2}-\d{2}-[0-9a-f]{6}$/
 
-export function makeScratchFolder() {
-  const { acct, org } = activeStore()
+// store: the resolved account's store (account.mjs); activeStore() otherwise.
+export function makeScratchFolder(store = null) {
+  const { acct, org } = store || activeStore()
   const d = new Date()
   const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   const dir = join(APP_SUPPORT, 'scratch-workspaces', acct, org, `scratch-${day}-${randomBytes(3).toString('hex')}`)

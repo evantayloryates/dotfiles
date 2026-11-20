@@ -4,7 +4,12 @@
 // always needs Taylor's card (docs/findings.md 2026-09-30); a pooled session
 // keeps the mode he gave it, so claiming one raises nothing.
 //
-// Registry shape (registry.json → pool):
+// Registry shape (registry.json → pools[accountId]), one pool per Claude
+// account (account.mjs). A member is filed under the account whose store holds
+// its record; reads, reconciles and claims see only the resolved account's
+// pool, so a claim never hands out a session the signed-in app cannot see.
+// The legacy unkeyed registry.pool (pre-2026-11-20, or written by a stale
+// server process) is folded into pools[] by record location on every write.
 //   { [local id]: { state: 'recycling' | 'parking' | 'parked' | 'claimed', folder,
 //                   priorTitle, cliAtRequest, requestedAt, parkedAt,
 //                   claimedAt, claimedTitle, claimUnresolved, claimJobId } }
@@ -17,6 +22,7 @@ import { basename, join, resolve } from 'node:path'
 
 import { getRecord, openPrs, readPins } from './sessions.mjs'
 import { loadRegistry, readJson, updateRegistry, withLock } from './state.mjs'
+import { ensureAccountMigration, ownerOfSession, resolveAccount, storeKey, storeOfSession } from './account.mjs'
 
 import {readSessionManagementEnrollment} from './session-management-controller.mjs'
 import {readStandbyEnrollment} from './standby-enrollment.mjs'
@@ -66,13 +72,52 @@ export function defaultPermissionMode(folder) {
   return 'acceptEdits'
 }
 
-export const poolOf = (reg = loadRegistry()) => reg.pool || {}
+// The account a pool entry belongs to: where its record lives, else the
+// migration's legacy owner, else the account acting now.
+export const entryAccount = (id, fallback = resolveAccount()?.accountId) =>
+  storeOfSession(id)?.acct || ownerOfSession(id)?.accountId || fallback || 'unattributed'
+
+function foldLegacy(r, fallback) {
+  const legacy = r.pool || {}
+  if (!Object.keys(legacy).length) return
+  r.pools = { ...(r.pools || {}) }
+  // A stale server wrote legacy entries after the keyed ones: they are newer.
+  for (const [id, e] of Object.entries(legacy)) {
+    const a = entryAccount(id, fallback)
+    r.pools[a] = { ...(r.pools[a] || {}), [id]: { ...(r.pools[a]?.[id] || {}), ...e } }
+  }
+  r.pool = {}
+}
+
+// The resolved account's pool (every account's when there are no stores).
+export const poolOf = (reg = loadRegistry(), account = resolveAccount()) => {
+  ensureAccountMigration()
+  const key = account?.accountId
+  const keyed = key ? reg.pools?.[key] || {} : Object.assign({}, ...Object.values(reg.pools || {}))
+  const legacy = Object.fromEntries(Object.entries(reg.pool || {}).filter(([id]) => !key || entryAccount(id, key) === key))
+  return { ...keyed, ...legacy }
+}
+
+// Members and ready counts per account, for status only.
+export function poolsByAccount(reg = loadRegistry()) {
+  const out = {}
+  const add = (a, id, e) => { (out[a] ||= { members: 0, byState: {} }).members++; out[a].byState[e.state] = (out[a].byState[e.state] || 0) + 1 }
+  for (const [a, p] of Object.entries(reg.pools || {})) for (const [id, e] of Object.entries(p || {})) add(a, id, e)
+  for (const [id, e] of Object.entries(reg.pool || {})) add(entryAccount(id), id, e)
+  return out
+}
 
 export function setEntry(id, patch) {
+  ensureAccountMigration()
+  const fallback = resolveAccount()?.accountId
   return updateRegistry((r) => {
-    r.pool = { ...(r.pool || {}) }
-    if (patch === null) delete r.pool[id]
-    else r.pool[id] = { ...(r.pool[id] || {}), ...patch }
+    foldLegacy(r, fallback)
+    const a = entryAccount(id, fallback)
+    r.pools = { ...(r.pools || {}) }
+    const p = { ...(r.pools[a] || {}) }
+    if (patch === null) delete p[id]
+    else p[id] = { ...(p[id] || {}), ...patch }
+    r.pools[a] = p
   })
 }
 
@@ -108,6 +153,12 @@ export function health(id, entry) {
 
 // Drop entries that left the pool by themselves; return stale claims to it.
 async function reconcileUnlocked() {
+  // Migrate in place: legacy unkeyed members move under their own account.
+  ensureAccountMigration()
+  if (Object.keys(loadRegistry().pool || {}).length) {
+    const fallback = resolveAccount()?.accountId
+    await updateRegistry((r) => foldLegacy(r, fallback))
+  }
   const rows = []
   for (const [id, entry] of Object.entries(poolOf())) {
     const h = health(id, entry)
@@ -138,13 +189,16 @@ export function reconcile() {
 export async function claim(folder, { title } = {}) {
   const canonical=p=>existsSync(p)?realpathSync(p):resolve(p)
   const want = canonical(folder)
+  const account = resolveAccount()
+  // Defense in depth: the member's record must be in the resolved store now.
+  const sameAccount = (id) => !account || storeKey(storeOfSession(id)) === account.store
   return withLock('pool', async () => {
     const ready = (await reconcileUnlocked())
       .filter((m) => m.status === 'ready')
       .map((m) => ({ ...m, entry: poolOf()[m.sessionId] }))
       .sort((a, b) => (a.entry.parkedAt || 0) - (b.entry.parkedAt || 0))
     const protectedIds=poolServiceActors()
-    const pick = ready.find((m) => !protectedIds.includes(m.sessionId)&&canonical(m.folder) === want)
+    const pick = ready.find((m) => !protectedIds.includes(m.sessionId)&&sameAccount(m.sessionId)&&canonical(m.folder) === want)
     if (!pick) return null
     await setEntry(pick.sessionId, { state: 'claimed', claimedAt: Date.now(), claimedTitle: title })
     return { sessionId: pick.sessionId, folder: pick.folder, archived: pick.archived, priorTitle: pick.priorTitle }

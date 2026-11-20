@@ -23,7 +23,8 @@ import {
   BROKER_DIR, CAPABILITIES, LEDGER, PENDING_LEARNINGS, STATE_DIR, appendJsonl, loadRegistry, readJson, readJsonl, redactArgs, updateRegistry,
 } from './state.mjs'
 import { cleanupCliLeftovers } from './cleanup.mjs'
-import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolServiceActors, poolTitle, reconcile, recycleMessage, setEntry } from './pool.mjs'
+import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolServiceActors, poolTitle, poolsByAccount, reconcile, recycleMessage, setEntry } from './pool.mjs'
+import { ACCOUNT_ENV, accountInventory, ownerOfConfig, readMigration, resolveAccount, withAccount } from './account.mjs'
 import { submitJob, inspectJob, waitJob, cancelJob } from './jobs.mjs'
 import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
 import { sessionEvents, waitSession } from './events.mjs'
@@ -282,7 +283,7 @@ export const OPS = [
   {
     name: 'driver_status',
     title: 'Driver status',
-    description: 'App and CLI versions, whether you are a desktop caller, legacy broker liveness, the enrolled ordinary-chat route health, the capability matrix for these versions, the main window\'s current session, and recent failures from the ledger.',
+    description: 'App and CLI versions, whether you are a desktop caller, the resolved Claude account (id, how it was resolved) and per-account state, legacy broker liveness, the enrolled ordinary-chat route health, the capability matrix for these versions, the main window\'s current session, and recent failures from the ledger.',
     schema: { properties: {} },
     readOnly: true,
     run: async () => {
@@ -297,6 +298,7 @@ export const OPS = [
         versions: m.versions,
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),
+        ...accountStatus(),
         broker,
         sessionManagement:await (await import('./session-management-controller.mjs')).inspectSessionManagementController(),
         capabilities: m.current ? { probedAt: m.current.probedAt, mechanisms: m.current.mechanisms } : `not probed for ${m.key}; run \`claude-driver probe\``,
@@ -335,7 +337,7 @@ export const OPS = [
   {
     name: 'list_sessions',
     title: 'List sessions (disk)',
-    description: 'Session records from disk across every account store, newest activity first. Filter by title substring, folder (cwd or origin under it), archived, live.',
+    description: 'Session records from disk in the resolved Claude account\'s store (see driver_status account; pass account to choose another), newest activity first. Filter by title substring, folder (cwd or origin under it), archived, live.',
     schema: {
       properties: {
         query: { type: 'string', description: 'Case-insensitive substring of the title.' },
@@ -851,7 +853,7 @@ export const OPS = [
     name: 'pool_status',
     title: 'Bypass pool status',
     description:
-      'The bypass pool: finished sessions already in bypassPermissions, cleared and parked so create_session can hand one out with no import and no approval card. Reconciles the registry against disk, lists members and ready counts per folder. ' +
+      'The bypass pool of the resolved Claude account (one pool per account): finished sessions already in bypassPermissions, cleared and parked so create_session can hand one out with no import and no approval card. Reconciles the registry against disk, lists members and ready counts per folder; other accounts\' pools are only counted. ' +
       'suggest:true also lists archived bypass sessions whose PRs are all merged or closed (pool_release candidates).',
     schema: { properties: { folder: { type: 'string', description: 'Only members / candidates in this folder.' }, suggest: { type: 'boolean' } } },
     readOnly: true,
@@ -860,7 +862,10 @@ export const OPS = [
       const members = (await reconcile()).filter((m) => !folder || !m.folder || resolve(m.folder) === folder)
       const ready = {}
       for (const m of members) if (m.status === 'ready') ready[m.folder] = (ready[m.folder] || 0) + 1
-      const out = { ready, members }
+      const { account, accounts } = accountStatus()
+      // Other accounts' pools are counted, never listed or reconciled: their sessions are not visible to this app.
+      const otherAccounts = Object.fromEntries(accounts.filter((a) => !a.current && a.pool.members).map((a) => [a.accountId, a.pool]))
+      const out = { account, ready, members, otherAccounts }
       if (args.suggest) {
         const pool = poolOf()
         const pins = readPins()
@@ -1329,6 +1334,30 @@ export const OPS = [
   },
 ]
 
+// Every op takes an explicit account override (account.mjs). Without it the
+// account is resolved from the desktop caller, else the most recent store.
+const ACCOUNT_ARG = { type: 'string', description: `Claude account to act for: accountId, accountId/orgId or a unique 8+ character prefix. Default: the account holding the calling desktop session's record, else the store with the newest record (env ${ACCOUNT_ENV} overrides both).` }
+for (const op of OPS) op.schema = { ...op.schema, properties: { ...(op.schema.properties || {}), account: ACCOUNT_ARG } }
+
+export function accountStatus() {
+  let account = null, error = null
+  try { account = resolveAccount() } catch (e) { error = e.message }
+  const reg = loadRegistry(), pools = poolsByAccount(reg)
+  const brokerRow = readJson(join(BROKER_DIR, 'broker.json'), null)
+  const occupant = brokerRow?.sessionId ? { sessionId: brokerRow.sessionId, ...ownerOfConfig(brokerRow, 'sessionId') } : null
+  return {
+    account: account ? { accountId: account.accountId, orgId: account.orgId, store: account.store, source: account.source, ...(account.callerSession ? { callerSession: account.callerSession } : {}), ...(account.note ? { note: account.note } : {}) } : { error: error || 'no session stores' },
+    accounts: accountInventory().map((a) => ({
+      ...a,
+      current: a.accountId === account?.accountId,
+      pool: pools[a.accountId] || { members: 0, byState: {} },
+      brokerOccupant: occupant?.accountId === a.accountId,
+      retainedBroker: readJson(join(STATE_DIR, 'accounts', a.accountId, 'broker.json'), null)?.sessionId ?? null,
+    })),
+    legacyStateOwner: readMigration()?.legacyOwner ?? null,
+  }
+}
+
 // create_session for bypass: hand out a parked pool session instead of
 // importing. Returns null when the pool has none for this folder.
 async function createFromPool(args, ctx) {
@@ -1433,6 +1462,10 @@ export async function runOp(name,args={},options={}){
 async function runOpInner(name, args = {}, { harness = 'cli', progress = () => {}, signal,jobId,projectArchiveSnapshot,ordinaryActionIntent } = {}) {
   if(jobId!==undefined&&!/^j[a-f0-9]{32}$/.test(jobId))throw new DriverError('invalid operation job context',{category:'bad_args'})
   const op = validateOp(name, args)
+  if (Object.hasOwn(args, 'account')) {
+    const { account, ...rest } = args
+    return withAccount(account, () => runOpInner(name, rest, { harness, progress, signal, jobId, projectArchiveSnapshot, ordinaryActionIntent }))
+  }
   if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal,jobId,projectArchiveSnapshot, notes: [], tier: null }
   const t0 = Date.now(),operationId=lifecycleContext().operationId

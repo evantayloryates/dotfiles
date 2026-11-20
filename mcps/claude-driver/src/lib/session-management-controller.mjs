@@ -1,12 +1,27 @@
-import {join} from 'node:path'
-import {writeFileSync} from 'node:fs'
+import {dirname,join} from 'node:path'
+import {existsSync,readFileSync,writeFileSync} from 'node:fs'
+import {accountFile,ensureAccountMigration,ownerOfSession,resolveAccount} from './account.mjs'
 import {STATE_DIR,ensureDir,withLock} from './state.mjs'
 import {getRecord} from './sessions.mjs'
 import {readReceiverFile,loadReceiverSelection} from './receiver-runtime-selection.mjs'
 import {inspectIndependentService} from './independent-service-result.mjs'
 import {DriverError} from './paths.mjs'
 const sid=/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/
-const file=()=>join(STATE_DIR,'session-management-controller.json')
+// One enrollment per Claude account (account.mjs). The legacy file stays the
+// enrollment of the account whose store holds its controller's record; an
+// account it does not belong to uses accounts/<accountId>/ instead, so a new
+// account starts with no controller rather than another account's.
+export function controllerFileFor(account=resolveAccount()){
+ const legacy=join(STATE_DIR,'session-management-controller.json')
+ if(!account)return legacy
+ ensureAccountMigration()
+ const keyed=accountFile(account.accountId,'session-management-controller.json')
+ if(existsSync(keyed)||!existsSync(legacy))return existsSync(keyed)?keyed:legacy
+ let row;try{row=JSON.parse(readFileSync(legacy,'utf8'))}catch{return legacy} // invalid: validation refuses
+ const owner=ownerOfSession(row?.controllerSession)
+ return !owner||owner.accountId===account.accountId?legacy:keyed
+}
+const file=()=>controllerFileFor()
 const refuse=()=>{throw new DriverError('ordinary session controller unqualified; no legacy fallback',{category:'session_management_controller_unqualified',detail:{dispatched:false,retrySafe:true}})}
 export function validateSessionManagementEnrollment(row){
  if(!row||Object.keys(row).sort().join(',')!=='controllerSession,enrolledAt,receiverCwd,schemaVersion'||row.schemaVersion!==1||!sid.test(row.controllerSession||'')||typeof row.receiverCwd!=='string'||!row.receiverCwd.startsWith('/')||!Number.isSafeInteger(row.enrolledAt)||row.enrolledAt<0)refuse()
@@ -31,7 +46,7 @@ export async function enrollSessionManagementController(session,{signal}={}){
   const selected=loadReceiverSelection(record.cwd),status=await inspectIndependentService(session,selected.selector.serviceId,{signal})
   if(signal?.aborted||selected.selector.sessionId!==session||!status.verified||status.verificationMode!=='live-native'||!status.readinessObserved||!status.nativePolicyObserved||status.admissionStopped||status.expired||status.nativeInputRequired||status.nativeEpoch?.status!=='idle'||status.unresolvedRequestIds?.length||status.terminalAttemptReviewComplete!==true||status.unreservedSlots<1||[status,selected.pointer,selected.policy].some(x=>x.sessionManagementControl!==true))refuse()
   const prior=readSessionManagementEnrollment();if(prior&&(prior.controllerSession!==session||prior.receiverCwd!==record.cwd))refuse()
-  const row=prior??{schemaVersion:1,controllerSession:session,receiverCwd:record.cwd,enrolledAt:Date.now()};ensureDir(STATE_DIR)
+  const row=prior??{schemaVersion:1,controllerSession:session,receiverCwd:record.cwd,enrolledAt:Date.now()};ensureDir(dirname(file()))
   if(!prior)writeFileSync(file(),JSON.stringify(row)+'\n',{flag:'wx',mode:0o600})
   if(JSON.stringify(readSessionManagementEnrollment())!==JSON.stringify(row))refuse()
   return {enrolled:true,controllerSession:session,serviceId:status.serviceId,verified:true,nativeEffectsRequested:0}

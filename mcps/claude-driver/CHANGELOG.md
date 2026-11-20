@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-11-20.001
+
+- Per-account operation. Each call resolves the Claude account it acts for
+  (`src/lib/account.mjs`): the op's new `account` argument, env
+  `CLAUDE_DRIVER_ACCOUNT`, the store holding the calling desktop session's
+  record, else the store with the most recently modified session record.
+  `driver_status` and `pool_status` report `account` (with `source`) and
+  per-account state (`accounts`, `otherAccounts`, `legacyStateOwner`).
+- Scoped to the resolved account: `list_sessions`, session lookups (another
+  store's id is refused with `other_account`), sidebar groups, the bypass pool
+  (`registry.pools.<accountId>`; claims double-check the member's store), the
+  broker (`not_configured_for_account` with the occupant when the broker
+  directory belongs to another account) and the ordinary-chat controller
+  enrollment (`accounts/<accountId>/session-management-controller.json` for an
+  account the legacy file does not belong to). Durable jobs pin the
+  submitter's account into the worker's env. No-project scratch folders go in
+  the resolved account's scratch tree.
+- Migration in place: `accounts/migration.json` names the legacy owner from
+  where the broker, controller and pool sessions' records live
+  (`1beae0d1-…/cdda5ba2-…` on this Mac); `registry.pool` folded into
+  `registry.pools.1beae0d1-…` (pre-migration copy at
+  `accounts/registry.pre-account-migration.json`); the broker row retained at
+  `accounts/1beae0d1-…/broker.json`. Legacy files are not moved or deleted.
+- Running servers report `runtime_stale` and refuse writes until they
+  reconnect; their read-only ops keep the old, unscoped behavior.
 ## 2026-10-18.001
 
 - Moved into the MCP fleet as `mcps/claude-driver` (formerly `src/claude-driver`).

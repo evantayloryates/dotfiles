@@ -7,6 +7,7 @@ import { isAbsolute, resolve } from 'node:path'
 
 import { DriverError, MAIN_LOG, makeScratchFolder, openUrl, runCli, sh } from './paths.mjs'
 import { getRecord, resolveSession, waitForRecord } from './sessions.mjs'
+import { resolveAccount } from './account.mjs'
 import { sessionUrl } from './focus.mjs'
 import { updateRegistry } from './state.mjs'
 import { cleanupCliLeftovers } from './cleanup.mjs'
@@ -65,7 +66,8 @@ export async function createSession({ folder, no_project, title, model, effort, 
   let cwd
   let createdFolder = false
   if (no_project) {
-    cwd = makeScratchFolder()
+    const account = resolveAccount()
+    cwd = makeScratchFolder(account ? { acct: account.accountId, org: account.orgId } : null)
     createdFolder = true
   } else {
     if (!isAbsolute(folder)) throw new DriverError(`folder must be absolute: ${folder}`, { category: 'bad_args' })
