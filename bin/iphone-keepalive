@@ -1,0 +1,189 @@
+#!/usr/bin/python3
+"""iphone-keepalive: keep Taylor's tethered iPhone ready for automation.
+
+A long-running broker (launchd agent com.taylor.iphone-keepalive) that, every
+INTERVAL seconds, does the cheapest checks that keep the phone drivable and
+logs each tick as one JSON line:
+
+  device     tethered, Developer Mode on, unlocked (devicectl lockState)
+  appium     the local Appium server answers; started here if it does not
+  session    the WebDriverAgent session in the sid file answers; recreated
+             (with iphone-preflight's helpers) when the phone is unlocked
+  touch      one harmless read on the session (window rect): the no-op that
+             keeps WebDriverAgent and its XCTest authorization warm
+  lowpower   Low Power Mode off (it overrides Auto-Lock Never with a 30 s
+             lock). Checked once at start and after every lock episode,
+             because the check drives Settings > Battery on the phone.
+
+It never unlocks the phone, never enters a passcode, and never opens apps
+other than Settings for the Low Power Mode check. When the phone is locked it
+logs the episode and shows one macOS notification (no focus change); work
+resumes by itself once Taylor unlocks it.
+
+Files (all under ~/.local/state/iphone/):
+  keepalive.log    JSON lines, rotated at 5 MB (keepalive.log.1)
+  keepalive.json   the latest tick, for watchers
+  appium.log       the Appium server's own log when started here
+  session.id       the WebDriverAgent session id (shared with iphone-preflight)
+
+Usage: iphone-keepalive [--once] [--interval SECONDS]
+"""
+import argparse
+import importlib.machinery
+import importlib.util
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+STATE = Path.home() / ".local/state/iphone"
+LOG = STATE / "keepalive.log"
+LATEST = STATE / "keepalive.json"
+APPIUM_LOG = STATE / "appium.log"
+APPIUM_PID = STATE / "appium.pid"
+ROTATE_BYTES = 5 * 1024 * 1024
+APPIUM_BIN = "/opt/homebrew/bin/appium"
+LOW_POWER_RECHECK_S = 6 * 3600
+
+_spec = importlib.util.spec_from_loader(
+    "iphone_preflight",
+    importlib.machinery.SourceFileLoader("iphone_preflight", str(Path(__file__).with_name("iphone-preflight"))),
+)
+pre = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(pre)
+
+
+def log(event):
+    STATE.mkdir(parents=True, exist_ok=True)
+    event = {"t": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **event}
+    line = json.dumps(event, separators=(",", ":"))
+    try:
+        if LOG.exists() and LOG.stat().st_size > ROTATE_BYTES:
+            LOG.replace(LOG.with_suffix(".log.1"))
+    except OSError:
+        pass
+    with LOG.open("a") as fh:
+        fh.write(line + "\n")
+    return event
+
+
+def notify(title, text):
+    """A banner only: osascript display notification never takes focus."""
+    subprocess.run(["/usr/bin/osascript", "-e",
+                    f'display notification {json.dumps(text)} with title {json.dumps(title)}'],
+                   capture_output=True, timeout=10)
+
+
+def appium_ready():
+    return pre.http("GET", f"{pre.APPIUM}/status", timeout=5).get("value", {}).get("ready") is True
+
+
+def start_appium():
+    """Start Appium detached, logging to appium.log; returns its pid."""
+    STATE.mkdir(parents=True, exist_ok=True)
+    out = APPIUM_LOG.open("a")
+    proc = subprocess.Popen([APPIUM_BIN, "--address", "127.0.0.1", "--port", "4723", "--log-no-colors"],
+                            stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+    APPIUM_PID.write_text(f"{proc.pid}\n")
+    for _ in range(30):
+        if appium_ready():
+            break
+        time.sleep(1)
+    return proc.pid
+
+
+def current_session():
+    sid = pre.SID_FILE.read_text().strip() if pre.SID_FILE.exists() else None
+    if sid and pre.Session(sid).ok():
+        return pre.Session(sid)
+    return None
+
+
+def touch(session):
+    """The no-op: read the window rect. Cheap, changes nothing on the phone."""
+    t0 = time.monotonic()
+    rect = pre.http("GET", f"{session.base}/window/rect", timeout=15).get("value", {})
+    return bool(rect.get("width")), round((time.monotonic() - t0) * 1000)
+
+
+def tick(state):
+    event = {"ev": "tick"}
+    tethered, unlocked, devmode = pre.check_device()
+    event.update(tethered=tethered, unlocked=unlocked, devmode=devmode)
+    if not tethered:
+        event["status"] = "untethered"
+        return event
+    if not unlocked:
+        event["status"] = "locked"
+        if not state.get("locked_since"):
+            state["locked_since"] = time.time()
+            notify("iPhone locked", "Unlock it to resume phone automation; the broker resumes on its own.")
+            log({"ev": "lock-episode-start"})
+        return event
+    if state.get("locked_since"):
+        log({"ev": "lock-episode-end", "seconds": round(time.time() - state.pop("locked_since"))})
+        state["low_power_checked"] = 0
+    if not appium_ready():
+        pid = start_appium()
+        log({"ev": "appium-started", "pid": pid, "ready": appium_ready()})
+    event["appium"] = appium_ready()
+    if not event["appium"]:
+        event["status"] = "appium-down"
+        return event
+    session = current_session()
+    if session is None:
+        notes = []
+        session = pre.create_session(notes)
+        if session:
+            pre.SID_FILE.parent.mkdir(parents=True, exist_ok=True)
+            pre.SID_FILE.write_text(session.sid + "\n")
+        log({"ev": "session-created" if session else "session-create-failed",
+             "sid": session.sid if session else None, "notes": notes[-3:]})
+    if session is None:
+        event["status"] = "no-session"
+        return event
+    event["sid"] = session.sid[:8]
+    ok, ms = touch(session)
+    event.update(touch=ok, touch_ms=ms)
+    if time.time() - state.get("low_power_checked", 0) > LOW_POWER_RECHECK_S:
+        notes = []
+        event["low_power_mode"] = pre.low_power(session, True, notes)
+        state["low_power_checked"] = time.time()
+        if notes:
+            log({"ev": "low-power-check", "result": event["low_power_mode"], "notes": notes[-3:]})
+    event["status"] = "ready" if ok else "touch-failed"
+    return event
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--once", action="store_true", help="run one tick and exit")
+    ap.add_argument("--interval", type=int, default=int(os.environ.get("IPHONE_KEEPALIVE_INTERVAL", "45")))
+    args = ap.parse_args()
+    stop = {"now": False}
+    signal.signal(signal.SIGTERM, lambda *_: stop.update(now=True))
+    state = {}
+    log({"ev": "start", "interval": args.interval, "pid": os.getpid()})
+    while not stop["now"]:
+        try:
+            event = tick(state)
+        except Exception as exc:  # a broker never dies on one bad tick
+            event = {"ev": "tick", "status": "error", "error": type(exc).__name__, "detail": str(exc)[:200]}
+        event = log(event)
+        LATEST.write_text(json.dumps(event) + "\n")
+        if args.once:
+            print(json.dumps(event))
+            return 0 if event.get("status") == "ready" else 1
+        for _ in range(args.interval):
+            if stop["now"]:
+                break
+            time.sleep(1)
+    log({"ev": "stop"})
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
