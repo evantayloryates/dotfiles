@@ -26,7 +26,12 @@ Files (all under ~/.local/state/iphone/):
   appium.log       the Appium server's own log when started here
   session.id       the WebDriverAgent session id (shared with iphone-preflight)
 
-Usage: iphone-keepalive [--once] [--interval SECONDS]
+Status: "untethered" means no iPhone on the USB bus; "usb-not-available" means
+it is on the bus but usbmuxd does not list it (locked into USB Restricted Mode,
+Trust not accepted, or a power-only cable). Each change away from "ready" shows
+one banner with the reason, and one banner when it is ready again.
+
+Usage: iphone-keepalive [--once] [--interval SECONDS] [--status]
 """
 import argparse
 import importlib.machinery
@@ -109,12 +114,25 @@ def touch(session):
     return bool(rect.get("width")), round((time.monotonic() - t0) * 1000)
 
 
+def usb_enumerated():
+    """macOS sees an iPhone on the USB bus (power or data), whatever usbmuxd says."""
+    out = subprocess.run(["/usr/sbin/ioreg", "-p", "IOUSB", "-l", "-w0"], capture_output=True, text=True,
+                         timeout=15).stdout
+    return '"USB Product Name" = "iPhone"' in out
+
+
 def tick(state):
     event = {"ev": "tick"}
     tethered, unlocked, devmode = pre.check_device()
     event.update(tethered=tethered, unlocked=unlocked, devmode=devmode)
     if not tethered:
-        event["status"] = "untethered"
+        # usbmuxd does not list the phone. Say why, so "untethered" is never a
+        # silent lie: a phone on the bus but not muxed is plugged in and locked
+        # long enough for USB Restricted Mode, waiting on Trust, or the cable
+        # carries power only.
+        on_bus = usb_enumerated()
+        event["usb_bus"] = on_bus
+        event["status"] = "usb-not-available" if on_bus else "untethered"
         return event
     if not unlocked:
         event["status"] = "locked"
@@ -158,11 +176,59 @@ def tick(state):
     return event
 
 
+NOT_READY_HINTS = {
+    "untethered": "No iPhone on USB. Plug it in with a data cable.",
+    "usb-not-available": "The iPhone is on USB but not available for automation. Unlock it (USB Restricted Mode) "
+                         "and accept Trust if asked.",
+    "locked": "Unlock the iPhone to resume phone automation.",
+    "appium-down": "Appium did not start; see appium.log.",
+    "no-session": "WebDriverAgent session could not be created; it retries every tick.",
+    "touch-failed": "WebDriverAgent stopped answering; it is recreated on the next tick.",
+    "error": "The broker hit an error; see keepalive.log.",
+}
+
+
+def announce(state, event):
+    """One banner when automation stops being ready (with the reason) and one when it is back."""
+    status = event.get("status")
+    previous = state.get("announced")
+    if status == previous:
+        return
+    if status == "ready" and previous is not None:
+        notify("iPhone automation ready", "The phone is drivable again.")
+    elif status != "ready" and status != "locked":  # locked has its own banner in tick()
+        notify("iPhone automation offline", NOT_READY_HINTS.get(status, status))
+    state["announced"] = status
+    log({"ev": "status-change", "from": previous, "to": status})
+
+
+def print_status(interval):
+    """Fast check for agents: the latest tick, its age, and whether the broker is alive."""
+    try:
+        latest = json.loads(LATEST.read_text())
+    except (OSError, ValueError):
+        print(json.dumps({"ok": False, "why": "no keepalive.json"}))
+        return 1
+    import calendar
+    age = time.time() - calendar.timegm(time.strptime(latest["t"], "%Y-%m-%dT%H:%M:%SZ"))
+    stale = age > 2 * interval + 30
+    ok = latest.get("status") == "ready" and not stale
+    print(json.dumps({"ok": ok, "status": latest.get("status"), "age_s": round(age), "stale": stale,
+                      "hint": None if ok else ("broker not ticking: launchctl kickstart -k gui/$(id -u)/"
+                                               "com.taylor.iphone-keepalive" if stale
+                                               else NOT_READY_HINTS.get(latest.get("status"))),
+                      "latest": latest}))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--once", action="store_true", help="run one tick and exit")
     ap.add_argument("--interval", type=int, default=int(os.environ.get("IPHONE_KEEPALIVE_INTERVAL", "45")))
+    ap.add_argument("--status", action="store_true", help="print the latest tick and its age; exit 0 only if ready")
     args = ap.parse_args()
+    if args.status:
+        return print_status(args.interval)
     stop = {"now": False}
     signal.signal(signal.SIGTERM, lambda *_: stop.update(now=True))
     state = {}
@@ -174,6 +240,10 @@ def main():
             event = {"ev": "tick", "status": "error", "error": type(exc).__name__, "detail": str(exc)[:200]}
         event = log(event)
         LATEST.write_text(json.dumps(event) + "\n")
+        try:
+            announce(state, event)
+        except Exception:  # a banner never stops the broker
+            pass
         if args.once:
             print(json.dumps(event))
             return 0 if event.get("status") == "ready" else 1
