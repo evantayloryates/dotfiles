@@ -448,11 +448,16 @@ one SSM-managed host whose group that security group admits, so the harness
 reaches the replica through an SSM port-forward to it — no VPN, no public
 endpoint, no inbound rule. The LaunchAgent `com.taylor.zdr-harness-tunnel`
 keeps that session open on `127.0.0.1:${KICKOFF_ZDR_DB_TUNNEL_PORT}` (33306):
-it runs `zdr-harness tunnel start --foreground`, which `exec`s the `aws ssm
-start-session` process so launchd supervises it directly, and `KeepAlive`
-reopens it when SSM ends an idle session (about 20 minutes) or the laptop
-wakes. The MCP forgets a lost socket and reconnects on its next call, so a
-drop costs one retried query, not a restart. With the agent loaded,
+it runs `zdr-harness tunnel start --foreground`, which supervises the `aws ssm
+start-session` process and exits when the session ends, so `KeepAlive` reopens
+it when SSM ends an idle session (about 20 minutes). After sleep or a network
+change the SSM channel is dead while the local port stays open, so a watchdog
+in the same script ends the session the moment the wall clock jumps (the Mac
+woke) or the default route's address changes, and launchd opens a fresh one;
+it never connects to the database to check. The MCP forgets a lost socket and
+retries `ECONNREFUSED`/`ETIMEDOUT`-type connect errors for up to 50 s
+(`retryConnect` in `db-pool.mjs`), so a query sent during a reopen waits it out
+instead of failing. With the agent loaded,
 `zdr-harness tunnel start|stop|status` go through launchd (`stop` unloads it);
 without it they fall back to a `nohup` child. TLS is still verified against
 the RDS CA bundle and the replica's real hostname even though the socket says

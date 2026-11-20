@@ -542,7 +542,32 @@ tunnel_session() {
     rm -f "$fifo"; mkfifo -m 600 "$fifo"
     "${cmd[@]}" >"$fifo" 2>&1 &
     apid=$!
-    trap 'tunnel_kill_tree "$apid"; rm -f "$fifo"' EXIT
+    # After sleep or a network change the SSM channel is dead, but nothing says
+    # so until a query trips over it and the plugin fails to reconnect. Watch
+    # for both (the wall clock jumps across sleep; the default route's address
+    # changes with the network) and end the session at once so launchd opens a
+    # fresh one before anyone asks. No probe connects to the database, so the
+    # replica sees no aborted handshakes.
+    local wpid
+    (
+      set +e
+      sig() { local i; i="$(/sbin/route -n get default 2>/dev/null | awk '/interface:/{print $2}')"; printf '%s/%s' "$i" "$( [[ -n "$i" ]] && /usr/sbin/ipconfig getifaddr "$i" 2>/dev/null)"; }
+      last="$(date +%s)"; net="$(sig)"
+      while kill -0 "$apid" 2>/dev/null; do
+        sleep 15
+        now="$(date +%s)"; cur="$(sig)"; why=''
+        if (( now - last > 60 )); then why="woke after $(( now - last ))s asleep"
+        elif [[ "$cur" != "$net" ]]; then why="network changed ($net -> $cur)"; fi
+        if [[ -n "$why" ]]; then
+          printf '%s tunnel: %s; restarting it\n' "$(date '+%F %T')" "$why"
+          tunnel_kill_tree "$apid"
+          exit 0
+        fi
+        last="$now"
+      done
+    ) &
+    wpid=$!
+    trap 'kill "$wpid" 2>/dev/null; tunnel_kill_tree "$apid"; rm -f "$fifo"' EXIT
     trap 'exit 0' TERM INT
     while IFS= read -r line; do
       printf '%s\n' "$line"

@@ -152,3 +152,35 @@ export function createPool({ open, max = 4, acquireMs = 45_000, idleMs = 5 * 60_
     stats: () => ({ opened, idle: idle.length, waiting: waiters.length, max }),
   }
 }
+
+// Errors that mean the tunnel is restarting (after sleep, a network change or
+// a dropped SSM channel), not that the database refused us. Opening a
+// connection retries these until the deadline so a caller waits out the few
+// seconds launchd needs to reopen the session instead of failing.
+export const TRANSIENT_CONNECT = new Set([
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'EPIPE',
+  'PROTOCOL_CONNECTION_LOST',
+  'HANDSHAKE_NO_SSL_SUPPORT',
+])
+
+export async function retryConnect(open, { deadlineMs = 50_000, log = () => {}, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), now = Date.now } = {}) {
+  const until = now() + deadlineMs
+  let attempt = 0
+  for (;;) {
+    attempt++
+    try {
+      const c = await open()
+      if (attempt > 1) log(`database connection opened on attempt ${attempt}`)
+      return c
+    } catch (err) {
+      const left = until - now()
+      if (!TRANSIENT_CONNECT.has(err?.code) || left <= 0) throw err
+      const wait = Math.min(left, attempt === 1 ? 2_000 : 5_000)
+      log(`database connect failed (${err.code}), retrying in ${wait}ms`)
+      await sleep(wait)
+    }
+  }
+}

@@ -23,7 +23,7 @@
 import { exportStates as terraArchiveExport, runs as terraArchiveRuns, start as terraArchiveStartRun, status as terraArchiveStatusRead } from './terra-archive-cli.mjs'
 import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
-import { createPool, PoolBusyError } from './db-pool.mjs'
+import { createPool, PoolBusyError, retryConnect } from './db-pool.mjs'
 import { closeSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
@@ -172,19 +172,19 @@ async function openConnection() {
     // has to be the replica's, so verify it against the real hostname.
     checkServerIdentity: (_host, cert) => checkServerIdentity(target.host, cert),
   }
-  const c = await mysql.createConnection({
+  const c = await retryConnect(() => mysql.createConnection({
     host: TUNNEL_PORT ? '127.0.0.1' : target.host,
     port: TUNNEL_PORT || target.port,
     user: target.user,
     password: target.password,
     database: target.database,
     ssl,
-    connectTimeout: 15_000,
+    connectTimeout: 10_000,
     decimalNumbers: true,
     dateStrings: true,
     supportBigNumbers: true,
     bigNumberStrings: true,
-  }).catch((err) => {
+  }), { log }).catch((err) => {
     const hint = TUNNEL_PORT
       ? ` (tunnel on 127.0.0.1:${TUNNEL_PORT}: is it up? zdr-harness tunnel status)`
       : ' (the replica is private: set KICKOFF_ZDR_DB_TUNNEL_PORT and start the tunnel)'
