@@ -22,6 +22,7 @@ export const KINDS = [
   { kind: 'transcripts', prefix: 'tx_', id: /^tx_[a-f0-9]{8}$/, dir: '', file: (id) => `${id}.jsonl`, fromName: (n) => (/^tx_[a-f0-9]{8}\.jsonl$/.test(n) ? n.slice(0, -6) : null), isDir: false },
   { kind: 'fixture-package', prefix: 'fp_', id: /^fp_[a-f0-9]{24}$/, dir: 'fixture-packages', file: (id) => id, fromName: (n) => (/^fp_[a-f0-9]{24}$/.test(n) ? n : null), isDir: true },
   { kind: 'source-page', prefix: 'sp_', id: /^sp_[a-f0-9]{24}$/, dir: 'fixture-source-pages', file: (id) => `${id}.json`, fromName: (n) => (/^sp_[a-f0-9]{24}\.json$/.test(n) ? n.slice(0, -5) : null), isDir: false },
+  { kind: 'query-export', prefix: 'qx_', id: /^qx_[a-f0-9]{8}$/, dir: '', file: (id) => `${id}.jsonl`, fromName: (n) => (/^qx_[a-f0-9]{8}\.jsonl$/.test(n) ? n.slice(0, -6) : null), isDir: false },
   { kind: 'terra-scopes', prefix: 'ts_', id: /^ts_[a-f0-9]{8}$/, dir: '', file: (id) => `${id}.jsonl`, fromName: (n) => (/^ts_[a-f0-9]{8}\.jsonl$/.test(n) ? n.slice(0, -6) : null), isDir: false },
   { kind: 'review', prefix: 'rv_', id: /^rv_[a-z0-9][a-z0-9-]{0,63}$/, dir: 'operational-review', file: (id) => `${id.slice(3)}.json`, fromName: (n) => (/^[a-z0-9][a-z0-9-]{0,63}\.json$/.test(n) ? `rv_${n.slice(0, -5)}` : null), isDir: false },
 ]

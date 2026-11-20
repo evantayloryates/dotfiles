@@ -464,6 +464,13 @@ get one within 45 s fails with "the production database is busy" rather than
 queueing past OpenCode's 120 s tool limit. Before 2026-11-10 every session
 shared one connection, so parallel asks ran one statement at a time.
 
+**Texts to classify.** `query_export` runs one `SELECT` that returns a `text`
+column (and ideally `id`) and writes every row to `exports/qx_<8 hex>.jsonl`
+(up to 200,000 rows or 400 MB, 90 s via a `MAX_EXECUTION_TIME` hint), returning
+only the path, column names and counts. Inside the harness the classifier reads
+only `.jsonl` and `.json` files under `exports/`; it refuses OpenCode's spilled
+tool output and the work folder by name.
+
 **Walls, in order:**
 
 1. `kudos_ro`'s grants and the replica's `read_only`.

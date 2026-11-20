@@ -24,7 +24,7 @@ import { exportStates as terraArchiveExport, runs as terraArchiveRuns, start as 
 import { dayCounts, readPayload, recentDays, scopesExport, terraClient, TerraError, TERRA_BUCKET, writeScopesFile } from './terra-payloads.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { createPool, PoolBusyError } from './db-pool.mjs'
-import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
+import { closeSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
@@ -766,6 +766,92 @@ async function runExport(ex, rows) {
   log(`export ${ex.id} done: ${ex.lengths.length} written, ${ex.done - ex.lengths.length} failed`)
 }
 
+// Query rows straight to a JSONL file in the exports folder for the
+// classifier: client texts, notes, messages. Nothing comes back into the
+// conversation but the path, the column names and counts.
+const MAX_QUERY_EXPORT = 200_000
+const MAX_QUERY_EXPORT_BYTES = 400 * 1024 * 1024
+const QUERY_EXPORT_TIMEOUT_MS = 90 * 1000
+
+async function queryExport({ sql } = {}) {
+  const c = await connection()
+  let statement = checkSql(sql)
+  if (!/^(SELECT|WITH)\b/i.test(statement)) throw new ToolError('query_export takes a SELECT (or WITH ... SELECT).')
+  // Exports read more rows than a query, so they get longer than the 30 s default, still inside the 120 s tool limit.
+  if (/^SELECT\b/i.test(statement)) statement = statement.replace(/^SELECT\b/i, `SELECT /*+ MAX_EXECUTION_TIME(${QUERY_EXPORT_TIMEOUT_MS}) */`)
+  const fp = fingerprint(statement)
+  const id = `qx_${randomBytes(4).toString('hex')}`
+  mkdirSync(EXPORT_DIR, { recursive: true, mode: 0o700 })
+  const path = join(EXPORT_DIR, `${id}.jsonl`)
+  const tmp = `${path}.part`
+  const started = Date.now()
+  const st = { rows: 0, bytes: 0, emptyText: 0, lengths: [], columns: null, capped: null }
+  const fd = openSync(tmp, 'w', 0o600)
+  try {
+    await new Promise((resolve, reject) => {
+      const raw = c.connection
+      let settled = false
+      const done = (err) => {
+        if (settled) return
+        settled = true
+        err ? reject(err) : resolve()
+      }
+      raw.query('START TRANSACTION READ ONLY', (err) => {
+        if (err) return done(err)
+        const q = raw.query({ sql: statement, rowsAsArray: false })
+        q.on('error', done)
+        q.on('fields', (fields) => {
+          st.columns = (fields || []).map((f) => f.name)
+          if (!st.columns.includes('text')) {
+            forgetIfLost({ code: 'ECONNRESET' })
+            done(new ToolError(`query_export needs a column named text (the text to classify), plus ideally id. Got: ${st.columns.join(', ')}. Alias it: SELECT m.id, m.body AS text, ...`))
+          }
+        })
+        q.on('result', (row) => {
+          if (settled) return
+          if (st.rows >= MAX_QUERY_EXPORT || st.bytes >= MAX_QUERY_EXPORT_BYTES) {
+            st.capped = st.rows >= MAX_QUERY_EXPORT ? `${MAX_QUERY_EXPORT.toLocaleString()} rows` : `${MAX_QUERY_EXPORT_BYTES / 1e6} MB`
+            forgetIfLost({ code: 'ECONNRESET' })
+            return done()
+          }
+          const line = `${JSON.stringify(row, (_k, v) => (typeof v === 'bigint' ? String(v) : v))}\n`
+          writeSync(fd, line)
+          st.rows++
+          st.bytes += line.length
+          const len = typeof row.text === 'string' ? row.text.trim().length : 0
+          if (!len) st.emptyText++
+          st.lengths.push(len)
+        })
+        q.on('end', () => raw.query('ROLLBACK', () => done()))
+      })
+    })
+  } catch (err) {
+    closeSync(fd)
+    try { unlinkSync(tmp) } catch {}
+    if (err instanceof ToolError) throw err
+    if (err.code === 'ER_QUERY_TIMEOUT' || err.errno === 3024) {
+      log(`query_export ${fp.hash} timeout after ${Date.now() - started}ms: ${fp.shape}`)
+      throw new ToolError(`query_export exceeded ${QUERY_EXPORT_TIMEOUT_MS / 1000}s. Split it by date range into several exports.`)
+    }
+    log(`query_export ${fp.hash} failed ${err.code || ''}: ${fp.shape}`)
+    throw new ToolError(`${err.code || 'query failed'}: ${err.sqlMessage || err.message}`)
+  }
+  closeSync(fd)
+  renameSync(tmp, path)
+  log(`query_export ${fp.hash} ${id} ${Date.now() - started}ms rows=${st.rows}${st.capped ? '+' : ''}: ${fp.shape}`)
+  if (!st.rows) return `Export ${id}: the query returned no rows; nothing to classify.`
+  const sorted = st.lengths.sort((a, b) => a - b)
+  const q = (p) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))]
+  return [
+    `Export ${id}: ${st.rows.toLocaleString()} rows, ${(st.bytes / 1e6).toFixed(1)} MB, in ${((Date.now() - started) / 1000).toFixed(1)}s.`,
+    `path: ${path}`,
+    `columns: ${st.columns.join(', ')}`,
+    `text length (chars): median ${q(0.5)}, p90 ${q(0.9)}; empty text rows: ${st.emptyText}`,
+    st.capped ? `STOPPED at ${st.capped}: the query returns more. Split it by date range.` : 'complete: every row the query returned is in the file.',
+    `Next: classifier_classify_sample {"input_file": "${path}", "text_field": "text"} to see the spread, then classifier_classify_start {"input_file": "${path}", "text_field": "text", "id_field": "id", ...}. Only counts come back from classify_results.`,
+  ].join('\n')
+}
+
 async function exportStatus({ export_id, wait_seconds } = {}) {
   const ex = exportsById.get(export_id)
   if (!ex) throw new ToolError(`No export "${export_id}" in this server session (exports do not survive a harness restart; run transcript_export again).`)
@@ -908,6 +994,23 @@ const TOOLS = [
       type: 'object',
       properties: { file_transcript_id: { type: 'number' }, max_chars: { type: 'number' }, offset: { type: 'number' } },
       required: ['file_transcript_id'],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'query_export',
+    title: 'Export query rows to a file for the classifier',
+    description:
+      'Run one read-only SELECT and write every row straight to a JSONL file inside the harness, for the classifier: message bodies, visit notes, ' +
+      'survey answers, any text. Nothing is read into this conversation: it returns the path, column names and counts. The statement must return a ' +
+      `column named text (alias it) and should return id. Up to ${MAX_QUERY_EXPORT.toLocaleString()} rows or ${MAX_QUERY_EXPORT_BYTES / 1e6} MB and ` +
+      `${QUERY_EXPORT_TIMEOUT_MS / 1000}s per export; split large sets by date range. Extra columns (coach_id, lane, month) ride along for ` +
+      'classify_start filter. Then classifier_classify_sample and classifier_classify_start on the path. Never use query to page text into the conversation for counting.',
+    inputSchema: {
+      type: 'object',
+      properties: { sql: { type: 'string', description: 'SELECT ... AS text [, id, other columns] FROM ... WHERE <date range>' } },
+      required: ['sql'],
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true, openWorldHint: true },
@@ -1090,7 +1193,7 @@ async function terraScopesStatus({ job_id, wait_seconds } = {}) {
 const HANDLERS = { fixture_facts: args => { try { return fixtureFacts(args) } catch { throw new ToolError('fixture_facts_arguments_invalid') } }, fixture_source_page: fixtureSourcePage, fixture_context: args => { try { return fixtureContext(args) } catch { throw new ToolError('fixture_context_unavailable') } }, fixture_call_number: fixtureCallNumber, fixture_package: (args) => {
   try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
   catch (err) { throw new ToolError(err.message) }
-}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus, terra_archive_status: terraArchiveStatus, terra_archive_start: terraArchiveStart, terra_archive_scopes_export: terraArchiveScopes }
+}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, query_export: queryExport, transcript_export_status: exportStatus, terra_payload_days: terraPayloadDays, terra_payload_get: terraPayloadGet, terra_scopes_export: terraScopesExport, terra_scopes_export_status: terraScopesStatus, terra_archive_status: terraArchiveStatus, terra_archive_start: terraArchiveStart, terra_archive_scopes_export: terraArchiveScopes }
 
 // ---------------------------------------------------------------------------
 // MCP stdio loop

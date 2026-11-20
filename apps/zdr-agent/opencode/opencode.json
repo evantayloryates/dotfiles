@@ -123,6 +123,7 @@
     "kickoffdb_fixture_context": "allow",
     "kickoffdb_fixture_call_number": "allow",
     "kickoffdb_fixture_package": "allow",
+    "kickoffdb_query_export": "allow",
     "kickoffdb_transcript_export": "allow",
     "kickoffdb_transcript_export_status": "allow",
     "kickoffdb_terra_payload_days": "allow",

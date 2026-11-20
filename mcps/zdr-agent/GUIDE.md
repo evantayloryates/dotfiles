@@ -34,6 +34,15 @@ Asking in parallel
 - An answer that says the database is busy means the pool was full for 45 s.
   Wait a minute and ask again; do not fan out more asks.
 
+Counting or labelling texts (messages, visit notes, survey answers, transcripts)
+- Ask for label counts, and say "export with kickoffdb_query_export (or
+  kickoffdb_transcript_export) and classify the file with the classifier". The
+  harness writes the texts to an export file, classifies it there, and returns
+  only counts. Give the labels, the date range and any split (lane, coach,
+  month); one export per date range of up to 200,000 rows.
+- Never ask the harness to read texts to you, and never open or list the
+  exports folder yourself.
+
 Sessions
 - `zdr_sessions` lists recent sessions with busy or idle state.
 - `zdr_read` returns a session's state, question and final answer only.

@@ -35,11 +35,16 @@ export function checkDataPath(abs, given, { write = false } = {}) {
   } catch {}
   for (const p of new Set([abs, real])) checkOne(p, given, write)
 }
-// Inside the harness, transcript exports (kickoffdb_transcript_export) live in
-// the harness's own private folder; that one folder is readable.
+// Inside the harness, exports (kickoffdb_query_export, transcript_export,
+// fixture source pages) live in the harness's own private folder; data files
+// there are readable, nothing else is.
 const HARNESS_EXPORTS = join(process.env.CLASSIFIER_REAL_HOME || '', '.zdr-harness', 'exports') + sep
+const HARNESS_EXPORT_EXT = new Set(['.jsonl', '.json'])
 function checkOne(abs, given, write) {
-  if (SCOPE === 'zdr' && !write && process.env.CLASSIFIER_REAL_HOME && abs.startsWith(HARNESS_EXPORTS) && extname(abs) === '.jsonl') return
+  if (SCOPE === 'zdr' && !write && process.env.CLASSIFIER_REAL_HOME && abs.startsWith(HARNESS_EXPORTS) && HARNESS_EXPORT_EXT.has(extname(abs))) return
+  if (SCOPE === 'zdr' && !write && abs.includes(`${sep}.zdr-harness${sep}`)) {
+    throw new UserError(`input_file must be an export in ${HARNESS_EXPORTS.slice(0, -1)} (.jsonl or .json): ${given}. Make one with kickoffdb_query_export or kickoffdb_transcript_export; spilled tool output and work files are not readable.`)
+  }
   const parts = abs.split(sep).filter(Boolean)
   const what = write ? 'output_path' : 'input_file'
   if (parts.some((p) => p.startsWith('.')) || parts.includes('Library')) throw new UserError(`${what} cannot be inside a hidden folder or Library: ${given}. Put the file in a normal folder.`)

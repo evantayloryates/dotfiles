@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-12.001
+
+- Guide: how to get label counts over client texts. The harness now has
+  `kickoffdb_query_export` (one SELECT straight to an export file, stats only),
+  and its classifier reads `.jsonl` and `.json` exports; spilled tool output and
+  work files are refused with the supported route named.
+
 ## 2026-11-10.001
 
 - Guide: how to ask in parallel (at most 3 asks in flight per agent, about 8

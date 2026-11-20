@@ -202,6 +202,15 @@ a file and returns only stats), check the stats and a few samples with
 `classifier_classify_start`. For a real analysis, classify everything the
 question covers, not a subset. Report counts and shares.
 
+**Many texts from the database** (message bodies, visit notes, survey
+answers: "what share of messages ask about X", label counts by lane): never
+page rows into this conversation to count them. Write them to a file with
+`kickoffdb_query_export` (one `SELECT` returning a `text` column and an `id`,
+plus any columns to filter on later; up to 200,000 rows, 90 s; split by date
+range), then `classifier_classify_sample` and `classifier_classify_start` on
+the returned path, exactly as for transcripts. The classifier reads only
+export files: spilled tool output and work files are refused.
+
 Keep queries cheap: the replica also serves the product. Use `LIMIT`, filter by
 indexed columns, and prefer one aggregate query to many row fetches.
 
