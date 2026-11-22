@@ -1,0 +1,401 @@
+#!/usr/bin/python3
+"""iphone-keepalive-ctl: switch the iPhone keepalive broker on or off, optionally for a while.
+
+  iphone-keepalive-ctl status
+  iphone-keepalive-ctl on  [--for DURATION | --until TIME]
+  iphone-keepalive-ctl off [--for DURATION | --until TIME]
+  iphone-keepalive-ctl restart
+  iphone-keepalive-ctl cancel          drop a pending timed switch, keep the current state
+
+on/off without a window is indefinite and cancels any pending timed switch.
+With a window, the broker is switched now and switched to the OTHER state when
+the window ends ("off --for 30m" = off now, on again in 30 minutes, then on
+indefinitely). A later on/off replaces the pending switch. Windows are loose
+by design: anything can toggle again at any time.
+
+DURATION: 30s, 10m, 3h, 1h30m, 90 (minutes when bare), 1.5h.
+TIME: 17:30, 5pm, 5:15am, tomorrow 9am, or an ISO time (2026-11-22T09:00,
+with or without an offset). A clock time already past today means tomorrow.
+
+Off is `launchctl disable` + `bootout` (holds across logout and reboot); on is
+`enable` + `bootstrap`. The plist, Appium and WebDriverAgent are never touched.
+Note: a fresh broker's first unlocked tick runs the Low Power Mode check, which
+opens Settings > Battery on the phone once and presses Home.
+
+The timed switch is carried by a second launch agent,
+com.taylor.iphone-keepalive-timer (written to ~/Library/LaunchAgents on first
+use, RunAtLoad, restarted only on failure). It runs `iphone-keepalive-ctl
+_timer`, which waits on the wall clock in short steps (so Mac sleep cannot
+stretch the window), and on wake or login applies a switch that came due
+while the Mac was off. The pending switch is ~/.local/state/iphone/timer.json.
+Each switch is logged to keepalive.log with "src": "ctl", and a timed switch
+posts one banner when it fires (osascript, no focus change).
+
+Output: one JSON object; exit 0 when the requested state was reached.
+Test overrides (never for normal use): IPHONE_KEEPALIVE_LABEL,
+IPHONE_KEEPALIVE_TIMER_LABEL, IPHONE_KEEPALIVE_STATE, IPHONE_KEEPALIVE_BROKER,
+IPHONE_KEEPALIVE_NO_BANNER (log the banner instead of showing it).
+"""
+import argparse
+import datetime as dt
+import json
+import os
+import plistlib
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+LABEL = os.environ.get("IPHONE_KEEPALIVE_LABEL", "com.taylor.iphone-keepalive")
+TIMER_LABEL = os.environ.get("IPHONE_KEEPALIVE_TIMER_LABEL", "com.taylor.iphone-keepalive-timer")
+STATE = Path(os.environ.get("IPHONE_KEEPALIVE_STATE", str(Path.home() / ".local/state/iphone")))
+BROKER = os.environ.get("IPHONE_KEEPALIVE_BROKER", str(Path(__file__).resolve().with_name("iphone-keepalive")))
+AGENTS = Path.home() / "Library/LaunchAgents"
+PLIST = AGENTS / f"{LABEL}.plist"
+TIMER_PLIST = AGENTS / f"{TIMER_LABEL}.plist"
+TIMER_FILE = STATE / "timer.json"
+LOG = STATE / "keepalive.log"
+DOMAIN = f"gui/{os.getuid()}"
+TARGET = f"{DOMAIN}/{LABEL}"
+TIMER_TARGET = f"{DOMAIN}/{TIMER_LABEL}"
+STEP_S = 5  # timer wait step: wall-clock re-check, so sleep and file changes are noticed quickly
+TEST_ENV = ("IPHONE_KEEPALIVE_LABEL", "IPHONE_KEEPALIVE_TIMER_LABEL", "IPHONE_KEEPALIVE_STATE",
+            "IPHONE_KEEPALIVE_BROKER", "IPHONE_KEEPALIVE_NO_BANNER")
+
+
+# ---------- small helpers ----------
+
+def now():
+    return dt.datetime.now().astimezone()
+
+
+def iso(t):
+    return t.astimezone().isoformat(timespec="seconds")
+
+
+def launchctl(*args):
+    return subprocess.run(["/bin/launchctl", *args], capture_output=True, text=True, timeout=30)
+
+
+def log(event):
+    STATE.mkdir(parents=True, exist_ok=True)
+    event = {"t": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "src": "ctl", **event}
+    with LOG.open("a") as fh:
+        fh.write(json.dumps(event, separators=(",", ":")) + "\n")
+
+
+def notify(title, text):
+    if os.environ.get("IPHONE_KEEPALIVE_NO_BANNER"):
+        log({"ev": "banner-suppressed", "title": title})
+        return
+    subprocess.run(["/usr/bin/osascript", "-e",
+                    f"display notification {json.dumps(text)} with title {json.dumps(title)}"],
+                   capture_output=True, timeout=10)
+
+
+def loaded(target=TARGET):
+    return launchctl("print", target).returncode == 0
+
+
+def pid_of(target=TARGET):
+    for line in launchctl("print", target).stdout.splitlines():
+        m = re.match(r"\s*pid = (\d+)$", line)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def disabled(label=LABEL):
+    m = re.search(rf'"{re.escape(label)}" => (\w+)', launchctl("print-disabled", DOMAIN).stdout)
+    return bool(m) and m.group(1) in ("true", "disabled")
+
+
+def pgrep(pattern):
+    out = subprocess.run(["/usr/bin/pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
+    return int(out[0]) if out else None
+
+
+def wait_until(pred, seconds=15):
+    for _ in range(seconds):
+        if pred():
+            return True
+        time.sleep(1)
+    return pred()
+
+
+def human(seconds):
+    seconds = int(round(seconds))
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    parts = [f"{h} h" if h else "", f"{m} min" if m else "", f"{s} s" if s and not h else ""]
+    return " ".join(p for p in parts if p) or "0 s"
+
+
+# ---------- parsing ----------
+
+def parse_duration(text):
+    t = text.strip().lower().replace(" ", "")
+    if re.fullmatch(r"\d+(\.\d+)?", t):
+        return float(t) * 60
+    units = {"s": 1, "sec": 1, "secs": 1, "second": 1, "seconds": 1, "m": 60, "min": 60, "mins": 60,
+             "minute": 60, "minutes": 60, "h": 3600, "hr": 3600, "hrs": 3600, "hour": 3600, "hours": 3600,
+             "d": 86400, "day": 86400, "days": 86400}
+    total, pos = 0.0, 0
+    for m in re.finditer(r"(\d+(?:\.\d+)?)([a-z]+)", t):
+        if m.start() != pos or m.group(2) not in units:
+            raise ValueError(f"unreadable duration: {text!r}")
+        total += float(m.group(1)) * units[m.group(2)]
+        pos = m.end()
+    if pos != len(t) or total <= 0:
+        raise ValueError(f"unreadable duration: {text!r}")
+    return total
+
+
+def parse_until(text, ref=None):
+    ref = ref or now()
+    t = text.strip().lower()
+    try:
+        parsed = dt.datetime.fromisoformat(text.strip())
+        return parsed if parsed.tzinfo else parsed.astimezone()
+    except ValueError:
+        pass
+    day = 0
+    if t.startswith("tomorrow"):
+        day, t = 1, t[len("tomorrow"):].strip()
+    elif t.startswith("today"):
+        t = t[len("today"):].strip()
+    t = {"noon": "12pm", "midnight": "12am"}.get(t, t)
+    m = re.fullmatch(r"(\d{1,2})(?::(\d{2}))?\s*(am|pm)?", t)
+    if not m:
+        raise ValueError(f"unreadable time: {text!r}")
+    hour, minute, ampm = int(m.group(1)), int(m.group(2) or 0), m.group(3)
+    if ampm:
+        if not 1 <= hour <= 12:
+            raise ValueError(f"unreadable time: {text!r}")
+        hour = hour % 12 + (12 if ampm == "pm" else 0)
+    elif m.group(2) is None:
+        raise ValueError(f"ambiguous time {text!r}: write 17:00 or 5pm")
+    if hour > 23 or minute > 59:
+        raise ValueError(f"unreadable time: {text!r}")
+    at = ref.replace(hour=hour, minute=minute, second=0, microsecond=0) + dt.timedelta(days=day)
+    if at <= ref and day == 0:
+        at += dt.timedelta(days=1)
+    return at
+
+
+# ---------- state ----------
+
+def read_timer():
+    try:
+        return json.loads(TIMER_FILE.read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def timer_view(timer):
+    if not timer:
+        return None
+    at = dt.datetime.fromisoformat(timer["at"])
+    return {"then": timer["then"], "at": timer["at"], "in": human(max(0, (at - now()).total_seconds())),
+            "set": timer.get("set"), "window": timer.get("window")}
+
+
+def broker_status():
+    try:
+        out = subprocess.run([BROKER, "--status"], capture_output=True, text=True, timeout=20).stdout
+        return json.loads(out) if out.strip() else None
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return None
+
+
+def snapshot():
+    return {"loaded": loaded(), "disabled": disabled(), "pid": pid_of(),
+            "on": loaded() and not disabled(),
+            "appium_pid": pgrep("appium --address 127.0.0.1 --port 4723"),
+            "wda_xcodebuild_pid": pgrep("xcodebuild.*WebDriverAgent"),
+            "pending": timer_view(read_timer()),
+            "timer_agent_loaded": loaded(TIMER_TARGET)}
+
+
+# ---------- switching ----------
+
+def switch_on():
+    if not PLIST.exists():
+        return False, f"plist missing: {PLIST}"
+    launchctl("enable", TARGET)
+    if loaded():
+        launchctl("kickstart", TARGET)
+        note = "already loaded; kickstarted"
+    else:
+        r = launchctl("bootstrap", DOMAIN, str(PLIST))
+        note = "bootstrapped" if r.returncode == 0 else f"bootstrap: {r.stderr.strip()[:120]}"
+    ok = wait_until(lambda: pid_of() is not None) and not disabled()
+    return ok, note
+
+
+def switch_off():
+    launchctl("disable", TARGET)
+    if loaded():
+        launchctl("bootout", TARGET)
+        note = "booted out"
+    else:
+        note = "was not loaded"
+    ok = wait_until(lambda: not loaded()) and disabled()
+    return ok, note
+
+
+def apply(state):
+    return switch_on() if state == "on" else switch_off()
+
+
+def ensure_timer_agent():
+    """Write (or refresh) the timer agent's plist and make sure it is loaded."""
+    env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
+    env.update({k: os.environ[k] for k in TEST_ENV if k in os.environ})
+    spec = {
+        "Label": TIMER_LABEL,
+        "ProgramArguments": [str(Path(__file__).resolve()), "_timer"],
+        "EnvironmentVariables": env,
+        "RunAtLoad": True,
+        "KeepAlive": {"SuccessfulExit": False},
+        "ThrottleInterval": 10,
+        "ProcessType": "Background",
+        "StandardOutPath": str(STATE / "keepalive-timer.stdout.log"),
+        "StandardErrorPath": str(STATE / "keepalive-timer.stderr.log"),
+    }
+    data = plistlib.dumps(spec)
+    if not TIMER_PLIST.exists() or TIMER_PLIST.read_bytes() != data:
+        if loaded(TIMER_TARGET):
+            launchctl("bootout", TIMER_TARGET)
+            wait_until(lambda: not loaded(TIMER_TARGET), 10)
+        TIMER_PLIST.write_bytes(data)
+    if not loaded(TIMER_TARGET):
+        launchctl("bootstrap", DOMAIN, str(TIMER_PLIST))
+    else:
+        launchctl("kickstart", "-k", TIMER_TARGET)
+
+
+def wake_timer():
+    """Make a running timer re-read timer.json now (it also re-reads every few seconds)."""
+    if loaded(TIMER_TARGET):
+        launchctl("kickstart", "-k", TIMER_TARGET)
+
+
+def set_timer(state_now, at, window):
+    timer = {"then": "off" if state_now == "on" else "on", "at": iso(at), "set": iso(now()), "window": window}
+    STATE.mkdir(parents=True, exist_ok=True)
+    tmp = TIMER_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(timer) + "\n")
+    tmp.replace(TIMER_FILE)
+    ensure_timer_agent()
+    return timer
+
+
+def clear_timer():
+    had = TIMER_FILE.exists()
+    try:
+        TIMER_FILE.unlink()
+    except FileNotFoundError:
+        pass
+    if had:
+        wake_timer()
+    return had
+
+
+def run_timer():
+    """The timer agent's body: wait on the wall clock, apply the pending switch, exit 0."""
+    while True:
+        timer = read_timer()
+        if not timer:
+            return 0
+        at = dt.datetime.fromisoformat(timer["at"])
+        remaining = (at - now()).total_seconds()
+        if remaining > 0:
+            time.sleep(min(STEP_S, remaining))
+            continue
+        # Due. Only apply the switch this file still asks for (a newer toggle may have replaced it).
+        if read_timer() != timer:
+            continue
+        ok, note = apply(timer["then"])
+        late = round(-remaining)
+        log({"ev": "timed-switch", "to": timer["then"], "ok": ok, "note": note, "late_s": late,
+             "window": timer.get("window")})
+        if read_timer() == timer:
+            TIMER_FILE.unlink(missing_ok=True)
+        what = "back on" if timer["then"] == "on" else "off"
+        window = f" after {timer['window']}" if timer.get("window") else ""
+        if ok:
+            notify(f"iPhone keepalive {what}", f"The timed window{window} ended; it stays {timer['then']} "
+                   "until you switch it again.")
+        else:
+            notify("iPhone keepalive switch failed", f"Could not turn it {timer['then']}: {note}")
+        return 0 if ok else 1
+
+
+# ---------- commands ----------
+
+def emit(action, ok, note=None, **extra):
+    out = {"action": action, "ok": ok, "note": note, **extra, **snapshot(), "broker_status": broker_status()}
+    print(json.dumps(out))
+    return 0 if ok else 1
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("action", choices=["status", "on", "off", "restart", "cancel", "_timer"])
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--for", dest="duration", help="window length, e.g. 30s, 10m, 3h, 1h30m")
+    g.add_argument("--until", help="window end, e.g. 17:30, 5pm, tomorrow 9am, ISO time")
+    args = ap.parse_args()
+
+    if args.action == "_timer":
+        return run_timer()
+    if args.action == "status":
+        return emit("status", True)
+    if args.action == "cancel":
+        had = clear_timer()
+        log({"ev": "timer-cancelled", "had": had})
+        return emit("cancel", True, "pending switch dropped" if had else "nothing pending")
+    if args.action == "restart":
+        if not loaded():
+            return emit("restart", False, "not loaded; use on")
+        launchctl("kickstart", "-k", TARGET)
+        return emit("restart", wait_until(lambda: pid_of() is not None), "kickstarted -k")
+
+    # on / off, optionally timed
+    window, at = None, None
+    try:
+        if args.duration:
+            secs = parse_duration(args.duration)
+            at, window = now() + dt.timedelta(seconds=secs), human(secs)
+        elif args.until:
+            at = parse_until(args.until)
+            if at <= now():
+                raise ValueError(f"{args.until!r} is in the past")
+            window = f"until {at.strftime('%a %H:%M')}"
+    except ValueError as exc:
+        return emit(args.action, False, str(exc))
+
+    before = {"loaded": loaded(), "disabled": disabled()}
+    already = (before["loaded"] and not before["disabled"] and pid_of() is not None) if args.action == "on" \
+        else (not before["loaded"] and before["disabled"])
+    if already:
+        ok, note = True, f"already {args.action}"
+    else:
+        ok, note = apply(args.action)
+    if not ok:
+        log({"ev": "switch", "to": args.action, "ok": False, "note": note})
+        return emit(args.action, False, note)
+    if at:
+        timer = set_timer(args.action, at, window)
+        note += f"; {timer['then']} at {at.strftime('%a %H:%M:%S')}"
+    else:
+        if clear_timer():
+            note += "; pending timed switch cancelled"
+    log({"ev": "switch", "to": args.action, "ok": True, "note": note, "until": iso(at) if at else None})
+    return emit(args.action, True, note, before=before)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

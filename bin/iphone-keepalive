@@ -32,6 +32,9 @@ Trust not accepted, or a power-only cable). Each change away from "ready" shows
 one banner with the reason, and one banner when it is ready again.
 
 Usage: iphone-keepalive [--once] [--interval SECONDS] [--status]
+
+Switch it on or off, now or for a while ("off --for 30m", "on --until 6pm"),
+with iphone-keepalive-ctl; never by editing the plist or killing this process.
 """
 import argparse
 import importlib.machinery
