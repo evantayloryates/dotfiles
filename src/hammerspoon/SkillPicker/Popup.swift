@@ -273,7 +273,7 @@ final class Popup: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         visible = true; firstResultsReported = true
         let rows = [
             SkillRecord(name: "taylor-codebot", path: "/skills/codebot/SKILL.md"),
-            SkillRecord(name: "taylor-pr-review", path: "/skills/review/SKILL.md")
+            SkillRecord(name: "taylor-code-review", path: "/skills/review/SKILL.md")
         ]
         gate.begin(); presentation.begin(background: false)
         handle(["action":"results", "id":revision, "skills":rows.map { $0.wire }])

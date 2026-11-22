@@ -21,13 +21,13 @@ class CatalogTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.home=Path(self.temp.name)
         self.root=self.home/'.codex/skills';self.root.mkdir(parents=True)
-        self.add('taylor-alpha');self.add('taylor-pr-review')
+        self.add('taylor-alpha');self.add('taylor-code-review')
         self.s=Fixture(home=self.home)
     def tearDown(self): self.s.sel.close();self.temp.cleanup()
     def add(self,name):
         p=self.root/name;p.mkdir();(p/'SKILL.md').write_text('---\nname: '+name+'\n---\n')
     def test_unchanged_queries_reuse_confirmed_inventory(self):
-        self.s.refresh();self.s.refresh('pr review');self.s.refresh('taylor-')
+        self.s.refresh();self.s.refresh('code review');self.s.refresh('taylor-')
         self.assertEqual(self.s.calls,1)
     def test_addition_removal_detected_without_restart(self):
         self.s.refresh();self.add('taylor-new');self.assertEqual(self.s.refresh()['count'],3)
@@ -43,7 +43,7 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):self.s.refresh()
         self.assertEqual(self.s.signature,previous)
     def test_spaces_case_hyphens(self):
-        self.assertEqual(self.s.refresh('PR review')['skills'][0]['name'],'taylor-pr-review')
+        self.assertEqual(self.s.refresh('Code review')['skills'][0]['name'],'taylor-code-review')
     def test_symlink_cycle_is_bounded(self):
         (self.root/'cycle').symlink_to(self.root, target_is_directory=True)
         start=time.perf_counter();self.s.fingerprint();self.assertLess(time.perf_counter()-start,.5)
