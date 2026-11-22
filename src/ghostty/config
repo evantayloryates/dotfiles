@@ -68,6 +68,13 @@ quick-terminal-space-behavior = move
 # moves back to a stable release once one ships with a build number above 18152.
 auto-update-channel = stable
 
+# Secure Input blocks every key event tap system-wide, including this file's
+# global:cmd+space and Hammerspoon's watchers. Ghostty would switch it on by
+# itself at password prompts (sudo, ssh) and could leave it on, so the global
+# hotkeys died. Taylor chose hotkeys that always work over this protection
+# (2026-11-21). Secure Keyboard Entry in the Ghostty menu still works by hand.
+macos-auto-secure-input = false
+
 # --- Keybinds (mirrors kitty.conf) ---
 keybind = super+d=new_split:right
 keybind = super+shift+d=new_split:down

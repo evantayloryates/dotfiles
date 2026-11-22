@@ -12,6 +12,7 @@ local IMPORTS = {
 	'FocusFollowsMouse',
 	'CursorScreenshot',
 	'SkillPicker',
+	'SecureInputHotkeys',
 }
 local EXCLUDES = {
 	'AppleScripts',

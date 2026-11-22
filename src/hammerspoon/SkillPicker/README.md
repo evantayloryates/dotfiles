@@ -63,7 +63,9 @@ replaces the Lua state; explicit deletion is used only for an in-place module
 replacement. This avoids the message-port shutdown crash observed on
 Hammerspoon 1.1.1/macOS 26.5.1 on 2026-10-01. This uses public AppKit
 blur APIs, not a patched Codex app or a WebKit page. macOS Reduce Transparency
-can change the glass appearance. Secure Input suppresses opening.
+can change the glass appearance. The picker opens even while Secure Input is on;
+then `SecureInputHotkeys` routes ctrl+space through Karabiner, because Secure
+Input can stop the shortcut reaching Hammerspoon.
 
 ## Sources and identity
 

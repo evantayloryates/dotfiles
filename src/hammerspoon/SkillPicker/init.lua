@@ -118,7 +118,6 @@ function M.start()
   end
 end
 function M.present()
-  if hs.eventtap.isSecureInputEnabled() then return end
   M.start()
   M.origin=hs.window.frontmostWindow()
   -- One cursor sample at invocation; never reposition this opening afterwards.

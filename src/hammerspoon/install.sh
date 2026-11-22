@@ -18,4 +18,7 @@ fi
 
 test -f "$target/init.lua"
 test -x "$target/SkillPicker/SkillPicker.app/Contents/MacOS/SkillPicker"
+# App Nap throttles Hammerspoon timers and drops it to background priority,
+# which delays hotkeys and the SecureInputHotkeys watcher. Takes effect on relaunch.
+defaults write org.hammerspoon.Hammerspoon NSAppSleepDisabled -bool YES
 echo "Hammerspoon source linked: $target -> $source_dir"
