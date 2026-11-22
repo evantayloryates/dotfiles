@@ -7,6 +7,18 @@
   iphone-keepalive-ctl restart
   iphone-keepalive-ctl cancel          drop a pending timed switch, keep the current state
 
+Off closes the automation out fully, so the phone's "Automation Running"
+overlay goes away: it stops the broker, ends the saved WebDriverAgent
+session, stops the WebDriverAgent test runner (the xcodebuild that keeps
+WebDriverAgentRunner alive on the phone; the overlay lasts exactly as long as
+that runner), stops the Appium server the broker started, and confirms with
+devicectl that no WebDriverAgentRunner process is left on the phone,
+terminating one if it is. `off --broker-only` stops just the broker and
+leaves Appium and WebDriverAgent warm (the overlay stays). A timed window
+that ends in off closes out the same way. Turning on again starts Appium and
+relaunches WebDriverAgent from the broker's next tick (about a minute;
+longer if WebDriverAgent has to rebuild).
+
 on/off without a window is indefinite and cancels any pending timed switch.
 With a window, the broker is switched now and switched to the OTHER state when
 the window ends ("off --for 30m" = off now, on again in 30 minutes, then on
@@ -34,7 +46,9 @@ posts one banner when it fires (osascript, no focus change).
 Output: one JSON object; exit 0 when the requested state was reached.
 Test overrides (never for normal use): IPHONE_KEEPALIVE_LABEL,
 IPHONE_KEEPALIVE_TIMER_LABEL, IPHONE_KEEPALIVE_STATE, IPHONE_KEEPALIVE_BROKER,
-IPHONE_KEEPALIVE_NO_BANNER (log the banner instead of showing it).
+IPHONE_KEEPALIVE_NO_BANNER (log the banner instead of showing it). With
+IPHONE_KEEPALIVE_LABEL set, off never touches the real Appium, WebDriverAgent
+or phone.
 """
 import argparse
 import datetime as dt
@@ -59,6 +73,13 @@ LOG = STATE / "keepalive.log"
 DOMAIN = f"gui/{os.getuid()}"
 TARGET = f"{DOMAIN}/{LABEL}"
 TIMER_TARGET = f"{DOMAIN}/{TIMER_LABEL}"
+UDID = "00008110-001451690A21801E"  # Taylor's tethered iPhone (same as iphone-preflight)
+APPIUM = "http://127.0.0.1:4723"
+APPIUM_CMD = "appium --address 127.0.0.1 --port 4723"
+APPIUM_PID = STATE / "appium.pid"
+SID_FILE = STATE / "session.id"
+RUNNER = "WebDriverAgentRunner-Runner"
+TEST_MODE = "IPHONE_KEEPALIVE_LABEL" in os.environ  # test labels never touch the real Appium or phone
 STEP_S = 5  # timer wait step: wall-clock re-check, so sleep and file changes are noticed quickly
 TEST_ENV = ("IPHONE_KEEPALIVE_LABEL", "IPHONE_KEEPALIVE_TIMER_LABEL", "IPHONE_KEEPALIVE_STATE",
             "IPHONE_KEEPALIVE_BROKER", "IPHONE_KEEPALIVE_NO_BANNER")
@@ -114,6 +135,64 @@ def disabled(label=LABEL):
 def pgrep(pattern):
     out = subprocess.run(["/usr/bin/pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
     return int(out[0]) if out else None
+
+
+def device_runner_pids():
+    """WebDriverAgentRunner processes on the phone (None when the phone cannot be listed)."""
+    try:
+        out = subprocess.run(["/usr/bin/xcrun", "devicectl", "device", "info", "processes", "--device", UDID],
+                             capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if out.returncode != 0:
+        return None
+    return [int(line.split()[0]) for line in out.stdout.splitlines()
+            if RUNNER in line and line.split() and line.split()[0].isdigit()]
+
+
+def close_automation():
+    """End everything that keeps the phone in automation mode. Returns (ok, steps)."""
+    steps = []
+    sid = SID_FILE.read_text().strip() if SID_FILE.exists() else ""
+    if sid and pgrep(APPIUM_CMD):
+        r = subprocess.run(["/usr/bin/curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "--max-time", "30",
+                            "-X", "DELETE", f"{APPIUM}/session/{sid}"], capture_output=True, text=True)
+        steps.append(f"session {sid[:8]} deleted ({r.stdout or 'no answer'})")
+    # Every xcodebuild on Appium's WebDriverAgent project: the test runner (carries the UDID) and the
+    # build-settings queries it runs first, which can hang and outlive their session.
+    xpat = "xcodebuild.*appium-webdriveragent/WebDriverAgent.xcodeproj"
+    if pgrep(xpat):
+        subprocess.run(["/usr/bin/pkill", "-TERM", "-f", xpat])
+        gone = wait_until(lambda: not pgrep(xpat), 15)
+        if not gone:
+            subprocess.run(["/usr/bin/pkill", "-KILL", "-f", xpat])
+            gone = wait_until(lambda: not pgrep(xpat), 5)
+        steps.append("WebDriverAgent runner stopped" if gone else "WebDriverAgent runner still running")
+    apid = pgrep(APPIUM_CMD)
+    if apid:
+        recorded = APPIUM_PID.read_text().strip() if APPIUM_PID.exists() else ""
+        cmd = subprocess.run(["/bin/ps", "-o", "command=", "-p", str(apid)], capture_output=True, text=True).stdout
+        if APPIUM_CMD in cmd:
+            os.kill(apid, 15)
+            wait_until(lambda: not pgrep(APPIUM_CMD), 10)
+            steps.append(f"Appium {apid} stopped" + ("" if recorded == str(apid) else " (not the recorded pid)"))
+    left = device_runner_pids()
+    if left is None:
+        steps.append("phone not listable; runner state unknown")
+        return True, steps
+    for _ in range(10):
+        if not left:
+            break
+        time.sleep(1)
+        left = device_runner_pids() or []
+    for pid in left:
+        subprocess.run(["/usr/bin/xcrun", "devicectl", "device", "process", "terminate", "--device", UDID,
+                        "--pid", str(pid), "--kill"], capture_output=True, timeout=30)
+        steps.append(f"phone runner {pid} terminated")
+    if left:
+        left = device_runner_pids() or []
+    steps.append("no runner on the phone" if not left else f"runner still on the phone: {left}")
+    return not left, steps
 
 
 def wait_until(pred, seconds=15):
@@ -213,7 +292,8 @@ def snapshot():
     return {"loaded": loaded(), "disabled": disabled(), "pid": pid_of(),
             "on": loaded() and not disabled(),
             "appium_pid": pgrep("appium --address 127.0.0.1 --port 4723"),
-            "wda_xcodebuild_pid": pgrep("xcodebuild.*WebDriverAgent"),
+            "wda_xcodebuild_pid": pgrep("xcodebuild.*appium-webdriveragent/WebDriverAgent.xcodeproj"),
+            "phone_runner_pids": device_runner_pids(),
             "pending": timer_view(read_timer()),
             "timer_agent_loaded": loaded(TIMER_TARGET)}
 
@@ -234,7 +314,7 @@ def switch_on():
     return ok, note
 
 
-def switch_off():
+def switch_off(broker_only=False):
     launchctl("disable", TARGET)
     if loaded():
         launchctl("bootout", TARGET)
@@ -242,11 +322,15 @@ def switch_off():
     else:
         note = "was not loaded"
     ok = wait_until(lambda: not loaded()) and disabled()
+    if ok and not broker_only and not TEST_MODE:
+        closed, steps = close_automation()
+        note += "; " + "; ".join(steps) if steps else "; nothing else running"
+        ok = closed
     return ok, note
 
 
-def apply(state):
-    return switch_on() if state == "on" else switch_off()
+def apply(state, broker_only=False):
+    return switch_on() if state == "on" else switch_off(broker_only)
 
 
 def ensure_timer_agent():
@@ -347,6 +431,8 @@ def main():
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--for", dest="duration", help="window length, e.g. 30s, 10m, 3h, 1h30m")
     g.add_argument("--until", help="window end, e.g. 17:30, 5pm, tomorrow 9am, ISO time")
+    ap.add_argument("--broker-only", action="store_true",
+                    help="off: stop only the broker; leave Appium and WebDriverAgent warm (overlay stays)")
     args = ap.parse_args()
 
     if args.action == "_timer":
@@ -378,12 +464,14 @@ def main():
         return emit(args.action, False, str(exc))
 
     before = {"loaded": loaded(), "disabled": disabled()}
-    already = (before["loaded"] and not before["disabled"] and pid_of() is not None) if args.action == "on" \
-        else (not before["loaded"] and before["disabled"])
-    if already:
-        ok, note = True, f"already {args.action}"
+    if args.action == "on":
+        already = before["loaded"] and not before["disabled"] and pid_of() is not None
+        ok, note = (True, "already on") if already else apply("on")
     else:
-        ok, note = apply(args.action)
+        # Always run off: even an already-off broker may have left the automation running.
+        ok, note = apply("off", args.broker_only)
+        if not before["loaded"] and before["disabled"]:
+            note = note.replace("was not loaded", "already off", 1)
     if not ok:
         log({"ev": "switch", "to": args.action, "ok": False, "note": note})
         return emit(args.action, False, note)
