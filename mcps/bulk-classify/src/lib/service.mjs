@@ -27,6 +27,11 @@ import { writeOutput } from './output.mjs'
 import { writeAudit } from './audit.mjs'
 import { checkCreditsSoon } from './credits.mjs'
 
+// The paid-credit watch runs after any subscription use, by `codex exec` or
+// the app-server (PE diff r1 point 4: release 2's default engine counts only
+// codex_app_calls).
+export const creditCheckDue = (route, usage) => route?.route === 'subscription' && !!(usage?.codex_calls || usage?.codex_app_calls)
+
 export const MAX_TEXTS = 50
 export const MAX_INLINE_JOB_ITEMS = 500
 const MAX_PAGE = 50
@@ -100,7 +105,7 @@ export async function classifyTexts(args, { signal } = {}) {
   await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext, ladder: ladderEnabled(process.env, args) ? ladderFor(route, process.env, { prefer: opts.prefer }) : null })
   const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - t0), route }
   writeAudit({ kind: 'texts', route, usage, items: items.length })
-  if (route.route === 'subscription' && usage.codex_calls) checkCreditsSoon()
+  if (creditCheckDue(route, usage)) checkCreditsSoon()
   if (profile) recordRun(profile.name, summary, createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32))
 
   const hasIds = args.items.some((v) => v && typeof v === 'object' && v.id != null)

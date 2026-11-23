@@ -16,6 +16,7 @@ const scratch = mkdtempSync(join(tmpdir(), 'classifier-codex-app-'))
 process.env.CLASSIFIER_JOBS_DIR = join(scratch, 'jobs')
 process.env.CLASSIFIER_PROFILES_DIR = join(scratch, 'profiles')
 process.env.CLASSIFIER_CODEX_APP_TIMEOUT_MS = '1500'
+process.env.CLASSIFIER_REAL_HOME = scratch // no ~/.codex/config.toml: hermetic MCP names (tests pass mcpConfig)
 
 const { AppServer, AppPool, Breaker, codexAppCall, subscriptionCall, appHealth, salvageAnswers, kindFromTurnError, resetAppState } = await import('../src/lib/codex-app.mjs')
 const { CodexBatcher, SubscriptionError } = await import('../src/lib/codex.mjs')
@@ -79,6 +80,39 @@ for (const [mode, kind] of [
     assert.deepEqual(await waitGone(f.pids()), [])
   })
 }
+
+test('MCP names come from our config.toml read: disabled on the first spawn (one server, no restart)', async () => {
+  resetAppState()
+  const f = fakeBin('ok')
+  const r = await appHealth({ factory: () => new AppServer({ bin: f.bin, mcpConfig: '[mcp_servers.alpha]\ncommand = "x"\n' }) })
+  assert.equal(r.ok, true, JSON.stringify(r))
+  assert.equal(f.pids().length, 1)
+  assert.deepEqual(await waitGone(f.pids()), [])
+})
+
+for (const [label, mode, cfg] of [
+  ['config/read without mcp_servers while config.toml names one', 'nomcp', '[mcp_servers.alpha]\ncommand = "x"\n'],
+  ['mcp_servers in another shape', 'reshaped', '[mcp_servers.alpha]\ncommand = "x"\n'],
+  ['a configured server missing from config/read', 'ok', '[mcp_servers.alpha]\ncommand = "x"\n[mcp_servers.beta]\nurl = "https://example.invalid"\n'],
+  ['an odd config.toml entry', 'ok', '[mcp_servers]\nalpha = { command = "x" }\n'],
+]) {
+  test(`MCP gate fails closed (PE diff r1 point 3): ${label}`, async () => {
+    resetAppState()
+    const f = fakeBin(mode)
+    const r = await appHealth({ factory: () => new AppServer({ bin: f.bin, mcpConfig: cfg }) })
+    assert.equal(r.ok, false, JSON.stringify(r))
+    assert.equal(r.kind, 'unhealthy')
+    assert.deepEqual(await waitGone(f.pids()), [])
+  })
+}
+
+test('the credit watch fires after app-server-only subscription use (PE diff r1 point 4)', async () => {
+  const { creditCheckDue } = await import('../src/lib/service.mjs')
+  assert.equal(creditCheckDue({ route: 'subscription' }, { codex_calls: 0, codex_app_calls: 2 }), true)
+  assert.equal(creditCheckDue({ route: 'subscription' }, { codex_calls: 1 }), true)
+  assert.equal(creditCheckDue({ route: 'subscription' }, { codex_calls: 0, codex_app_calls: 0 }), false)
+  assert.equal(creditCheckDue({ route: 'api' }, { codex_app_calls: 3 }), false)
+})
 
 test('a missing binary is kind "missing"', async () => {
   const r = await appHealth({ factory: () => new AppServer({ bin: join(scratch, 'no-such-codex') }) })
@@ -172,6 +206,25 @@ test('backstop: a process under the app-server ends the turn as kind "unsafe" (r
   await pool.close()
   assert.ok(err instanceof SubscriptionError, err?.message || 'should fail')
   assert.equal(err.kind, 'unsafe')
+  assert.deepEqual(await waitGone(f.pids()), [])
+})
+
+test('backstop: the last fresh look before an answer is used catches a process the interval has not seen yet', async () => {
+  resetAppState()
+  const f = fakeBin('ok')
+  let turnStarted = false
+  // The extra process shows up only once a turn is running; the interval
+  // watch would not tick for 10 minutes, so only the final check can see it.
+  const psFn = () => f.pids().map((pid, i) => `${pid} 1 ${pid} /usr/local/bin/codex` + (turnStarted ? `\n${9_100_000 + i} ${pid} ${pid} /bin/sh` : '')).join('\n')
+  const pool = new AppPool({ size: 1, factory: (o) => new AppServer({ ...o, bin: f.bin, psFn, watchIntervalMs: 600_000 }) })
+  const server = await pool.acquire()
+  turnStarted = true
+  const err = await codexAppCall(base(2, { getPool: () => ({ acquire: async () => server }) })).then(
+    () => null,
+    (e) => e
+  )
+  await pool.close()
+  assert.equal(err?.kind, 'unsafe')
   assert.deepEqual(await waitGone(f.pids()), [])
 })
 

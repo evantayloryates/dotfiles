@@ -27,7 +27,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AppServerChild } from './appserver-rpc.mjs'
-import { trackGroup, watchTree } from './codex-lockdown.mjs'
+import { configuredMcpServers, trackGroup, watchTree } from './codex-lockdown.mjs'
 import { assertNoPhi } from './route.mjs'
 import { CODEX_EFFORT, CODEX_MODEL, EXEC_PARALLEL, FATAL_KINDS, SubscriptionError, codexBin, codexCall, codexPrompt, codexSchema, parseCodexAnswers, resetSubscriptionStatus, subscriptionStatus } from './codex.mjs'
 
@@ -129,7 +129,8 @@ export function salvageAnswers(text, entries, labelSet, multi, withConfidence = 
 let knownMcp = null // MCP server names seen in config/read, cached per process
 
 export class AppServer {
-  constructor({ bin = codexBin(), spawnFn, log = () => {}, psFn, watchIntervalMs = 250 } = {}) {
+  constructor({ bin = codexBin(), spawnFn, log = () => {}, psFn, watchIntervalMs = 250, mcpConfig = null } = {}) {
+    this.mcpConfig = mcpConfig // config.toml text (tests); null reads ~/.codex/config.toml
     this.bin = bin
     this.spawnFn = spawnFn
     this.psFn = psFn
@@ -185,7 +186,14 @@ export class AppServer {
   async start() {
     this.cwd = mkdtempSync(join(process.env.TMPDIR || tmpdir(), 'classifier-codex-app-'))
     try {
-      let names = knownMcp || []
+      // Release 1's rule (credits.mjs): the names come from OUR read of
+      // config.toml, are disabled on the first spawn, and each must come back
+      // disabled; an odd config is refused. The server's own config/read only
+      // adds names, never removes them.
+      const ours = configuredMcpServers(this.mcpConfig)
+      if (ours.odd) throw appError('Codex app-server refused: ~/.codex/config.toml has an MCP server entry that cannot be disabled by name.', 'unhealthy')
+      this.ourMcp = ours.names
+      let names = [...new Set([...ours.names, ...(knownMcp || [])])]
       for (let attempt = 0; attempt < 2; attempt++) {
         this.child = null
         const child = await this.spawnOne(names)
@@ -198,7 +206,7 @@ export class AppServer {
         this.child = null
         await child.close()
         if (health.kind !== 'mcp_enabled' || attempt === 1) throw appError(`Codex app-server refused: ${health.why}.`, health.kind === 'mcp_enabled' ? 'unhealthy' : health.kind)
-        names = knownMcp // learned from config/read: restart with them disabled
+        names = [...new Set([...ours.names, ...(knownMcp || [])])] // learned from config/read: restart with them disabled
       }
     } catch (err) {
       await this.close()
@@ -215,7 +223,15 @@ export class AppServer {
     if (type === 'apiKey') return { ok: false, kind: 'api_key_login', why: 'Codex is logged in with an API key, not the ChatGPT subscription' }
     if (type !== 'chatgpt') return { ok: false, kind: 'not_logged_in', why: 'Codex has no ChatGPT login' }
     const cfg = (await this.child.request('config/read', { cwd: this.cwd }, { timeoutMs: 15_000 }))?.config || {}
-    const mcp = cfg.mcp_servers && typeof cfg.mcp_servers === 'object' ? cfg.mcp_servers : {}
+    const raw = cfg.mcp_servers
+    const ours = this.ourMcp || []
+    // Missing or reshaped mcp_servers is no confirmation (fail closed) when
+    // config.toml names any server; absent with none configured is fine.
+    if (raw !== undefined && raw !== null && (typeof raw !== 'object' || Array.isArray(raw))) return { ok: false, kind: 'unhealthy', why: 'config/read returned mcp_servers in an unknown shape' }
+    if ((raw === undefined || raw === null) && ours.length) return { ok: false, kind: 'unhealthy', why: 'config/read did not report the configured MCP servers' }
+    const mcp = raw || {}
+    const missing = ours.filter((n) => !(n in mcp))
+    if (missing.length) return { ok: false, kind: 'unhealthy', why: `config/read did not report ${missing.length} configured MCP server(s)` }
     const names = Object.keys(mcp)
     if (names.some((n) => !MCP_NAME.test(n))) return { ok: false, kind: 'unhealthy', why: 'an MCP server name cannot be disabled by override' }
     knownMcp = [...new Set([...(knownMcp || []), ...names])]
@@ -302,6 +318,9 @@ export class AppServer {
       } catch (caught) {
         // Once the backstop fired, every failure is that failure.
         const err = this.unsafe && caught?.kind !== 'unsafe' ? appError('A process ran under the Codex app-server.', 'unsafe') : caught
+        // The same last fresh look as a completed turn before anything streamed
+        // is salvaged: a process started in the last interval counts too.
+        if (!this.unsafe && this.child?.watch?.check(true).length) this.onUnsafe(this.child)
         err.partialText = h.tool || this.unsafe ? '' : h.text // nothing from a turn that used a tool, or an unsafe server, is trusted
         if (turnId && (err.code === 'cancelled' || err.kind === 'timeout')) this.child.request('turn/interrupt', { threadId, turnId }, { timeoutMs: 5000 }).catch(() => {})
         // A timed-out turn may mean the whole server hangs: if it does not

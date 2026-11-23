@@ -30,6 +30,17 @@ Codex app-server engine and the confidence-escalation ladder, on release 1.
   for its whole life, empty allow list, group killed on exit): any process
   under it is kind `unsafe`, which ends subscription use for the run with
   no exec fallback and no salvaged answers.
+- PE diff review r1 (REVISE) fixes: one Codex stop per run for both ladder
+  tiers (a fatal kind on either ends Codex use for the run and is recorded);
+  the app-server MCP gate takes server names from our read of config.toml
+  (disabled on the first spawn, odd configs refused, a missing or reshaped
+  `mcp_servers` or a missing configured name refused); the credit watch runs
+  after app-server use too; the last fresh process check also runs before a
+  failed turn's answers are salvaged; fallback items on a subscription run
+  escalate on the API key (API to API) with `prefer: "accuracy"` honoured;
+  the release check reads the proof's audit line as JSON (no Codex of any
+  engine, `decision_calls >= 1`, a nonce and `prefer: accuracy` so stage
+  two runs); 11 more mutants; CLI `--no-ladder`.
 - Priority tier stays off by default (`CLASSIFIER_CODEX_APP_TIER=default`):
   it is about 40% faster but draws the subscription's limit down faster,
   and jobs already run at about 50 items/s.

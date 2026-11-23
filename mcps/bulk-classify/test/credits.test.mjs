@@ -119,6 +119,7 @@ test('the credit watch is gated on the subscription route', () => {
   const worker = readFileSync(new URL('../src/worker.mjs', import.meta.url), 'utf8')
   const service = readFileSync(new URL('../src/lib/service.mjs', import.meta.url), 'utf8')
   assert.match(worker, /if \(route\.route === 'subscription'\) \{\n\s+checkCredits/)
-  assert.match(service, /if \(route\.route === 'subscription' && usage\.codex_calls\) checkCreditsSoon\(\)/)
+  assert.match(service, /if \(creditCheckDue\(route, usage\)\) checkCreditsSoon\(\)/)
+  assert.match(service, /creditCheckDue = \(route, usage\) => route\?\.route === 'subscription' && !!\(usage\?\.codex_calls \|\| usage\?\.codex_app_calls\)/)
   assert.equal((worker.match(/checkCredits\(/g) || []).length, 3)
 })

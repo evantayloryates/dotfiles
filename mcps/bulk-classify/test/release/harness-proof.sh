@@ -49,9 +49,13 @@ case "${1:-route}" in
       echo
       echo '## classify_texts (synthetic)'
       since="$(date -u +%FT%T)"
-      texts '{"labels":["billing","scheduling"],"items":["refund my last invoice please","push our call to next week"]}' 2>&1 | tail -4
+      # A per-run nonce defeats the cache and prefer: accuracy forces the model,
+      # so stage two (Decisions) and, for the ambiguous third text, the
+      # escalation ladder really run on the ZDR key (PE diff r1 point 2).
+      nonce="$(date -u +%s)-$$"
+      texts "{\"labels\":[\"billing\",\"scheduling\"],\"prefer\":\"accuracy\",\"items\":[\"refund my last invoice please (${nonce})\",\"push our call to next week (${nonce})\",\"about last month, the thing we discussed (${nonce})\"]}" 2>&1 | tail -5
       echo
-      echo '## audit line (this call: kind texts, 2 items, after the call started)'
+      echo '## audit line (this call: kind texts, 3 items, after the call started)'
       # The audit file is shared with real harness jobs: pick this call's own
       # line, never just the last one.
       /usr/bin/python3 -I -c 'import json,sys
@@ -59,7 +63,7 @@ since=sys.argv[2]; hit=None
 for l in open(sys.argv[1]):
     try: a=json.loads(l)
     except Exception: continue
-    if a.get("kind")=="texts" and a.get("items")==2 and a.get("at","")[:19]>=since: hit=l.strip()
+    if a.get("kind")=="texts" and a.get("items")==3 and a.get("at","")[:19]>=since: hit=l.strip()
 print(hit or "NO AUDIT LINE FOR THIS CALL")' "${ZH}/classifier/audit.jsonl" "$since"
     } > "$out"
     cat "$out"

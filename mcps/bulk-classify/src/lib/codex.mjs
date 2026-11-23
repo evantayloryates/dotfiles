@@ -321,15 +321,25 @@ function pumpAll() {
 
 export class CodexBatcher {
   constructor(opts) {
-    this.opts = opts // { system, reminder, labelNames, multi, phiContext, usage, signal, onCall, call, model, effort, withConfidence, batch }
+    this.opts = opts // { system, reminder, labelNames, multi, phiContext, usage, signal, onCall, call, model, effort, withConfidence, batch, shared }
     this.size = opts.batch || CODEX_BATCH
     this.pending = []
     this.chars = 0
     this.timer = null
     this.active = 0
     this.queue = []
-    this.broken = null // first fatal failure: later entries reject at once
+    // First fatal failure: later entries reject at once. `shared` (one object
+    // per run) makes it run-wide: the escalation ladder's two batchers stop
+    // together, so a fatal kind (`unsafe`, usage limit, PHI) on either ends
+    // Codex use for the whole run.
+    this.shared = opts.shared || { broken: null }
     this.seq = 0
+  }
+  get broken() {
+    return this.shared.broken
+  }
+  set broken(err) {
+    this.shared.broken = err
   }
   add(entry) {
     if (this.broken) return Promise.reject(this.broken)

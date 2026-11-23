@@ -334,3 +334,18 @@ test('tierUsage: increments land in the tier and in the total, reads start at ze
   assert.equal(usage.chat_calls, 3)
   assert.equal(usage.tiers.a.chat_calls, 3)
 })
+
+test('one stop per run: a fatal kind on the low tier stops the stronger tier too (PE diff r1, release 2)', async () => {
+  const { CodexBatcher } = await import('../src/lib/codex.mjs')
+  const shared = { broken: null }
+  const calls = []
+  const base = { system: 's', reminder: 'r', labelNames: ['billing'], multi: false, phiContext: {}, shared }
+  const low = new CodexBatcher({ ...base, call: async (o) => (calls.push('low'), Promise.reject(new SubscriptionError('A process ran under the Codex app-server.', 'unsafe'))) })
+  const strong = new CodexBatcher({ ...base, model: 'gpt-5.6-sol', call: async (o) => (calls.push('strong'), new Map(o.entries.map((e) => [e.key, 'billing']))) })
+  await low.add({ key: 'a', message: 'x' }).then(() => assert.fail('low should fail'), (e) => assert.equal(e.kind, 'unsafe'))
+  await strong.add({ key: 'b', message: 'y' }).then(() => assert.fail('strong must not run'), (e) => assert.equal(e.kind, 'unsafe'))
+  assert.deepEqual(calls, ['low'])
+  // without a shared stop the batchers are independent (the old behaviour)
+  const alone = new CodexBatcher({ ...base, shared: undefined, model: 'gpt-5.6-sol', call: async (o) => new Map(o.entries.map((e) => [e.key, 'billing'])) })
+  assert.equal(await alone.add({ key: 'c', message: 'z' }), 'billing')
+})

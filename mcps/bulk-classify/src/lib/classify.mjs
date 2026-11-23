@@ -146,7 +146,11 @@ export async function classifyItems(items, bank, emit, options = {}) {
   if (ladder) assertLadder(ladder, route || { route: engine === 'codex' ? 'subscription' : 'api' })
   const tierOf = (name) => ladder?.tiers.find((t) => t.name === name) || null
   const decTier = ladder ? tierOf('decisions') || { min: LADDER_DEFAULTS.api.decisions_min } : null
-  const apiStrong = ladder ? tierOf('api_strong') || { name: 'api_strong', engine: 'chat', ...LADDER_DEFAULTS.api.strong } : null
+  // On a subscription ladder the API tiers serve only items that fell back to
+  // the API key (fallback, or the injection re-check): they escalate there as
+  // on the API ladder, API key to API key (ruling 2; PE diff r1 point 5), with
+  // prefer: "accuracy" honoured.
+  const apiStrong = ladder ? tierOf('api_strong') || { name: 'api_strong', engine: 'chat', ...(options.prefer === 'accuracy' ? LADDER_DEFAULTS.api.strong_accuracy : LADDER_DEFAULTS.api.strong) } : null
   const codexTier = ladder ? tierOf('codex') : null
   const codexStrong = ladder ? tierOf('codex_strong') : null
   const usageFor = (name) => (ladder ? tierUsage(usage, name) : usage)
@@ -155,11 +159,12 @@ export async function classifyItems(items, bank, emit, options = {}) {
   const chatOpts = { ...(options.chatModel && { model: options.chatModel }), ...(options.chatEffort && { effort: options.chatEffort }) }
   const codexConf = !!options.codexConfidence || !!codexTier
   const trace = !!options.trace
-  const batcher = engine === 'codex' ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex'), signal, onCall, call: options.codexCall || subscriptionCall, ...(options.codexModel && { model: options.codexModel }), ...(options.codexEffort && { effort: options.codexEffort }), withConfidence: codexConf }) : null
+  const codexStop = { broken: null } // one stop for every Codex batcher of this run
+  const batcher = engine === 'codex' ? new CodexBatcher({ shared: codexStop, system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex'), signal, onCall, call: options.codexCall || subscriptionCall, ...(options.codexModel && { model: options.codexModel }), ...(options.codexEffort && { effort: options.codexEffort }), withConfidence: codexConf }) : null
   // The stronger subscription tier: its own batcher (smaller batches), the
   // same PHI re-check before every spawn. Only built on the subscription
   // ladder, which assertLadder only allows for a non-PHI subscription run.
-  const strongBatcher = batcher && codexStrong ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex_strong'), signal, onCall, call: options.codexCall || subscriptionCall, model: codexStrong.model, effort: codexStrong.effort, batch: codexStrong.batch, withConfidence: false }) : null
+  const strongBatcher = batcher && codexStrong ? new CodexBatcher({ shared: codexStop, system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex_strong'), signal, onCall, call: options.codexCall || subscriptionCall, model: codexStrong.model, effort: codexStrong.effort, batch: codexStrong.batch, withConfidence: false }) : null
   const noteFallback = (err, n) => {
     if (usage) usage.subscription_fallback_items = (usage.subscription_fallback_items || 0) + n
     if (!route) return
@@ -447,6 +452,10 @@ export async function classifyItems(items, bank, emit, options = {}) {
       a = await strongBatcher.add(entryOf(item))
     } catch (err) {
       if (err?.code === 'cancelled' || signal?.aborted) return fallback(item.u, { code: 'cancelled' })
+      // A fatal kind here (unsafe, usage limit, PHI) is the run's too: record
+      // it so the audit line and the worker see it (the shared stop already
+      // keeps both Codex tiers from calling again).
+      if (err?.code === 'phi_refused' || FATAL_KINDS.has(err?.kind)) noteFallback(err, 0)
       return done(item.u, keepPrev(prev, 'codex_strong'))
     }
     countTier(usage, 'codex_strong', 'items')

@@ -32,7 +32,30 @@ step() { # name, command...
   step codex-isolation "${HERE}/with-key.sh" "${SVC}/test/codex-isolation.live.mjs"
   step canary "$NODE" test/canary.e2e.mjs
   step guard "${HERE}/with-key.sh" "${SVC}/test/guard.online.mjs"
-  grep -q '"phi":true' "${OUT}/harness-proof.md" && grep -q '"codex_calls":0' "${OUT}/harness-proof.md" && grep -q 'harness registration check: passed' "${OUT}/harness-proof.md" || { echo "FAILED  harness-proof content (needs registration passed, phi true, codex_calls 0)"; fail=1; }
+  grep -q 'harness registration check: passed' "${OUT}/harness-proof.md" || { echo "FAILED  harness-proof content (needs the registration check passed)"; fail=1; }
+  # The proof's own audit line, read as JSON: PHI, no Codex of any engine
+  # (exec, app-server, either ladder tier), and stage two really ran (PE diff
+  # r1 point 2: a vote or cache hit made "no Codex calls" true by construction).
+  /usr/bin/python3 -I - "${OUT}/harness-proof.md" <<'PY' || { echo "FAILED  harness-proof audit line (needs phi true, no Codex of any engine, decision_calls >= 1)"; fail=1; }
+import json, sys
+a = {}
+for l in open(sys.argv[1]):
+    l = l.strip()
+    if l.startswith('{'):
+        try:
+            d = json.loads(l)
+        except ValueError:
+            continue
+        if d.get('kind') == 'texts':
+            a = d
+tiers = a.get('tiers') or {}
+ok = (a.get('phi') is True and a.get('route') == 'api'
+      and a.get('codex_calls', 0) == 0 and a.get('codex_app_calls', 0) == 0 and a.get('codex_app_fallback_items', 0) == 0
+      and all((tiers.get(t) or {}).get('items', 0) == 0 for t in ('codex', 'codex_strong'))
+      and a.get('decision_calls', 0) >= 1 and (tiers.get('decisions') or {}).get('items', 0) >= 1)
+print('harness-proof audit:', json.dumps({k: a.get(k) for k in ('phi', 'route', 'codex_calls', 'codex_app_calls', 'decision_calls', 'chat_calls')}), 'tiers:', json.dumps(tiers))
+sys.exit(0 if ok else 1)
+PY
   grep -q 'attack blocked 13 / 14  benign wrongly rejected 0 / 12' "${OUT}/guard.log" || { echo "FAILED  guard figures differ from 13/14 blocked and 0/12 rejected (see guard.log; compare with results.md before releasing)"; fail=1; }
   echo "result: $([ $fail = 0 ] && echo PASS || echo FAIL)"
 } | tee "${OUT}/summary.txt"

@@ -29,7 +29,7 @@ const USAGE = `usage: classifier <command> [options]
   guide
 
 <labels>: comma-separated names ("billing,scheduling"), a JSON array, or @FILE with either.
-Common: --max-labels 2, --prefer accuracy, --ladder (confidence escalation, prototype), --examples FILE.json ([{"text","label"}]),
+Common: --max-labels 2, --prefer accuracy, --ladder / --no-ladder (confidence escalation: on by default; CLASSIFIER_LADDER=0 or --no-ladder turns it off), --examples FILE.json ([{"text","label"}]),
         --phi (client or patient data: API key only; the ZDR harness scope always is).
 Engine: non-PHI work runs stage two on the ChatGPT subscription (Codex CLI), PHI work on the
 API key (Decisions API). CLASSIFIER_ROUTE=api forces the API key; CLASSIFIER_STAGE2=chat rolls the
@@ -76,7 +76,7 @@ async function main() {
   const [cmd, ...rest] = process.argv.slice(2)
   const o = parse(rest)
   const caller = callerFrom('cli', process.cwd())
-  const common = { labels: labelsArg(o.labels), profile: o.profile, examples: jsonFile(o.examples), max_labels: num(o['max-labels']), prefer: o.prefer, ...(o.phi && { phi: true }), ...(o.ladder && { ladder: true }) }
+  const common = { labels: labelsArg(o.labels), profile: o.profile, examples: jsonFile(o.examples), max_labels: num(o['max-labels']), prefer: o.prefer, ...(o.phi && { phi: true }), ...(o.ladder && { ladder: true }), ...(o['no-ladder'] && { ladder: false }) }
   switch (cmd) {
     case 'texts': {
       const items = o._.length ? o._ : readFileSync(0, 'utf8').split('\n').filter((l) => l.trim())

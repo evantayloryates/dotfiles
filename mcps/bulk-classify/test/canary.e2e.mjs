@@ -46,6 +46,8 @@ assert.equal(hj.length, 1, 'one audit line for the harness job')
 assert.equal(hj[0].phi, true)
 assert.equal(hj[0].route, 'api')
 assert.equal(hj[0].codex_calls, 0)
+assert.equal(hj[0].codex_app_calls ?? 0, 0) // release 2's default engine
+assert.equal(hj[0].codex_app_fallback_items ?? 0, 0)
 assert.deepEqual(runs(), [], 'the harness job never ran codex: not exec, not login status, not the credit reader')
 console.log('harness job:', JSON.stringify({ status: hj[0].status, route: hj[0].route, phi: hj[0].phi, codes: hj[0].codes, codex_runs: runs().length }))
 

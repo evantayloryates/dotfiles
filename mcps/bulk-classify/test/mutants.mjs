@@ -48,6 +48,18 @@ const mutants = [
   ['app health check skips the account', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if (type === 'apiKey') return", "    if (false) return"],
   ['app health check ignores MCP servers', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if (names.some((n) => mcp[n]?.enabled !== false)) return", "    if (false) return"],
   ['route lever ignored', 'mcps/bulk-classify/src/lib/route.mjs', '  if (lever) return api(', '  if (false) return api('],
+  // Release 2 integration (PE diff r1 point 6)
+  ['app-server process watch off', 'mcps/bulk-classify/src/lib/codex-app.mjs', '    child.watch = child.pid\n      ? watchTree(', '    child.watch = false\n      ? watchTree('],
+  ['app-server last fresh look off', 'mcps/bulk-classify/src/lib/codex-app.mjs', '        if (this.unsafe || this.child?.watch?.check(true).length) {', '        if (this.unsafe) {'],
+  ['unsafe falls back to exec', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if (kind === 'unsafe') throw appError(", "    if (false) throw appError("],
+  ['app-server shell snapshot left on', 'mcps/bulk-classify/src/lib/codex-app.mjs', "export const APP_DISABLED = ['shell_snapshot', ", "export const APP_DISABLED = ["],
+  ['ladder route check in classifyItems off', 'mcps/bulk-classify/src/lib/classify.mjs', "  if (ladder) assertLadder(ladder, route || { route: engine === 'codex' ? 'subscription' : 'api' })", '  // removed'],
+  ['no run-wide Codex stop', 'mcps/bulk-classify/src/lib/codex.mjs', '    this.shared = opts.shared || { broken: null }', '    this.shared = { broken: null }'],
+  ['strong-tier fatal not recorded', 'mcps/bulk-classify/src/lib/classify.mjs', "      if (err?.code === 'phi_refused' || FATAL_KINDS.has(err?.kind)) noteFallback(err, 0)", '      // removed'],
+  ['MCP names only from the server', 'mcps/bulk-classify/src/lib/codex-app.mjs', '    const missing = ours.filter((n) => !(n in mcp))', '    const missing = []'],
+  ['MCP names not disabled on the first spawn', 'mcps/bulk-classify/src/lib/codex-app.mjs', '      let names = [...new Set([...ours.names, ...(knownMcp || [])])]\n      for (let attempt', '      let names = knownMcp || []\n      for (let attempt'],
+  ['missing mcp_servers accepted', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if ((raw === undefined || raw === null) && ours.length) return", "    if (false) return"],
+  ['odd config.toml accepted', 'mcps/bulk-classify/src/lib/codex-app.mjs', '      if (ours.odd) throw appError(', '      if (false) throw appError('],
 ]
 
 function copyTree() {
