@@ -218,6 +218,20 @@ not visibly per burst; the credit balance has many decimals and stayed
 unchanged while the plan limit was not reached, which is why a balance drop
 is the second trigger.
 
+**MCP lockdown.** Taylor's Codex config registers about 20 MCP servers
+(gmail, robinhood, zdr-agent, this classifier, ...); none may run under a
+classification turn. `codex exec` runs with `--ignore-user-config` (the
+config and its servers stay out; `-c mcp_servers={}` alone does not remove
+them) and `--disable shell_snapshot` (no login shell running Taylor's rc
+files), and every call is watched: any process under the Codex child other
+than git ends subscription use for the run (`unsafe`, items to the API
+key). The credit reader (app-server, which cannot ignore the config)
+disables every configured server by name and reads the limits only after
+`config/read` confirms all of them are off. `test/codex-isolation.live.mjs`
+checks both against the real CLI. Taylor's `~/.codex/AGENTS.md` (19 KB) is
+still part of every turn's prompt (`project_doc_max_bytes=0` does not drop
+it): a token cost, no tools.
+
 Codex never reads `~/.codex/auth.json` through this service, and the service
 never calls a ChatGPT endpoint; it only runs the CLI.
 

@@ -67,14 +67,22 @@ test('readLimits speaks the app-server handshake and survives a dead reader', as
         const m = JSON.parse(line)
         written.push(m.method)
         if (m.method === 'initialize') setImmediate(() => c.stdout.emit('data', `${JSON.stringify({ id: 1, result: {} })}\n`))
+        if (m.method === 'config/read') setImmediate(() => c.stdout.emit('data', `${JSON.stringify({ id: 3, result: { config: { mcp_servers: c.mcpState } } })}\n`))
         if (m.method === 'account/rateLimits/read') setImmediate(() => c.stdout.emit('data', `${JSON.stringify({ id: 2, result: { rateLimits: { primary: { usedPercent: 101 }, credits: { hasCredits: true, balance: '5' } } } })}\n`))
       },
     })
     c.written = written
+    c.mcpState = mcpState
+    fakeSpawn.last = c
     return c
   }
+  let mcpState = { gmail: { enabled: false }, robinhood: { enabled: false } }
   const r = await readLimits({ spawnFn: fakeSpawn })
   assert.equal(r.usedPercent, 101)
+  assert.deepEqual(fakeSpawn.last.written, ['initialize', 'initialized', 'config/read', 'account/rateLimits/read'])
+  mcpState = { gmail: { enabled: false }, robinhood: { enabled: true } }
+  assert.equal(await readLimits({ spawnFn: fakeSpawn }), null, 'an MCP server still enabled: no reading')
+  assert.ok(!fakeSpawn.last.written.includes('account/rateLimits/read'))
   assert.equal(await readLimits({ spawnFn: () => { throw new Error('no codex') } }), null)
   const silent = () => Object.assign(new EventEmitter(), { stdout: new EventEmitter(), stdin: Object.assign(new EventEmitter(), { write: () => {} }), kill: () => {} })
   assert.equal(await readLimits({ spawnFn: silent, timeoutMs: 50 }), null)

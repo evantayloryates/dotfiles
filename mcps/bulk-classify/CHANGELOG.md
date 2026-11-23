@@ -27,6 +27,10 @@
   to the API key. ZDR-only profiles describe as label names outside the
   harness. The harness refuses to start when the classifier is not
   registered directly. Rollback lever `~/.config/classifier/route`.
+- MCP lockdown: `codex exec` with `--disable shell_snapshot` and a process
+  watch on every call (anything but git under Codex = `unsafe`, fatal); the
+  credit reader disables every configured MCP server by name and checks
+  `config/read` first.
 - Paid-credit watch on the subscription route (`src/lib/credits.mjs`): a
   macOS notification, at most once per job and once per hour, when Codex
   starts drawing paid credits; nothing is blocked.

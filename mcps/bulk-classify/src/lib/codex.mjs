@@ -19,6 +19,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assertNoPhi } from './route.mjs'
+import { unexpectedDescendants } from './codex-lockdown.mjs'
 
 // Defaults from the 2026-11-23 tuning grid (public Banking77, 616 items, 77
 // labels, every item to the model; plan folder results/): gpt-5.6-luna beat
@@ -32,11 +33,12 @@ export const CODEX_EFFORT = process.env.CLASSIFIER_CODEX_EFFORT || 'low'
 export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 50
 export const CODEX_CHARS = Number(process.env.CLASSIFIER_CODEX_CHARS) || 60_000
 export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 12
+const WATCH_MS = [1500, 6000, 15000]
 const RETRY_DELAY_MS = Number(process.env.CLASSIFIER_CODEX_RETRY_MS) || 5000
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
 // Tool features off: classification needs no tools, and each one adds prompt
 // overhead (and a way to act). The sandbox is read-only regardless.
-const DISABLED_FEATURES = ['apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool']
+const DISABLED_FEATURES = ['shell_snapshot', 'apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool']
 
 const realHome = () => process.env.CLASSIFIER_REAL_HOME || homedir()
 export const codexBin = () => process.env.CLASSIFIER_CODEX_BIN || join(realHome(), '.local', 'bin', 'codex')
@@ -45,7 +47,7 @@ export class SubscriptionError extends Error {
   constructor(message, kind) {
     super(message)
     this.code = 'subscription'
-    this.kind = kind // not_logged_in | api_key_login | rate_limited | unsupported | missing | timeout | bad_output | error
+    this.kind = kind // not_logged_in | api_key_login | rate_limited | unsupported | missing | unsafe | timeout | bad_output | error
     this.retryable = false
   }
 }
@@ -154,12 +156,12 @@ export function classifyFailure(text, code) {
 }
 // Kinds that end subscription use for the rest of the run (and for the
 // process, until the login status is read again).
-export const FATAL_KINDS = new Set(['not_logged_in', 'api_key_login', 'rate_limited', 'unsupported', 'missing'])
+export const FATAL_KINDS = new Set(['not_logged_in', 'api_key_login', 'rate_limited', 'unsupported', 'missing', 'unsafe'])
 
 // ---------------------------------------------------------------------------
 // One Codex call. phiContext is re-checked right before spawn.
 
-export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall }) {
+export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall, psFn, watchMs = WATCH_MS }) {
   assertNoPhi(phiContext) // throws PhiRefusal: never spawn for PHI work
   const t0 = performance.now()
   const dir = mkdtempSync(join(process.env.TMPDIR || tmpdir(), 'classifier-codex-'))
@@ -170,7 +172,13 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     writeFileSync(schemaPath, JSON.stringify(codexSchema(labelNames, multi)), { mode: 0o600 })
     const args = ['exec', '-m', CODEX_MODEL, '-c', `model_reasoning_effort="${CODEX_EFFORT}"`, '-c', 'web_search="disabled"']
     for (const f of DISABLED_FEATURES) args.push('--disable', f)
+    // `--ignore-user-config` keeps ~/.codex/config.toml, and so Taylor's MCP
+    // servers, out of `codex exec` (verified 2026-11-23: no server process
+    // during a turn). Naming them as disabled here would fail: with the
+    // config ignored, `mcp_servers.<name>.enabled=false` is a server with no
+    // transport. The process watch below verifies every call.
     args.push('--ephemeral', '-s', 'read-only', '--skip-git-repo-check', '--ignore-user-config', '--ignore-rules', '-C', dir, '--output-schema', schemaPath, '-o', lastPath, '--json', '-')
+    let unsafe = false
     const { code, stdout, stderr } = await new Promise((resolvePromise, reject) => {
       const child = spawnFn(codexBin(), args, { cwd: dir, env: childEnv(), stdio: ['pipe', 'pipe', 'pipe'] })
       let out = ''
@@ -181,18 +189,31 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
         hard ||= setTimeout(() => child.kill('SIGKILL'), 5000)
       }
       const timer = setTimeout(kill, TIMEOUT_MS)
+      // Watch the turn: anything under the Codex child that Codex does not
+      // run itself (an MCP server) ends subscription use for the run.
+      const watchers = watchMs.map((ms) =>
+        setTimeout(() => {
+          const bad = unexpectedDescendants(child.pid, psFn ? { ps: psFn } : {})
+          if (bad.length) {
+            unsafe = true
+            kill()
+          }
+        }, ms)
+      )
       signal?.addEventListener('abort', kill, { once: true })
       child.stdout.on('data', (d) => (out += d))
       child.stderr.on('data', (d) => (err = (err + d).slice(-4000)))
       child.on('error', (e) => {
         clearTimeout(timer)
         clearTimeout(hard)
+        watchers.forEach(clearTimeout)
         resetSubscriptionStatus()
         reject(new SubscriptionError(`Codex could not start (${e.code || 'error'}).`, 'missing'))
       })
       child.on('close', (c, sig) => {
         clearTimeout(timer)
         clearTimeout(hard)
+        watchers.forEach(clearTimeout)
         signal?.removeEventListener('abort', kill)
         resolvePromise({ code: sig ? null : c, stdout: out, stderr: err })
       })
@@ -218,6 +239,10 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     }
     if (usage) usage.codex_calls = (usage.codex_calls || 0) + 1
     if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' })
+    if (unsafe) {
+      resetSubscriptionStatus()
+      throw new SubscriptionError('Codex started a process it should not have (an MCP server?); the subscription is off for this run.', 'unsafe')
+    }
     if (code !== 0 || failure) {
       const kind = classifyFailure(`${failure}\n${stderr}`, code)
       if (FATAL_KINDS.has(kind)) resetSubscriptionStatus()

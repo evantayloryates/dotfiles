@@ -18,6 +18,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { JOBS_DIR } from './paths.mjs'
+import { configuredMcpServers, disableArgs } from './codex-lockdown.mjs'
 
 const realHome = () => process.env.CLASSIFIER_REAL_HOME || homedir()
 const codexBin = () => process.env.CLASSIFIER_CODEX_BIN || join(realHome(), '.local', 'bin', 'codex')
@@ -32,7 +33,11 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000 } = {}) {
   return new Promise((resolve) => {
     let child
     try {
-      child = spawnFn(codexBin(), ['app-server', '--stdio', '-c', 'mcp_servers={}'], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'] })
+      // Every configured MCP server off by name (codex-lockdown.mjs), and
+      // config/read must confirm it before the limits are read.
+      const mcp = configuredMcpServers()
+      if (mcp.odd) return resolve(null)
+      child = spawnFn(codexBin(), ['app-server', '--stdio', ...disableArgs(mcp.names)], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'] })
     } catch {
       return resolve(null)
     }
@@ -65,6 +70,11 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000 } = {}) {
         }
         if (m.id === 1 && m.result) {
           child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'initialized' })}\n`)
+          child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'config/read', params: { cwd: tmpdir() } })}\n`)
+        } else if (m.id === 3) {
+          const servers = m.result?.config?.mcp_servers
+          const all = servers && typeof servers === 'object' ? Object.values(servers) : []
+          if (!m.result || all.some((v) => v?.enabled !== false)) return finish(null) // not locked down: no reading
           child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'account/rateLimits/read', params: null })}\n`)
         } else if (m.id === 2) finish(m.result ? parseLimits(m.result) : null)
         else if (m.id === 1 && m.error) finish(null)
