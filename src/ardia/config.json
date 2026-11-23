@@ -1,6 +1,6 @@
 {
   "$schema": "./config.schema.json",
-  "theme": null,
+  "theme": "arcish",
   "settings": {
     "shortcuts": {
       "openSplitPane": "cmd+shift+d",

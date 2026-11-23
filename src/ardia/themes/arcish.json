@@ -1,0 +1,15 @@
+{
+  "$schema": "../theme.schema.json",
+  "dark": {
+    "pinnedResting": "rgba(255,255,255,0.07)",
+    "pinnedRestingStroke": "rgba(255,255,255,0.04)",
+    "field": "rgba(255,255,255,0.08)",
+    "fieldBorder": "rgba(255,255,255,0.04)"
+  },
+  "light": {
+    "pinnedResting": "rgba(255,255,255,0.07)",
+    "pinnedRestingStroke": "rgba(255,255,255,0.04)",
+    "field": "rgba(255,255,255,0.08)",
+    "fieldBorder": "rgba(255,255,255,0.04)"
+  }
+}
