@@ -16,6 +16,7 @@ import { loadProfile, recordRun, stampUse } from './lib/profiles.mjs'
 import { summarize } from './lib/summary.mjs'
 import { writeOutput } from './lib/output.mjs'
 import { writeAudit } from './lib/audit.mjs'
+import { checkCredits } from './lib/credits.mjs'
 import { buildTaxonomy } from './lib/taxonomy.mjs'
 
 const id = process.argv[2]
@@ -141,6 +142,14 @@ async function main() {
     if (state.route?.fallback && route.route === job.route?.route) route.fallback = state.route.fallback
     save({ route })
     log(`route ${route.route} (${route.engine}${route.phi ? ', PHI' : ''})`)
+    // Paid-credit watch (credits.mjs): subscription jobs only, never awaited
+    // until the end; a reading every ten minutes on long jobs.
+    let creditTimer = null
+    if (route.route === 'subscription') {
+      checkCredits({ job: id }).catch(() => {})
+      creditTimer = setInterval(() => checkCredits({ job: id }).catch(() => {}), 600_000)
+      creditTimer.unref()
+    }
     const bank = await buildBank(taxonomy, profile, { usage, signal: ctrl.signal })
     // Up to three passes: items whose model calls failed transiently are
     // retried after a pause instead of being recorded as errors.
@@ -155,6 +164,11 @@ async function main() {
       await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine, stage1: route.stage1, route, phiContext })
     }
     state.usage = usage
+    if (creditTimer) {
+      clearInterval(creditTimer)
+      const c = await checkCredits({ job: id }).catch(() => null)
+      if (c?.spending) log(`credits: paid credits in use${c.notified ? ', notified' : ''}`)
+    }
 
     if (stop === 'cancel') return save({ status: 'cancelled', finishedAt: Date.now() })
     if (stop === 'budget') return save({ status: 'failed', finishedAt: Date.now(), errorKind: 'budget', error: `the spending limit of $${maxUsd} was reached` })

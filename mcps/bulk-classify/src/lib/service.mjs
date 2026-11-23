@@ -24,6 +24,7 @@ import { buildTaxonomy, NONE, UserError } from './taxonomy.mjs'
 import { clip, dedupeKey } from './text.mjs'
 import { writeOutput } from './output.mjs'
 import { writeAudit } from './audit.mjs'
+import { checkCreditsSoon } from './credits.mjs'
 
 export const MAX_TEXTS = 50
 export const MAX_INLINE_JOB_ITEMS = 500
@@ -98,6 +99,7 @@ export async function classifyTexts(args, { signal } = {}) {
   await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext })
   const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - t0), route }
   writeAudit({ kind: 'texts', route, usage, items: items.length })
+  if (route.route === 'subscription' && usage.codex_calls) checkCreditsSoon()
   if (profile) recordRun(profile.name, summary, createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32))
 
   const hasIds = args.items.some((v) => v && typeof v === 'object' && v.id != null)

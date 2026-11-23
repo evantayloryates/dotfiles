@@ -23,6 +23,9 @@
 - One routing audit line per call and per job (`audit.jsonl`, codes and
   counts only); the route line in tool output is short (codes plus three
   reasons).
+- Paid-credit watch on the subscription route (`src/lib/credits.mjs`): a
+  macOS notification, at most once per job and once per hour, when Codex
+  starts drawing paid credits; nothing is blocked.
 - Codex defaults from a tuning grid on public Banking77: `gpt-5.6-luna`
   (4-9 points above `gpt-6-luna`), effort low, 50 items per call, 12 calls
   at once (README "Why it is built this way").

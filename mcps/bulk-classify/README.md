@@ -182,6 +182,18 @@ its reasons and any fallback, and usage counts `decision_calls`,
 cost) and `subscription_fallback_items`. `classifier route [--phi] [--input
 f] [--json]` shows what a call from the current shell would use.
 
+**Paid credits.** Once the ChatGPT plan's usage limit is reached, an
+account with credits keeps answering and bills credits; that is allowed
+(Taylor, 2026-11-23) and nothing is blocked. On the subscription route the
+service reads the account's limits through the official `codex app-server`
+method `account/rateLimits/read` (no model call, nothing sent) at a job's
+start, every ten minutes and at its end, and after `classify_texts` calls
+at most every ten minutes per process. When the limit is reached with
+credits available, or the credit balance fell since the last reading (two
+hours at most), it posts a macOS notification through the notify-macos
+helper: at most once per job and once per hour. The last reading lives in
+`credits.json` beside the scope's jobs (numbers only).
+
 Codex never reads `~/.codex/auth.json` through this service, and the service
 never calls a ChatGPT endpoint; it only runs the CLI.
 
