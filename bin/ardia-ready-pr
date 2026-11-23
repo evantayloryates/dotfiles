@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""ardia-ready-pr <pr> [<pr> ...] [--repo OWNER/NAME] [--group NAME] [--no-prune] [--dry-run]
+
+Adds each kickoff PR as a favorite at the bottom of the "Ready PRs" pinned group
+in the focused Ardia window, named "<n>: Ready". Before adding, it prunes the
+group: every PR tab whose PR is merged or closed is taken out and closed.
+The reserved "Pulls" item stays first and is never removed.
+
+Exit: 0 done, 1 refused or bad input, 2 Ardia unreachable.
+"""
+import argparse, json, re, subprocess, sys
+
+PULL_RE = re.compile(r"github\.com/([^/]+/[^/]+)/pull/(\d+)")
+RESERVED = "pulls"  # the group's anchor item, matched by its custom name (its URL wanders)
+
+
+def run(cmd, stdin=None):
+    p = subprocess.run(cmd, input=stdin, capture_output=True, text=True)
+    if p.returncode != 0:
+        sys.stderr.write(f"{' '.join(cmd[:3])} failed ({p.returncode}): {p.stderr.strip()[:400]}\n")
+        sys.exit(2 if p.returncode == 2 else 1)
+    return p.stdout
+
+
+def ardia_json(*args):
+    return json.loads(run(["ardia", *args, "--json"]))
+
+
+def listing(d, key):
+    return d if isinstance(d, list) else d.get(key, [])
+
+
+def tab_name(t):
+    return (t.get("customTitle") or t.get("title") or "").strip()
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("prs", nargs="*", type=int)
+    ap.add_argument("--repo", default="kudos-fit/kickoff")
+    ap.add_argument("--group", default="Ready PRs")
+    ap.add_argument("--window", help="window id (default: the focused one)")
+    ap.add_argument("--no-prune", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args()
+
+    windows = listing(ardia_json("windows"), "windows")
+    win = a.window or next((w["id"] for w in windows if w.get("focused")), None)
+    if not win:
+        sys.exit("no focused Ardia window; pass --window")
+    groups = [g for g in listing(ardia_json("groups"), "groups")
+              if g.get("window") == win and (g.get("name") or "").lower() == a.group.lower()]
+    if len(groups) != 1:
+        sys.exit(f"expected one '{a.group}' group in {win}, found {len(groups)}")
+    gid = groups[0]["id"]
+
+    def group_tabs():
+        tabs = {t["id"]: t for t in listing(ardia_json("tabs", "--flat"), "tabs")}
+        order = next(g for g in listing(ardia_json("groups"), "groups") if g["id"] == gid)["tabs"]
+        return [tabs[i] for i in order if i in tabs]
+
+    items = group_tabs()
+    reserved = [t for t in items if tab_name(t).lower() == RESERVED]
+    if not reserved:
+        sys.exit(f"'{a.group}' has no reserved 'Pulls' item; refusing to touch it")
+    ops = []
+    if items[0]["id"] != reserved[0]["id"]:
+        ops.append({"op": "tab.move", "tabs": [reserved[0]["id"]], "before": items[0]["id"]})
+
+    removed = []
+    if not a.no_prune:
+        for t in items:
+            m = PULL_RE.search(t.get("url") or "")
+            if t["id"] == reserved[0]["id"] or not m:
+                continue
+            state = run(["gh", "pr", "view", m.group(2), "--repo", m.group(1),
+                         "--json", "state", "--jq", ".state"]).strip()
+            if state in ("MERGED", "CLOSED"):
+                removed.append((t["id"], m.group(2), state))
+                # unpinning a pinned group's tab takes it out of the group; then close it
+                ops += [{"op": "tab.unpin", "tabs": [t["id"]]},
+                        {"op": "tab.close", "tabs": [t["id"]]}]
+
+    present = {int(PULL_RE.search(t["url"]).group(2)): t for t in items
+               if PULL_RE.search(t.get("url") or "") and t["id"] not in {r[0] for r in removed}}
+    added, renamed = [], []
+    survivors = [t for t in items if t["id"] not in {r[0] for r in removed}]
+    last_open = None
+    for n in a.prs:
+        state = run(["gh", "pr", "view", str(n), "--repo", a.repo, "--json", "state", "--jq", ".state"]).strip()
+        if state != "OPEN":
+            sys.exit(f"PR {n} is {state}, not adding it")
+        if n in present:
+            if tab_name(present[n]) != f"{n}: Ready":
+                ops.append({"op": "tab.rename", "tab": present[n]["id"], "title": f"{n}: Ready"})
+                renamed.append(n)
+            continue
+        # bottom of the group: after the last surviving item, or the tab added just before
+        anchor = last_open if last_open else survivors[-1]["id"]
+        ops.append({"op": "open", "urls": [f"https://github.com/{a.repo}/pull/{n}"],
+                    "window": win, "group": gid, "after": anchor})
+        last_open = f"${len(ops) - 1}"
+        ops.append({"op": "tab.rename", "tab": f"${len(ops) - 1}", "title": f"{n}: Ready"})
+        added.append(n)
+
+    if a.dry_run or not ops:
+        print(json.dumps({"window": win, "group": gid, "ops": ops}, indent=1))
+        return
+    run(["ardia", "apply", "--json"], stdin=json.dumps(ops))
+    final = group_tabs()
+    print(f"{a.group} ({gid}) in {win}:")
+    for t in final:
+        print(f"  {t['id']}  {tab_name(t)}  {t.get('url')}")
+    for tid, n, st in removed:
+        print(f"removed {n} ({st.lower()})")
+    for n in added:
+        print(f"added {n}: Ready")
+    for n in renamed:
+        print(f"renamed {n}: Ready")
+    if final and tab_name(final[0]).lower() != RESERVED:
+        sys.exit("WARNING: Pulls is not first after apply")
+
+
+if __name__ == "__main__":
+    main()
