@@ -58,7 +58,7 @@ const mutants = [
   ['strong-tier fatal not recorded', 'mcps/bulk-classify/src/lib/classify.mjs', "      if (err?.code === 'phi_refused' || FATAL_KINDS.has(err?.kind)) noteFallback(err, 0)", '      // removed'],
   ['MCP names only from the server', 'mcps/bulk-classify/src/lib/codex-app.mjs', '    const missing = ours.filter((n) => !(n in mcp))', '    const missing = []'],
   ['MCP names not disabled on the first spawn', 'mcps/bulk-classify/src/lib/codex-app.mjs', '      let names = [...new Set([...ours.names, ...(knownMcp || [])])]\n      for (let attempt', '      let names = knownMcp || []\n      for (let attempt'],
-  ['missing mcp_servers accepted', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if ((raw === undefined || raw === null) && ours.length) return", "    if (false) return"],
+  ['reshaped mcp_servers accepted', 'mcps/bulk-classify/src/lib/codex-app.mjs', "(typeof raw !== 'object' || Array.isArray(raw))) return", "false) return"],
   ['odd config.toml accepted', 'mcps/bulk-classify/src/lib/codex-app.mjs', '      if (ours.odd) throw appError(', '      if (false) throw appError('],
 ]
 

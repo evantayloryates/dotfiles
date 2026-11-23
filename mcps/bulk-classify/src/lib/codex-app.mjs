@@ -225,10 +225,10 @@ export class AppServer {
     const cfg = (await this.child.request('config/read', { cwd: this.cwd }, { timeoutMs: 15_000 }))?.config || {}
     const raw = cfg.mcp_servers
     const ours = this.ourMcp || []
-    // Missing or reshaped mcp_servers is no confirmation (fail closed) when
-    // config.toml names any server; absent with none configured is fine.
+    // Missing or reshaped mcp_servers is no confirmation (fail closed): a
+    // reshaped field is refused here, a missing one by the check that every
+    // configured name is reported; absent with none configured is fine.
     if (raw !== undefined && raw !== null && (typeof raw !== 'object' || Array.isArray(raw))) return { ok: false, kind: 'unhealthy', why: 'config/read returned mcp_servers in an unknown shape' }
-    if ((raw === undefined || raw === null) && ours.length) return { ok: false, kind: 'unhealthy', why: 'config/read did not report the configured MCP servers' }
     const mcp = raw || {}
     const missing = ours.filter((n) => !(n in mcp))
     if (missing.length) return { ok: false, kind: 'unhealthy', why: `config/read did not report ${missing.length} configured MCP server(s)` }
