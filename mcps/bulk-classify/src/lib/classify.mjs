@@ -362,7 +362,7 @@ export async function classifyItems(items, bank, emit, options = {}) {
         // chat 0): an answer that repeats a label written into an
         // injection-shaped text, or a label identifier (with _ or -) quoted
         // verbatim, gets a second opinion from the API engine instead.
-        if (echoesLabel(u.text, primary)) return recheck.push(batch[j])
+        if (options.recheck !== false && echoesLabel(u.text, primary)) return recheck.push(batch[j])
         return done(u, shape(s.value, multi, labelSet, { path: 'model', engine: 'codex', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d) }))
       }
       if (s.reason?.code === 'cancelled' || signal?.aborted) return fallback(u, { code: 'cancelled' })

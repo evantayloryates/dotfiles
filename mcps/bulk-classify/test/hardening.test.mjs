@@ -273,6 +273,14 @@ test('profile stamping: the zdr scope stamps a profile when it is used, and a fa
   assert.deepEqual(stampedScopes('used-in-zdr'), ['zdr'])
 })
 
+test('ruling 8 flip: with UPGRADE_ON_USE off, use in the zdr scope does not stamp, a save still does', () => {
+  const run = (code) => spawnSync(process.execPath, ['--input-type=module', '-e', `import { stampUse } from ${JSON.stringify(join(HERE, '..', 'src', 'lib', 'profiles.mjs'))}\n${code}`], { env: { ...cleanEnv, CLASSIFIER_SCOPE: 'zdr', CLASSIFIER_ENV_CHECKED: '1', CLASSIFIER_REAL_HOME: root, CLASSIFIER_PROFILES_DIR: join(root, 'profiles'), CLASSIFIER_TEST_UPGRADE_ON_USE: '0' }, encoding: 'utf8' })
+  assert.equal(run(`stampUse('flip-use')`).status, 0)
+  assert.deepEqual(stampedScopes('flip-use'), [])
+  assert.equal(run(`stampUse('flip-save', { save: true })`).status, 0)
+  assert.deepEqual(stampedScopes('flip-save'), ['zdr'])
+})
+
 test('a profile stamped zdr mid-job stops the next Codex call (fresh re-check before every spawn)', async () => {
   stampScope('mid-job', 'local')
   const profile = { name: 'mid-job', scopes: ['local'] }
@@ -443,4 +451,25 @@ test('the harness export writers mark their files', () => {
   const terra = readFileSync(join(REPO, 'apps', 'zdr-agent', 'mcps', 'kickoff-db', 'terra-payloads.mjs'), 'utf8')
   assert.equal((idx.match(/tagZdrFile\(tmp\)\n\s+renameSync\(tmp, /g) || []).length, 2, 'transcript_export and query_export')
   assert.equal((terra.match(/tagZdrFile\(tmp\)\n\s+renameSync\(tmp, path\)/g) || []).length, 1, 'terra scopes export')
+})
+
+test('rollback lever: ~/.config/classifier/route forces the API key for clean work, and only "auto" turns it off', async () => {
+  const { routeLeverPath } = await import('../src/lib/route.mjs')
+  const lever = routeLeverPath({ CLASSIFIER_REAL_HOME: root })
+  mkdirSync(dirname(lever), { recursive: true })
+  try {
+    for (const v of ['api', 'API\n', 'off', '']) {
+      writeFileSync(lever, v)
+      const r = decideRoute({ env: { ...cleanEnv, CLASSIFIER_REAL_HOME: root }, ps: cleanPs }, { subscriptionStatus: ok })
+      assert.equal(r.route, 'api', JSON.stringify(v))
+      assert.deepEqual(r.codes, ['forced_api_file'])
+    }
+    writeFileSync(lever, 'auto\n')
+    assert.equal(decideRoute({ env: { ...cleanEnv, CLASSIFIER_REAL_HOME: root }, ps: cleanPs }, { subscriptionStatus: ok }).route, 'subscription')
+    writeFileSync(lever, 'api')
+    assert.equal(route(base).route, 'api', 'through the real launcher too')
+  } finally {
+    rmSync(lever, { force: true })
+  }
+  assert.equal(route(base).route, 'subscription')
 })

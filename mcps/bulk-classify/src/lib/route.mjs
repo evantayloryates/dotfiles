@@ -15,7 +15,7 @@
 // reasons name the kind of signal and, for env vars, the variable name only.
 
 import { execFileSync, spawnSync } from 'node:child_process'
-import { existsSync, lstatSync, readlinkSync, realpathSync, statSync } from 'node:fs'
+import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs'
 import { homedir, userInfo } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { stampedScopes } from './scopes.mjs'
@@ -313,12 +313,34 @@ export function stage2ApiEngine(env = process.env) {
   return env.CLASSIFIER_STAGE2 === 'chat' ? 'chat' : 'decisions'
 }
 
+// Rollback lever: one file forces the API key for every caller in every
+// scope, with no code change and no registration edits:
+//   mkdir -p ~/.config/classifier && echo api > ~/.config/classifier/route
+// Anything in the file other than "auto" (unreadable included) means the API
+// key; remove the file (or write "auto") to go back. Read on every decision.
+export function routeLeverPath(env = process.env) {
+  return join(env.CLASSIFIER_REAL_HOME || safe(() => userInfo().homedir) || homedir(), '.config', 'classifier', 'route')
+}
+function routeLever(env) {
+  const p = routeLeverPath(env)
+  if (!existsSync(p)) return null
+  let v
+  try {
+    v = readFileSync(p, 'utf8').trim().toLowerCase()
+  } catch {
+    return 'the route lever file cannot be read, so the API key is used'
+  }
+  return v === 'auto' ? null : 'the route lever (~/.config/classifier/route) forces the API key'
+}
+
 export function decideRoute(ctx = {}, { subscriptionStatus } = {}) {
   const env = ctx.env || process.env
   const at = new Date().toISOString()
   const api = (phi, list) => ({ route: 'api', engine: stage2ApiEngine(env), stage1: 'embed', phi, reasons: list.map((s) => s.text), codes: [...new Set(list.map((s) => s.code))], at })
   const phi = phiSignals(ctx)
   if (phi.length) return api(true, phi)
+  const lever = routeLever(env)
+  if (lever) return api(false, [sig('forced_api_file', `no PHI signal; ${lever}`)])
   const mode = (env.CLASSIFIER_ROUTE || 'auto').toLowerCase()
   if (mode === 'api') return api(false, [sig('forced_api_env', 'no PHI signal; CLASSIFIER_ROUTE=api forces the API key')])
   if (ctx.args?.engine === 'api') return api(false, [sig('forced_api_call', 'no PHI signal; the call asked for engine "api"')])

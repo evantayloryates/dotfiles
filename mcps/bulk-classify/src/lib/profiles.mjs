@@ -382,7 +382,7 @@ export async function saveProfile(args, { usage, signal, extraScreenTexts = [] }
   profile.calibration = bank.calibration
   // A profile created or changed in the zdr scope is ZDR-only from then on
   // (route.mjs); the stamp goes first, so a failed stamp saves nothing.
-  if (SCOPE === 'zdr') stampUse(profile.name)
+  if (SCOPE === 'zdr') stampUse(profile.name, { save: true })
   writeProfile(profile)
   return { profile, written: written.length, generated: generated.length, bank }
 }
@@ -408,8 +408,16 @@ const withScope = (scopes) => [...new Set([...scopes, SCOPE])]
 // it appends the one-way `zdr` stamp (scopes.mjs) before any work starts: a
 // general profile used once in the harness is ZDR-only from then on, and
 // nothing removes the stamp. A stamp that cannot be written stops the call.
-export function stampUse(name) {
+//
+// UPGRADE_ON_USE is Taylor's ruling 8 (2026-11-23, pending his confirmation).
+// Declining it is this one line: set it to false, and only saves in the zdr
+// scope stamp (a profile created or changed in the harness stays ZDR-only);
+// test/hardening.test.mjs covers both settings. Keeping it costs a general
+// profile its subscription use for good once the harness uses it.
+export const UPGRADE_ON_USE = process.env.CLASSIFIER_TEST_UPGRADE_ON_USE !== '0'
+export function stampUse(name, { save = false } = {}) {
   if (SCOPE !== 'zdr') return
+  if (!save && !UPGRADE_ON_USE) return
   try {
     stampScope(name, 'zdr')
   } catch {
