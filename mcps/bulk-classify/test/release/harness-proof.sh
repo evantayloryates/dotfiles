@@ -48,10 +48,19 @@ case "${1:-route}" in
       route | /usr/bin/python3 -c "import json,sys;d=json.load(sys.stdin);print(json.dumps({k:d[k] for k in ['scope','route','engine','phi','codes']}))"
       echo
       echo '## classify_texts (synthetic)'
+      since="$(date -u +%FT%T)"
       texts '{"labels":["billing","scheduling"],"items":["refund my last invoice please","push our call to next week"]}' 2>&1 | tail -4
       echo
-      echo '## audit line'
-      tail -1 "${ZH}/classifier/audit.jsonl"
+      echo '## audit line (this call: kind texts, 2 items, after the call started)'
+      # The audit file is shared with real harness jobs: pick this call's own
+      # line, never just the last one.
+      /usr/bin/python3 -I -c 'import json,sys
+since=sys.argv[2]; hit=None
+for l in open(sys.argv[1]):
+    try: a=json.loads(l)
+    except Exception: continue
+    if a.get("kind")=="texts" and a.get("items")==2 and a.get("at","")[:19]>=since: hit=l.strip()
+print(hit or "NO AUDIT LINE FOR THIS CALL")' "${ZH}/classifier/audit.jsonl" "$since"
     } > "$out"
     cat "$out"
     ;;

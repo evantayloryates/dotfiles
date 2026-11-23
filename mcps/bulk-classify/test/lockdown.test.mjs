@@ -138,3 +138,28 @@ test('live Codex process groups are tracked and released, so they are signalled 
   }
   assert.equal(alive, false, 'the detached group was signalled on exit')
 })
+
+test('the MCP server exits through its exit hook on SIGTERM, SIGHUP and SIGINT', async () => {
+  const { readFileSync } = await import('node:fs')
+  const src = readFileSync(new URL('../src/server.mjs', import.meta.url), 'utf8')
+  assert.match(src, /for \(const sig of \['SIGTERM', 'SIGHUP', 'SIGINT'\]\) process\.on\(sig, \(\) => process\.exit\(0\)\)/)
+  // and process.exit from a signal handler does run the group-kill hook
+  const out = (await import('node:child_process')).spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import { spawn } from 'node:child_process'
+    import { trackGroup } from ${JSON.stringify(new URL('../src/lib/codex-lockdown.mjs', import.meta.url).pathname)}
+    const c = spawn('/bin/sleep', ['30'], { detached: true, stdio: 'ignore' })
+    trackGroup(c.pid)
+    process.on('SIGTERM', () => process.exit(0))
+    console.log(c.pid)
+    setTimeout(() => process.kill(process.pid, 'SIGTERM'), 50)
+    setTimeout(() => {}, 5000)`], { encoding: 'utf8', timeout: 10_000 })
+  const pid = Number(out.stdout.trim())
+  await new Promise((r) => setTimeout(r, 200))
+  let alive = true
+  try {
+    process.kill(pid, 0)
+  } catch {
+    alive = false
+  }
+  assert.equal(alive, false)
+})

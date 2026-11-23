@@ -33,7 +33,7 @@ step() { # name, command...
   step canary "$NODE" test/canary.e2e.mjs
   step guard "${HERE}/with-key.sh" "${SVC}/test/guard.online.mjs"
   grep -q '"phi":true' "${OUT}/harness-proof.md" && grep -q '"codex_calls":0' "${OUT}/harness-proof.md" && grep -q 'harness registration check: passed' "${OUT}/harness-proof.md" || { echo "FAILED  harness-proof content (needs registration passed, phi true, codex_calls 0)"; fail=1; }
-  grep -q 'attack blocked 13 / 14  benign wrongly rejected 0 / 12' "${OUT}/guard.log" || { echo "CHECK   guard figures differ from 13/14 and 0/12 (see guard.log)"; }
+  grep -q 'attack blocked 13 / 14  benign wrongly rejected 0 / 12' "${OUT}/guard.log" || { echo "FAILED  guard figures differ from 13/14 blocked and 0/12 rejected (see guard.log; compare with results.md before releasing)"; fail=1; }
   echo "result: $([ $fail = 0 ] && echo PASS || echo FAIL)"
 } | tee "${OUT}/summary.txt"
 grep -q '^result: PASS' "${OUT}/summary.txt"

@@ -211,5 +211,8 @@ function guarded(tool) {
 }
 
 init()
+// A signal-killed server must still reach its exit hook, which sends SIGTERM
+// to any Codex process group it started (codex-lockdown.mjs trackGroup).
+for (const sig of ['SIGTERM', 'SIGHUP', 'SIGINT']) process.on(sig, () => process.exit(0))
 await serveMcp({ name: 'classifier', version: '1.0.0', instructions: INSTRUCTIONS, tools: tools().map(guarded), log })
 process.exit(0)
