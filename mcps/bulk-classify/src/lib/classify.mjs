@@ -353,19 +353,32 @@ export async function classifyItems(items, bank, emit, options = {}) {
       })
     )
     const failed = []
+    const recheck = []
     settled.forEach((s, j) => {
       const { u, d } = batch[j]
       if (s.status === 'fulfilled') {
         const primary = multi ? s.value?.primary : s.value
+        // Codex let 2 of 440 injected labels win (2026-11-23; Decisions and
+        // chat 0): an answer that repeats a label written into an
+        // injection-shaped text, or a label identifier (with _ or -) quoted
+        // verbatim, gets a second opinion from the API engine instead.
+        if (echoesLabel(u.text, primary)) return recheck.push(batch[j])
         return done(u, shape(s.value, multi, labelSet, { path: 'model', engine: 'codex', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d) }))
       }
       if (s.reason?.code === 'cancelled' || signal?.aborted) return fallback(u, { code: 'cancelled' })
       failed.push(batch[j])
     })
-    if (failed.length) {
-      noteFallback(settled.find((s) => s.status === 'rejected')?.reason, failed.length)
-      await runBatchApi(failed)
-    }
+    if (failed.length) noteFallback(settled.find((s) => s.status === 'rejected')?.reason, failed.length)
+    if (recheck.length && usage) usage.subscription_recheck_items = (usage.subscription_recheck_items || 0) + recheck.length
+    if (failed.length || recheck.length) await runBatchApi([...failed, ...recheck])
+  }
+
+  function echoesLabel(text, label) {
+    if (!label || label === NONE) return false
+    const t = text.toLowerCase()
+    const l = label.toLowerCase()
+    if (/[_-]/.test(l) && t.includes(l)) return true
+    return looksLikeInjection(text) && (t.includes(l) || t.includes(l.replace(/[_-]+/g, ' ')))
   }
 
   async function runBatchApi(batch) {

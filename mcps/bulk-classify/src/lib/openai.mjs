@@ -309,7 +309,7 @@ async function request(kind, path, body, { signal } = {}) {
 // engine; codex_* tokens are the ChatGPT subscription's (no dollar cost, but
 // they draw on its usage limits). usd counts API-key spend only.
 export function newUsage() {
-  return { chat_calls: 0, decision_calls: 0, embed_calls: 0, codex_calls: 0, codex_items: 0, codex_input_tokens: 0, codex_output_tokens: 0, subscription_fallback_items: 0, input_tokens: 0, cached_tokens: 0, output_tokens: 0, embed_tokens: 0, usd: 0 }
+  return { chat_calls: 0, decision_calls: 0, embed_calls: 0, codex_calls: 0, codex_items: 0, codex_input_tokens: 0, codex_output_tokens: 0, subscription_fallback_items: 0, subscription_recheck_items: 0, input_tokens: 0, cached_tokens: 0, output_tokens: 0, embed_tokens: 0, usd: 0 }
 }
 function account(usage, model, u, tier) {
   if (!usage || !u) return
