@@ -40,7 +40,7 @@ createInterface({ input: process.stdin }).on('line', (line) => {
     case 'config/read': {
       const mcp = { alpha: { command: 'x', enabled: !disabled.has('alpha') } }
       if (mode === 'mcp') mcp.alpha.enabled = true
-      const servers = mode === 'nomcp' ? undefined : mode === 'reshaped' ? [mcp.alpha] : mcp
+      const servers = mode === 'nomcp' ? undefined : mode === 'reshaped' ? [mcp.alpha] : mode === 'boolmcp' ? true : mcp
       return reply({ config: { sandbox_mode: mode === 'sandbox' ? 'workspace-write' : 'read-only', approval_policy: 'never', notify: [], features: { memories: false }, memories: { generate_memories: false, use_memories: false }, history: { persistence: 'none' }, ...(servers !== undefined && { mcp_servers: servers }) } })
     }
     case 'thread/start': {

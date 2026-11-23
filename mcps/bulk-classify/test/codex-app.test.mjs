@@ -93,6 +93,7 @@ test('MCP names come from our config.toml read: disabled on the first spawn (one
 for (const [label, mode, cfg] of [
   ['config/read without mcp_servers while config.toml names one', 'nomcp', '[mcp_servers.alpha]\ncommand = "x"\n'],
   ['mcp_servers in another shape', 'reshaped', '[mcp_servers.alpha]\ncommand = "x"\n'],
+  ['mcp_servers not an object', 'boolmcp', '[mcp_servers.alpha]\ncommand = "x"\n'],
   ['a configured server missing from config/read', 'ok', '[mcp_servers.alpha]\ncommand = "x"\n[mcp_servers.beta]\nurl = "https://example.invalid"\n'],
   ['an odd config.toml entry', 'ok', '[mcp_servers]\nalpha = { command = "x" }\n'],
 ]) {
