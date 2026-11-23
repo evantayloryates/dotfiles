@@ -35,6 +35,7 @@ import { fixtureContextTool, fixtureContext } from './fixture-context.mjs'
 import { fixtureOrdinalTool, ordinalFromRows } from './fixture-ordinal.mjs'
 import { fixtureSourceTool, SOURCE_PAGE_MAX_ROWS, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
 import { importSourcePages } from './fixture-import.mjs'
+import { tagZdrFile } from './zdr-tag.mjs'
 import { fixtureFactsTool, fixtureFacts } from './fixture-facts.mjs'
 
 const OPT = process.env.ZDR_HARNESS_OPT
@@ -760,6 +761,8 @@ async function runExport(ex, rows) {
   } finally {
     closeSync(fd)
   }
+  // copies taken out of the harness stay marked (bulk-classify routes them to the API key)
+  tagZdrFile(tmp)
   renameSync(tmp, ex.path)
   ex.state = 'done'
   ex.finished = Date.now()
@@ -837,6 +840,7 @@ async function queryExport({ sql } = {}) {
     throw new ToolError(`${err.code || 'query failed'}: ${err.sqlMessage || err.message}`)
   }
   closeSync(fd)
+  tagZdrFile(tmp)
   renameSync(tmp, path)
   log(`query_export ${fp.hash} ${id} ${Date.now() - started}ms rows=${st.rows}${st.capped ? '+' : ''}: ${fp.shape}`)
   if (!st.rows) return `Export ${id}: the query returned no rows; nothing to classify.`

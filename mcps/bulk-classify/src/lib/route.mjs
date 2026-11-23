@@ -14,8 +14,8 @@
 // Nothing here returns or logs paths, env values or process command lines:
 // reasons name the kind of signal and, for env vars, the variable name only.
 
-import { execFileSync } from 'node:child_process'
-import { existsSync, lstatSync, readlinkSync, realpathSync } from 'node:fs'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { existsSync, lstatSync, readlinkSync, realpathSync, statSync } from 'node:fs'
 import { homedir, userInfo } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { stampedScopes } from './scopes.mjs'
@@ -159,6 +159,40 @@ export function pathSignal(paths = [], env = process.env) {
   return out
 }
 
+// Harness exports carry the extended attribute com.kickoff.zdr (set by the
+// harness's export writers, apps/zdr-agent/mcps/kickoff-db/zdr-tag.mjs), and
+// macOS cp, mv and Finder keep it, so a copy moved out of ~/.zdr-harness is
+// still harness data. An input file carrying it, or whose attributes cannot
+// be read, is PHI. Cached per file identity (inode, size, mtime) so the
+// re-check before every Codex call does not spawn xattr each time.
+export const ZDR_XATTR = 'com.kickoff.zdr'
+const tagCache = new Map()
+export function taggedSignal(paths = [], { run = spawnSync } = {}) {
+  const out = []
+  for (const [kind, p] of paths) {
+    if (kind !== 'input file' || typeof p !== 'string' || !p) continue
+    let real
+    let id
+    try {
+      real = physicalPath(p)
+      const st = statSync(real)
+      if (!st.isFile()) continue
+      id = `${real}\0${st.ino}\0${st.size}\0${st.mtimeMs}`
+    } catch {
+      continue // a missing input is refused by the reader; a path signal covers where it points
+    }
+    let tagged = tagCache.get(id)
+    if (tagged === undefined) {
+      const r = run('/usr/bin/xattr', ['-p', ZDR_XATTR, real], { encoding: 'utf8', timeout: 10_000, stdio: ['ignore', 'ignore', 'pipe'] })
+      tagged = r.status === 0 ? 'yes' : r.status === 1 && /no such xattr/i.test(r.stderr || '') ? 'no' : 'unknown'
+      if (tagged !== 'unknown') tagCache.set(id, tagged)
+    }
+    if (tagged === 'yes') out.push(sig('path_tagged', `path: the ${kind} is marked as ZDR harness data`))
+    else if (tagged === 'unknown') out.push(sig('path_tag_unreadable', `path: the ${kind}'s harness mark could not be read (cannot evaluate)`))
+  }
+  return out
+}
+
 // Walks this process's ancestors with one ps call. Not found in the listing or
 // ps failing = cannot evaluate.
 export function processSignal({ pid = process.pid, ps = defaultPs } = {}) {
@@ -238,6 +272,7 @@ export function phiSignals(ctx = {}) {
       env
     )
   )
+  guard('tag', () => taggedSignal(ctx.paths || [], ctx.xattr ? { run: ctx.xattr } : {}))
   guard('process', () => processSignal({ pid: ctx.pid, ps: ctx.ps }))
   guard('record', () => recordSignal({ job: ctx.job, profile: ctx.profile, ...(ctx.stamps && { stamps: ctx.stamps }) }))
   const seen = new Set()

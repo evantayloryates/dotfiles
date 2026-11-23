@@ -401,3 +401,46 @@ test('every PHI signal has a code', () => {
 })
 
 test.after(() => rmSync(root, { recursive: true, force: true }))
+
+test('a ZDR-only profile is described by label names only outside the zdr scope', async () => {
+  const { describeProfile } = await import('../src/lib/profiles.mjs')
+  const p = { name: 'zdr-desc', version: 1, purpose: 'SECRET purpose', labels: [{ name: 'alpha', description: 'SECRET desc' }], examples: [{ text: 'SECRET example', label: 'alpha', source: 'written' }], notes: 'SECRET note', stats: {} }
+  for (const variant of [{ ...p, scopes: ['zdr'] }, { ...p }, { ...p, name: 'zdr-desc-stamped', scopes: ['local'] }]) {
+    if (variant.name === 'zdr-desc-stamped') stampScope('zdr-desc-stamped', 'zdr')
+    for (const full of [true, false]) {
+      const text = describeProfile(variant, { full })
+      assert.ok(!/SECRET/.test(text), text)
+      assert.match(text, /ZDR-only/)
+    }
+    assert.match(describeProfile(variant, { full: true }), /- alpha/)
+  }
+  const general = describeProfile({ ...p, name: 'gen-desc', scopes: ['local'] }, { full: true })
+  assert.match(general, /SECRET example/, 'general profiles keep their full description')
+})
+
+test('a harness export copied out of the harness keeps its mark and routes to the API key', async () => {
+  const exp = join(ZH, 'exports', 'tx_tagged.jsonl')
+  writeFileSync(exp, '{"text":"synthetic"}\n')
+  assert.equal(spawnSync('/usr/bin/xattr', ['-w', 'com.kickoff.zdr', '1', exp]).status, 0)
+  const copy = join(root, 'data', 'moved-out.jsonl')
+  assert.equal(spawnSync('/bin/cp', [exp, copy]).status, 0)
+  const r = assertPhi(base, { args: ['--input', copy] }, 'path_tagged')
+  assert.ok(!r.codes.includes('path_harness'), 'the copy itself is outside the harness')
+  const plain = join(root, 'data', 'plain.jsonl')
+  writeFileSync(plain, '{"text":"synthetic"}\n')
+  assert.equal(route(base, { args: ['--input', plain] }).route, 'subscription')
+  // the mark cannot be read: fail closed
+  const { taggedSignal } = await import('../src/lib/route.mjs')
+  assert.equal(taggedSignal([['input file', plain]], { run: () => ({ status: 2, stderr: 'boom' }) })[0].code, 'path_tag_unreadable')
+  const { phiSignals } = await import('../src/lib/route.mjs')
+  const other = join(root, 'data', 'other.jsonl')
+  writeFileSync(other, '{"text":"y"}\n')
+  assert.ok(phiSignals({ env: cleanEnv, ps: cleanPs, paths: [['input file', other]], xattr: () => { throw new Error('no xattr') } }).some((s) => s.code === 'tag_failed'), 'a reader that throws counts as present')
+})
+
+test('the harness export writers mark their files', () => {
+  const idx = readFileSync(join(REPO, 'apps', 'zdr-agent', 'mcps', 'kickoff-db', 'index.mjs'), 'utf8')
+  const terra = readFileSync(join(REPO, 'apps', 'zdr-agent', 'mcps', 'kickoff-db', 'terra-payloads.mjs'), 'utf8')
+  assert.equal((idx.match(/tagZdrFile\(tmp\)\n\s+renameSync\(tmp, /g) || []).length, 2, 'transcript_export and query_export')
+  assert.equal((terra.match(/tagZdrFile\(tmp\)\n\s+renameSync\(tmp, path\)/g) || []).length, 1, 'terra scopes export')
+})

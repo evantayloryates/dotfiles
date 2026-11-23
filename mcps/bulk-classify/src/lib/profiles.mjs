@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { buildBank } from './bank.mjs'
 import { chatJson, embedMany, EMBED_DIMS, EMBED_MODEL } from './openai.mjs'
 import { JOBS_DIR, PROFILES_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
-import { stampScope } from './scopes.mjs'
+import { stampedScopes, stampScope } from './scopes.mjs'
 import { buildTaxonomy, humanize, NONE, UserError } from './taxonomy.mjs'
 import { dedupeKey, findIdentifiers, jaccard, normalizeText, scrub, sha, shingles, tokens } from './text.mjs'
 
@@ -473,7 +473,20 @@ export function compareWithHistory(name, counts, fingerprint) {
   return { runs: past.length, moves: moves.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)) }
 }
 
+// A profile that is ZDR-only (stamped zdr, or with no complete scope
+// history) may hold text written in the harness. Outside the zdr scope it
+// is described by its label names only: no purpose, descriptions, notes or
+// examples, so its text cannot be copied into general work.
+export function zdrOnly(p) {
+  const scopes = [...(Array.isArray(p.scopes) ? p.scopes : ['unknown']), ...stampedScopes(p.name)]
+  return scopes.includes('zdr') || scopes.includes('unknown')
+}
+
 export function describeProfile(p, { full = false } = {}) {
+  if (SCOPE !== 'zdr' && zdrOnly(p)) {
+    const head = `${p.name} (v${p.version}): ${p.labels.length} labels; ZDR-only (it always runs on the API key, and its descriptions, notes and examples are shown only inside the ZDR harness)`
+    return full ? [head, '', 'Labels:', ...p.labels.map((l) => `- ${l.name}`)].join('\n') : head
+  }
   const written = p.examples.filter((e) => e.source === 'written').length
   const generated = p.examples.length - written
   const s = p.stats || {}

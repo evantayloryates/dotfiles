@@ -10,6 +10,7 @@
 // prefix and key shape are fixed here and enforced before any request, on top
 // of the IAM policy (apps/zdr-agent/iam/zdr-harness-policy.json).
 
+import { tagZdrFile } from './zdr-tag.mjs'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { closeSync, mkdirSync, openSync, renameSync, writeSync } from 'node:fs'
 import { join } from 'node:path'
@@ -281,6 +282,7 @@ export function writeScopesFile(exportDir, rows) {
   } finally {
     closeSync(fd)
   }
+  tagZdrFile(tmp)
   renameSync(tmp, path)
   return { id, path }
 }
