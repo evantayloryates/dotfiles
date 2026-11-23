@@ -31,7 +31,8 @@ export function checkDataPath(abs, given, { write = false } = {}) {
   // Judge the real target: a symlink named data.jsonl may point anywhere.
   let real = abs
   try {
-    real = existsSync(abs) ? realpathSync(abs) : resolve(realpathSync(dirname(abs)), abs.split(sep).at(-1))
+    // native: kernel resolution (a symlink followed by .. is not lexical)
+    real = existsSync(abs) ? realpathSync.native(abs) : resolve(realpathSync.native(dirname(abs)), abs.split(sep).at(-1))
   } catch {}
   for (const p of new Set([abs, real])) checkOne(p, given, write)
 }

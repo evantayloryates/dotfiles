@@ -37,7 +37,7 @@ export class SubscriptionError extends Error {
   constructor(message, kind) {
     super(message)
     this.code = 'subscription'
-    this.kind = kind // not_logged_in | api_key_login | rate_limited | unsupported | timeout | bad_output | error
+    this.kind = kind // not_logged_in | api_key_login | rate_limited | unsupported | missing | timeout | bad_output | error
     this.retryable = false
   }
 }
@@ -45,11 +45,14 @@ export class SubscriptionError extends Error {
 const childEnv = () => ({ HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' })
 
 // ---------------------------------------------------------------------------
-// Login status: cached for five minutes per process.
+// Login status: cached for five minutes per process, on the monotonic clock
+// (a wall-clock jump must not stretch the cache), and dropped as soon as a
+// Codex call fails for a login, limit or missing-binary reason.
 
 let statusCache = null
-export function subscriptionStatus({ run = defaultStatusRun, now = Date.now() } = {}) {
-  if (statusCache && now - statusCache.at < 300_000) return statusCache.value
+const STATUS_TTL_MS = 300_000
+export function subscriptionStatus({ run = defaultStatusRun, now = performance.now() } = {}) {
+  if (statusCache && now >= statusCache.at && now - statusCache.at < STATUS_TTL_MS) return statusCache.value
   let value
   try {
     const out = run()
@@ -128,13 +131,22 @@ export function parseCodexAnswers(text, entries, labelSet, multi) {
   return out
 }
 
-function classifyFailure(text, code) {
+// Failure kinds from the event stream's error and the stderr tail (neither is
+// ever logged: both can echo item text). The limit wording and codes are the
+// ones the Codex CLI ships (0.169: "You've hit your usage limit ...",
+// usage_limit_reached, workspace_*_usage_limit_reached, *_credits_depleted,
+// rate_limit_reached, usage_not_included).
+export function classifyFailure(text, code) {
   const t = String(text || '')
-  if (/usage limit|rate limit|too many requests|429|quota/i.test(t)) return 'rate_limited'
-  if (/not logged in|login|unauthori[sz]ed|401|sign in/i.test(t)) return 'not_logged_in'
-  if (/not supported when using codex with a chatgpt account|model .* not supported/i.test(t)) return 'unsupported'
+  if (code === 126 || code === 127 || /no app-installed codex found|command not found|no such file or directory/i.test(t)) return 'missing'
+  if (/usage[ _]limit|rate[ _]limit|credits[ _]depleted|usage_not_included|purchase more credits|too many requests|\b429\b|quota/i.test(t)) return 'rate_limited'
+  if (/not supported when using codex with a chatgpt account|model .* not supported|unsupported model/i.test(t)) return 'unsupported'
+  if (/not logged in|log ?in again|unauthori[sz]ed|\b401\b|sign in|token (has )?expired|refresh token/i.test(t)) return 'not_logged_in'
   return code === null ? 'timeout' : 'error'
 }
+// Kinds that end subscription use for the rest of the run (and for the
+// process, until the login status is read again).
+export const FATAL_KINDS = new Set(['not_logged_in', 'api_key_login', 'rate_limited', 'unsupported', 'missing'])
 
 // ---------------------------------------------------------------------------
 // One Codex call. phiContext is re-checked right before spawn.
@@ -151,21 +163,28 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     const args = ['exec', '-m', CODEX_MODEL, '-c', `model_reasoning_effort="${CODEX_EFFORT}"`, '-c', 'web_search="disabled"']
     for (const f of DISABLED_FEATURES) args.push('--disable', f)
     args.push('--ephemeral', '-s', 'read-only', '--skip-git-repo-check', '--ignore-user-config', '--ignore-rules', '-C', dir, '--output-schema', schemaPath, '-o', lastPath, '--json', '-')
-    const { code, stdout } = await new Promise((resolvePromise, reject) => {
+    const { code, stdout, stderr } = await new Promise((resolvePromise, reject) => {
       const child = spawnFn(codexBin(), args, { cwd: dir, env: childEnv(), stdio: ['pipe', 'pipe', 'pipe'] })
       let out = ''
       let err = ''
-      const kill = () => child.kill('SIGTERM')
+      let hard = null
+      const kill = () => {
+        child.kill('SIGTERM')
+        hard ||= setTimeout(() => child.kill('SIGKILL'), 5000)
+      }
       const timer = setTimeout(kill, TIMEOUT_MS)
       signal?.addEventListener('abort', kill, { once: true })
       child.stdout.on('data', (d) => (out += d))
       child.stderr.on('data', (d) => (err = (err + d).slice(-4000)))
       child.on('error', (e) => {
         clearTimeout(timer)
-        reject(new SubscriptionError(`Codex could not start (${e.code || 'error'}).`, 'not_logged_in'))
+        clearTimeout(hard)
+        resetSubscriptionStatus()
+        reject(new SubscriptionError(`Codex could not start (${e.code || 'error'}).`, 'missing'))
       })
       child.on('close', (c, sig) => {
         clearTimeout(timer)
+        clearTimeout(hard)
         signal?.removeEventListener('abort', kill)
         resolvePromise({ code: sig ? null : c, stdout: out, stderr: err })
       })
@@ -192,7 +211,8 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     if (usage) usage.codex_calls = (usage.codex_calls || 0) + 1
     if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' })
     if (code !== 0 || failure) {
-      const kind = classifyFailure(failure, code)
+      const kind = classifyFailure(`${failure}\n${stderr}`, code)
+      if (FATAL_KINDS.has(kind)) resetSubscriptionStatus()
       throw new SubscriptionError(`Codex failed (${kind}).`, kind)
     }
     let text
@@ -278,7 +298,7 @@ export class CodexBatcher {
     } catch (err) {
       // Login, limits and PHI refusals end subscription use for this run; a
       // one-off bad answer or error only fails its own batch.
-      if (err.code === 'phi_refused' || ['not_logged_in', 'api_key_login', 'rate_limited', 'unsupported'].includes(err.kind)) this.broken = err
+      if (err.code === 'phi_refused' || FATAL_KINDS.has(err.kind)) this.broken = err
       for (const b of batch) b.reject(err)
     }
   }

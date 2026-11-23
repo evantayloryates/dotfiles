@@ -200,7 +200,7 @@ test('subscription failure: affected items go to the API key, and the result say
   assert.equal(codexCalls, 1)
   for (const r of out.values()) assert.equal(r.engine, 'decisions')
   assert.equal(out.get(0).label, 'billing')
-  assert.deepEqual(route.fallback, { reason: 'subscription rate_limited', items: 3 })
+  assert.deepEqual(route.fallback, { reason: 'subscription rate_limited', kind: 'rate_limited', items: 3, fatal: true })
   assert.equal(usage.subscription_fallback_items, 3)
 })
 

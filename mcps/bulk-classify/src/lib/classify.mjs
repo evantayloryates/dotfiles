@@ -26,7 +26,7 @@
 
 import { ApiError, chatJson, decision, embedMany } from './openai.mjs'
 import { ALL_CANDIDATES_UP_TO, decide, KnnRunner } from './bank.mjs'
-import { CodexBatcher } from './codex.mjs'
+import { CodexBatcher, FATAL_KINDS } from './codex.mjs'
 import { stage2ApiEngine } from './route.mjs'
 import { openCache, textKey } from './cache.mjs'
 import { NONE } from './taxonomy.mjs'
@@ -142,8 +142,12 @@ export async function classifyItems(items, bank, emit, options = {}) {
     if (usage) usage.subscription_fallback_items = (usage.subscription_fallback_items || 0) + n
     if (!route) return
     const reason = err?.code === 'phi_refused' ? 'PHI check refused the subscription' : `subscription ${err?.kind || 'error'}`
-    route.fallback ||= { reason, items: 0 }
+    const kind = err?.code === 'phi_refused' ? 'phi_refused' : err?.kind || 'error'
+    route.fallback ||= { reason, kind, items: 0 }
     route.fallback.items += n
+    // A fatal kind seen later in the run wins, so the worker stops using the
+    // subscription for its remaining passes.
+    if (kind === 'phi_refused' || FATAL_KINDS.has(kind)) Object.assign(route.fallback, { reason, kind, fatal: true })
   }
 
   // Dedupe, then answer from the cache where possible.

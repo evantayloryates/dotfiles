@@ -18,11 +18,12 @@ import { subscriptionStatus } from './codex.mjs'
 import { newUsage } from './openai.mjs'
 import { ensureDirs, JOBS_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
 import { decideRoute, describeRoute } from './route.mjs'
-import { compareWithHistory, describeProfile, listProfiles, loadProfile, recordRun, saveProfile } from './profiles.mjs'
+import { compareWithHistory, describeProfile, listProfiles, loadProfile, recordRun, saveProfile, stampUse } from './profiles.mjs'
 import { summarize } from './summary.mjs'
 import { buildTaxonomy, NONE, UserError } from './taxonomy.mjs'
 import { clip, dedupeKey } from './text.mjs'
 import { writeOutput } from './output.mjs'
+import { writeAudit } from './audit.mjs'
 
 export const MAX_TEXTS = 50
 export const MAX_INLINE_JOB_ITEMS = 500
@@ -83,6 +84,7 @@ export async function classifyTexts(args, { signal } = {}) {
   const rows = inlineRows(args.items, MAX_TEXTS, 'classify_texts')
   if (!rows) throw new UserError(`Pass items: a list of up to ${MAX_TEXTS} texts, or of {"id": "...", "text": "..."} objects.`)
   const { taxonomy, profile } = resolveTaxonomy(args)
+  if (profile) stampUse(profile.name)
   const opts = options(args)
   const { items } = toItems(rows, { textField: 'text', idField: 'id' })
   const t0 = Date.now()
@@ -95,6 +97,7 @@ export async function classifyTexts(args, { signal } = {}) {
   for (const it of items.map((x, n) => ({ ...x, n }))) if (it.status !== 'ok') results.set(it.n, { n: it.n, status: it.status, reason: it.reason })
   await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext })
   const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - t0), route }
+  writeAudit({ kind: 'texts', route, usage, items: items.length })
   if (profile) recordRun(profile.name, summary, createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32))
 
   const hasIds = args.items.some((v) => v && typeof v === 'object' && v.id != null)
@@ -137,6 +140,7 @@ const reasonText = (r) => REASONS[r] || r || 'unknown'
 export async function startJob(args, { caller }) {
   if (args.resume_job_id) return resumeJob(args.resume_job_id, caller, args.max_usd)
   const { taxonomy, profile } = resolveTaxonomy(args)
+  if (profile) stampUse(profile.name)
   const opts = options(args)
   if (args.input_file && args.items) throw new UserError('Pass input_file or items, not both.')
 

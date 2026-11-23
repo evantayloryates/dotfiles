@@ -9,6 +9,53 @@ set -euo pipefail
 # decides where jobs live: inside the harness (its HOME is ~/.zdr-harness/home)
 # jobs stay in ~/.zdr-harness; anywhere else they go to ~/.local/state.
 # See ../README.md.
+# PHI routing (src/lib/route.mjs). This runs first, before anything is
+# sourced or set, so it judges exactly the environment the caller passed.
+# node starts with an emptied environment, so the caller's environment is
+# judged here. Names only, never values, are passed on: any ZDR_* / *_ZDR_* /
+# OPENCODE_* variable in any case (what the ZDR harness sets), or any
+# variable whose value mentions .zdr-harness, or resolves (symlinks, `..`)
+# into it. The service's own key name and CLASSIFIER_* settings are not
+# signals. ENV_CHECKED proves this ran; node treats a launch without it as
+# "cannot evaluate" (PHI).
+_cls_real() { # prints the resolved path of an existing file or directory
+  local p="$1"
+  if [[ -d "$p" ]]; then (cd -P -- "$p" 2>/dev/null && pwd -P)
+  elif [[ -e "$p" ]]; then local d; d="$(cd -P -- "$(dirname -- "$p")" 2>/dev/null && pwd -P)" && printf '%s/%s\n' "$d" "$(basename -- "$p")"
+  fi
+}
+ENV_SIGNALS=""
+while IFS= read -r _cls_name; do
+  case "$_cls_name" in
+    KICKOFF_OPENAI_ZDR_API_KEY | CLASSIFIER_*) continue ;;
+  esac
+  _cls_value="${!_cls_name-}"
+  shopt -s nocasematch
+  if [[ "$_cls_name" =~ (^|_)ZDR(_|$) || "$_cls_name" == OPENCODE_* ]]; then
+    ENV_SIGNALS+="${ENV_SIGNALS:+,}${_cls_name}"
+  elif [[ "$_cls_value" == *".zdr-harness"* ]]; then
+    ENV_SIGNALS+="${ENV_SIGNALS:+,}${_cls_name}"
+  elif [[ "$_cls_value" == /* && "$_cls_value" != *$'\n'* && ${#_cls_value} -lt 4096 && -e "$_cls_value" && "$(_cls_real "$_cls_value")" == *"/.zdr-harness"* ]]; then
+    ENV_SIGNALS+="${ENV_SIGNALS:+,}${_cls_name}"
+  fi
+done < <(compgen -e)
+shopt -u nocasematch
+unset _cls_name _cls_value
+ENV_CHECKED=1
+
+# The scope follows the resolved HOME, so a trailing slash, `..` or a symlink
+# to the harness home still counts as the harness.
+HOME_REAL="$(_cls_real "$HOME")"
+HOME_REAL="${HOME_REAL:-$HOME}"
+HOME_REAL="${HOME_REAL%/}"
+if [[ "$HOME_REAL" == */.zdr-harness/home || "${HOME%/}" == */.zdr-harness/home ]]; then
+  SCOPE=zdr
+  if [[ "$HOME_REAL" == */.zdr-harness/home ]]; then REAL_HOME="${HOME_REAL%/.zdr-harness/home}"; else REAL_HOME="${HOME%/}"; REAL_HOME="${REAL_HOME%/.zdr-harness/home}"; fi
+else
+  SCOPE=local
+  REAL_HOME="$HOME"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO="$(cd "${SCRIPT_DIR}/../../.." && pwd -P)"
 . "${REPO}/src/lib/resolve-binary.sh"
@@ -16,33 +63,6 @@ REPO="$(cd "${SCRIPT_DIR}/../../.." && pwd -P)"
 
 # Started by mcps/_shared/bin/run: $1 is the profile, not "cli".
 [[ -n "${MCP_PROFILE:-}" ]] && shift
-
-if [[ "$HOME" == */.zdr-harness/home ]]; then
-  SCOPE=zdr
-  REAL_HOME="${HOME%/.zdr-harness/home}"
-else
-  SCOPE=local
-  REAL_HOME="$HOME"
-fi
-
-# PHI routing (src/lib/route.mjs): node starts with an emptied environment,
-# so the caller's environment is judged here. Names only, never values, are
-# passed on: any ZDR_* / *_ZDR_* / OPENCODE_* variable (what the ZDR harness
-# sets) or any variable whose value points into ~/.zdr-harness. The service's
-# own key name and CLASSIFIER_* settings are not signals. ENV_CHECKED proves
-# this ran; node treats a launch without it as "cannot evaluate" (PHI).
-ENV_SIGNALS=""
-while IFS= read -r name; do
-  case "$name" in
-    KICKOFF_OPENAI_ZDR_API_KEY | CLASSIFIER_*) continue ;;
-  esac
-  if [[ "$name" =~ (^|_)ZDR(_|$) || "$name" == OPENCODE_* ]]; then
-    ENV_SIGNALS+="${ENV_SIGNALS:+,}${name}"
-  elif [[ "${!name-}" == *"/.zdr-harness"* ]]; then
-    ENV_SIGNALS+="${ENV_SIGNALS:+,}${name}"
-  fi
-done < <(compgen -e)
-ENV_CHECKED=1
 
 ENV_FILE="${REPO}/apps/zdr-agent/.env"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="${REAL_HOME}/.zdr-harness/.env"

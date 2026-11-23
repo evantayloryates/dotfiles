@@ -15,6 +15,7 @@ import { join } from 'node:path'
 import { buildBank } from './bank.mjs'
 import { chatJson, embedMany, EMBED_DIMS, EMBED_MODEL } from './openai.mjs'
 import { JOBS_DIR, PROFILES_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
+import { stampScope } from './scopes.mjs'
 import { buildTaxonomy, humanize, NONE, UserError } from './taxonomy.mjs'
 import { dedupeKey, findIdentifiers, jaccard, normalizeText, scrub, sha, shingles, tokens } from './text.mjs'
 
@@ -379,6 +380,9 @@ export async function saveProfile(args, { usage, signal, extraScreenTexts = [] }
   }
   const bank = await buildBank({ ...taxonomy, examples: [] }, profile, { usage, signal })
   profile.calibration = bank.calibration
+  // A profile created or changed in the zdr scope is ZDR-only from then on
+  // (route.mjs); the stamp goes first, so a failed stamp saves nothing.
+  if (SCOPE === 'zdr') stampUse(profile.name)
   writeProfile(profile)
   return { profile, written: written.length, generated: generated.length, bank }
 }
@@ -399,6 +403,19 @@ export function recordRun(name, summary, fingerprint) {
 }
 
 const withScope = (scopes) => [...new Set([...scopes, SCOPE])]
+
+// Called whenever a profile is used to classify or is saved. In the zdr scope
+// it appends the one-way `zdr` stamp (scopes.mjs) before any work starts: a
+// general profile used once in the harness is ZDR-only from then on, and
+// nothing removes the stamp. A stamp that cannot be written stops the call.
+export function stampUse(name) {
+  if (SCOPE !== 'zdr') return
+  try {
+    stampScope(name, 'zdr')
+  } catch {
+    throw new UserError('The classifier could not record that this profile was used here, so it did not run. Try again; if it keeps failing, tell the user.')
+  }
+}
 
 const labelKey = (labels) => sha(JSON.stringify(labels.map((l) => l.name).sort())).slice(0, 12)
 

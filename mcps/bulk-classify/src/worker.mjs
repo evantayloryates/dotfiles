@@ -11,10 +11,11 @@ import { jobDir, liveWorker, readInput, readJson, readResults, writeJson } from 
 import { subscriptionStatus } from './lib/codex.mjs'
 import { newUsage } from './lib/openai.mjs'
 import { JOBS_DIR } from './lib/paths.mjs'
-import { decideRoute } from './lib/route.mjs'
-import { loadProfile, recordRun } from './lib/profiles.mjs'
+import { decideRoute, stage2ApiEngine } from './lib/route.mjs'
+import { loadProfile, recordRun, stampUse } from './lib/profiles.mjs'
 import { summarize } from './lib/summary.mjs'
 import { writeOutput } from './lib/output.mjs'
+import { writeAudit } from './lib/audit.mjs'
 import { buildTaxonomy } from './lib/taxonomy.mjs'
 
 const id = process.argv[2]
@@ -126,6 +127,7 @@ async function main() {
     save({ done: results.size })
 
     const profile = job.spec.profile ? loadProfile(job.spec.profile) : null
+    if (profile) stampUse(profile.name) // a resume from the zdr scope stamps it too
     const taxonomy = buildTaxonomy({ labels: profile ? profile.labels : job.spec.labels, examples: job.spec.examples })
     usage = { ...newUsage(), ...(state.usage || {}) }
     maxUsd = Number(job.spec.max_usd) > 0 ? Number(job.spec.max_usd) : Infinity
@@ -147,7 +149,10 @@ async function main() {
       if (!pending.length) break
       if (pass) await new Promise((r) => setTimeout(r, pass * 10_000))
       log(`pass ${pass + 1}: ${pending.length} pending of ${items.length}, bank ${bank.n} rows (${bank.mode})`)
-      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine: route.engine, stage1: route.stage1, route, phiContext })
+      // After a fatal subscription failure (login, limit, missing CLI, PHI
+      // refusal) the remaining passes and resumes use the API key only.
+      const engine = route.route === 'subscription' && route.fallback?.fatal ? stage2ApiEngine() : route.engine
+      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine, stage1: route.stage1, route, phiContext })
     }
     state.usage = usage
 
@@ -177,6 +182,7 @@ async function main() {
   } finally {
     clearInterval(heartbeat)
     if (fd !== null) closeSync(fd)
+    if (state && stop !== 'lost_lock') writeAudit({ kind: 'job', job: id, status: state.status, route: state.route || null, usage: usage || state.usage || {}, items: state.total || 0 })
     release()
   }
 }
