@@ -5,6 +5,7 @@
     "shortcuts": {
       "openSplitPane": "cmd+shift+d",
       "toggleAddressBar": "ctrl+j"
-    }
+    },
+    "interfaceStyle": "classic"
   }
 }
