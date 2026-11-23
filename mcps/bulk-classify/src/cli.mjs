@@ -3,8 +3,11 @@
 // supplies the key and the scope.
 
 import { readFileSync } from 'node:fs'
+import { subscriptionStatus } from './lib/codex.mjs'
+import { callerPath } from './lib/input.mjs'
 import { prune } from './lib/jobs.mjs'
-import { ensureDirs, RETENTION_DAYS, SCOPE } from './lib/paths.mjs'
+import { ensureDirs, JOBS_DIR, RETENTION_DAYS, SCOPE } from './lib/paths.mjs'
+import { decideRoute, describeRoute } from './lib/route.mjs'
 import { callerFrom, cancelJob, classifyTexts, GUIDE, init, jobResults, profilesText, sampleTexts, saveProfileText, startJob, waitJob } from './lib/service.mjs'
 
 const USAGE = `usage: classifier <command> [options]
@@ -20,11 +23,16 @@ const USAGE = `usage: classifier <command> [options]
   profiles [NAME]
   profile-save --name n [--purpose text] [--labels <labels>] [--add-labels <labels>] [--examples FILE.json] [--notes text]
            [--generate n] [--append | --replace --replace-version v] [--distinct]
+  route    [--phi] [--input FILE] [--output FILE] [--json]          which engine a call from here would use, and why
   prune    [--days n] [--dry-run]                                 delete jobs older than the window (${RETENTION_DAYS} days here)
   guide
 
 <labels>: comma-separated names ("billing,scheduling"), a JSON array, or @FILE with either.
-Common: --max-labels 2, --prefer accuracy, --examples FILE.json ([{"text","label"}]).`
+Common: --max-labels 2, --prefer accuracy, --examples FILE.json ([{"text","label"}]),
+        --phi (client or patient data: API key only; the ZDR harness scope always is).
+Engine: non-PHI work runs stage two on the ChatGPT subscription (Codex CLI), PHI work on the
+API key (Decisions API). CLASSIFIER_ROUTE=api forces the API key; CLASSIFIER_STAGE2=chat rolls the
+API engine back to chat completions.`
 
 function parse(argv) {
   const out = { _: [] }
@@ -67,7 +75,7 @@ async function main() {
   const [cmd, ...rest] = process.argv.slice(2)
   const o = parse(rest)
   const caller = callerFrom('cli', process.cwd())
-  const common = { labels: labelsArg(o.labels), profile: o.profile, examples: jsonFile(o.examples), max_labels: num(o['max-labels']), prefer: o.prefer }
+  const common = { labels: labelsArg(o.labels), profile: o.profile, examples: jsonFile(o.examples), max_labels: num(o['max-labels']), prefer: o.prefer, ...(o.phi && { phi: true }) }
   switch (cmd) {
     case 'texts': {
       const items = o._.length ? o._ : readFileSync(0, 'utf8').split('\n').filter((l) => l.trim())
@@ -102,6 +110,11 @@ async function main() {
     case 'prune': {
       const r = prune(num(o.days) ?? RETENTION_DAYS, { dryRun: !!o['dry-run'] })
       return `${o['dry-run'] ? 'Would remove' : 'Removed'} ${r.removed} job${r.removed === 1 ? '' : 's'} older than ${r.days} days (${SCOPE} scope); ${r.kept} kept.`
+    }
+    case 'route': {
+      const paths = [['input file', o.input ? callerPath(o.input, process.cwd()) : null], ['output file', o.output ? callerPath(o.output, process.cwd()) : null], ['jobs store', JOBS_DIR]]
+      const r = decideRoute({ args: { phi: !!o.phi }, paths }, { subscriptionStatus })
+      return o.json ? JSON.stringify({ scope: SCOPE, ...r }, null, 1) : `Scope: ${SCOPE}. Route: ${r.route}${r.phi ? ' (PHI)' : ''}.\n${describeRoute(r)}`
     }
     case 'guide':
       return GUIDE

@@ -19,6 +19,7 @@ export function writeOutput(output, spec, items, results) {
       if (spec.max_labels === 2) o.secondary = r.secondary ?? null
       o.confidence = r.confidence ?? null
       o.status = r.status
+      if (r.engine) o.engine = r.engine
       if (r.reason) o.reason = r.reason
       if (output.include_text && it.text) o.text = it.text
       return JSON.stringify(o)

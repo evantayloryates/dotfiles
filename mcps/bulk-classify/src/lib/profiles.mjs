@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync,
 import { join } from 'node:path'
 import { buildBank } from './bank.mjs'
 import { chatJson, embedMany, EMBED_DIMS, EMBED_MODEL } from './openai.mjs'
-import { JOBS_DIR, PROFILES_DIR, RETENTION_DAYS } from './paths.mjs'
+import { JOBS_DIR, PROFILES_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
 import { buildTaxonomy, humanize, NONE, UserError } from './taxonomy.mjs'
 import { dedupeKey, findIdentifiers, jaccard, normalizeText, scrub, sha, shingles, tokens } from './text.mjs'
 
@@ -368,6 +368,10 @@ export async function saveProfile(args, { usage, signal, extraScreenTexts = [] }
     notes,
     embed: { model: EMBED_MODEL, dims: EMBED_DIMS },
     stats: args.replace ? { runs: 0, items: 0 } : prior?.stats || { runs: 0, items: 0 },
+    // Every scope that created or touched the profile, for routing (route.mjs):
+    // a profile touched in the zdr scope never uses the subscription. One that
+    // predates this field keeps an "unknown" marker, which also means the API.
+    scopes: withScope(prior ? prior.scopes || ['unknown'] : []),
   }
   if (args.seed) {
     const same = !args.seed.labels || labelKey(args.seed.labels) === labelKey(taxonomy.labels)
@@ -387,11 +391,14 @@ export function recordRun(name, summary, fingerprint) {
   try {
     const p = JSON.parse(readFileSync(fileFor(name), 'utf8'))
     addHistory(p, summary, fingerprint)
+    p.scopes = withScope(p.scopes || ['unknown'])
     const tmp = `${fileFor(name)}.${process.pid}.tmp`
     writeFileSync(tmp, JSON.stringify(p, null, 1), { mode: 0o600 })
     renameSync(tmp, fileFor(name))
   } catch {}
 }
+
+const withScope = (scopes) => [...new Set([...scopes, SCOPE])]
 
 const labelKey = (labels) => sha(JSON.stringify(labels.map((l) => l.name).sort())).slice(0, 12)
 

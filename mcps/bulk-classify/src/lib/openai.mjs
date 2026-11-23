@@ -11,14 +11,22 @@
 // - base64 embeddings (float JSON blocked the event loop for ~190 ms).
 
 export const CHAT_MODEL = process.env.CLASSIFIER_CHAT_MODEL || 'gpt-6-luna'
+export const DECISION_MODEL = 'gpt-6-luna' // the only model /v1/decisions serves
 export const EMBED_MODEL = 'text-embedding-3-small'
 export const EMBED_DIMS = 512
 
 // $ per 1M tokens [input, cached input, output]; the priority tier is ~2x.
+// Decisions: $0.10 uncached input, output free (published 2026-11). The
+// cached-input rate is not published ("discounted"); 0.01 is an assumption.
 const PRICES = {
   'gpt-6-luna': [0.2, 0.02, 1.2],
+  decisions: [0.1, 0.01, 0],
   'text-embedding-3-small': [0.02, 0, 0],
 }
+
+// Process-wide counters for benchmarks and logs: 429s and transient retries
+// are absorbed by request() and would otherwise be invisible.
+export const stats = { rate_limited: 0, transient_retries: 0 }
 
 const KEY = () => {
   const k = process.env.CLASSIFIER_OPENAI_KEY
@@ -121,6 +129,11 @@ const KINDS = {
   chat: { limiter: new Limiter(128), lat: new Latency(1300), timeoutMs: 8_000, hedge: (l) => Math.max(1300, l.pct(0.97) ?? 1300) },
   batch: { limiter: new Limiter(160), lat: new Latency(2600), timeoutMs: 15_000, hedge: (l) => Math.max(2600, l.pct(0.97) ?? 2600) },
   long: { limiter: new Limiter(128), lat: new Latency(8000), timeoutMs: 120_000, hedge: (l) => Math.max(8000, l.pct(0.97) ?? 8000) },
+  // /v1/decisions takes one text per request (no batching), so short items
+  // need more requests in flight than chat batches of 20. Probed 2026-11-22:
+  // 30,000 requests and 180M tokens per minute on the key, ~150-450 ms each.
+  decide: { limiter: new Limiter(192), lat: new Latency(1200), timeoutMs: 8_000, hedge: (l) => Math.max(1200, l.pct(0.97) ?? 1200) },
+  decide_long: { limiter: new Limiter(128), lat: new Latency(6000), timeoutMs: 120_000, hedge: (l) => Math.max(6000, l.pct(0.97) ?? 6000) },
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -274,11 +287,13 @@ async function request(kind, path, body, { signal } = {}) {
     } catch (err) {
       if (signal?.aborted) throw new ApiError('cancelled', { code: 'cancelled' })
       if (err.code === 'rate_limit') {
+        stats.rate_limited++
         gate.pause(err.delayMs)
         k.limiter.backoff()
         continue
       }
       if (!err.retryable || ++transient >= 5) throw err
+      stats.transient_retries++
       await sleep(Math.min(8000, 250 * 2 ** transient) * (0.5 + Math.random()))
     } finally {
       k.limiter.release()
@@ -290,11 +305,25 @@ async function request(kind, path, body, { signal } = {}) {
 // ---------------------------------------------------------------------------
 // Usage accounting
 
+// chat_calls / decision_calls / codex_calls count stage-two requests per
+// engine; codex_* tokens are the ChatGPT subscription's (no dollar cost, but
+// they draw on its usage limits). usd counts API-key spend only.
 export function newUsage() {
-  return { chat_calls: 0, embed_calls: 0, input_tokens: 0, cached_tokens: 0, output_tokens: 0, embed_tokens: 0, usd: 0 }
+  return { chat_calls: 0, decision_calls: 0, embed_calls: 0, codex_calls: 0, codex_items: 0, codex_input_tokens: 0, codex_output_tokens: 0, subscription_fallback_items: 0, input_tokens: 0, cached_tokens: 0, output_tokens: 0, embed_tokens: 0, usd: 0 }
 }
 function account(usage, model, u, tier) {
   if (!usage || !u) return
+  if (model === 'decisions') {
+    const p = PRICES.decisions
+    const input = u.input_tokens || 0
+    const cached = u.input_tokens_details?.cached_tokens || 0
+    usage.decision_calls = (usage.decision_calls || 0) + 1
+    usage.input_tokens += input
+    usage.cached_tokens += cached
+    usage.output_tokens += u.output_tokens || 0
+    usage.usd += ((input - cached) * p[0] + cached * p[1]) / 1e6
+    return
+  }
   const p = PRICES[model] || [0, 0, 0]
   const factor = tier === 'priority' || tier === 'fast' ? 2 : 1
   if (model === EMBED_MODEL) {
@@ -355,7 +384,7 @@ function unit(v) {
 
 // Chat completion with a strict JSON schema. kind: chat (one short item),
 // batch (many short items) or long (one long item).
-export async function chatJson({ kind = 'chat', system, user, schema, tier = 'priority', usage, signal, maxOut, cacheKey }) {
+export async function chatJson({ kind = 'chat', system, user, schema, tier = 'priority', usage, signal, maxOut, cacheKey, onCall, items = 1 }) {
   const body = {
     model: CHAT_MODEL,
     reasoning_effort: 'none',
@@ -369,7 +398,15 @@ export async function chatJson({ kind = 'chat', system, user, schema, tier = 'pr
   if (maxOut) body.max_completion_tokens = maxOut
   // Requests sharing a prefix (one label set) are routed to the same cache.
   if (cacheKey) body.prompt_cache_key = cacheKey
-  const { json } = await request(kind, 'chat/completions', body, { signal })
+  const t0 = performance.now()
+  let json
+  try {
+    ;({ json } = await request(kind, 'chat/completions', body, { signal }))
+  } catch (err) {
+    onCall?.({ engine: 'chat', kind, ms: performance.now() - t0, items, ok: false })
+    throw err
+  }
+  onCall?.({ engine: 'chat', kind, ms: performance.now() - t0, items, ok: true })
   account(usage, CHAT_MODEL, json.usage, json.service_tier)
   const choice = json.choices?.[0]
   if (choice?.message?.refusal) throw new ApiError('The model declined to label this text.', { code: 'refused' })
@@ -377,5 +414,54 @@ export async function chatJson({ kind = 'chat', system, user, schema, tier = 'pr
     return JSON.parse(choice.message.content)
   } catch {
     throw new ApiError('The model returned an unreadable answer.', { code: 'bad_output', retryable: false })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Decisions API: POST /v1/decisions answers typed questions about one input.
+// No service_tier (rejected as an unknown parameter, 2026-11-22), no
+// reasoning_effort, no batching of independent texts, no file_id.
+
+// Builds the request body. input: a string or a messages array.
+export function decisionBody({ input, questions, cacheKey }) {
+  const body = { model: DECISION_MODEL, input, questions }
+  if (cacheKey) body.prompt_cache_key = String(cacheKey).slice(0, 64)
+  return body
+}
+
+// Parses answers into a map by question name. A refusal answer becomes
+// { refused: true }; a missing answer is an error (bad_output).
+export function parseDecisionAnswers(json, questions) {
+  const answers = Array.isArray(json?.answers) ? json.answers : null
+  if (!answers) throw new ApiError('The Decisions API returned no answers.', { code: 'bad_output', retryable: false })
+  const byName = new Map()
+  answers.forEach((a, i) => byName.set(a?.name ?? questions[i]?.name, a))
+  const out = {}
+  for (const q of questions) {
+    const a = byName.get(q.name)
+    if (!a) throw new ApiError('The Decisions API left a question unanswered.', { code: 'bad_output', retryable: false })
+    if (a.type === 'refusal') out[q.name] = { refused: true }
+    else if (a.type === 'choice') {
+      const probs = Object.fromEntries((a.probabilities || []).map((p) => [String(p.value), Number(p.probability) || 0]))
+      out[q.name] = { choice: a.choice, probability: probs[String(a.choice)] ?? null, confidence: Number(a.confidence ?? 0), probabilities: probs }
+    } else if (a.type === 'predicate') out[q.name] = { probability: Number(a.probability ?? 0) }
+    else if (a.type === 'score') out[q.name] = { score: Number(a.score), confidence: Number(a.confidence ?? 0) }
+    else throw new ApiError('The Decisions API returned an unknown answer type.', { code: 'bad_output', retryable: false })
+  }
+  return out
+}
+
+// kind: decide (one short item) or decide_long (one long item or window).
+export async function decision({ kind = 'decide', input, questions, usage, signal, cacheKey, onCall }) {
+  const t0 = performance.now()
+  let ok = false
+  try {
+    const { json } = await request(kind, 'decisions', decisionBody({ input, questions, cacheKey }), { signal })
+    account(usage, 'decisions', json.usage)
+    const out = parseDecisionAnswers(json, questions)
+    ok = true
+    return out
+  } finally {
+    onCall?.({ engine: 'decisions', kind, ms: performance.now() - t0, items: 1, ok })
   }
 }

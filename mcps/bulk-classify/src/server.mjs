@@ -37,6 +37,7 @@ const EXAMPLES = {
 const MAX_LABELS = { type: 'integer', enum: [1, 2], description: '1 (default): one label per item. 2: a main label plus a second one where it clearly applies.' }
 const PREFER = { type: 'string', enum: ['speed', 'accuracy'], description: '"speed" (default): confident items skip the model. "accuracy": every item goes to the model; slower.' }
 const JOB_ID = { type: 'string', description: 'The job id from classify_start, like cls_8f2a91c4.' }
+const PHI = { type: 'boolean', description: 'true when the texts are, or may be, client or patient data: the work then runs only on the Kickoff API key, never the ChatGPT subscription. Calls from the ZDR harness are always treated this way.' }
 
 function tools() {
   const caller = (ctx) => callerFrom(ctx.client?.name, process.cwd())
@@ -55,6 +56,7 @@ function tools() {
           examples: EXAMPLES,
           max_labels: MAX_LABELS,
           prefer: PREFER,
+          phi: PHI,
         },
         required: ['items'],
       },
@@ -82,6 +84,7 @@ function tools() {
           include_text: { type: 'boolean', description: 'Also write each item\'s text into output_path. Default false.' },
           max_labels: MAX_LABELS,
           prefer: PREFER,
+          phi: PHI,
           resume_job_id: { type: 'string', description: 'Continue this failed, crashed or cancelled job instead of starting a new one. Pass it alone (plus max_usd to raise a spending limit).' },
           max_usd: { type: 'number', description: 'Spending limit for this job in dollars (default 10). The start response shows the estimate; ask the user before raising it.' },
         },

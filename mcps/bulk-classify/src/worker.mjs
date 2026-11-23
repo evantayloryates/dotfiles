@@ -8,7 +8,10 @@ import { join } from 'node:path'
 import { buildBank } from './lib/bank.mjs'
 import { classifyItems } from './lib/classify.mjs'
 import { jobDir, liveWorker, readInput, readJson, readResults, writeJson } from './lib/jobs.mjs'
+import { subscriptionStatus } from './lib/codex.mjs'
 import { newUsage } from './lib/openai.mjs'
+import { JOBS_DIR } from './lib/paths.mjs'
+import { decideRoute } from './lib/route.mjs'
 import { loadProfile, recordRun } from './lib/profiles.mjs'
 import { summarize } from './lib/summary.mjs'
 import { writeOutput } from './lib/output.mjs'
@@ -126,6 +129,16 @@ async function main() {
     const taxonomy = buildTaxonomy({ labels: profile ? profile.labels : job.spec.labels, examples: job.spec.examples })
     usage = { ...newUsage(), ...(state.usage || {}) }
     maxUsd = Number(job.spec.max_usd) > 0 ? Number(job.spec.max_usd) : Infinity
+    // Routing, re-checked on every start: a job recorded as API stays API
+    // (there is no path back to the subscription); one recorded as
+    // subscription is decided again here, so a PHI signal that appeared since
+    // (a resume from the harness, say) moves it to the API key. The Codex
+    // engine checks once more before each call.
+    const phiContext = { args: { phi: job.spec.phi, engine: job.spec.engine }, job, profile, paths: [['input file', job.source?.abs || null], ['output file', job.output?.abs || null], ['job directory', dir], ['jobs store', JOBS_DIR]] }
+    const route = job.route?.route === 'subscription' ? decideRoute(phiContext, { subscriptionStatus }) : job.route ? { ...job.route } : decideRoute(phiContext, { subscriptionStatus })
+    if (state.route?.fallback && route.route === job.route?.route) route.fallback = state.route.fallback
+    save({ route })
+    log(`route ${route.route} (${route.engine}${route.phi ? ', PHI' : ''})`)
     const bank = await buildBank(taxonomy, profile, { usage, signal: ctrl.signal })
     // Up to three passes: items whose model calls failed transiently are
     // retried after a pause instead of being recorded as errors.
@@ -134,7 +147,7 @@ async function main() {
       if (!pending.length) break
       if (pass) await new Promise((r) => setTimeout(r, pass * 10_000))
       log(`pass ${pass + 1}: ${pending.length} pending of ${items.length}, bank ${bank.n} rows (${bank.mode})`)
-      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal })
+      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine: route.engine, stage1: route.stage1, route, phiContext })
     }
     state.usage = usage
 
@@ -147,11 +160,11 @@ async function main() {
     else if (left.length) return save({ status: 'failed', finishedAt: Date.now(), errorKind: 'transient', error: `OpenAI kept failing for ${left.length.toLocaleString()} items after three tries` })
     fsyncSync(fd)
 
-    const summary = summarize(items, results, taxonomy, usage, Date.now() - state.startedAt)
+    const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - state.startedAt), route }
     let outputError
     if (job.output?.abs) outputError = writeOutput(job.output, job.spec, items, results)
     if (job.spec.profile) recordRun(job.spec.profile, summary, job.content_fp || job.fingerprint)
-    save({ status: 'done', finishedAt: Date.now(), summary, outputError, usage })
+    save({ status: 'done', finishedAt: Date.now(), summary, outputError, usage, route })
   } catch (err) {
     log('failed', err.stack || err.message)
     // kind tells the caller what to do: transient (resume once later), fatal

@@ -6,6 +6,7 @@ export function summarize(items, results, taxonomy, usage, ms) {
   const byPath = {}
   const byStatus = {}
   const reasons = {}
+  const byEngine = {}
   let low = 0
   let secondary = 0
   for (const r of results.values()) {
@@ -13,9 +14,10 @@ export function summarize(items, results, taxonomy, usage, ms) {
     if (r.status === 'ok') {
       counts[r.label] = (counts[r.label] || 0) + 1
       byPath[r.path] = (byPath[r.path] || 0) + 1
+      if (r.engine) byEngine[r.engine] = (byEngine[r.engine] || 0) + 1
       if (r.confidence === 'low') low++
       if (r.secondary) secondary++
     } else reasons[r.reason] = (reasons[r.reason] || 0) + 1
   }
-  return { items: items.length, counts, by_path: byPath, by_status: byStatus, reasons, low_confidence: low, with_secondary: secondary, usd: +usage.usd.toFixed(4), seconds: +(ms / 1000).toFixed(1) }
+  return { items: items.length, counts, by_path: byPath, by_engine: byEngine, by_status: byStatus, reasons, low_confidence: low, with_secondary: secondary, usd: +usage.usd.toFixed(4), seconds: +(ms / 1000).toFixed(1) }
 }

@@ -25,6 +25,25 @@ else
   REAL_HOME="$HOME"
 fi
 
+# PHI routing (src/lib/route.mjs): node starts with an emptied environment,
+# so the caller's environment is judged here. Names only, never values, are
+# passed on: any ZDR_* / *_ZDR_* / OPENCODE_* variable (what the ZDR harness
+# sets) or any variable whose value points into ~/.zdr-harness. The service's
+# own key name and CLASSIFIER_* settings are not signals. ENV_CHECKED proves
+# this ran; node treats a launch without it as "cannot evaluate" (PHI).
+ENV_SIGNALS=""
+while IFS= read -r name; do
+  case "$name" in
+    KICKOFF_OPENAI_ZDR_API_KEY | CLASSIFIER_*) continue ;;
+  esac
+  if [[ "$name" =~ (^|_)ZDR(_|$) || "$name" == OPENCODE_* ]]; then
+    ENV_SIGNALS+="${ENV_SIGNALS:+,}${name}"
+  elif [[ "${!name-}" == *"/.zdr-harness"* ]]; then
+    ENV_SIGNALS+="${ENV_SIGNALS:+,}${name}"
+  fi
+done < <(compgen -e)
+ENV_CHECKED=1
+
 ENV_FILE="${REPO}/apps/zdr-agent/.env"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="${REAL_HOME}/.zdr-harness/.env"
 KEY="$(ENV_FILE="$ENV_FILE" env_get KICKOFF_OPENAI_ZDR_API_KEY)" || {
@@ -47,6 +66,16 @@ exec env -i \
   CLASSIFIER_OPENAI_KEY="$KEY" \
   CLASSIFIER_SCOPE="$SCOPE" \
   CLASSIFIER_REAL_HOME="$REAL_HOME" \
+  CLASSIFIER_ENV_CHECKED="$ENV_CHECKED" \
+  ${ENV_SIGNALS:+CLASSIFIER_ENV_SIGNALS="$ENV_SIGNALS"} \
+  ${CLASSIFIER_PHI:+CLASSIFIER_PHI="$CLASSIFIER_PHI"} \
+  ${CLASSIFIER_ROUTE:+CLASSIFIER_ROUTE="$CLASSIFIER_ROUTE"} \
+  ${CLASSIFIER_STAGE2:+CLASSIFIER_STAGE2="$CLASSIFIER_STAGE2"} \
+  ${CLASSIFIER_SUB_STAGE1:+CLASSIFIER_SUB_STAGE1="$CLASSIFIER_SUB_STAGE1"} \
+  ${CLASSIFIER_CODEX_MODEL:+CLASSIFIER_CODEX_MODEL="$CLASSIFIER_CODEX_MODEL"} \
+  ${CLASSIFIER_CODEX_EFFORT:+CLASSIFIER_CODEX_EFFORT="$CLASSIFIER_CODEX_EFFORT"} \
+  ${CLASSIFIER_CODEX_BATCH:+CLASSIFIER_CODEX_BATCH="$CLASSIFIER_CODEX_BATCH"} \
+  ${CLASSIFIER_CODEX_PARALLEL:+CLASSIFIER_CODEX_PARALLEL="$CLASSIFIER_CODEX_PARALLEL"} \
   ${CLASSIFIER_RETENTION_DAYS:+CLASSIFIER_RETENTION_DAYS="$CLASSIFIER_RETENTION_DAYS"} \
   ${CLASSIFIER_JOBS_DIR:+CLASSIFIER_JOBS_DIR="$CLASSIFIER_JOBS_DIR"} \
   ${CLASSIFIER_PROFILES_DIR:+CLASSIFIER_PROFILES_DIR="$CLASSIFIER_PROFILES_DIR"} \

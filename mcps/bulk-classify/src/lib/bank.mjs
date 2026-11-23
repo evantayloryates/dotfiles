@@ -162,7 +162,10 @@ export function decide(bank, scanResult, { force = false } = {}) {
     .filter(([, r]) => bank.rows[r].kind === 'example')
     .slice(0, HINTS)
     .map(([, r]) => ({ text: bank.rows[r].text, label: bank.rows[r].label }))
-  return { accept: accept ? j.label : null, vote: j.label, share: j.share, margin: j.margin, topSim: j.topSim, chatterSim: j.chatterSim, candidates, hints, belowFloor: j.topSim < c.floor || j.chatterSim >= j.topSim, chatter: j.chatterSim >= j.topSim }
+  // The Decisions API takes at most 255 choices (254 labels plus none): from
+  // 255 to 400 labels the model sees the 254 nearest instead of all.
+  const shortlist = all && names.length >= 255 ? j.ranked.slice(0, 254).map((i) => names[i].name) : null
+  return { accept: accept ? j.label : null, vote: j.label, share: j.share, margin: j.margin, topSim: j.topSim, chatterSim: j.chatterSim, candidates, shortlist, hints, belowFloor: j.topSim < c.floor || j.chatterSim >= j.topSim, chatter: j.chatterSim >= j.topSim }
 }
 
 // kNN for many vectors: inline for small batches, worker threads otherwise.

@@ -14,8 +14,10 @@ import { buildBank } from './bank.mjs'
 import { classifyItems } from './classify.mjs'
 import { callerPath, checkDataPath, fieldsOf, readRowsFromFile, toItems } from './input.mjs'
 import { createJob, findDuplicate, findJob, jobDir, liveWorker, newJobId, prune, readInput, readResults, readState, requestCancel, restart, startWorker, waitFor, writeJson } from './jobs.mjs'
+import { subscriptionStatus } from './codex.mjs'
 import { newUsage } from './openai.mjs'
-import { ensureDirs, RETENTION_DAYS } from './paths.mjs'
+import { ensureDirs, JOBS_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
+import { decideRoute, describeRoute } from './route.mjs'
 import { compareWithHistory, describeProfile, listProfiles, loadProfile, recordRun, saveProfile } from './profiles.mjs'
 import { summarize } from './summary.mjs'
 import { buildTaxonomy, NONE, UserError } from './taxonomy.mjs'
@@ -85,12 +87,14 @@ export async function classifyTexts(args, { signal } = {}) {
   const { items } = toItems(rows, { textField: 'text', idField: 'id' })
   const t0 = Date.now()
   const usage = newUsage()
+  const phiContext = { args: { phi: args.phi, zdr: args.zdr, engine: args.engine }, profile, paths: [['jobs store', JOBS_DIR]] }
+  const route = decideRoute(phiContext, { subscriptionStatus })
   const bank = await buildBank(taxonomy, profile, { usage, signal })
   const results = new Map()
   const ok = items.map((it, n) => ({ ...it, n })).filter((it) => it.status === 'ok')
   for (const it of items.map((x, n) => ({ ...x, n }))) if (it.status !== 'ok') results.set(it.n, { n: it.n, status: it.status, reason: it.reason })
-  await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal })
-  const summary = summarize(items, results, taxonomy, usage, Date.now() - t0)
+  await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext })
+  const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - t0), route }
   if (profile) recordRun(profile.name, summary, createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32))
 
   const hasIds = args.items.some((v) => v && typeof v === 'object' && v.id != null)
@@ -104,12 +108,13 @@ export async function classifyTexts(args, { signal } = {}) {
   const none = summary.counts[NONE] || 0
   if (none) lines.push(`Fit no label: ${none}. Report these separately; do not merge them into a label.`)
   if (summary.low_confidence) lines.push(`Low confidence: ${summary.low_confidence}. Worth a human look.`)
+  lines.push(describeRoute(route))
   return { text: lines.join('\n'), data: { results: items.map((it, n) => ({ id: it.id, ...strip(results.get(n)) })), summary } }
 }
 
 const strip = (r) => {
   if (!r) return { status: 'error', reason: 'model_error' }
-  const { n, path, ...rest } = r
+  const { n, path, p, ...rest } = r
   return rest
 }
 
@@ -168,11 +173,14 @@ export async function startJob(args, { caller }) {
 
   const output = args.output_path ? { given: args.output_path, abs: callerPath(args.output_path, caller.cwd), include_text: !!args.include_text } : null
   if (output) checkDataPath(output.abs, output.given, { write: true })
-  const estimate = estimateUsd(items, opts)
+  // Routing: decided here, recorded in the job, re-checked by the worker.
+  const phi = args.phi === true || args.zdr === true
+  const route = decideRoute({ args: { phi: args.phi, zdr: args.zdr, engine: args.engine }, profile, paths: [['input file', source.abs || null], ['output file', output?.abs || null], ['jobs store', JOBS_DIR]] }, { subscriptionStatus })
+  const estimate = estimateUsd(items, opts, route)
   const maxUsd = args.max_usd != null ? Number(args.max_usd) : DEFAULT_MAX_USD
   if (!(maxUsd > 0)) throw new UserError('max_usd must be a positive number of dollars.')
   if (estimate > maxUsd) throw new UserError(`This job would cost about $${estimate.toFixed(2)}, over the $${maxUsd} limit. Ask the user, then pass max_usd (for example ${Math.ceil(estimate * 1.5)}), or select fewer rows.`)
-  const spec = { labels: profile ? null : taxonomy.labels, examples: taxonomy.examples, profile: profile?.name || null, max_labels: opts.maxLabels, prefer: opts.prefer, tier: process.env.CLASSIFIER_TIER || 'priority', max_usd: maxUsd }
+  const spec = { labels: profile ? null : taxonomy.labels, examples: taxonomy.examples, profile: profile?.name || null, max_labels: opts.maxLabels, prefer: opts.prefer, tier: process.env.CLASSIFIER_TIER || 'priority', max_usd: maxUsd, ...(phi && { phi: true }), ...(args.engine === 'api' && { engine: 'api' }) }
   // By content, not path: a weekly file reused under one name is a new input.
   const contentFp = createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32)
   const fingerprint = createHash('sha256').update(JSON.stringify({ spec, contentFp, out: output?.abs || null })).digest('hex')
@@ -180,7 +188,7 @@ export async function startJob(args, { caller }) {
   if (dup) return `An identical job of yours is already running: ${dup.id} (${pct(dup.state)}). Not starting another.\nNext: classify_wait {"job_id": "${dup.id}"}`
 
   const id = newJobId()
-  createJob(id, { id, created: Date.now(), caller, fingerprint, content_fp: contentFp, spec, source: { given: source.given, format: source.format }, output, skipped_rows: bad }, items)
+  createJob(id, { id, created: Date.now(), caller, fingerprint, content_fp: contentFp, spec, scope: SCOPE, route, source: { given: source.given, abs: source.abs, format: source.format }, output, skipped_rows: bad }, items)
   startWorker(id)
 
   // Small jobs often finish within a few seconds; answering "finished" here
@@ -188,7 +196,7 @@ export async function startJob(args, { caller }) {
   const st = await waitFor(id, 4)
   const est = Math.max(5, Math.round(usable / 1500 + longChars(items) / 400_000))
   const head = `Started job ${id}: ${items.length.toLocaleString()} items, ${taxonomy.labels.length} labels${profile ? ` (profile ${profile.name})` : ''}.`
-  const notes = [`Estimated cost about $${Math.max(0.01, estimate).toFixed(2)} (limit $${maxUsd}).`]
+  const notes = [`Estimated cost about $${Math.max(0.01, estimate).toFixed(2)} (limit $${maxUsd}).`, describeRoute(route)]
   if (suspectLines) notes.push(`A quote that opens near line ${suspectLines[0]} seems to swallow the rows after it; check that line if counts look low.`)
   if (bad) notes.push(`${bad} unreadable row${bad === 1 ? ' was' : 's were'} skipped.`)
   if (items.length - usable) notes.push(`${items.length - usable} row${items.length - usable === 1 ? ' has' : 's have'} no usable text and will be reported as not labelled.`)
@@ -219,9 +227,15 @@ function ensureCancelCleared(id) {
 // characters (real transcripts, standard tier).
 export const DEFAULT_MAX_USD = 10
 const longChars = (items) => items.reduce((n, it) => n + (it.status === 'ok' && it.text.length > 800 ? it.text.length : 0), 0)
-function estimateUsd(items, opts) {
+// Per engine (measured 2026-11-22 on 384 synthetic support messages, 18
+// labels): chat $0.033/1k, Decisions $0.10/1k (one request per text, no
+// batching) and $0.42/1k with two labels (a predicate per label); the
+// subscription route pays only for embeddings.
+function estimateUsd(items, opts, route) {
   const short = items.filter((it) => it.status === 'ok' && it.text.length <= 800).length
-  const perK = 0.06 * (opts.maxLabels === 2 ? 2 : 1) * (opts.prefer === 'accuracy' ? 1.3 : 1)
+  const engine = route?.engine || 'decisions'
+  const base = engine === 'codex' ? 0.002 : engine === 'decisions' ? (opts.maxLabels === 2 ? 0.5 : 0.12) : 0.06 * (opts.maxLabels === 2 ? 2 : 1)
+  const perK = base * (opts.prefer === 'accuracy' ? 1.3 : 1)
   return (short / 1000) * perK + (longChars(items) / 1000) * 0.0001
 }
 
@@ -240,7 +254,7 @@ export async function waitJob(args, { caller, signal, onProgress } = {}) {
 function describeState(id, st) {
   switch (st.status) {
     case 'done':
-      return `Job ${id} finished: ${st.total.toLocaleString()} items in ${st.summary?.seconds ?? '?'}s.${st.outputError ? ` The results file was not written: ${st.outputError}.` : ''}\nNext: classify_results {"job_id": "${id}"}`
+      return `Job ${id} finished: ${st.total.toLocaleString()} items in ${st.summary?.seconds ?? '?'}s.${st.outputError ? ` The results file was not written: ${st.outputError}.` : ''}${st.route ? `\n${describeRoute(st.route)}` : ''}\nNext: classify_results {"job_id": "${id}"}`
     case 'failed': {
       const at = st.done ? `at ${st.done.toLocaleString()} of ${st.total.toLocaleString()} items` : `before labelling anything (0 of ${st.total.toLocaleString()})`
       if (st.errorKind === 'fatal') return `Job ${id} failed ${at}: ${st.error}. Retrying will not help. Tell the user exactly this cause and the job id; do not classify the texts another way.`
@@ -287,7 +301,7 @@ export function jobResults(args, { caller }) {
     const err = writeOutput(output, job.spec, keep, results)
     if (err) throw new UserError(`The results file was not written: ${err}.`)
     const what = [args.label != null && `label ${args.label}`, args.confidence != null && `${args.confidence} confidence`, args.status != null && `status ${args.status}`].filter(Boolean).join(', ')
-    return `Wrote ${keep.length.toLocaleString()} lines${what ? ` (${what})` : ''} to ${output.given}${existed ? ', replacing the file that was there' : ''} (id, label, confidence, status${output.include_text ? ', text' : ''}). Give the user the path and the counts; do not print the rows in chat.`
+    return `Wrote ${keep.length.toLocaleString()} lines${what ? ` (${what})` : ''} to ${output.given}${existed ? ', replacing the file that was there' : ''} (id, label, confidence, status, engine${output.include_text ? ', text' : ''}). Give the user the path and the counts; do not print the rows in chat.`
   }
   const filtering = args.label != null || args.confidence != null || args.status != null || args.cursor != null
   if (!filtering) return summaryText(id, job, st, input, results)
@@ -298,7 +312,7 @@ function summaryText(id, job, st, input, results) {
   const s = st.summary || summarize(input, results, { labels: Object.keys(countLabels(results)).filter((l) => l !== NONE).map((name) => ({ name })) }, { usd: st.usage?.usd || 0 }, (st.finishedAt || Date.now()) - (st.startedAt || Date.now()))
   const total = input.length
   const lines = [`Job ${id}: ${total.toLocaleString()} items${st.status !== 'done' ? ` (${st.status}; ${results.size.toLocaleString()} have results)` : ''}${job.spec.profile ? `, profile ${job.spec.profile}` : ''}.`]
-  if (job.output) lines.push(job.output && !st.outputError ? `Per-item results: ${job.output.given} (one JSON line per item: id, label, confidence, status).` : `The results file was not written: ${st.outputError}.`)
+  if (job.output) lines.push(job.output && !st.outputError ? `Per-item results: ${job.output.given} (one JSON line per item: id, label, confidence, status, engine).` : `The results file was not written: ${st.outputError}.`)
   lines.push('', 'Label counts:')
   const width = Math.max(8, ...Object.keys(s.counts).map((l) => l.length))
   const entries = Object.entries(s.counts).filter(([l]) => l !== NONE).sort((a, b) => b[1] - a[1])
@@ -325,6 +339,7 @@ function summaryText(id, job, st, input, results) {
     if (top.length) lines.push(`Most common pairs (main + second): ${top.map(([p, n]) => `${p} ${n.toLocaleString()}`).join('; ')}.${top[0][1] < 1.5 * mean ? ' Pairs are spread fairly evenly; no pairing stands out.' : ''}`)
   }
   lines.push(`Took ${s.seconds}s, cost $${(s.usd ?? 0).toFixed(3)}.`)
+  lines.push(describeRoute(st.route || s.route || job.route))
   // Learning: compare with the profile's history, and say what to save.
   if (job.spec.profile) {
     const cmp = compareWithHistory(job.spec.profile, s.counts, job.content_fp || job.fingerprint)
