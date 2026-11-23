@@ -211,7 +211,12 @@ at most every ten minutes per process. When the limit is reached with
 credits available, or the credit balance fell since the last reading (two
 hours at most), it posts a macOS notification through the notify-macos
 helper: at most once per job and once per hour. The last reading lives in
-`credits.json` beside the scope's jobs (numbers only).
+`credits.json` beside the scope's jobs (numbers only). The meter is coarse:
+`usedPercent` is a whole percent of a weekly window and moved 32 -> 34
+across about 15,000 Codex-classified items over two hours (2026-11-23),
+not visibly per burst; the credit balance has many decimals and stayed
+unchanged while the plan limit was not reached, which is why a balance drop
+is the second trigger.
 
 Codex never reads `~/.codex/auth.json` through this service, and the service
 never calls a ChatGPT endpoint; it only runs the CLI.
