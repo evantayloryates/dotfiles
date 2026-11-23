@@ -194,3 +194,25 @@ export function watchTree(pid, { allow = new Set(), ps = defaultPs, intervalMs =
     },
   }
 }
+
+// Codex children run detached (their own process group), so they would
+// outlive this process. Every live group is sent SIGTERM when this process
+// exits (normally, by process.exit, or after the worker's SIGTERM handler).
+const liveGroups = new Set()
+let exitHook = false
+export function trackGroup(pid) {
+  if (!pid) return () => {}
+  liveGroups.add(pid)
+  if (!exitHook) {
+    exitHook = true
+    process.on('exit', () => {
+      for (const g of liveGroups) {
+        try {
+          process.kill(-g, 'SIGTERM')
+        } catch {}
+      }
+    })
+  }
+  return () => liveGroups.delete(pid)
+}
+export const liveGroupCount = () => liveGroups.size

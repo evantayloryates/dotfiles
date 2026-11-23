@@ -106,3 +106,35 @@ test('a process left behind when Codex exits voids the answer (final check)', as
   const ps = () => (exited ? `4300 1 999999 /opt/orphan-mcp\n` : `999999 ${process.pid} 999999 /x/codex\n`)
   await assert.rejects(codexCall({ ...base, spawnFn, psFn: ps, watchIntervalMs: 10_000 }), (e) => e.kind === 'unsafe')
 })
+
+test('live Codex process groups are tracked and released, so they are signalled if this process exits', async () => {
+  const { liveGroupCount } = await import('../src/lib/codex-lockdown.mjs')
+  const before = liveGroupCount()
+  const rec = {}
+  let seen = null
+  const spawnFn = (bin, args, opts) => {
+    const c = fakeSpawn(rec)(bin, args, opts)
+    c.stdin.end = () => setTimeout(() => ((seen = liveGroupCount()), c.emit('close', 0, null)), 10)
+    return c
+  }
+  await assert.rejects(codexCall({ ...base, spawnFn, psFn: () => `999999 ${process.pid} 999999 /x/codex\n`, watchIntervalMs: 10_000 }))
+  assert.equal(seen, before + 1, 'tracked while running')
+  assert.equal(liveGroupCount(), before, 'released at close')
+  // and a real child left running is killed with its group when the process exits
+  const out = (await import('node:child_process')).spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import { spawn } from 'node:child_process'
+    import { trackGroup } from ${JSON.stringify(new URL('../src/lib/codex-lockdown.mjs', import.meta.url).pathname)}
+    const c = spawn('/bin/sleep', ['30'], { detached: true, stdio: 'ignore' })
+    trackGroup(c.pid)
+    console.log(c.pid)
+    process.exit(0)`], { encoding: 'utf8' })
+  const pid = Number(out.stdout.trim())
+  await new Promise((r) => setTimeout(r, 200))
+  let alive = true
+  try {
+    process.kill(pid, 0)
+  } catch {
+    alive = false
+  }
+  assert.equal(alive, false, 'the detached group was signalled on exit')
+})

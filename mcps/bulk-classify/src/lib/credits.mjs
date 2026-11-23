@@ -18,7 +18,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { JOBS_DIR } from './paths.mjs'
-import { configuredMcpServers, disableArgs, GIT_PATHS, watchTree } from './codex-lockdown.mjs'
+import { configuredMcpServers, disableArgs, GIT_PATHS, trackGroup, watchTree } from './codex-lockdown.mjs'
 
 const realHome = () => process.env.CLASSIFIER_REAL_HOME || homedir()
 const codexBin = () => process.env.CLASSIFIER_CODEX_BIN || join(realHome(), '.local', 'bin', 'codex')
@@ -29,15 +29,17 @@ const BASELINE_MAX_AGE = 2 * HOUR
 
 // One reading: { usedPercent, reached, hasCredits, unlimited, balance } or
 // null when it cannot be read (never an error for the caller).
-export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps } = {}) {
+export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps, mcpConfig = null } = {}) {
   return new Promise((resolve) => {
     let child
+    let mcp = { names: [], odd: false }
     try {
       // Every configured MCP server off by name (codex-lockdown.mjs), and
       // config/read must confirm it before the limits are read.
-      const mcp = configuredMcpServers()
+      mcp = configuredMcpServers(mcpConfig)
       if (mcp.odd) return resolve(null)
-      child = spawnFn(codexBin(), ['app-server', '--stdio', ...disableArgs(mcp.names)], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'], detached: true })
+      // plugins and apps can bring servers config.toml does not name
+      child = spawnFn(codexBin(), ['app-server', '--stdio', '--disable', 'plugins', '--disable', 'apps', ...disableArgs(mcp.names)], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'], detached: true })
     } catch {
       return resolve(null)
     }
@@ -45,6 +47,7 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps } = {}) {
     // reader; anything else, at any time or still there at the end, voids
     // the reading (codex-lockdown.mjs).
     let unsafe = false
+    const untrack = trackGroup(child.pid)
     const watch = child.pid ? watchTree(child.pid, { allow: GIT_PATHS, ...(ps && { ps }), onBad: () => { unsafe = true; finish(null) } }) : null
     let buf = ''
     let settled = false
@@ -52,6 +55,7 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps } = {}) {
       if (settled) return
       settled = true
       clearTimeout(timer)
+      untrack()
       watch?.stop()
       if (v && watch && watch.check(true).length) unsafe = true
       try {
@@ -83,9 +87,14 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps } = {}) {
           child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'initialized' })}\n`)
           child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'config/read', params: { cwd: tmpdir() } })}\n`)
         } else if (m.id === 3) {
+          // Every server config.toml names must be present and off, and no
+          // server at all may be on; a missing or reshaped answer while any
+          // server is configured is no confirmation.
           const servers = m.result?.config?.mcp_servers
-          const all = servers && typeof servers === 'object' ? Object.values(servers) : []
-          if (!m.result || all.some((v) => v?.enabled !== false)) return finish(null) // not locked down: no reading
+          const shaped = servers && typeof servers === 'object' && !Array.isArray(servers)
+          const named = mcp.names.every((n) => shaped && servers[n]?.enabled === false)
+          const anyOn = shaped && Object.values(servers).some((v) => v?.enabled !== false)
+          if (!m.result || !named || anyOn || (!shaped && mcp.names.length)) return finish(null) // not locked down: no reading
           child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'account/rateLimits/read', params: null })}\n`)
         } else if (m.id === 2) finish(m.result ? parseLimits(m.result) : null)
         else if (m.id === 1 && m.error) finish(null)

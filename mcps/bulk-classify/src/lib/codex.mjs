@@ -19,7 +19,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assertNoPhi } from './route.mjs'
-import { watchTree } from './codex-lockdown.mjs'
+import { trackGroup, watchTree } from './codex-lockdown.mjs'
 
 // Defaults from the 2026-11-23 tuning grid (public Banking77, 616 items, 77
 // labels, every item to the model; plan folder results/): gpt-5.6-luna beat
@@ -200,6 +200,7 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
         hard ||= setTimeout(() => signalAll('SIGKILL'), 5000)
       }
       const timer = setTimeout(kill, TIMEOUT_MS)
+      const untrack = trackGroup(child.pid)
       // The backstop (codex-lockdown.mjs): watched for its whole life; any
       // process under it (nothing may run under `codex exec`) ends
       // subscription use for the run.
@@ -220,6 +221,7 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
         clearTimeout(timer)
         clearTimeout(hard)
         watch?.stop()
+        untrack()
         resetSubscriptionStatus()
         reject(new SubscriptionError(`Codex could not start (${e.code || 'error'}).`, 'missing'))
       })
@@ -227,6 +229,7 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
       child.on('close', (c, sig) => {
         if (closed) return
         closed = true
+        untrack()
         clearTimeout(timer)
         clearTimeout(hard)
         watch?.stop()

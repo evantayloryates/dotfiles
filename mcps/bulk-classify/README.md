@@ -377,6 +377,9 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    clean-caller control that does. `test/mutants.mjs` turns off each routing
    guard in turn in a scratch copy and requires a failing test for each
    (19 of 19 killed, 2026-11-23).
+   `test/release/check.sh <out-dir>` runs the whole release check against
+   the checkout it sits in (harness launch proof, offline suite, mutants,
+   live Codex isolation, canary, profile guard) and ends `result: PASS`.
 2. Against scratch stores (`CLASSIFIER_JOBS_DIR`, `CLASSIFIER_PROFILES_DIR`):
    `classifier texts --labels billing,scheduling "charged twice" "lol"` gives
    `billing` and `none`.

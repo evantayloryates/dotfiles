@@ -57,8 +57,9 @@ test('balance drop against a fresh baseline only (two hours)', async () => {
 })
 
 test('readLimits speaks the app-server handshake and survives a dead reader', async () => {
-  const fakeSpawn = () => {
+  const fakeSpawn = (bin, args) => {
     const c = new EventEmitter()
+    c.argsSeen = args || []
     c.stdout = new EventEmitter()
     c.kill = () => {}
     const written = []
@@ -77,17 +78,29 @@ test('readLimits speaks the app-server handshake and survives a dead reader', as
     return c
   }
   let mcpState = { gmail: { enabled: false }, robinhood: { enabled: false } }
-  const r = await readLimits({ spawnFn: fakeSpawn })
+  const two = '[mcp_servers.gmail]\ncommand = "x"\n[mcp_servers.robinhood]\ncommand = "y"\n'
+  const r = await readLimits({ spawnFn: fakeSpawn, mcpConfig: two })
   assert.equal(r.usedPercent, 101)
   assert.deepEqual(fakeSpawn.last.written, ['initialize', 'initialized', 'config/read', 'account/rateLimits/read'])
   mcpState = { gmail: { enabled: false }, robinhood: { enabled: true } }
-  assert.equal(await readLimits({ spawnFn: fakeSpawn }), null, 'an MCP server still enabled: no reading')
+  assert.equal(await readLimits({ spawnFn: fakeSpawn, mcpConfig: two }), null, 'an MCP server still enabled: no reading')
   assert.ok(!fakeSpawn.last.written.includes('account/rateLimits/read'))
   // backstop: anything but the real git under the reader voids the reading
   mcpState = { gmail: { enabled: false } }
+  const one = '[mcp_servers.gmail]\ncommand = "x"\n'
   const withPid = (...a) => Object.assign(fakeSpawn(...a), { pid: 999999 })
-  assert.equal(await readLimits({ spawnFn: withPid, ps: () => `999999 1 999999 /x/codex\n4300 999999 999999 /tmp/evil/git\n` }), null)
-  assert.ok(await readLimits({ spawnFn: withPid, ps: () => `999999 1 999999 /x/codex\n` }), 'a clean tree keeps the reading')
+  assert.equal(await readLimits({ spawnFn: withPid, mcpConfig: one, ps: () => `999999 1 999999 /x/codex\n4300 999999 999999 /tmp/evil/git\n` }), null)
+  assert.ok(await readLimits({ spawnFn: withPid, mcpConfig: one, ps: () => `999999 1 999999 /x/codex\n` }), 'a clean tree keeps the reading')
+  // the config/read gate is not vacuous: every configured name must be there and off
+  const cfg = '[mcp_servers.gmail]\ncommand = "x"\n[mcp_servers.robinhood]\ncommand = "y"\n'
+  mcpState = undefined
+  assert.equal(await readLimits({ spawnFn: fakeSpawn, mcpConfig: cfg }), null, 'no mcp_servers in the answer while config names servers')
+  mcpState = { gmail: { enabled: false } }
+  assert.equal(await readLimits({ spawnFn: fakeSpawn, mcpConfig: cfg }), null, 'a configured server missing from the answer')
+  mcpState = { gmail: { enabled: false }, robinhood: { enabled: false } }
+  assert.ok(await readLimits({ spawnFn: fakeSpawn, mcpConfig: cfg }))
+  assert.ok(fakeSpawn.last.argsSeen.join(' ').includes('--disable plugins --disable apps'))
+  assert.ok(fakeSpawn.last.argsSeen.includes('mcp_servers.robinhood.enabled=false'))
   assert.equal(await readLimits({ spawnFn: () => { throw new Error('no codex') } }), null)
   const silent = () => Object.assign(new EventEmitter(), { stdout: new EventEmitter(), stdin: Object.assign(new EventEmitter(), { write: () => {} }), kill: () => {} })
   assert.equal(await readLimits({ spawnFn: silent, timeoutMs: 50 }), null)
