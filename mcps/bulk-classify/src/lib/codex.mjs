@@ -20,11 +20,18 @@ import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assertNoPhi } from './route.mjs'
 
-export const CODEX_MODEL = process.env.CLASSIFIER_CODEX_MODEL || 'gpt-6-luna'
+// Defaults from the 2026-11-23 tuning grid (public Banking77, 616 items, 77
+// labels, every item to the model; plan folder results/): gpt-5.6-luna beat
+// gpt-6-luna by 4-5 points (86.2-87.2% vs 82.1-82.6%; 92.3% vs 83.8% on 20
+// labels with "none" items) and gpt-6-sol (70%); effort low is the floor for
+// luna models and medium gained nothing; 50 items x 12 processes gave the
+// most items per second (19-25/s, p95 24-32 s per call) within a point of
+// the best accuracy. 0 of 440 injected labels won on two draws.
+export const CODEX_MODEL = process.env.CLASSIFIER_CODEX_MODEL || 'gpt-5.6-luna'
 export const CODEX_EFFORT = process.env.CLASSIFIER_CODEX_EFFORT || 'low'
-export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 100
+export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 50
 export const CODEX_CHARS = Number(process.env.CLASSIFIER_CODEX_CHARS) || 60_000
-export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 6
+export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 12
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
 // Tool features off: classification needs no tools, and each one adds prompt
 // overhead (and a way to act). The sandbox is read-only regardless.

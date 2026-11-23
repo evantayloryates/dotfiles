@@ -19,7 +19,7 @@
 //              probabilities feed confidence (the default on the API route)
 //   chat       API key, chat completions, 20 items per call (rollback:
 //              CLASSIFIER_STAGE2=chat)
-//   codex      ChatGPT subscription through `codex exec`, ~100 items per call;
+//   codex      ChatGPT subscription through `codex exec`, ~50 items per call;
 //              any failure sends the affected items to the API engine
 // Stage one (embeddings) always runs on the API key; on the subscription route
 // CLASSIFIER_SUB_STAGE1=skip sends every item to Codex instead.

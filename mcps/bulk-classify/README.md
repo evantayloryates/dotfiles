@@ -62,7 +62,7 @@ normalise (repair broken characters, strip invisible ones, drop empties and "N/A
                          API route: Decisions API, one request per item
                            (CLASSIFIER_STAGE2=chat: gpt-6-luna chat, reasoning
                            none, priority tier, 20 items per call)
-                         subscription route: codex exec, ~100 items per call
+                         subscription route: codex exec (gpt-5.6-luna), 50 items per call, 12 at once
 ```
 
 "The model" above is the stage-two engine the route picked (see
@@ -124,7 +124,7 @@ Stage two has three engines:
 |---|---|---|---|
 | `decisions` | Kickoff ZDR API key | `POST /v1/decisions` (`gpt-6-luna`), one request per text: one `choice` question (the labels plus `none`, defined in the developer turn), one `predicate` per label for a second label; the choice's `confidence` moves the vote-based confidence | API route (default) |
 | `chat` | Kickoff ZDR API key | chat completions, 20 items per call, strict schema (the engine before 2026-11) | API route with `CLASSIFIER_STAGE2=chat` (rollback) |
-| `codex` | ChatGPT subscription | `codex exec` (official CLI only), up to 100 items per call, 6 calls at once, `--output-schema`, `--ephemeral`, `-s read-only`, tools off, a scratch cwd outside any repo, only `HOME`/`PATH`/`TMPDIR`/`LANG` in its environment, text over stdin | subscription route |
+| `codex` | ChatGPT subscription | `codex exec` (official CLI only, `gpt-5.6-luna`, effort low), up to 50 items per call, 12 calls at once, `--output-schema`, `--ephemeral`, `-s read-only`, tools off, a scratch cwd outside any repo, only `HOME`/`PATH`/`TMPDIR`/`LANG` in its environment, text over stdin | subscription route |
 
 `src/lib/route.mjs` picks the route per call (and per job, recorded in the
 job and re-checked by its worker). **Any one PHI signal forces the API key;
@@ -280,9 +280,9 @@ Unexpected errors return only an error code, never a path.
 Routing and engines: `CLASSIFIER_ROUTE` (`auto`, the default, or `api` to
 keep everything on the key), `CLASSIFIER_STAGE2=chat` (API engine rollback),
 `CLASSIFIER_SUB_STAGE1=skip` (subscription route without embeddings),
-`CLASSIFIER_PHI=1`, `CLASSIFIER_CODEX_MODEL` (`gpt-6-luna`; the subscription
+`CLASSIFIER_PHI=1`, `CLASSIFIER_CODEX_MODEL` (`gpt-5.6-luna`; the subscription
 refuses `gpt-6.2-luna`), `CLASSIFIER_CODEX_EFFORT` (`low`; `none` is
-refused), `CLASSIFIER_CODEX_BATCH` (100), `CLASSIFIER_CODEX_PARALLEL` (6).
+refused), `CLASSIFIER_CODEX_BATCH` (50), `CLASSIFIER_CODEX_PARALLEL` (12).
 
 Environment variables the launcher passes through, for experiments only:
 `CLASSIFIER_BATCH` (items per model call, 20), `CLASSIFIER_CANDIDATES`
@@ -322,6 +322,32 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    round.
 
 ## Why it is built this way
+
+Engines and the subscription defaults, measured 2026-11-23 on public
+Banking77 (test split; every item sent to the model; plan folder
+`~/src/docs/plans/bulk-classify-routing/results/`):
+
+| Engine | 77 bare labels (616) | 20 labels + 60 `none` (260) | Injection set (440): injected label won | p50 / p95 per call | Items/s | Cost per 1,000 |
+|---|---|---|---|---|---|---|
+| decisions | 76.1% | 81.5% (`none` 62%) | 0 | 0.56 / 0.81 s | 350 | $0.16 |
+| chat | 81.7% | 81.9% (`none` 42%) | 0 | 1.4 / 1.6 s | 290 | $0.034 |
+| codex gpt-6-luna, 100 x 6 | 82.1-82.6% | 83.8% | 2 (before the second opinion) | 25 / 26-30 s | 19.5 | subscription |
+| **codex gpt-5.6-luna, 50 x 12 (default)** | 86.2-86.5% | 92.3% (`none` 78%, at 100 x 6) | 0 and 0 (9-14 second opinions) | 18-21 / 24-32 s | 19-25 | subscription |
+
+- Grid (gpt-6-luna unless named): 25 / 50 / 100 / 200 items per call gave
+  79.5 / 80.8 / 82.1 / 82.0%; effort medium 81.8%; gpt-6-sol 70.0%;
+  gpt-5.6-luna 100 x 6 86.5-87.2% but 13.5-16.4 items/s. Lean base
+  instructions (`model_instructions_file`) cut tokens 20% but not latency.
+- The official `codex app-server` (one process, ephemeral threads,
+  `outputSchema`) was 20-40% faster per call at 100 items, equal at 25; it
+  cannot ignore the user's `config.toml`, so it is not the default.
+- Confidence on the subscription route comes from embedding agreement:
+  `high` 92-94% correct, `medium` 76-79%, `low` 54-69%. The model's own
+  probability (asked in the schema) put 535 of 616 items at 0.9+ for 92%
+  (ECE 0.083), so it is not used. Decisions' probabilities: ECE 0.06.
+- Sustained: 3,080 items (all of Banking77 test) as one job through the
+  launcher in 93 s, 87.6%, 62 Codex calls, no fallback. The Pro plan's
+  weekly usage stayed at 32% across about 13,000 items of tuning.
 
 Engines, measured 2026-11-22 (384 synthetic grocery-support messages, 18
 labels with descriptions plus 40 that fit none; no real data):
