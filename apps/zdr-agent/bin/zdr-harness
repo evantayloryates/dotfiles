@@ -34,6 +34,9 @@ CONFIG_FILE="$(cd "${SCRIPT_DIR}/../opencode" && pwd -P)/opencode.json"
 GLOBAL_CONFIG_DIR="${ZH}/xdg/config/opencode"
 DOTFILES_SRC="$(cd "${SCRIPT_DIR}/../../../src" && pwd -P)"
 OPENCODE_BIN="${ZH}/opt/node_modules/opencode-ai/bin/opencode.exe"
+# The classifier (mcps/bulk-classify) decides PHI routing from how it is
+# started; check_classifier_registration keeps that start exactly this.
+CLASSIFIER_MCP="${PROJECT_DIR}/../../mcps/bulk-classify/src/launch"
 
 . "${DOTFILES_SRC}/lib/read-env.sh"
 
@@ -127,7 +130,39 @@ load_secrets() {
   KICKOFF_CLOUDINARY_TOKEN="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_CLOUDINARY_TOKEN 2>/dev/null || true)"
 }
 
+# The classifier routes harness work to the ZDR API key because it can see
+# it was started by the harness (HOME, the harness's variables, the process
+# chain). Started any other way, through a shared host (anchor,
+# mcps/_shared/bin/run) or with a changed environment, it could not, and
+# general work goes to Taylor's ChatGPT subscription. So the harness refuses
+# to start unless opencode.json launches the classifier launcher itself,
+# directly, from {env:ZDR_HARNESS_CLASSIFIER_MCP}, with no extra
+# environment, and no other server reaches it. CONFIG_FILE and
+# CLASSIFIER_MCP may be overridden for the classifier's own tests.
+check_classifier_registration() {
+  local launcher
+  launcher="$(cd "$(dirname "$CLASSIFIER_MCP")" 2>/dev/null && pwd -P)/$(basename "$CLASSIFIER_MCP")" ||
+    die "classifier launcher not found at ${CLASSIFIER_MCP}"
+  [[ -x "$launcher" && "$launcher" == */mcps/bulk-classify/src/launch ]] ||
+    die "classifier launcher must be mcps/bulk-classify/src/launch; refusing"
+  /usr/bin/python3 -I -B - "$CONFIG_FILE" <<'PY' || die "opencode.json must start the classifier directly from {env:ZDR_HARNESS_CLASSIFIER_MCP}, with no environment, and nothing else may reach it; refusing"
+import json, re, sys
+cfg = json.load(open(sys.argv[1]))
+mcp = cfg.get("mcp") or {}
+c = mcp.get("classifier") or {}
+ok = c.get("type") == "local" and c.get("command") == ["{env:ZDR_HARNESS_CLASSIFIER_MCP}"] and not c.get("environment")
+for name, m in mcp.items():
+    if name == "classifier":
+        continue
+    text = json.dumps([m.get("command"), m.get("url"), m.get("environment")])
+    if re.search(r"bulk-classify|ZDR_HARNESS_CLASSIFIER_MCP|_shared/bin/run|anchor|classifier", text, re.I):
+        ok = False
+sys.exit(0 if ok else 1)
+PY
+}
+
 preflight() {
+  check_classifier_registration
   [[ -x "$OPENCODE_BIN" ]] ||
     die "OpenCode not installed; run: npm i --prefix ${ZH}/opt opencode-ai@${OPENCODE_VERSION}"
   # Managed config overrides every other source, so its presence would silently
@@ -193,7 +228,7 @@ isolated_env() {
     ZDR_HARNESS_CLOUDINARY_MCP="${PROJECT_DIR}/mcps/cloudinary-mcp" \
     ZDR_HARNESS_DB_MCP="${PROJECT_DIR}/mcps/kickoff-db-mcp" \
     ZDR_HARNESS_SLACK_MCP="${PROJECT_DIR}/mcps/kickoff-slack-mcp" \
-    ZDR_HARNESS_CLASSIFIER_MCP="${PROJECT_DIR}/../../mcps/bulk-classify/src/launch" \
+    ZDR_HARNESS_CLASSIFIER_MCP="$CLASSIFIER_MCP" \
     ZDR_HARNESS_EXPORTS_MCP="${PROJECT_DIR}/mcps/exports-mcp" \
     KICKOFF_SLACK_ZDR_BOT_TOKEN="${KICKOFF_SLACK_ZDR_BOT_TOKEN:-}" \
     KICKOFF_SLACK_MCP_CLIENT_SECRET="${KICKOFF_SLACK_MCP_CLIENT_SECRET:-}" \

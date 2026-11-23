@@ -151,6 +151,7 @@ function harnessReplica(command, { parentArgv0 } = {}) {
 ZH="${ZH}"
 PROJECT_DIR="${REPO}/apps/zdr-agent"
 CONFIG_FILE="${OPENCODE_JSON}"
+CLASSIFIER_MCP="${LAUNCH}"
 KICKOFF_OPENAI_ZDR_API_KEY=dummy ZDR_HARNESS_PASSWORD=dummy KICKOFF_BUGSNAG_TOKEN=dummy KICKOFF_POSTHOG_TOKEN=dummy
 ${fn}
 cd "$ZH/work"
@@ -178,6 +179,12 @@ test('ZDR harness replica under a harness-looking parent process: the process ch
   assert.ok(out.codes.includes('process_harness'), JSON.stringify(out.codes))
 })
 
+// The harness-side check (bin/zdr-harness check_classifier_registration) has
+// its own test beside the harness; it runs here too, imported (not on the
+// command line: an argv naming the harness app would trip the process signal
+// for the clean launches above).
+await import('../../../apps/zdr-agent/test/classifier-registration.test.mjs')
+
 test('ZDR harness registration: the classifier is launched directly, never through a shared host', () => {
   const cfg = JSON.parse(readFileSync(OPENCODE_JSON, 'utf8'))
   assert.deepEqual(cfg.mcp.classifier.command, ['{env:ZDR_HARNESS_CLASSIFIER_MCP}'])
@@ -186,7 +193,8 @@ test('ZDR harness registration: the classifier is launched directly, never throu
     const cmd = JSON.stringify(m.command || m.url || '')
     assert.ok(!/anchor|_shared\/bin\/run|bulk-classify/.test(cmd), `harness MCP ${name} must not reach the classifier through a shared host`)
   }
-  assert.match(readFileSync(HARNESS_SCRIPT, 'utf8'), /ZDR_HARNESS_CLASSIFIER_MCP="\$\{PROJECT_DIR\}\/\.\.\/\.\.\/mcps\/bulk-classify\/src\/launch"/)
+  assert.match(readFileSync(HARNESS_SCRIPT, 'utf8'), /^CLASSIFIER_MCP="\$\{PROJECT_DIR\}\/\.\.\/\.\.\/mcps\/bulk-classify\/src\/launch"$/m)
+  assert.match(readFileSync(HARNESS_SCRIPT, 'utf8'), /ZDR_HARNESS_CLASSIFIER_MCP="\$CLASSIFIER_MCP"/)
 })
 
 test('Claude Code / Codex registration (mcps/_shared/bin/run): clean routes to the subscription, harness env does not', () => {
