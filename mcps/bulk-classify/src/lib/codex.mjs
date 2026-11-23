@@ -32,6 +32,7 @@ export const CODEX_EFFORT = process.env.CLASSIFIER_CODEX_EFFORT || 'low'
 export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 50
 export const CODEX_CHARS = Number(process.env.CLASSIFIER_CODEX_CHARS) || 60_000
 export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 12
+const RETRY_DELAY_MS = Number(process.env.CLASSIFIER_CODEX_RETRY_MS) || 5000
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
 // Tool features off: classification needs no tools, and each one adds prompt
 // overhead (and a way to act). The sandbox is read-only regardless.
@@ -304,8 +305,16 @@ export class CodexBatcher {
       }
     } catch (err) {
       // Login, limits and PHI refusals end subscription use for this run; a
-      // one-off bad answer or error only fails its own batch.
+      // one-off error or timeout gets one more try after a short pause (the
+      // backend sometimes fails every call of a burst for a minute: seen in
+      // 3 of 7 runs on 2026-11-23, each recovering on the next call), then
+      // fails only its own batch, whose items go to the API key.
       if (err.code === 'phi_refused' || FATAL_KINDS.has(err.kind)) this.broken = err
+      else if (!batch.retried && ['error', 'timeout'].includes(err.kind) && !this.opts.signal?.aborted) {
+        batch.retried = true
+        await new Promise((r) => setTimeout(r, this.opts.retryDelayMs ?? RETRY_DELAY_MS))
+        return this.run(batch)
+      }
       for (const b of batch) b.reject(err)
     }
   }

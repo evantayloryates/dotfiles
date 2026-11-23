@@ -15,11 +15,16 @@ export const DECISION_MODEL = 'gpt-6-luna' // the only model /v1/decisions serve
 export const EMBED_MODEL = 'text-embedding-3-small'
 export const EMBED_DIMS = 512
 
-// $ per 1M tokens [input, cached input, output]; the priority tier is ~2x.
-// Decisions: $0.10 uncached input, output free (published 2026-11). The
-// cached-input rate is not published ("discounted"); 0.01 is an assumption.
-const PRICES = {
-  'gpt-6-luna': [0.2, 0.02, 1.2],
+// $ per 1M tokens [input, cached input, output], standard tier, from
+// developers.openai.com/api/docs/pricing (read 2026-11-23); Fast (formerly
+// priority) is exactly 2x on that page. gpt-6-luna was [0.2, 0.02, 1.2]
+// before (the gpt-5.6-luna rates), which overstated chat spend about 2x.
+// Decisions: $0.10 uncached input, output free (published 2026-11; not on the
+// pricing page). The cached-input rate is not published ("discounted"); 0.01
+// is an assumption.
+export const PRICES = {
+  'gpt-6-luna': [0.1, 0.01, 0.5],
+  'gpt-5.6-luna': [0.2, 0.02, 1.2],
   decisions: [0.1, 0.01, 0],
   'text-embedding-3-small': [0.02, 0, 0],
 }

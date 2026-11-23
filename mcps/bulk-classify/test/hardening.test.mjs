@@ -473,3 +473,19 @@ test('rollback lever: ~/.config/classifier/route forces the API key for clean wo
   }
   assert.equal(route(base).route, 'subscription')
 })
+
+test('a one-off Codex error is retried once, then its batch alone falls back; fatal kinds are never retried', async () => {
+  let calls = 0
+  const flaky = new CodexBatcher({ system: 's', reminder: 'r', labelNames: ['a'], multi: false, retryDelayMs: 1, call: async ({ entries }) => (++calls === 1 ? Promise.reject(new SubscriptionError('blip', 'error')) : new Map(entries.map((e) => [e.key, 'a']))) })
+  assert.equal(await flaky.add({ message: 'x' }), 'a')
+  assert.equal(calls, 2)
+  let down = 0
+  const dead = new CodexBatcher({ system: 's', reminder: 'r', labelNames: ['a'], multi: false, retryDelayMs: 1, call: async () => (down++, Promise.reject(new SubscriptionError('down', 'timeout'))) })
+  await assert.rejects(dead.add({ message: 'x' }), (e) => e.kind === 'timeout')
+  assert.equal(down, 2, 'one retry only')
+  assert.equal(dead.broken, null)
+  let lim = 0
+  const limited = new CodexBatcher({ system: 's', reminder: 'r', labelNames: ['a'], multi: false, retryDelayMs: 1, call: async () => (lim++, Promise.reject(new SubscriptionError('limit', 'rate_limited'))) })
+  await assert.rejects(limited.add({ message: 'x' }))
+  assert.equal(lim, 1)
+})

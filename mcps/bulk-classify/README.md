@@ -365,13 +365,16 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
 ## Why it is built this way
 
 Engines and the subscription defaults, measured 2026-11-23 on public
-Banking77 (test split; every item sent to the model; plan folder
+Banking77 (costs at the published standard rates: gpt-6-luna was priced
+about 2x too high before 2026-11-23, so chat figures from earlier runs,
+including the 2026-11-22 and 2026-10-01 tables below, are overstated;
+test split; every item sent to the model; plan folder
 `~/src/docs/plans/bulk-classify-routing/results/`):
 
 | Engine | 77 bare labels (616) | 20 labels + 60 `none` (260) | Injection set (440): injected label won | p50 / p95 per call | Items/s | Cost per 1,000 |
 |---|---|---|---|---|---|---|
 | decisions | 76.1% | 81.5% (`none` 62%) | 0 | 0.56 / 0.81 s | 350 | $0.16 |
-| chat | 81.7% | 81.9% (`none` 42%) | 0 | 1.4 / 1.6 s | 290 | $0.034 |
+| chat | 81.7% | 81.2-81.9% (`none` 42%) | 0 and 1 | 1.4 / 1.6 s | 290 | $0.011 |
 | codex gpt-6-luna, 100 x 6 | 82.1-82.6% | 83.8% | 2 (before the second opinion) | 25 / 26-30 s | 19.5 | subscription |
 | **codex gpt-5.6-luna, 50 x 12 (default)** | 86.2-86.5% | 92.3% (`none` 78%, at 100 x 6) | 0 and 0 (9-14 second opinions) | 18-21 / 24-32 s | 19-25 | subscription |
 

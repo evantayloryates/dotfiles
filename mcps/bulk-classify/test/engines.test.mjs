@@ -276,3 +276,18 @@ test('Codex defaults are the tuned configuration (gpt-5.6-luna, low, 50 x 12)', 
   assert.equal(m.CODEX_BATCH, 50)
   assert.equal(m.CODEX_PARALLEL, 12)
 })
+
+test('prices: gpt-6-luna at the published standard rate, Fast (priority) 2x, in chat usage', async () => {
+  const { PRICES, chatJson } = await import('../src/lib/openai.mjs')
+  assert.deepEqual(PRICES['gpt-6-luna'], [0.1, 0.01, 0.5])
+  assert.deepEqual(PRICES['gpt-5.6-luna'], [0.2, 0.02, 1.2])
+  const saved = globalThis.fetch
+  globalThis.fetch = async () => json(200, { service_tier: 'priority', choices: [{ message: { content: '{"label":"billing"}' } }], usage: { prompt_tokens: 1_000_000, completion_tokens: 100_000, prompt_tokens_details: { cached_tokens: 0 } } })
+  try {
+    const usage = newUsage()
+    await chatJson({ system: 's', user: 'u', schema: { type: 'object', properties: { label: { type: 'string' } }, required: ['label'], additionalProperties: false }, tier: 'priority', usage })
+    assert.ok(Math.abs(usage.usd - 2 * (0.1 + 0.05)) < 1e-9, `usd ${usage.usd}`)
+  } finally {
+    globalThis.fetch = saved
+  }
+})

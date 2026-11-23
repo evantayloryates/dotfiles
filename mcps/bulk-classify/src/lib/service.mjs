@@ -234,13 +234,14 @@ function ensureCancelCleared(id) {
 export const DEFAULT_MAX_USD = 10
 const longChars = (items) => items.reduce((n, it) => n + (it.status === 'ok' && it.text.length > 800 ? it.text.length : 0), 0)
 // Per engine (measured 2026-11-22 on 384 synthetic support messages, 18
-// labels): chat $0.033/1k, Decisions $0.10/1k (one request per text, no
+// labels): chat $0.033/1k (at the old gpt-6-luna price; $0.011-0.026/1k at the
+// published rate, 2026-11-23 Banking77), Decisions $0.10/1k (one request per text, no
 // batching) and $0.42/1k with two labels (a predicate per label); the
 // subscription route pays only for embeddings.
 function estimateUsd(items, opts, route) {
   const short = items.filter((it) => it.status === 'ok' && it.text.length <= 800).length
   const engine = route?.engine || 'decisions'
-  const base = engine === 'codex' ? 0.002 : engine === 'decisions' ? (opts.maxLabels === 2 ? 0.5 : 0.12) : 0.06 * (opts.maxLabels === 2 ? 2 : 1)
+  const base = engine === 'codex' ? 0.002 : engine === 'decisions' ? (opts.maxLabels === 2 ? 0.5 : 0.12) : 0.03 * (opts.maxLabels === 2 ? 2 : 1)
   const perK = base * (opts.prefer === 'accuracy' ? 1.3 : 1)
   return (short / 1000) * perK + (longChars(items) / 1000) * 0.0001
 }
