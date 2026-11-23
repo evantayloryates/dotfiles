@@ -4,6 +4,7 @@
 
 import { serveMcp } from '../../_shared/kernel/mcp-stdio.mjs'
 import { callerFrom, cancelJob, classifyTexts, GUIDE, init, jobResults, profilesText, sampleTexts, saveProfileText, startJob, waitJob } from './lib/service.mjs'
+import { closeAppPool } from './lib/codex-app.mjs'
 
 const log = (...a) => console.error('[classifier]', ...a)
 
@@ -215,4 +216,5 @@ init()
 // to any Codex process group it started (codex-lockdown.mjs trackGroup).
 for (const sig of ['SIGTERM', 'SIGHUP', 'SIGINT']) process.on(sig, () => process.exit(0))
 await serveMcp({ name: 'classifier', version: '1.0.0', instructions: INSTRUCTIONS, tools: tools().map(guarded), log })
+await closeAppPool().catch(() => {})
 process.exit(0)

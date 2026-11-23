@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-11-23.002 (branch ety/bulk-classify-codex-app-server, release 2 candidate)
+
+- The subscription route runs on a private, warm `codex app-server` (official
+  CLI, experimental) instead of one `codex exec` per batch: one ephemeral
+  thread per batch, 24 at once. On all 3,080 Banking77 test items: 48-51
+  items/s against 33 for `codex exec` at 12 (exec at 24 lost 2-4 calls to
+  the API key), the same accuracy (87.8-88.7% against 87.3-88.1%), half the
+  subscription tokens per item (201 against 382). Plan folder
+  `~/src/docs/plans/bulk-classify-app-server`.
+- `codex exec` is the fallback, case by case: a failed turn keeps the
+  answers it streamed and sends the rest to exec; unanswered items go to
+  exec alone; a breaker skips the app-server after three failures and
+  probes it again after 30 s (doubling). Usage limit, API-key login and
+  unsupported model still end subscription use for the run.
+- Health check before any server takes a turn: ChatGPT login (API-key login
+  refused), every `config.toml` MCP server disabled by name (`-c
+  mcp_servers={}` leaves them on), sandbox read-only, approvals never,
+  notify, memories and history off. `classifier app-health`.
+- PHI: the engine re-checks before every batch, after acquiring a server and
+  before an exec fallback; it refuses in the zdr scope when called directly
+  (tests). Routing itself is unchanged.
+- `CLASSIFIER_CODEX_ENGINE=exec` restores release 1; new settings
+  `CLASSIFIER_CODEX_APP_*` (servers, tier, shape, base, timeout, idle).
+- Audit line adds `codex_app_calls` and `codex_app_fallback_items`.
+
 ## 2026-11-23.001 (branch ety/bulk-classify-decisions-routing, release candidate)
 
 - Routing hardened (see README "Engines and routing"): the launcher judges

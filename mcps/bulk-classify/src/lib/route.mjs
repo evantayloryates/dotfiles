@@ -359,7 +359,7 @@ export function decideRoute(ctx = {}, { subscriptionStatus } = {}) {
 // One line for results and logs.
 export function describeRoute(r) {
   if (!r) return 'Engine: unknown.'
-  const engine = r.route === 'subscription' ? 'ChatGPT subscription via Codex CLI' : r.engine === 'chat' ? 'API key, chat completions (rollback)' : 'API key, Decisions API'
+  const engine = r.route === 'subscription' ? 'ChatGPT subscription via Codex (app-server, exec fallback)' : r.engine === 'chat' ? 'API key, chat completions (rollback)' : 'API key, Decisions API'
   const fb = r.fallback ? ` Fallback: ${r.fallback.items} item${r.fallback.items === 1 ? '' : 's'} went to the API key (${r.fallback.reason}).` : ''
   // Short on purpose (responses stay under ~8k characters): the codes, plus
   // the first reasons in words; `classifier route` prints them all.

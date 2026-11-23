@@ -268,13 +268,14 @@ test('Codex answer echoing a label written into an injection-shaped text gets a 
   assert.equal(usage.subscription_fallback_items, 0)
 })
 
-test('Codex defaults are the tuned configuration (gpt-5.6-luna, low, 50 x 12)', async () => {
+test('Codex defaults are the tuned configuration (gpt-5.6-luna, low, 50 x 24 on the app-server, exec capped at 12)', async () => {
   const m = await import('../src/lib/codex.mjs')
-  if (process.env.CLASSIFIER_CODEX_MODEL || process.env.CLASSIFIER_CODEX_BATCH || process.env.CLASSIFIER_CODEX_PARALLEL) return
+  if (process.env.CLASSIFIER_CODEX_MODEL || process.env.CLASSIFIER_CODEX_BATCH || process.env.CLASSIFIER_CODEX_PARALLEL || process.env.CLASSIFIER_CODEX_ENGINE) return
   assert.equal(m.CODEX_MODEL, 'gpt-5.6-luna')
   assert.equal(m.CODEX_EFFORT, 'low')
   assert.equal(m.CODEX_BATCH, 50)
-  assert.equal(m.CODEX_PARALLEL, 12)
+  assert.equal(m.CODEX_PARALLEL, 24)
+  assert.equal(m.EXEC_PARALLEL, 12)
 })
 
 test('prices: gpt-6-luna at the published standard rate, Fast (priority) 2x, in chat usage', async () => {

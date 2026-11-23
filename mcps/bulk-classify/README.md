@@ -62,7 +62,8 @@ normalise (repair broken characters, strip invisible ones, drop empties and "N/A
                          API route: Decisions API, one request per item
                            (CLASSIFIER_STAGE2=chat: gpt-6-luna chat, reasoning
                            none, priority tier, 20 items per call)
-                         subscription route: codex exec (gpt-5.6-luna), 50 items per call, 12 at once
+                         subscription route: codex app-server (gpt-5.6-luna), 50 items per turn,
+                           24 at once; codex exec (12 at once) as the per-batch fallback
 ```
 
 "The model" above is the stage-two engine the route picked (see
@@ -124,7 +125,8 @@ Stage two has three engines:
 |---|---|---|---|
 | `decisions` | Kickoff ZDR API key | `POST /v1/decisions` (`gpt-6-luna`), one request per text: one `choice` question (the labels plus `none`, defined in the developer turn), one `predicate` per label for a second label; the choice's `confidence` moves the vote-based confidence | API route (default) |
 | `chat` | Kickoff ZDR API key | chat completions, 20 items per call, strict schema (the engine before 2026-11) | API route with `CLASSIFIER_STAGE2=chat` (rollback) |
-| `codex` | ChatGPT subscription | `codex exec` (official CLI only, `gpt-5.6-luna`, effort low), up to 50 items per call, 12 calls at once, `--output-schema`, `--ephemeral`, `-s read-only`, tools off, a scratch cwd outside any repo, only `HOME`/`PATH`/`TMPDIR`/`LANG` in its environment, text over stdin | subscription route |
+| `codex` (app-server, primary) | ChatGPT subscription | a private, warm `codex app-server --listen stdio://` per classifier process (official CLI, `[experimental]`): one ephemeral thread per batch, `outputSchema`, MCP servers from `config.toml` disabled by name, memories/notify/history/skills off, health-checked before use (ChatGPT login, locked-down effective config); falls back to `codex exec` per batch and per item, circuit breaker after repeated failures (see "Subscription engine: app-server and fallback") | subscription route (default, `CLASSIFIER_CODEX_ENGINE=app`) |
+| `codex` (exec, fallback) | ChatGPT subscription | `codex exec` (official CLI only, `gpt-5.6-luna`, effort low), up to 50 items per call, 12 calls at once, `--output-schema`, `--ephemeral`, `-s read-only`, tools off, a scratch cwd outside any repo, only `HOME`/`PATH`/`TMPDIR`/`LANG` in its environment, text over stdin | app-server fallback; the whole subscription route with `CLASSIFIER_CODEX_ENGINE=exec` |
 
 `src/lib/route.mjs` picks the route per call (and per job, recorded in the
 job and re-checked by its worker). **Any one PHI signal forces the API key;
@@ -200,6 +202,37 @@ its reasons and any fallback, and usage counts `decision_calls`,
 `codex_calls`, `codex_input_tokens` (the subscription's limits, no dollar
 cost) and `subscription_fallback_items`. `classifier route [--phi] [--input
 f] [--json]` shows what a call from the current shell would use.
+
+### Subscription engine: app-server and fallback
+
+`src/lib/codex-app.mjs` runs the subscription route through a private
+`codex app-server` (never the shared daemon: its environment and config are
+Taylor's interactive Codex). Before a server takes a turn it must pass a
+health check: `account/read` says a ChatGPT login (an API-key login or none
+is refused), and `config/read` shows every MCP server disabled (`-c
+mcp_servers={}` does not remove them; each is disabled by name), sandbox
+read-only, approvals never, notify empty, memories and history off. Server
+requests (approvals, elicitations) are declined; a turn that starts a tool is
+discarded. The PHI check runs before every batch, again after a server is
+acquired, and again before an exec fallback.
+
+Fallback is case by case. A failed turn (server down, garbled protocol,
+timeout, unreadable or tool-using answer, overload) keeps the answers it had
+already streamed (validated like a full answer) and sends the rest of the
+batch to `codex exec`; items a turn left unanswered go to `codex exec` on
+their own. A usage limit, an API-key login or an unsupported model skips
+exec (it would fail the same way) and ends subscription use for the run, as
+in release 1; a login error is believed only when `codex login status`
+agrees. Three consecutive app-server failures (or one refused health check
+or missing binary) open a breaker: batches go to `codex exec` for 30 s
+(doubling per failed probe, up to 10 min), then one probe batch tries the
+app-server again. A timed-out turn pings its server; no answer retires it.
+Servers close after 2 minutes idle, on exit (group kill), and exit by
+themselves when their parent dies. `classifier app-health` runs the health
+check; usage counts `codex_app_calls`, `codex_app_failed_batches`,
+`codex_app_fallback_items`, `codex_app_salvaged_items` and
+`codex_cached_input_tokens`. `CLASSIFIER_CODEX_ENGINE=exec` restores release
+1's engine.
 
 **Paid credits.** Once the ChatGPT plan's usage limit is reached, an
 account with credits keeps answering and bills credits; that is allowed

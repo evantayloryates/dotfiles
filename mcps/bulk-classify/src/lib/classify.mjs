@@ -19,7 +19,8 @@
 //              probabilities feed confidence (the default on the API route)
 //   chat       API key, chat completions, 20 items per call (rollback:
 //              CLASSIFIER_STAGE2=chat)
-//   codex      ChatGPT subscription through `codex exec`, ~50 items per call;
+//   codex      ChatGPT subscription through `codex app-server` (codex-app.mjs),
+//              falling back to `codex exec` per batch and per item, ~50 items per call;
 //              any failure sends the affected items to the API engine
 // Stage one (embeddings) always runs on the API key; on the subscription route
 // CLASSIFIER_SUB_STAGE1=skip sends every item to Codex instead.
@@ -27,6 +28,7 @@
 import { ApiError, chatJson, decision, embedMany } from './openai.mjs'
 import { ALL_CANDIDATES_UP_TO, decide, KnnRunner } from './bank.mjs'
 import { CodexBatcher, FATAL_KINDS } from './codex.mjs'
+import { subscriptionCall } from './codex-app.mjs'
 import { stage2ApiEngine } from './route.mjs'
 import { openCache, textKey } from './cache.mjs'
 import { NONE } from './taxonomy.mjs'
@@ -137,7 +139,7 @@ export async function classifyItems(items, bank, emit, options = {}) {
   const skipStage1 = engine === 'codex' && options.stage1 === 'skip'
   const route = options.route || null
   const labelDesc = new Map(taxonomy.labels.map((l) => [l.name, l.description]))
-  const batcher = engine === 'codex' ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage, signal, onCall, call: options.codexCall }) : null
+  const batcher = engine === 'codex' ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage, signal, onCall, call: options.codexCall || subscriptionCall }) : null
   const noteFallback = (err, n) => {
     if (usage) usage.subscription_fallback_items = (usage.subscription_fallback_items || 0) + n
     if (!route) return

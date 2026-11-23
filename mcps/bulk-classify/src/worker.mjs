@@ -9,6 +9,7 @@ import { buildBank } from './lib/bank.mjs'
 import { classifyItems } from './lib/classify.mjs'
 import { jobDir, liveWorker, readInput, readJson, readResults, writeJson } from './lib/jobs.mjs'
 import { subscriptionStatus } from './lib/codex.mjs'
+import { closeAppPool } from './lib/codex-app.mjs'
 import { newUsage } from './lib/openai.mjs'
 import { JOBS_DIR } from './lib/paths.mjs'
 import { decideRoute, stage2ApiEngine } from './lib/route.mjs'
@@ -222,4 +223,8 @@ if (!/^cls_[0-9a-f]{8}$/.test(id || '')) {
   console.error('usage: worker.mjs <job_id>')
   process.exit(2)
 }
-main().then(() => process.exit(0))
+// The warm app-server is closed before exit (the exit hook kills its group
+// too, if anything skips this).
+main()
+  .then(() => closeAppPool())
+  .finally(() => process.exit(0))

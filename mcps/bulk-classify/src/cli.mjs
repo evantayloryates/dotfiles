@@ -4,6 +4,7 @@
 
 import { readFileSync } from 'node:fs'
 import { subscriptionStatus } from './lib/codex.mjs'
+import { appHealth, closeAppPool } from './lib/codex-app.mjs'
 import { callerPath } from './lib/input.mjs'
 import { prune } from './lib/jobs.mjs'
 import { ensureDirs, JOBS_DIR, RETENTION_DAYS, SCOPE } from './lib/paths.mjs'
@@ -116,6 +117,12 @@ async function main() {
       const r = decideRoute({ args: { phi: !!o.phi }, paths }, { subscriptionStatus })
       return o.json ? JSON.stringify({ scope: SCOPE, ...r }, null, 1) : `Scope: ${SCOPE}. Route: ${r.route}${r.phi ? ' (PHI)' : ''}.\n${describeRoute(r)}`
     }
+    case 'app-health': {
+      // Starts a private app-server, runs the pre-use health check, closes it.
+      // Refuses in PHI context like every subscription call.
+      const r = await appHealth({ phiContext: { args: { phi: !!o.phi } } })
+      return o.json ? JSON.stringify(r, null, 1) : `Codex app-server: ${r.ok ? 'healthy' : `not usable (${r.kind})`}${r.why ? `: ${r.why}` : ''}${r.ms != null ? ` (${r.ms} ms)` : ''}.`
+    }
     case 'guide':
       return GUIDE
     default:
@@ -139,8 +146,9 @@ async function untilDone(id, caller) {
 if (process.argv[2] !== 'prune') init()
 else ensureDirs()
 main().then(
-  (out) => {
+  async (out) => {
     process.stdout.write(`${out}\n`)
+    await closeAppPool().catch(() => {})
     process.exit(0)
   },
   (err) => {

@@ -32,7 +32,11 @@ export const CODEX_MODEL = process.env.CLASSIFIER_CODEX_MODEL || 'gpt-5.6-luna'
 export const CODEX_EFFORT = process.env.CLASSIFIER_CODEX_EFFORT || 'low'
 export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 50
 export const CODEX_CHARS = Number(process.env.CLASSIFIER_CODEX_CHARS) || 60_000
-export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 12
+// 24 calls at once on the app-server (one process, threads; measured 47-51
+// items/s on all 3,080 Banking77 items with no failed call), 12 for `codex
+// exec` (at 24 processes 2-4 of 62 calls failed and went to the API key).
+export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || ((process.env.CLASSIFIER_CODEX_ENGINE || 'app').toLowerCase() === 'exec' ? 12 : 24)
+export const EXEC_PARALLEL = Math.min(CODEX_PARALLEL, 12)
 const WATCH_INTERVAL_MS = 250
 const RETRY_DELAY_MS = Number(process.env.CLASSIFIER_CODEX_RETRY_MS) || 5000
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
@@ -361,14 +365,27 @@ export class CodexBatcher {
       // one-off error or timeout gets one more try after a short pause (the
       // backend sometimes fails every call of a burst for a minute: seen in
       // 3 of 7 runs on 2026-11-23, each recovering on the next call), then
-      // fails only its own batch, whose items go to the API key.
+      // fails only its own batch, whose items go to the API key. Answers the
+      // engine salvaged before failing (err.partial, already validated)
+      // stand; only the rest is retried or rejected, so each item is
+      // answered exactly once.
       if (err.code === 'phi_refused' || FATAL_KINDS.has(err.kind)) this.broken = err
-      else if (!batch.retried && ['error', 'timeout'].includes(err.kind) && !this.opts.signal?.aborted) {
-        batch.retried = true
+      const partial = err.code !== 'phi_refused' && err.partial instanceof Map ? err.partial : null
+      const rest = partial
+        ? batch.filter((b) => {
+            const a = partial.get(b.entry.key)
+            if (a === undefined) return true
+            b.resolve(a)
+            return false
+          })
+        : batch
+      if (!rest.length) return
+      if (!this.broken && !batch.retried && ['error', 'timeout'].includes(err.kind) && !this.opts.signal?.aborted) {
+        rest.retried = true
         await new Promise((r) => setTimeout(r, this.opts.retryDelayMs ?? RETRY_DELAY_MS))
-        return this.run(batch)
+        return this.run(rest)
       }
-      for (const b of batch) b.reject(err)
+      for (const b of rest) b.reject(err)
     }
   }
 }

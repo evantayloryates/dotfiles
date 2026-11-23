@@ -29,7 +29,9 @@ export function auditLine({ kind, job = null, route, usage = {}, items = 0, stat
     codes: Array.isArray(route?.codes) ? route.codes : ['unknown'],
     fallback: fb ? { kind: fb.kind || 'error', items: fb.items || 0, fatal: !!fb.fatal } : null,
     items,
-    codex_calls: usage.codex_calls || 0,
+    codex_calls: usage.codex_calls || 0, // codex exec
+    codex_app_calls: usage.codex_app_calls || 0, // codex app-server turns
+    codex_app_fallback_items: usage.codex_app_fallback_items || 0,
     decision_calls: usage.decision_calls || 0,
     chat_calls: usage.chat_calls || 0,
     embed_calls: usage.embed_calls || 0,

@@ -42,6 +42,11 @@ const mutants = [
   ['detached groups not signalled on exit', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "          process.kill(-g, 'SIGTERM')", "          void g"],
   ['echo second opinion off', 'mcps/bulk-classify/src/lib/classify.mjs', '        if (options.recheck !== false && echoesLabel(u.text, primary)) return recheck.push(batch[j])', '        // removed'],
   ['ZDR-only profile text shown everywhere', 'mcps/bulk-classify/src/lib/profiles.mjs', "  if (SCOPE !== 'zdr' && zdrOnly(p)) {", '  if (false) {'],
+  ['app-server pre-turn check off', 'mcps/bulk-classify/src/lib/codex-app.mjs', '  assertNoPhi(phiContext) // throws PhiRefusal: never send PHI work to the subscription', '  // removed'],
+  ['app-server post-acquire check off', 'mcps/bulk-classify/src/lib/codex-app.mjs', '    assertNoPhi(phiContext) // again: acquiring may have taken a server start', '    // removed'],
+  ['subscription engine entry check off', 'mcps/bulk-classify/src/lib/codex-app.mjs', "export async function subscriptionCall(opts, { app = codexAppCall, exec = codexCall, status = subscriptionStatus, brk = breaker } = {}) {\n  assertNoPhi(opts.phiContext || {})", "export async function subscriptionCall(opts, { app = codexAppCall, exec = codexCall, status = subscriptionStatus, brk = breaker } = {}) {"],
+  ['app health check skips the account', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if (type === 'apiKey') return", "    if (false) return"],
+  ['app health check ignores MCP servers', 'mcps/bulk-classify/src/lib/codex-app.mjs', "    if (names.some((n) => mcp[n]?.enabled !== false)) return", "    if (false) return"],
   ['route lever ignored', 'mcps/bulk-classify/src/lib/route.mjs', '  if (lever) return api(', '  if (false) return api('],
 ]
 
