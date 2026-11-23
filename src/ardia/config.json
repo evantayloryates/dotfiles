@@ -4,7 +4,8 @@
   "settings": {
     "shortcuts": {
       "openSplitPane": "cmd+shift+d",
-      "toggleAddressBar": "ctrl+j"
+      "toggleAddressBar": "ctrl+j",
+      "copyUrl": ""
     },
     "interfaceStyle": "classic"
   }
