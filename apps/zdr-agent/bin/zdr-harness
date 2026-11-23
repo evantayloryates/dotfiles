@@ -137,10 +137,23 @@ load_secrets() {
 # general work goes to Taylor's ChatGPT subscription. So the harness refuses
 # to start unless opencode.json launches the classifier launcher itself,
 # directly, from {env:ZDR_HARNESS_CLASSIFIER_MCP}, with no extra
-# environment, and no other server reaches it. CONFIG_FILE and
-# CLASSIFIER_MCP may be overridden for the classifier's own tests.
+# environment, and no other server reaches it, and nothing in the global
+# config dir can add to it. CONFIG_FILE, GLOBAL_CONFIG_DIR and CLASSIFIER_MCP
+# may be overridden for the classifier's own tests.
 check_classifier_registration() {
-  local launcher
+  local launcher entry
+  # OpenCode merges its global config dir with OPENCODE_CONFIG, so anything
+  # there (a config file, agents, plugins) could add a server or change the
+  # classifier's entry without this check seeing it. Only .gitignore may live
+  # there. (isolated_env starts from env -i, so OPENCODE_CONFIG_CONTENT and
+  # friends from the caller never reach OpenCode.)
+  if [[ -d "$GLOBAL_CONFIG_DIR" ]]; then
+    for entry in "$GLOBAL_CONFIG_DIR"/* "$GLOBAL_CONFIG_DIR"/.[!.]*; do
+      [[ -e "$entry" || -L "$entry" ]] || continue
+      [[ "$(basename "$entry")" == .gitignore && -f "$entry" && ! -L "$entry" ]] && continue
+      die "${GLOBAL_CONFIG_DIR} holds $(basename "$entry"); OpenCode would merge it with opencode.json and the classifier registration check could not see it; refusing"
+    done
+  fi
   launcher="$(cd "$(dirname "$CLASSIFIER_MCP")" 2>/dev/null && pwd -P)/$(basename "$CLASSIFIER_MCP")" ||
     die "classifier launcher not found at ${CLASSIFIER_MCP}"
   [[ -x "$launcher" && "$launcher" == */mcps/bulk-classify/src/launch ]] ||

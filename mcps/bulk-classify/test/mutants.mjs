@@ -30,6 +30,7 @@ const mutants = [
   ['launcher HOME not resolved', 'mcps/bulk-classify/src/launch', 'HOME_REAL="${HOME_REAL:-$HOME}"', 'HOME_REAL="$HOME"'],
   ['launcher path-value resolution off', 'mcps/bulk-classify/src/launch', '"$(_cls_real "$_cls_value")" == *"/.zdr-harness"*', 'false'],
   ['harness registration check off', 'apps/zdr-agent/bin/zdr-harness', 'check_classifier_registration() {\n', 'check_classifier_registration() {\n  return 0\n'],
+  ['global config not checked', 'apps/zdr-agent/bin/zdr-harness', 'if [[ -d "$GLOBAL_CONFIG_DIR" ]]; then', 'if false; then'],
   ['echo second opinion off', 'mcps/bulk-classify/src/lib/classify.mjs', '        if (options.recheck !== false && echoesLabel(u.text, primary)) return recheck.push(batch[j])', '        // removed'],
   ['ZDR-only profile text shown everywhere', 'mcps/bulk-classify/src/lib/profiles.mjs', "  if (SCOPE !== 'zdr' && zdrOnly(p)) {", '  if (false) {'],
   ['route lever ignored', 'mcps/bulk-classify/src/lib/route.mjs', '  if (lever) return api(', '  if (false) return api('],
