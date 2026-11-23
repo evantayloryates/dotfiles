@@ -137,6 +137,7 @@ present:**
 | Harness environment | The launcher, first thing and before `env -i`, lists names (never values) of caller variables named `ZDR_*`, `*_ZDR_*` or `OPENCODE_*` in any case, whose value mentions `.zdr-harness`, or whose value is an existing path that resolves into it, in `CLASSIFIER_ENV_SIGNALS`, and proves it ran with `CLASSIFIER_ENV_CHECKED=1` (missing under the launcher = PHI); node checks its own environment the same way. The scope follows the resolved `HOME` (trailing slash, `..` or a symlink to the harness home is still the harness) |
 | Paths | Input file, output file, job directory, jobs and profiles stores, `HOME`, `TMPDIR` and working directory, resolved like the kernel (symlinks before `..`, dangling links followed, files not yet created), under `~/.zdr-harness` of the launcher's, the environment's or the account's own home, or any `.zdr-harness` directory; an unresolvable or relative path = PHI |
 | Process chain | One `ps` call; any ancestor run from `~/.zdr-harness`, the `zdr-harness` script, `apps/zdr-agent/` or `ZDR Harness.app`; `ps` failing or this process missing = PHI |
+| Harness mark | An input file carrying the extended attribute `com.kickoff.zdr`, which the harness's export writers set (`apps/zdr-agent/mcps/kickoff-db/zdr-tag.mjs`) and macOS `cp`, `mv` and Finder keep, so a copy moved out of `~/.zdr-harness` is still harness data; an attribute that cannot be read = PHI |
 | Records | A job created in the zdr scope, routed PHI, started with `phi`, or with no routing record; a profile whose `scopes` or one-way stamp file include `zdr` or `unknown` (see below) |
 | Explicit | `phi` / `zdr` on the call, `CLASSIFIER_PHI=1` |
 
@@ -151,6 +152,24 @@ call, so a profile first used in the harness while a local job runs moves
 that job's remaining calls to the API key. A profile with no `scopes` (saved
 before routing) uses the API key. The 14 profiles that existed on
 2026-11-23 were scoped by Taylor (9 ZDR-only, 5 general).
+
+**ZDR-only profiles outside the harness.** `classify_profiles` describes a
+ZDR-only profile (or one with no scope history) by its label names only
+outside the zdr scope: no purpose, descriptions, notes or examples, which
+may hold text written in the harness.
+
+**Registration.** The harness refuses to start unless `opencode.json`
+launches the classifier launcher directly from
+`{env:ZDR_HARNESS_CLASSIFIER_MCP}` with no extra environment, and no other
+server reaches it (`check_classifier_registration` in
+`apps/zdr-agent/bin/zdr-harness`, tested in `apps/zdr-agent/test/`): a start
+through a shared host such as anchor or `mcps/_shared/bin/run` would hide
+the signals above.
+
+**Rollback lever.** `echo api > ~/.config/classifier/route` forces the API
+key for every caller in every scope from the next call on, without a code
+change; anything other than `auto` in that file (unreadable included) means
+the API key, and removing the file goes back.
 
 **Audit.** One line per `classify_texts` call and per finished job goes to
 `audit.jsonl` beside the scope's jobs (mode 600): engine, route, `phi`,
@@ -313,6 +332,10 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    `..`, the harness's own `isolated_env`, the `_shared/bin/run`
    registration, concurrent launches in both scopes, profile stamps and the
    lost-update race, mid-job stamps, Codex failure wording, the audit line),
+   the harness registration check (imported from
+   `apps/zdr-agent/test/`, not passed on the command line: an argv naming
+   the harness app trips the process signal for the clean launches, as does
+   running the suite from a shell command that names it),
    `route.test.mjs` (every PHI signal forces
    the API key and never probes Codex; the Codex engine refuses in the zdr
    scope even when called directly; its child environment), `engines.test.mjs`
@@ -323,6 +346,12 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    path policy including symlinks, torn results, the profile guard, the kNN
    scan). `test/guard.online.mjs` re-measures the profile guard with the
    model screen (needs `CLASSIFIER_OPENAI_KEY`).
+   `test/canary.e2e.mjs` (needs the network; a dummy key) runs a real job
+   started the way the harness starts the classifier and checks the worker
+   never runs `codex` (exec, login status or the credit reader), with a
+   clean-caller control that does. `test/mutants.mjs` turns off each routing
+   guard in turn in a scratch copy and requires a failing test for each
+   (19 of 19 killed, 2026-11-23).
 2. Against scratch stores (`CLASSIFIER_JOBS_DIR`, `CLASSIFIER_PROFILES_DIR`):
    `classifier texts --labels billing,scheduling "charged twice" "lol"` gives
    `billing` and `none`.

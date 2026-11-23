@@ -23,6 +23,10 @@
 - One routing audit line per call and per job (`audit.jsonl`, codes and
   counts only); the route line in tool output is short (codes plus three
   reasons).
+- Harness exports carry `com.kickoff.zdr`; marked inputs (copies too) route
+  to the API key. ZDR-only profiles describe as label names outside the
+  harness. The harness refuses to start when the classifier is not
+  registered directly. Rollback lever `~/.config/classifier/route`.
 - Paid-credit watch on the subscription route (`src/lib/credits.mjs`): a
   macOS notification, at most once per job and once per hour, when Codex
   starts drawing paid credits; nothing is blocked.
