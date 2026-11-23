@@ -223,11 +223,17 @@ is the second trigger.
 classification turn. `codex exec` runs with `--ignore-user-config` (the
 config and its servers stay out; `-c mcp_servers={}` alone does not remove
 them) and `--disable shell_snapshot` (no login shell running Taylor's rc
-files), and every call is watched: any process under the Codex child other
-than git ends subscription use for the run (`unsafe`, items to the API
-key). The credit reader (app-server, which cannot ignore the config)
-disables every configured server by name and reads the limits only after
-`config/read` confirms all of them are off. `test/codex-isolation.live.mjs`
+files), and every Codex child runs in its own process group and is watched for
+its whole life (one shared `ps` sample every 250 ms, plus a fresh look when
+it exits): any process in its tree or group ends subscription use for the
+run (`unsafe`, items to the API key); nothing may run under `codex exec`.
+The credit reader (app-server, which cannot ignore the config) disables
+every configured server by name, reads the limits only after `config/read`
+confirms all of them are off, and is watched the same way with git as the
+only allowed program, matched by its full Command Line Tools or Xcode path
+(a bare name is resolved through the kernel's executable path; a nested
+`codex` is never allowed). A process that starts and exits between two
+samples is not seen; an MCP server lives for the whole turn. `test/codex-isolation.live.mjs`
 checks both against the real CLI. Taylor's `~/.codex/AGENTS.md` (19 KB) is
 still part of every turn's prompt (`project_doc_max_bytes=0` does not drop
 it): a token cost, no tools.

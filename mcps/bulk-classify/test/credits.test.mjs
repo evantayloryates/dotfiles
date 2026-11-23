@@ -83,6 +83,11 @@ test('readLimits speaks the app-server handshake and survives a dead reader', as
   mcpState = { gmail: { enabled: false }, robinhood: { enabled: true } }
   assert.equal(await readLimits({ spawnFn: fakeSpawn }), null, 'an MCP server still enabled: no reading')
   assert.ok(!fakeSpawn.last.written.includes('account/rateLimits/read'))
+  // backstop: anything but the real git under the reader voids the reading
+  mcpState = { gmail: { enabled: false } }
+  const withPid = (...a) => Object.assign(fakeSpawn(...a), { pid: 999999 })
+  assert.equal(await readLimits({ spawnFn: withPid, ps: () => `999999 1 999999 /x/codex\n4300 999999 999999 /tmp/evil/git\n` }), null)
+  assert.ok(await readLimits({ spawnFn: withPid, ps: () => `999999 1 999999 /x/codex\n` }), 'a clean tree keeps the reading')
   assert.equal(await readLimits({ spawnFn: () => { throw new Error('no codex') } }), null)
   const silent = () => Object.assign(new EventEmitter(), { stdout: new EventEmitter(), stdin: Object.assign(new EventEmitter(), { write: () => {} }), kill: () => {} })
   assert.equal(await readLimits({ spawnFn: silent, timeoutMs: 50 }), null)

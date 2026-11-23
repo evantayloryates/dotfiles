@@ -18,7 +18,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { JOBS_DIR } from './paths.mjs'
-import { configuredMcpServers, disableArgs } from './codex-lockdown.mjs'
+import { configuredMcpServers, disableArgs, GIT_PATHS, watchTree } from './codex-lockdown.mjs'
 
 const realHome = () => process.env.CLASSIFIER_REAL_HOME || homedir()
 const codexBin = () => process.env.CLASSIFIER_CODEX_BIN || join(realHome(), '.local', 'bin', 'codex')
@@ -29,7 +29,7 @@ const BASELINE_MAX_AGE = 2 * HOUR
 
 // One reading: { usedPercent, reached, hasCredits, unlimited, balance } or
 // null when it cannot be read (never an error for the caller).
-export function readLimits({ spawnFn = spawn, timeoutMs = 20_000 } = {}) {
+export function readLimits({ spawnFn = spawn, timeoutMs = 20_000, ps } = {}) {
   return new Promise((resolve) => {
     let child
     try {
@@ -37,20 +37,31 @@ export function readLimits({ spawnFn = spawn, timeoutMs = 20_000 } = {}) {
       // config/read must confirm it before the limits are read.
       const mcp = configuredMcpServers()
       if (mcp.odd) return resolve(null)
-      child = spawnFn(codexBin(), ['app-server', '--stdio', ...disableArgs(mcp.names)], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'] })
+      child = spawnFn(codexBin(), ['app-server', '--stdio', ...disableArgs(mcp.names)], { cwd: tmpdir(), env: { HOME: realHome(), PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR || tmpdir(), LANG: 'en_US.UTF-8' }, stdio: ['pipe', 'pipe', 'ignore'], detached: true })
     } catch {
       return resolve(null)
     }
+    // Backstop: nothing but git (by full system path) may run under the
+    // reader; anything else, at any time or still there at the end, voids
+    // the reading (codex-lockdown.mjs).
+    let unsafe = false
+    const watch = child.pid ? watchTree(child.pid, { allow: GIT_PATHS, ...(ps && { ps }), onBad: () => { unsafe = true; finish(null) } }) : null
     let buf = ''
     let settled = false
     const finish = (v) => {
       if (settled) return
       settled = true
       clearTimeout(timer)
+      watch?.stop()
+      if (v && watch && watch.check(true).length) unsafe = true
       try {
-        child.kill()
-      } catch {}
-      resolve(v)
+        process.kill(-child.pid, 'SIGTERM')
+      } catch {
+        try {
+          child.kill()
+        } catch {}
+      }
+      resolve(unsafe ? null : v)
     }
     const timer = setTimeout(() => finish(null), timeoutMs)
     child.on('error', () => finish(null))

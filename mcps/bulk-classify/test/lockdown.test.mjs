@@ -34,19 +34,42 @@ test('server names come from config tables only (never values), subtables skippe
   assert.deepEqual(configuredMcpServers('').names, [])
 })
 
-test('process watch: only git is Codex own; shells, node, python are unexpected; ps failing is unsafe', () => {
-  const ps = () => ['100 1 /x/codex', '101 100 /bin/zsh', '102 100 (git)', '103 101 node', '104 999 python3', '105 103 uvx'].join('\n')
-  assert.deepEqual(unexpectedDescendants(100, { ps }).sort(), ['node', 'uvx', 'zsh'])
-  assert.deepEqual(unexpectedDescendants(100, { ps: () => '100 1 codex\n102 100 <defunct>\n103 100 /usr/libexec/git-core/git-remote-https\n104 100 (git)\n' }), [])
-  assert.deepEqual(unexpectedDescendants(100, { ps: () => '100 1 codex\n101 100 /bin/bash\n' }), ['bash'], 'an MCP server behind a shell script')
+test('process watch: exact full paths only; nested codex, renamed binaries, shells, node are unexpected; ps failing is unsafe', async () => {
+  const { GIT_PATHS } = await import('../src/lib/codex-lockdown.mjs')
+  const git = [...GIT_PATHS].find((p) => p.endsWith('/git')) || '/usr/bin/git'
+  const ps = () => ['100 1 100 /x/codex', `101 100 100 ${git}`, '102 100 100 /tmp/evil/git', '103 100 100 /Users/x/.local/bin/codex', '104 103 100 node', '105 1 100 /opt/mcp/server', '106 999 999 python3', '107 100 100 <defunct>', '108 100 100 /bin/zsh'].join('\n')
+  const bad = unexpectedDescendants(100, { ps, allow: GIT_PATHS }).sort()
+  assert.deepEqual(bad, ['/Users/x/.local/bin/codex', '/bin/zsh', '/opt/mcp/server', '/tmp/evil/git', 'node'].sort(), 'only the real git by full path passes; the orphan (same process group) is seen')
+  assert.deepEqual(unexpectedDescendants(100, { ps: () => `100 1 100 /x/codex\n101 100 100 ${git}\n` }), [git], 'codex exec allows nothing, not even git')
   assert.deepEqual(unexpectedDescendants(100, { ps: () => { throw new Error('no ps') } }), ['(process list unreadable)'])
+  // bare names (git runs helpers that way) are judged by the kernel's executable path
+  const bareGit = () => `100 1 100 /x/codex\n201 100 100 git\n202 100 100 git-remote-http\n203 100 100 git\n`
+  const exe = (p) => (p === 201 ? `p201\nftxt\nn${git}\n` : p === 202 ? `p202\nftxt\nn/tmp/evil/git-remote-http\n` : '')
+  assert.deepEqual(unexpectedDescendants(100, { ps: bareGit, allow: GIT_PATHS, exe }).sort(), ['/tmp/evil/git-remote-http', 'git'].sort(), 'real git passes; a fake one and an unreadable one do not')
+})
+
+test('the watch runs for the whole life of the child, not at fixed moments', async () => {
+  const { watchTree } = await import('../src/lib/codex-lockdown.mjs')
+  let n = 0
+  const ps = () => (++n < 8 ? '500 1 500 /x/codex\n' : '500 1 500 /x/codex\n501 500 500 /opt/late/mcp\n') // appears late
+  let hit = null
+  const w = watchTree(500, { ps, intervalMs: 5, onBad: (b) => (hit = b) })
+  await new Promise((r) => setTimeout(r, 200))
+  w.stop()
+  assert.deepEqual(hit, ['/opt/late/mcp'])
+  // and the final fresh check sees what is left at exit
+  let m = 0
+  const w2 = watchTree(600, { ps: () => '600 1 600 /x/codex\n601 1 600 /opt/orphan\n', intervalMs: 10_000 })
+  assert.deepEqual(w2.check(true), ['/opt/orphan'])
+  w2.stop()
 })
 
 function fakeSpawn(record) {
-  return (bin, args) => {
+  return (bin, args, opts) => {
     record.args = args
+    record.opts = opts
     const c = new EventEmitter()
-    c.pid = 4242
+    c.pid = 999999 // above macOS's pid range: process.kill(-pid) can never reach a real group
     c.stdout = new EventEmitter()
     c.stderr = new EventEmitter()
     c.stdin = Object.assign(new EventEmitter(), { end: () => {} })
@@ -58,9 +81,10 @@ const base = { system: 's', reminder: 'r', labelNames: ['a'], multi: false, entr
 
 test('a Codex call that starts an MCP server is killed and ends subscription use (unsafe, fatal)', async () => {
   const rec = {}
-  const ps = () => `4242 ${process.pid} codex\n4243 4242 node\n`
-  await assert.rejects(codexCall({ ...base, spawnFn: fakeSpawn(rec), psFn: ps, watchMs: [5] }), (e) => e instanceof SubscriptionError && e.kind === 'unsafe')
+  const ps = () => `999999 ${process.pid} 999999 /x/codex\n4243 999999 999999 /opt/homebrew/bin/node\n`
+  await assert.rejects(codexCall({ ...base, spawnFn: fakeSpawn(rec), psFn: ps, watchIntervalMs: 5 }), (e) => e instanceof SubscriptionError && e.kind === 'unsafe')
   assert.ok(FATAL_KINDS.has('unsafe'))
+  assert.equal(rec.opts.detached, true, 'own process group')
   assert.ok(rec.args.includes('--ignore-user-config'), 'config.toml (and its MCP servers) kept out of codex exec')
   assert.ok(!rec.args.some((a) => /^mcp_servers\./.test(a)), 'no per-name overrides on exec: with the config ignored they break the CLI')
   assert.ok(rec.args.join(' ').includes('--disable shell_snapshot'), 'no login shell (and its rc files) under Codex')
@@ -71,3 +95,14 @@ test('a Codex call that starts an MCP server is killed and ends subscription use
   assert.equal(calls, 1, 'no retry, no second call')
 })
 
+test('a process left behind when Codex exits voids the answer (final check)', async () => {
+  const rec = {}
+  let exited = false
+  const spawnFn = (bin, args, opts) => {
+    const c = fakeSpawn(rec)(bin, args, opts)
+    c.stdin.end = () => setTimeout(() => ((exited = true), c.emit('close', 0, null)), 20)
+    return c
+  }
+  const ps = () => (exited ? `4300 1 999999 /opt/orphan-mcp\n` : `999999 ${process.pid} 999999 /x/codex\n`)
+  await assert.rejects(codexCall({ ...base, spawnFn, psFn: ps, watchIntervalMs: 10_000 }), (e) => e.kind === 'unsafe')
+})

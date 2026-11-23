@@ -19,7 +19,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assertNoPhi } from './route.mjs'
-import { unexpectedDescendants } from './codex-lockdown.mjs'
+import { watchTree } from './codex-lockdown.mjs'
 
 // Defaults from the 2026-11-23 tuning grid (public Banking77, 616 items, 77
 // labels, every item to the model; plan folder results/): gpt-5.6-luna beat
@@ -33,7 +33,7 @@ export const CODEX_EFFORT = process.env.CLASSIFIER_CODEX_EFFORT || 'low'
 export const CODEX_BATCH = Number(process.env.CLASSIFIER_CODEX_BATCH) || 50
 export const CODEX_CHARS = Number(process.env.CLASSIFIER_CODEX_CHARS) || 60_000
 export const CODEX_PARALLEL = Number(process.env.CLASSIFIER_CODEX_PARALLEL) || 12
-const WATCH_MS = [1500, 6000, 15000]
+const WATCH_INTERVAL_MS = 250
 const RETRY_DELAY_MS = Number(process.env.CLASSIFIER_CODEX_RETRY_MS) || 5000
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
 // Tool features off: classification needs no tools, and each one adds prompt
@@ -161,7 +161,7 @@ export const FATAL_KINDS = new Set(['not_logged_in', 'api_key_login', 'rate_limi
 // ---------------------------------------------------------------------------
 // One Codex call. phiContext is re-checked right before spawn.
 
-export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall, psFn, watchMs = WATCH_MS }) {
+export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall, psFn, watchIntervalMs = WATCH_INTERVAL_MS }) {
   assertNoPhi(phiContext) // throws PhiRefusal: never spawn for PHI work
   const t0 = performance.now()
   const dir = mkdtempSync(join(process.env.TMPDIR || tmpdir(), 'classifier-codex-'))
@@ -180,40 +180,65 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     args.push('--ephemeral', '-s', 'read-only', '--skip-git-repo-check', '--ignore-user-config', '--ignore-rules', '-C', dir, '--output-schema', schemaPath, '-o', lastPath, '--json', '-')
     let unsafe = false
     const { code, stdout, stderr } = await new Promise((resolvePromise, reject) => {
-      const child = spawnFn(codexBin(), args, { cwd: dir, env: childEnv(), stdio: ['pipe', 'pipe', 'pipe'] })
+      // Its own process group (detached), so the watch below also sees
+      // orphans and a kill reaches everything Codex started.
+      const child = spawnFn(codexBin(), args, { cwd: dir, env: childEnv(), stdio: ['pipe', 'pipe', 'pipe'], detached: true })
       let out = ''
       let err = ''
       let hard = null
+      const signalAll = (sig) => {
+        try {
+          process.kill(-child.pid, sig)
+        } catch {
+          try {
+            child.kill(sig)
+          } catch {}
+        }
+      }
       const kill = () => {
-        child.kill('SIGTERM')
-        hard ||= setTimeout(() => child.kill('SIGKILL'), 5000)
+        signalAll('SIGTERM')
+        hard ||= setTimeout(() => signalAll('SIGKILL'), 5000)
       }
       const timer = setTimeout(kill, TIMEOUT_MS)
-      // Watch the turn: anything under the Codex child that Codex does not
-      // run itself (an MCP server) ends subscription use for the run.
-      const watchers = watchMs.map((ms) =>
-        setTimeout(() => {
-          const bad = unexpectedDescendants(child.pid, psFn ? { ps: psFn } : {})
-          if (bad.length) {
-            unsafe = true
-            kill()
-          }
-        }, ms)
-      )
+      // The backstop (codex-lockdown.mjs): watched for its whole life; any
+      // process under it (nothing may run under `codex exec`) ends
+      // subscription use for the run.
+      const watch = child.pid
+        ? watchTree(child.pid, {
+            ...(psFn && { ps: psFn }),
+            intervalMs: watchIntervalMs,
+            onBad: () => {
+              unsafe = true
+              kill()
+            },
+          })
+        : null
       signal?.addEventListener('abort', kill, { once: true })
       child.stdout.on('data', (d) => (out += d))
       child.stderr.on('data', (d) => (err = (err + d).slice(-4000)))
       child.on('error', (e) => {
         clearTimeout(timer)
         clearTimeout(hard)
-        watchers.forEach(clearTimeout)
+        watch?.stop()
         resetSubscriptionStatus()
         reject(new SubscriptionError(`Codex could not start (${e.code || 'error'}).`, 'missing'))
       })
+      let closed = false
       child.on('close', (c, sig) => {
+        if (closed) return
+        closed = true
         clearTimeout(timer)
         clearTimeout(hard)
-        watchers.forEach(clearTimeout)
+        watch?.stop()
+        // One last fresh look before the answer is used: anything left in
+        // Codex's process group now is an orphan it started; the group (not
+        // the exited child) gets the kill.
+        if (watch && watch.check(true).length) {
+          unsafe = true
+          try {
+            process.kill(-child.pid, 'SIGKILL')
+          } catch {}
+        }
         signal?.removeEventListener('abort', kill)
         resolvePromise({ code: sig ? null : c, stdout: out, stderr: err })
       })
