@@ -15,16 +15,24 @@ export const DECISION_MODEL = 'gpt-6-luna' // the only model /v1/decisions serve
 export const EMBED_MODEL = 'text-embedding-3-small'
 export const EMBED_DIMS = 512
 
-// $ per 1M tokens [input, cached input, output], standard tier, from
-// developers.openai.com/api/docs/pricing (read 2026-11-23); Fast (formerly
-// priority) is exactly 2x on that page. gpt-6-luna was [0.2, 0.02, 1.2]
-// before (the gpt-5.6-luna rates), which overstated chat spend about 2x.
-// Decisions: $0.10 uncached input, output free (published 2026-11; not on the
-// pricing page). The cached-input rate is not published ("discounted"); 0.01
-// is an assumption.
+// $ per 1M tokens [input, cached input, output]; the priority tier is ~2x.
+// Decisions: $0.10 uncached input, output free (published 2026-11). The
+// cached-input rate is not published ("discounted"); 0.01 is an assumption.
+// Standard rates from developers.openai.com/api/docs/pricing (read
+// 2026-11-23); Fast (formerly priority) is 2x. gpt-6-luna was [0.2, 0.02, 1.2]
+// before that read (the gpt-5.6-luna rates), which overstated chat by ~2x.
 export const PRICES = {
   'gpt-6-luna': [0.1, 0.01, 0.5],
+  'gpt-6-sol': [2, 0.2, 10],
+  'gpt-6.1-sol': [2, 0.1, 10],
+  'gpt-6.2-sol': [2, 0.1, 10],
+  'gpt-6-astra': [10, 1, 50],
+  'gpt-6.2-astra': [8, 0.4, 40],
+  'gpt-6.1-terra': [1, 0.05, 5],
   'gpt-5.6-luna': [0.2, 0.02, 1.2],
+  'gpt-5.6-sol': [4, 0.4, 20],
+  'gpt-5.6-terra': [2, 0.2, 12],
+  'gpt-5.5': [5, 0.5, 30],
   decisions: [0.1, 0.01, 0],
   'text-embedding-3-small': [0.02, 0, 0],
 }
@@ -32,6 +40,7 @@ export const PRICES = {
 // Process-wide counters for benchmarks and logs: 429s and transient retries
 // are absorbed by request() and would otherwise be invisible.
 export const stats = { rate_limited: 0, transient_retries: 0 }
+export const priceKnown = (model) => Object.hasOwn(PRICES, model)
 
 const KEY = () => {
   const k = process.env.CLASSIFIER_OPENAI_KEY
@@ -138,6 +147,10 @@ const KINDS = {
   // need more requests in flight than chat batches of 20. Probed 2026-11-22:
   // 30,000 requests and 180M tokens per minute on the key, ~150-450 ms each.
   decide: { limiter: new Limiter(192), lat: new Latency(1200), timeoutMs: 8_000, hedge: (l) => Math.max(1200, l.pct(0.97) ?? 1200) },
+  // The escalation ladder's top API tier: a stronger reasoning model on the
+  // few items the cheaper tiers were unsure of. Its own latency tracker, so
+  // hedging and the watchdog follow its (much slower) calls, not chat's.
+  escalate: { limiter: new Limiter(64), lat: new Latency(20_000), timeoutMs: 120_000, hedge: (l) => Math.max(20_000, l.pct(0.97) ?? 20_000) },
   decide_long: { limiter: new Limiter(128), lat: new Latency(6000), timeoutMs: 120_000, hedge: (l) => Math.max(6000, l.pct(0.97) ?? 6000) },
 }
 
@@ -389,10 +402,12 @@ function unit(v) {
 
 // Chat completion with a strict JSON schema. kind: chat (one short item),
 // batch (many short items) or long (one long item).
-export async function chatJson({ kind = 'chat', system, user, schema, tier = 'priority', usage, signal, maxOut, cacheKey, onCall, items = 1 }) {
+// model / effort override the defaults (the escalation ladder's stronger
+// API tier).
+export async function chatJson({ kind = 'chat', system, user, schema, tier = 'priority', usage, signal, maxOut, cacheKey, onCall, items = 1, model = CHAT_MODEL, effort = 'none' }) {
   const body = {
-    model: CHAT_MODEL,
-    reasoning_effort: 'none',
+    model,
+    reasoning_effort: effort,
     messages: [
       { role: 'system', content: system },
       { role: 'user', content: user },
@@ -408,11 +423,11 @@ export async function chatJson({ kind = 'chat', system, user, schema, tier = 'pr
   try {
     ;({ json } = await request(kind, 'chat/completions', body, { signal }))
   } catch (err) {
-    onCall?.({ engine: 'chat', kind, ms: performance.now() - t0, items, ok: false })
+    onCall?.({ engine: 'chat', kind, model, effort, ms: performance.now() - t0, items, ok: false })
     throw err
   }
-  onCall?.({ engine: 'chat', kind, ms: performance.now() - t0, items, ok: true })
-  account(usage, CHAT_MODEL, json.usage, json.service_tier)
+  onCall?.({ engine: 'chat', kind, model, effort, ms: performance.now() - t0, items, ok: true })
+  account(usage, model, json.usage, json.service_tier)
   const choice = json.choices?.[0]
   if (choice?.message?.refusal) throw new ApiError('The model declined to label this text.', { code: 'refused' })
   try {

@@ -192,6 +192,26 @@ test('backstop: subscriptionCall never falls back to exec after "unsafe" and kee
   assert.equal(execCalls, 0)
 })
 
+test('ladder tiers reach the app-server: model, effort and the stated-confidence schema and ask', async () => {
+  let seen = null
+  const server = {
+    turn: async (args) => {
+      seen = args
+      return { text: JSON.stringify({ answers: [{ key: 'i1', label: 'billing', confidence: 0.4 }, { key: 'i2', label: 'scheduling', confidence: 0.97 }] }), usage: {} }
+    },
+  }
+  const a = await codexAppCall(base(2, { getPool: () => ({ acquire: async () => server }), model: 'gpt-5.6-sol', effort: 'low', withConfidence: true }))
+  assert.equal(seen.model, 'gpt-5.6-sol')
+  assert.equal(seen.effort, 'low')
+  assert.ok(seen.schema.properties.answers.items.properties.confidence, 'schema asks for confidence')
+  assert.ok(/confidence/.test(seen.text + (seen.baseInstructions || '')), 'prompt asks for confidence')
+  assert.deepEqual(a.get('i1'), { answer: 'billing', confidence: 0.4 })
+  const b = await codexAppCall(base(1, { getPool: () => ({ acquire: async () => server }) }))
+  assert.notEqual(seen.model, 'gpt-5.6-sol') // unset: the subscription default
+  assert.equal(seen.schema.properties.answers.items.properties.confidence, undefined)
+  assert.equal(b.get('i1'), 'billing')
+})
+
 test('kinds from codexErrorInfo, including the object-shaped ones', () => {
   assert.equal(kindFromTurnError({ codexErrorInfo: 'usageLimitExceeded' }), 'rate_limited')
   assert.equal(kindFromTurnError({ codexErrorInfo: 'rateLimitExceeded' }), 'throttled')

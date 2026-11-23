@@ -106,7 +106,7 @@ const appError = (message, kind, extra = {}) => Object.assign(new SubscriptionEr
 // Streaming salvage: complete {"key":..,"label":..} objects already streamed
 // before a turn failed. Each one is validated against the batch like a full
 // answer, so a garbled stream can only lose items, never invent them.
-export function salvageAnswers(text, entries, labelSet, multi) {
+export function salvageAnswers(text, entries, labelSet, multi, withConfidence = false) {
   const found = []
   const s = String(text || '')
   for (let i = s.indexOf('{"key"'); i !== -1; i = s.indexOf('{"key"', i + 1)) {
@@ -117,7 +117,7 @@ export function salvageAnswers(text, entries, labelSet, multi) {
     } catch {}
   }
   try {
-    return parseCodexAnswers(JSON.stringify({ answers: found }), entries, labelSet, multi)
+    return parseCodexAnswers(JSON.stringify({ answers: found }), entries, labelSet, multi, withConfidence)
   } catch {
     return new Map()
   }
@@ -452,7 +452,12 @@ export function resetAppState() {
 // SubscriptionError / PhiRefusal. A failure carries .partial: the answers
 // salvaged from the stream before it failed (already validated).
 
-export async function codexAppCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, onCall, getPool = appPool }) {
+// model / effort / withConfidence: the escalation ladder's tiers (ladder.mjs),
+// as for codexCall; unset means the subscription defaults.
+const CONFIDENCE_ASK = 'For every answer also give "confidence": your probability from 0 to 1 that the label is the one a careful human would choose. Be calibrated: use values below 0.7 whenever another label is plausible.'
+export async function codexAppCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, onCall, getPool = appPool, model, effort, withConfidence = false }) {
+  model ||= CODEX_MODEL
+  effort ||= CODEX_EFFORT
   assertNoPhi(phiContext) // throws PhiRefusal: never send PHI work to the subscription
   const t0 = performance.now()
   const labelSet = new Set(labelNames)
@@ -461,16 +466,16 @@ export async function codexAppCall({ system, entries, reminder, labelNames, mult
     const server = await getPool().acquire()
     assertNoPhi(phiContext) // again: acquiring may have taken a server start
     const shape = SHAPE()
-    const text = shape === 'base' ? `Items:\n${JSON.stringify(entries)}\n\n${reminder}` : codexPrompt(system, entries, reminder)
-    const baseInstructions = shape === 'base' ? `${BASE_INSTRUCTIONS}\n\n${system}\n\nReturn a JSON object {"answers": [...]} with one answer per item, in any order, each {"key": the item's key, "label": its label} (plus "secondary" when asked).` : BASE() === 'short' ? BASE_INSTRUCTIONS : undefined
+    const text = shape === 'base' ? `Items:\n${JSON.stringify(entries)}\n\n${reminder}` : codexPrompt(system, entries, reminder, withConfidence)
+    const baseInstructions = shape === 'base' ? `${BASE_INSTRUCTIONS}\n\n${system}\n\nReturn a JSON object {"answers": [...]} with one answer per item, in any order, each {"key": the item's key, "label": its label} (plus "secondary" when asked).${withConfidence ? ` ${CONFIDENCE_ASK}` : ''}` : BASE() === 'short' ? BASE_INSTRUCTIONS : undefined
     let res
     try {
-      res = await server.turn({ baseInstructions, text, schema: codexSchema(labelNames, multi), model: CODEX_MODEL, effort: CODEX_EFFORT, tier: TIER(), timeoutMs: TURN_TIMEOUT_MS(), signal })
+      res = await server.turn({ baseInstructions, text, schema: codexSchema(labelNames, multi, withConfidence), model, effort, tier: TIER(), timeoutMs: TURN_TIMEOUT_MS(), signal })
     } catch (e) {
       // Transport errors (closed child, RPC timeout, RPC error) become kinds.
       const err = e instanceof SubscriptionError || e?.code === 'cancelled' ? e : Object.assign(appError(`Codex app-server failed (${e?.code || 'error'}).`, { server_down: 'server_down', closed: 'server_down', timeout: 'timeout', protocol: 'protocol', missing: 'missing' }[e?.code] || 'error'), { partialText: e?.partialText })
       if (usage) usage.codex_app_calls = (usage.codex_app_calls || 0) + 1
-      if (err.code !== 'cancelled') err.partial = salvageAnswers(err.partialText, entries, labelSet, multi)
+      if (err.code !== 'cancelled') err.partial = salvageAnswers(err.partialText, entries, labelSet, multi, withConfidence)
       delete err.partialText
       throw err
     }
@@ -482,9 +487,9 @@ export async function codexAppCall({ system, entries, reminder, labelNames, mult
     }
     let answers
     try {
-      answers = parseCodexAnswers(res.text, entries, labelSet, multi)
+      answers = parseCodexAnswers(res.text, entries, labelSet, multi, withConfidence)
     } catch (err) {
-      err.partial = salvageAnswers(res.text, entries, labelSet, multi)
+      err.partial = salvageAnswers(res.text, entries, labelSet, multi, withConfidence)
       throw err
     }
     if (usage) usage.codex_items = (usage.codex_items || 0) + answers.size

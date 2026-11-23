@@ -16,6 +16,7 @@ import { callerPath, checkDataPath, fieldsOf, readRowsFromFile, toItems } from '
 import { createJob, findDuplicate, findJob, jobDir, liveWorker, newJobId, prune, readInput, readResults, readState, requestCancel, restart, startWorker, waitFor, writeJson } from './jobs.mjs'
 import { subscriptionStatus } from './codex.mjs'
 import { newUsage } from './openai.mjs'
+import { ladderEnabled, ladderFor } from './ladder.mjs'
 import { ensureDirs, JOBS_DIR, RETENTION_DAYS, SCOPE } from './paths.mjs'
 import { decideRoute, describeRoute } from './route.mjs'
 import { compareWithHistory, describeProfile, listProfiles, loadProfile, recordRun, saveProfile, stampUse } from './profiles.mjs'
@@ -96,7 +97,7 @@ export async function classifyTexts(args, { signal } = {}) {
   const results = new Map()
   const ok = items.map((it, n) => ({ ...it, n })).filter((it) => it.status === 'ok')
   for (const it of items.map((x, n) => ({ ...x, n }))) if (it.status !== 'ok') results.set(it.n, { n: it.n, status: it.status, reason: it.reason })
-  await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext })
+  await classifyItems(ok, bank, (i, r) => results.set(ok[i].n, { n: ok[i].n, ...r }), { ...opts, usage, signal, engine: route.engine, stage1: route.stage1, route, phiContext, ladder: ladderEnabled(process.env, args) ? ladderFor(route, process.env, { prefer: opts.prefer }) : null })
   const summary = { ...summarize(items, results, taxonomy, usage, Date.now() - t0), route }
   writeAudit({ kind: 'texts', route, usage, items: items.length })
   if (route.route === 'subscription' && usage.codex_calls) checkCreditsSoon()
@@ -182,11 +183,11 @@ export async function startJob(args, { caller }) {
   // Routing: decided here, recorded in the job, re-checked by the worker.
   const phi = args.phi === true || args.zdr === true
   const route = decideRoute({ args: { phi: args.phi, zdr: args.zdr, engine: args.engine }, profile, paths: [['input file', source.abs || null], ['output file', output?.abs || null], ['jobs store', JOBS_DIR]] }, { subscriptionStatus })
-  const estimate = estimateUsd(items, opts, route)
+  const estimate = estimateUsd(items, opts, route, ladderEnabled(process.env, args))
   const maxUsd = args.max_usd != null ? Number(args.max_usd) : DEFAULT_MAX_USD
   if (!(maxUsd > 0)) throw new UserError('max_usd must be a positive number of dollars.')
   if (estimate > maxUsd) throw new UserError(`This job would cost about $${estimate.toFixed(2)}, over the $${maxUsd} limit. Ask the user, then pass max_usd (for example ${Math.ceil(estimate * 1.5)}), or select fewer rows.`)
-  const spec = { labels: profile ? null : taxonomy.labels, examples: taxonomy.examples, profile: profile?.name || null, max_labels: opts.maxLabels, prefer: opts.prefer, tier: process.env.CLASSIFIER_TIER || 'priority', max_usd: maxUsd, ...(phi && { phi: true }), ...(args.engine === 'api' && { engine: 'api' }) }
+  const spec = { labels: profile ? null : taxonomy.labels, examples: taxonomy.examples, profile: profile?.name || null, max_labels: opts.maxLabels, prefer: opts.prefer, tier: process.env.CLASSIFIER_TIER || 'priority', max_usd: maxUsd, ...(phi && { phi: true }), ...(args.engine === 'api' && { engine: 'api' }), ...(ladderEnabled(process.env, args) && { ladder: true }) }
   // By content, not path: a weekly file reused under one name is a new input.
   const contentFp = createHash('sha256').update(items.map((i) => i.text || '').join('\n')).digest('hex').slice(0, 32)
   const fingerprint = createHash('sha256').update(JSON.stringify({ spec, contentFp, out: output?.abs || null })).digest('hex')
@@ -238,10 +239,13 @@ const longChars = (items) => items.reduce((n, it) => n + (it.status === 'ok' && 
 // published rate, 2026-11-23 Banking77), Decisions $0.10/1k (one request per text, no
 // batching) and $0.42/1k with two labels (a predicate per label); the
 // subscription route pays only for embeddings.
-function estimateUsd(items, opts, route) {
+function estimateUsd(items, opts, route, ladder = false) {
   const short = items.filter((it) => it.status === 'ok' && it.text.length <= 800).length
   const engine = route?.engine || 'decisions'
-  const base = engine === 'codex' ? 0.002 : engine === 'decisions' ? (opts.maxLabels === 2 ? 0.5 : 0.12) : 0.03 * (opts.maxLabels === 2 ? 2 : 1)
+  // Escalation on the API ladder, per 1,000 items: up to ~60% escalated at
+  // ~$0.07 (gpt-5.6-luna) or ~$2 (gpt-6.2-astra, prefer accuracy).
+  const escalation = ladder && engine !== 'codex' ? (opts.prefer === 'accuracy' ? 1.6 : 0.06) : 0
+  const base = (engine === 'codex' ? 0.002 : engine === 'decisions' ? (opts.maxLabels === 2 ? 0.5 : 0.12) : 0.03 * (opts.maxLabels === 2 ? 2 : 1)) + escalation
   const perK = base * (opts.prefer === 'accuracy' ? 1.3 : 1)
   return (short / 1000) * perK + (longChars(items) / 1000) * 0.0001
 }

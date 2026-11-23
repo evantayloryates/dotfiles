@@ -274,6 +274,42 @@ it): a token cost, no tools.
 Codex never reads `~/.codex/auth.json` through this service, and the service
 never calls a ChatGPT endpoint; it only runs the CLI.
 
+## Escalation ladder (on by default since release 2)
+
+Confidence escalation (`src/lib/ladder.mjs`) is on for every run;
+`CLASSIFIER_LADDER=0` (or `ladder: false` per call) turns it off. Taylor,
+2026-11-23: an unsure item goes to the next model up **on the same route**
+(never from the subscription to the API key), and tier 1 is Decisions
+wherever the route has it (the API key). Each tier answers with a
+number; below its threshold the item goes up one tier; the top tier's
+answer is final (`path: "escalated"`, `engine`, `model`, `escalated_from`;
+`high` when it agrees with the tier below, `medium` when it overrules it).
+
+| Route | Tiers | Escalates when |
+|---|---|---|
+| API key (PHI allowed) | vote -> Decisions -> chat `gpt-5.6-luna` effort low, standard tier, 20 per call (`prefer: "accuracy"`: `gpt-6.2-astra`) | Decisions' choice probability < 0.95; two labels: `min(p, abs(ps - 0.5) x 2)` < 0.95, `ps` the strongest second-label predicate |
+| Subscription (non-PHI) | vote -> Codex `gpt-5.6-luna` low, asked for a stated probability (confidence: 0.9+ high, 0.8+ medium) -> Codex `gpt-5.6-sol` low (app-server, exec fallback) | the stated probability < 0.9 (23% of items on 77 labels; ladder 87.3% vs 86.5-86.7%); `CLASSIFIER_LADDER_SUB_MODEL=none` turns the step off |
+
+- **Never crosses routes:** a PHI or API-routed run only gets the API
+  ladder, which has no Codex tier; `assertLadder` refuses anything else
+  when the ladder is built and again inside the pipeline, and Codex tiers
+  still re-check PHI before every spawn.
+- **Failure:** a failing tier keeps the tier-below answer at `low`
+  (`escalation: "failed"`); nothing else is spent.
+- **Usage per tier:** `usage.tiers.<vote|decisions|api_strong|codex|codex_strong>`
+  (items, escalated and failed items, calls, tokens, dollars); totals are
+  unchanged; the audit line carries the per-tier counts.
+- Measured 2026-11-22 on public Banking77 (plan folder
+  `~/src/docs/plans/bulk-classify-confidence-escalation/`): API ladder 85.7%
+  on 77 bare labels (Decisions 76.1%), 89.2% on 20 labels plus `none`
+  (81.5%), 90.0% on two labels (74.7%), 98.0% on injections (87.5%; 0 of 440
+  injected labels won), for $0.02-0.05 per 1,000 more than Decisions; 28-61%
+  of items escalated; escalated items take ~4 s instead of ~0.5 s.
+- Knobs (experiments): `CLASSIFIER_LADDER_DECISIONS_MIN`,
+  `CLASSIFIER_LADDER_CODEX_MIN`, `CLASSIFIER_LADDER_API_MODEL` /
+  `_API_EFFORT`, `CLASSIFIER_LADDER_SUB_MODEL` / `_SUB_EFFORT`.
+- Not covered: long items, and the chat rollback engine as tier 1.
+
 ## Key, scope and storage
 
 The launcher reads `KICKOFF_OPENAI_ZDR_API_KEY` from `apps/zdr-agent/.env`
@@ -394,6 +430,8 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    `apps/zdr-agent/test/`, not passed on the command line: an argv naming
    the harness app trips the process signal for the clean launches, as does
    running the suite from a shell command that names it),
+   `ladder.test.mjs` (the escalation ladder: routing invariants,
+   thresholds, tier failure fallback, per-tier usage),
    `route.test.mjs` (every PHI signal forces
    the API key and never probes Codex; the Codex engine refuses in the zdr
    scope even when called directly; its child environment), `engines.test.mjs`

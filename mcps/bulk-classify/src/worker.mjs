@@ -11,6 +11,7 @@ import { jobDir, liveWorker, readInput, readJson, readResults, writeJson } from 
 import { subscriptionStatus } from './lib/codex.mjs'
 import { closeAppPool } from './lib/codex-app.mjs'
 import { newUsage } from './lib/openai.mjs'
+import { ladderEnabled, ladderFor } from './lib/ladder.mjs'
 import { JOBS_DIR } from './lib/paths.mjs'
 import { decideRoute, stage2ApiEngine } from './lib/route.mjs'
 import { loadProfile, recordRun, stampUse } from './lib/profiles.mjs'
@@ -162,7 +163,7 @@ async function main() {
       // After a fatal subscription failure (login, limit, missing CLI, PHI
       // refusal) the remaining passes and resumes use the API key only.
       const engine = route.route === 'subscription' && route.fallback?.fatal ? stage2ApiEngine() : route.engine
-      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine, stage1: route.stage1, route, phiContext })
+      await classifyItems(pending, bank, (i, r) => write(pending[i].n, r), { maxLabels: job.spec.max_labels, prefer: job.spec.prefer, tier: job.spec.tier, usage, signal: ctrl.signal, engine, stage1: route.stage1, route, phiContext, ladder: ladderEnabled(process.env, { ladder: job.spec.ladder }) ? ladderFor(route, process.env, { prefer: job.spec.prefer }) : null })
     }
     state.usage = usage
     if (creditTimer) {

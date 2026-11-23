@@ -35,6 +35,8 @@ export function auditLine({ kind, job = null, route, usage = {}, items = 0, stat
     decision_calls: usage.decision_calls || 0,
     chat_calls: usage.chat_calls || 0,
     embed_calls: usage.embed_calls || 0,
+    // Escalation ladder: per-tier counts only (items, escalated, failed).
+    ...(usage.tiers && { tiers: Object.fromEntries(Object.entries(usage.tiers).map(([t, u]) => [t, { items: u.items || 0, escalated: u.escalated_items || 0, failed: u.failed_items || 0 }])) }),
   }
 }
 

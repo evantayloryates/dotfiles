@@ -1,6 +1,8 @@
 # Changelog
 
-## 2026-11-23.002 (branch ety/bulk-classify-codex-app-server, release 2 candidate)
+## 2026-11-23.003 (release 2)
+
+Codex app-server engine and the confidence-escalation ladder, on release 1.
 
 - The subscription route runs on a private, warm `codex app-server` (official
   CLI, experimental) instead of one `codex exec` per batch: one ephemeral
@@ -24,6 +26,29 @@
 - `CLASSIFIER_CODEX_ENGINE=exec` restores release 1; new settings
   `CLASSIFIER_CODEX_APP_*` (servers, tier, shape, base, timeout, idle).
 - Audit line adds `codex_app_calls` and `codex_app_fallback_items`.
+- The app-server child runs under release 1's process backstop (watched
+  for its whole life, empty allow list, group killed on exit): any process
+  under it is kind `unsafe`, which ends subscription use for the run with
+  no exec fallback and no salvaged answers.
+- Priority tier stays off by default (`CLASSIFIER_CODEX_APP_TIER=default`):
+  it is about 40% faster but draws the subscription's limit down faster,
+  and jobs already run at about 50 items/s.
+- Confidence-escalation ladder, **on by default** (`CLASSIFIER_LADDER=0` /
+  `ladder: false` turns it off; README "Escalation ladder"): API key vote -> Decisions ->
+  `gpt-5.6-luna` low (or `gpt-6.2-astra` with `prefer: "accuracy"`) below a
+  0.95 probability; subscription Codex `gpt-5.6-luna` low with a stated
+  probability below 0.9 -> Codex `gpt-5.6-sol` low (Taylor 2026-11-23: the
+  next model up on the same route, never the API key; tier 1 is Decisions
+  wherever the route has it). Routes never cross; failing tiers keep the
+  answer below at low confidence; usage per tier in `usage.tiers` and the
+  audit line; the job estimate includes escalation.
+- Engines take model and effort overrides (chat, Codex, the app-server), Codex can return a
+  stated probability per answer, Codex processes are capped process-wide
+  across batchers, a separate `escalate` request kind (120 s watchdog,
+  hedging at its own p97).
+- Prices for the models the key serves (published standard rates read
+  2026-11-22); `gpt-6-luna` corrected from $0.20 / $0.02 / $1.20 to $0.10 /
+  $0.01 / $0.50 per 1M.
 
 ## 2026-11-23.001 (branch ety/bulk-classify-decisions-routing, release candidate)
 

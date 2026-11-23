@@ -25,11 +25,12 @@
 // Stage one (embeddings) always runs on the API key; on the subscription route
 // CLASSIFIER_SUB_STAGE1=skip sends every item to Codex instead.
 
-import { ApiError, chatJson, decision, embedMany } from './openai.mjs'
+import { ApiError, CHAT_MODEL, chatJson, decision, embedMany } from './openai.mjs'
 import { ALL_CANDIDATES_UP_TO, decide, KnnRunner } from './bank.mjs'
 import { CodexBatcher, FATAL_KINDS } from './codex.mjs'
 import { subscriptionCall } from './codex-app.mjs'
 import { stage2ApiEngine } from './route.mjs'
+import { assertLadder, codexEscalates, countTier, decisionsEscalates, DEFAULTS as LADDER_DEFAULTS, statedConfidence, tierUsage } from './ladder.mjs'
 import { openCache, textKey } from './cache.mjs'
 import { NONE } from './taxonomy.mjs'
 import { dedupeKey, LONG_ITEM_CHARS, looksLikeInjection, sha } from './text.mjs'
@@ -139,7 +140,26 @@ export async function classifyItems(items, bank, emit, options = {}) {
   const skipStage1 = engine === 'codex' && options.stage1 === 'skip'
   const route = options.route || null
   const labelDesc = new Map(taxonomy.labels.map((l) => [l.name, l.description]))
-  const batcher = engine === 'codex' ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage, signal, onCall, call: options.codexCall || subscriptionCall }) : null
+  // Escalation ladder (CLASSIFIER_LADDER, see ladder.mjs). The route check
+  // runs again here: a PHI or API run can only hold the API ladder.
+  const ladder = options.ladder || null
+  if (ladder) assertLadder(ladder, route || { route: engine === 'codex' ? 'subscription' : 'api' })
+  const tierOf = (name) => ladder?.tiers.find((t) => t.name === name) || null
+  const decTier = ladder ? tierOf('decisions') || { min: LADDER_DEFAULTS.api.decisions_min } : null
+  const apiStrong = ladder ? tierOf('api_strong') || { name: 'api_strong', engine: 'chat', ...LADDER_DEFAULTS.api.strong } : null
+  const codexTier = ladder ? tierOf('codex') : null
+  const codexStrong = ladder ? tierOf('codex_strong') : null
+  const usageFor = (name) => (ladder ? tierUsage(usage, name) : usage)
+
+  // Engine overrides (lab runs and the escalation ladder's tiers).
+  const chatOpts = { ...(options.chatModel && { model: options.chatModel }), ...(options.chatEffort && { effort: options.chatEffort }) }
+  const codexConf = !!options.codexConfidence || !!codexTier
+  const trace = !!options.trace
+  const batcher = engine === 'codex' ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex'), signal, onCall, call: options.codexCall || subscriptionCall, ...(options.codexModel && { model: options.codexModel }), ...(options.codexEffort && { effort: options.codexEffort }), withConfidence: codexConf }) : null
+  // The stronger subscription tier: its own batcher (smaller batches), the
+  // same PHI re-check before every spawn. Only built on the subscription
+  // ladder, which assertLadder only allows for a non-PHI subscription run.
+  const strongBatcher = batcher && codexStrong ? new CodexBatcher({ system: sys, reminder: REMINDER, labelNames: allNames, multi, phiContext: options.phiContext || {}, usage: usageFor('codex_strong'), signal, onCall, call: options.codexCall || subscriptionCall, model: codexStrong.model, effort: codexStrong.effort, batch: codexStrong.batch, withConfidence: false }) : null
   const noteFallback = (err, n) => {
     if (usage) usage.subscription_fallback_items = (usage.subscription_fallback_items || 0) + n
     if (!route) return
@@ -200,13 +220,14 @@ export async function classifyItems(items, bank, emit, options = {}) {
       return r
     }
     const schema = { type: 'object', properties: { label: labelSchema(cands || allNames, multi) }, required: ['label'], additionalProperties: false }
-    const out = await chatJson({ kind: 'long', system: sys, user: `${JSON.stringify({ message: text })}\n\n${REMINDER}`, schema, tier: LONG_TIER, usage, signal, cacheKey, onCall })
+    const out = await chatJson({ kind: 'long', system: sys, user: `${JSON.stringify({ message: text })}\n\n${REMINDER}`, schema, tier: LONG_TIER, usage, signal, cacheKey, onCall, ...chatOpts })
     return { answer: out.label, conf: null, engine: 'chat' }
   }
   async function labelWindow(text, cands) {
     if (batcher) {
       try {
-        return { answer: await batcher.add({ message: text, ...(cands && { candidates: cands }) }), conf: null, engine: 'codex' }
+        const a = await batcher.add({ message: text, ...(cands && { candidates: cands }) })
+        return codexConf ? { answer: a.answer, conf: a.confidence, engine: 'codex' } : { answer: a, conf: null, engine: 'codex' }
       } catch (err) {
         if (err?.code === 'cancelled') throw err
         noteFallback(err, 1)
@@ -240,17 +261,18 @@ export async function classifyItems(items, bank, emit, options = {}) {
     }
     return questions
   }
-  async function decideOne({ kind, message, cands }) {
+  async function decideOne({ kind, message, cands, use = usage }) {
     const questions = decisionQuestions(cands)
     const input = [
       { role: 'developer', content: sys },
       { role: 'user', content: `${JSON.stringify(message)}\n\n${REMINDER}` },
     ]
-    const out = await decision({ kind, input, questions, usage, signal, cacheKey, onCall })
+    const out = await decision({ kind, input, questions, usage: use, signal, cacheKey, onCall })
     const main = out.label
     if (main.refused) throw new ApiError('The model declined to label this text.', { code: 'refused' })
     const conf = Math.max(0, Math.min(1, main.confidence ?? main.probability ?? 0))
     let answer = main.choice
+    let secondaryP = null
     if (multi) {
       let best = null
       for (const q of questions.slice(1)) {
@@ -260,8 +282,19 @@ export async function classifyItems(items, bank, emit, options = {}) {
         if (!best || a.probability > best.p) best = { name, p: a.probability }
       }
       answer = { primary: main.choice, secondary: best?.name || NONE }
+      // The strongest second-label predicate, kept or not (escalation: a
+      // value near the 0.5 cut is the unsure case).
+      let ps = 0
+      for (const q of questions.slice(1)) {
+        const a = out[q.name]
+        if (q.name.slice('also:'.length) !== main.choice && !a.refused && a.probability > ps) ps = a.probability
+      }
+      secondaryP = ps
     }
-    return { answer, conf, p: main.probability, engine: 'decisions' }
+    // Runner-up probability and the top five (calibration and escalation).
+    const ranked = Object.entries(main.probabilities || {}).sort((a, b) => b[1] - a[1])
+    const p2 = ranked.find(([v]) => v !== main.choice)?.[1] ?? 0
+    return { answer, conf, p: main.probability, p2, ps: secondaryP, top: ranked.slice(0, 5).map(([v]) => v), engine: 'decisions' }
   }
 
   async function classifyLong(u) {
@@ -331,7 +364,10 @@ export async function classifyItems(items, bank, emit, options = {}) {
     chunk.forEach((u, j) => {
       const force = options.prefer === 'accuracy' || multi || looksLikeInjection(u.text)
       const d = decide(bank, scans[j], { force })
-      if (d.accept) return done(u, { status: 'ok', label: d.accept, confidence: 'high', path: 'vote', engine: 'embeddings' })
+      if (d.accept) {
+        if (ladder) countTier(usage, 'vote', 'items')
+        return done(u, { status: 'ok', label: d.accept, confidence: 'high', path: 'vote', engine: 'embeddings' })
+      }
       escalate.push({ u, d })
     })
     for (let b = 0; b < escalate.length; b += size) tasks.push(runBatch(escalate.slice(b, b + size)))
@@ -359,13 +395,21 @@ export async function classifyItems(items, bank, emit, options = {}) {
     settled.forEach((s, j) => {
       const { u, d } = batch[j]
       if (s.status === 'fulfilled') {
-        const primary = multi ? s.value?.primary : s.value
+        const value = codexConf ? s.value.answer : s.value
+        const stated = codexConf ? s.value.confidence : null
+        const primary = multi ? value?.primary : value
         // Codex let 2 of 440 injected labels win (2026-11-23; Decisions and
         // chat 0): an answer that repeats a label written into an
         // injection-shaped text, or a label identifier (with _ or -) quoted
         // verbatim, gets a second opinion from the API engine instead.
         if (options.recheck !== false && echoesLabel(u.text, primary)) return recheck.push(batch[j])
-        return done(u, shape(s.value, multi, labelSet, { path: 'model', engine: 'codex', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d) }))
+        if (codexTier) {
+          countTier(usage, 'codex', 'items')
+          const prev = shape(value, multi, labelSet, { path: 'model', engine: 'codex', confidence: statedConfidence(stated), ...(stated != null && { p: round2(stated) }), ...(trace && { trace: traceOf(d, { stated }) }) })
+          if (strongBatcher && prev.status === 'ok' && codexEscalates({ stated }, codexTier)) return escalations.push(escalateCodex(batch[j], prev))
+          return done(u, prev)
+        }
+        return done(u, shape(value, multi, labelSet, { path: 'model', engine: 'codex', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d), ...(trace && { trace: traceOf(d, { stated }) }) }))
       }
       if (s.reason?.code === 'cancelled' || signal?.aborted) return fallback(u, { code: 'cancelled' })
       failed.push(batch[j])
@@ -373,6 +417,81 @@ export async function classifyItems(items, bank, emit, options = {}) {
     if (failed.length) noteFallback(settled.find((s) => s.status === 'rejected')?.reason, failed.length)
     if (recheck.length && usage) usage.subscription_recheck_items = (usage.subscription_recheck_items || 0) + recheck.length
     if (failed.length || recheck.length) await runBatchApi([...failed, ...recheck])
+  }
+
+  // ---- escalation. Escalated items wait in `escalations` (awaited with the
+  // rest of the run). The stronger tier's answer is final: high when it
+  // agrees with the tier below, medium when it overrules it. A failed
+  // escalation keeps the tier-below answer at low confidence.
+  const escalations = []
+  const entryOf = ({ u, d }) => {
+    const entry = { message: u.text }
+    if (d.candidates) entry.candidates = d.candidates
+    const hints = (d.hints || []).filter((h) => h.text !== u.text)
+    if (hints.length) entry.similar_labelled = hints.map((h) => `${h.text.length > HINT_CHARS ? `${h.text.slice(0, HINT_CHARS)}…` : h.text} => ${h.label}`)
+    return entry
+  }
+  const escalatedResult = (answer, prev, from, tierCfg, engineName) => {
+    const primary = multi ? answer?.primary : answer
+    const r = shape(answer, multi, labelSet, { path: 'escalated', engine: engineName, model: tierCfg.model, escalated_from: from, confidence: primary === prev.label ? 'high' : 'medium' })
+    return r.status === 'ok' ? r : keepPrev(prev, from === 'decisions' ? 'api_strong' : 'codex_strong')
+  }
+  const keepPrev = (prev, tierName) => {
+    countTier(usage, tierName, 'failed_items')
+    return { ...prev, confidence: 'low', escalation: 'failed' }
+  }
+  async function escalateCodex(item, prev) {
+    countTier(usage, 'codex', 'escalated_items')
+    let a
+    try {
+      a = await strongBatcher.add(entryOf(item))
+    } catch (err) {
+      if (err?.code === 'cancelled' || signal?.aborted) return fallback(item.u, { code: 'cancelled' })
+      return done(item.u, keepPrev(prev, 'codex_strong'))
+    }
+    countTier(usage, 'codex_strong', 'items')
+    // Same injection guard as the low-effort tier: an answer that echoes a
+    // label written into the text gets the API re-check instead. This path
+    // exists only on the subscription ladder (non-PHI); the re-check goes
+    // subscription -> API, never the reverse.
+    if (echoesLabel(item.u.text, multi ? a?.primary : a)) {
+      if (ladder.route !== 'subscription') throw new Error('stronger Codex tier outside the subscription ladder')
+      countTier(usage, 'codex_strong', 'recheck_items')
+      if (usage) usage.subscription_recheck_items = (usage.subscription_recheck_items || 0) + 1
+      return runBatchApi([item])
+    }
+    done(item.u, escalatedResult(a, prev, 'codex', codexStrong, 'codex'))
+  }
+  // API strong tier: a micro-batcher over chat completions with the stronger
+  // model, grouping escalated items from across the run.
+  const strongQueue = { pending: [], timer: null }
+  function escalateApi(item, prev) {
+    countTier(usage, 'decisions', 'escalated_items')
+    return new Promise((resolveItem) => {
+      strongQueue.pending.push({ item, prev, resolve: resolveItem })
+      if (strongQueue.pending.length >= (apiStrong.batch || 20)) flushStrong()
+      else if (!strongQueue.timer) strongQueue.timer = setTimeout(flushStrong, 40)
+    })
+  }
+  function flushStrong() {
+    clearTimeout(strongQueue.timer)
+    strongQueue.timer = null
+    const group = strongQueue.pending.splice(0)
+    if (!group.length) return
+    runBatchChat(
+      group.map((g) => g.item),
+      {
+        model: apiStrong.model,
+        effort: apiStrong.effort,
+        tier: apiStrong.tier || 'default',
+        use: usageFor('api_strong'),
+        onAnswer: (j, answer) => {
+          countTier(usage, 'api_strong', 'items')
+          done(group[j].item.u, escalatedResult(answer, group[j].prev, 'decisions', apiStrong, 'chat'))
+        },
+        onError: (j, err) => (err?.code === 'cancelled' || signal?.aborted ? fallback(group[j].item.u, { code: 'cancelled' }) : done(group[j].item.u, keepPrev(group[j].prev, 'api_strong'))),
+      }
+    ).finally(() => group.forEach((g) => g.resolve()))
   }
 
   function echoesLabel(text, label) {
@@ -396,9 +515,12 @@ export async function classifyItems(items, bank, emit, options = {}) {
           const hints = (d.hints || []).filter((h) => h.text !== u.text)
           if (hints.length) message.similar_labelled = hints.map((h) => `${h.text.length > HINT_CHARS ? `${h.text.slice(0, HINT_CHARS)}…` : h.text} => ${h.label}`)
           try {
-            const r = await decideOne({ kind: 'decide', message, cands })
+            const r = await decideOne({ kind: 'decide', message, cands, use: usageFor('decisions') })
             const primary = multi ? r.answer?.primary : r.answer
-            done(u, shape(r.answer, multi, labelSet, { path: 'model', engine: 'decisions', confidence: decisionConfidence(primary, d, r.conf), ...(r.p != null && { p: round2(r.p) }) }))
+            const res = shape(r.answer, multi, labelSet, { path: 'model', engine: 'decisions', confidence: decisionConfidence(primary, d, r.conf), ...(r.p != null && { p: round2(r.p) }), ...(trace && { trace: traceOf(d, { p: r.p, p2: r.p2, conf: r.conf, top: r.top, ...(r.ps != null && { ps: r.ps }) }) }) })
+            if (ladder) countTier(usage, 'decisions', 'items')
+            if (ladder && res.status === 'ok' && decisionsEscalates(r, decTier, multi)) return void escalations.push(escalateApi({ u, d }, res))
+            done(u, res)
           } catch (err) {
             fallback(u, err)
           }
@@ -410,7 +532,8 @@ export async function classifyItems(items, bank, emit, options = {}) {
     return runBatchChat(batch)
   }
 
-  async function runBatchChat(batch) {
+  // cfg (escalation tier): { model, effort, tier, use, onAnswer(j, answer), onError(j, err) }.
+  async function runBatchChat(batch, cfg = null) {
     const props = {}
     // Items that may take any label share one $defs enum: strict schemas
     // allow 1,000 enum values in total, and a $ref counts once.
@@ -426,20 +549,30 @@ export async function classifyItems(items, bank, emit, options = {}) {
     })
     const schema = { type: 'object', properties: props, required: Object.keys(props), additionalProperties: false, ...(defs && { $defs: defs }) }
     try {
-      const out = await chatJson({ kind: batch.length > 1 ? 'batch' : 'chat', system: sys, user: `${JSON.stringify(payload)}\n\n${REMINDER}`, schema, tier, usage, signal, cacheKey, onCall, items: batch.length })
+      const callOpts = cfg ? { model: cfg.model, effort: cfg.effort } : chatOpts
+      const out = await chatJson({ kind: callOpts.model && callOpts.model !== CHAT_MODEL ? 'escalate' : batch.length > 1 ? 'batch' : 'chat', system: sys, user: `${JSON.stringify(payload)}\n\n${REMINDER}`, schema, tier: cfg ? cfg.tier : options.chatTier || tier, usage: cfg ? cfg.use : usage, signal, cacheKey, onCall, items: batch.length, ...callOpts })
       batch.forEach(({ u, d }, j) => {
         const answer = out[`m${j + 1}`]
+        if (cfg) return cfg.onAnswer(j, answer)
         const primary = multi ? answer?.primary : answer
-        done(u, shape(answer, multi, labelSet, { path: 'model', engine: 'chat', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d) }))
+        done(u, shape(answer, multi, labelSet, { path: 'model', engine: 'chat', confidence: d.vote === undefined ? 'medium' : confidenceOf(primary, d), ...(trace && { trace: traceOf(d, {}) }) }))
       })
     } catch (err) {
       if (err instanceof ApiError && err.code !== 'cancelled' && batch.length > 1 && !err.retryable) {
         const half = Math.ceil(batch.length / 2)
-        await Promise.all([runBatchChat(batch.slice(0, half)), runBatchChat(batch.slice(half))])
+        const sub = (from, to) => (cfg ? { ...cfg, onAnswer: (j, a) => cfg.onAnswer(from + j, a), onError: (j, e) => cfg.onError(from + j, e) } : null)
+        await Promise.all([runBatchChat(batch.slice(0, half), sub(0, half)), runBatchChat(batch.slice(half), sub(half))])
         return
       }
+      if (cfg) return batch.forEach((_, j) => cfg.onError(j, err))
       for (const { u } of batch) fallback(u, err)
     }
+  }
+
+  // Raw signals for lab runs (options.trace): the vote's view plus the
+  // engine's own numbers. Never stored by the service (trace is lab-only).
+  function traceOf(d, extra) {
+    return { vote: d.vote ?? null, margin: d.margin == null ? null : round3(d.margin), topSim: d.topSim == null ? null : round3(d.topSim), belowFloor: !!d.belowFloor, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, typeof v === 'number' ? round3(v) : v])) }
   }
 
   // high: the model agrees with the vote, or says none to chatter when no
@@ -469,6 +602,11 @@ export async function classifyItems(items, bank, emit, options = {}) {
 
   try {
     await Promise.all(tasks)
+    // Escalations are queued while tasks run; drain until none are left.
+    while (escalations.length) {
+      flushStrong()
+      await Promise.all(escalations.splice(0))
+    }
   } finally {
     cache.flush()
     await knn.close()
@@ -487,3 +625,4 @@ function shape(answer, multi, labelSet, extra) {
 }
 
 const round2 = (x) => Math.round(x * 100) / 100
+const round3 = (x) => Math.round(x * 1000) / 1000

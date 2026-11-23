@@ -99,10 +99,13 @@ export function parseLoginStatus(text) {
 // One schema for the whole batch: an array of {key, label[, secondary]}, so
 // the label enum appears once (strict schemas cap enum values at 1,000 in
 // total; per-key enums for 100 items x 78 labels would be 7,800).
-export function codexSchema(labelNames, multi) {
+// withConfidence (escalation ladder): each answer also carries the model's
+// stated probability that its label is right.
+export function codexSchema(labelNames, multi, withConfidence = false) {
   const e = [...labelNames, 'none']
   const props = { key: { type: 'string' }, label: { type: 'string', enum: e } }
   if (multi) props.secondary = { type: 'string', enum: e }
+  if (withConfidence) props.confidence = { type: 'number' }
   return {
     type: 'object',
     properties: { answers: { type: 'array', items: { type: 'object', properties: props, required: Object.keys(props), additionalProperties: false } } },
@@ -111,11 +114,12 @@ export function codexSchema(labelNames, multi) {
   }
 }
 
-export function codexPrompt(system, entries, reminder) {
+export function codexPrompt(system, entries, reminder, withConfidence = false) {
   return [
     system,
     '',
     'Return a JSON object {"answers": [...]} with one answer per item, in any order, each {"key": the item\'s key, "label": its label} (plus "secondary" when asked). Do not run commands or use tools; answer directly.',
+    ...(withConfidence ? ['For every answer also give "confidence": your probability from 0 to 1 that the label is the one a careful human would choose. Be calibrated: use values below 0.7 whenever another label is plausible.'] : []),
     '',
     'Items:',
     JSON.stringify(entries),
@@ -126,7 +130,9 @@ export function codexPrompt(system, entries, reminder) {
 
 // Checks the answer against the batch: every key answered once, every label
 // allowed for that item. Returns Map key -> answer; missing keys are absent.
-export function parseCodexAnswers(text, entries, labelSet, multi) {
+// With confidence, an answer is { answer, confidence } (confidence null when
+// missing or out of range); without, the bare answer as before.
+export function parseCodexAnswers(text, entries, labelSet, multi, withConfidence = false) {
   let json
   try {
     json = JSON.parse(text)
@@ -140,7 +146,9 @@ export function parseCodexAnswers(text, entries, labelSet, multi) {
     if (!e || out.has(a.key)) continue
     const allowed = (l) => l === 'none' || (e.candidates ? e.candidates.includes(l) : labelSet.has(l))
     if (!allowed(a.label)) continue
-    out.set(a.key, multi ? { primary: a.label, secondary: allowed(a.secondary) ? a.secondary : 'none' } : a.label)
+    const answer = multi ? { primary: a.label, secondary: allowed(a.secondary) ? a.secondary : 'none' } : a.label
+    if (!withConfidence) out.set(a.key, answer)
+    else out.set(a.key, { answer, confidence: typeof a.confidence === 'number' && a.confidence >= 0 && a.confidence <= 1 ? a.confidence : null })
   }
   return out
 }
@@ -165,7 +173,9 @@ export const FATAL_KINDS = new Set(['not_logged_in', 'api_key_login', 'rate_limi
 // ---------------------------------------------------------------------------
 // One Codex call. phiContext is re-checked right before spawn.
 
-export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall, psFn, watchIntervalMs = WATCH_INTERVAL_MS }) {
+// model / effort override the defaults (the escalation ladder's stronger
+// subscription tier); withConfidence asks for a stated probability per answer.
+export async function codexCall({ system, entries, reminder, labelNames, multi, phiContext = {}, usage, signal, spawnFn = spawn, onCall, psFn, watchIntervalMs = WATCH_INTERVAL_MS, model = CODEX_MODEL, effort = CODEX_EFFORT, withConfidence = false }) {
   assertNoPhi(phiContext) // throws PhiRefusal: never spawn for PHI work
   const t0 = performance.now()
   const dir = mkdtempSync(join(process.env.TMPDIR || tmpdir(), 'classifier-codex-'))
@@ -173,8 +183,8 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
   try {
     const schemaPath = join(dir, 'schema.json')
     const lastPath = join(dir, 'answer.json')
-    writeFileSync(schemaPath, JSON.stringify(codexSchema(labelNames, multi)), { mode: 0o600 })
-    const args = ['exec', '-m', CODEX_MODEL, '-c', `model_reasoning_effort="${CODEX_EFFORT}"`, '-c', 'web_search="disabled"']
+    writeFileSync(schemaPath, JSON.stringify(codexSchema(labelNames, multi, withConfidence)), { mode: 0o600 })
+    const args = ['exec', '-m', model, '-c', `model_reasoning_effort="${effort}"`, '-c', 'web_search="disabled"']
     for (const f of DISABLED_FEATURES) args.push('--disable', f)
     // `--ignore-user-config` keeps ~/.codex/config.toml, and so Taylor's MCP
     // servers, out of `codex exec` (verified 2026-11-23: no server process
@@ -250,7 +260,7 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
         resolvePromise({ code: sig ? null : c, stdout: out, stderr: err })
       })
       child.stdin.on('error', () => {})
-      child.stdin.end(codexPrompt(system, entries, reminder))
+      child.stdin.end(codexPrompt(system, entries, reminder, withConfidence))
     })
     // Usage and errors from the JSONL event stream (never echoed: it can hold
     // item text).
@@ -286,12 +296,12 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
     } catch {
       throw new SubscriptionError('Codex wrote no answer.', 'bad_output')
     }
-    const answers = parseCodexAnswers(text, entries, new Set(labelNames), multi)
+    const answers = parseCodexAnswers(text, entries, new Set(labelNames), multi, withConfidence)
     if (usage) usage.codex_items = (usage.codex_items || 0) + answers.size
     ok = true
     return answers
   } finally {
-    onCall?.({ engine: 'codex', kind: 'batch', ms: performance.now() - t0, items: entries.length, ok })
+    onCall?.({ engine: 'codex', kind: 'batch', model, effort, ms: performance.now() - t0, items: entries.length, ok })
     rmSync(dir, { recursive: true, force: true })
   }
 }
@@ -302,9 +312,17 @@ export async function codexCall({ system, entries, reminder, labelNames, multi, 
 // CODEX_PARALLEL at once. add() resolves with the entry's answer, or rejects
 // (SubscriptionError / PhiRefusal) so the caller can fall back to the API key.
 
+// Codex processes are capped process-wide, not per batcher: the escalation
+// ladder runs two batchers (low effort, then the stronger tier) at once.
+const slots = { active: 0, batchers: new Set() }
+function pumpAll() {
+  for (const b of slots.batchers) b.pump()
+}
+
 export class CodexBatcher {
   constructor(opts) {
-    this.opts = opts // { system, reminder, labelNames, multi, phiContext, usage, signal, onCall, call }
+    this.opts = opts // { system, reminder, labelNames, multi, phiContext, usage, signal, onCall, call, model, effort, withConfidence, batch }
+    this.size = opts.batch || CODEX_BATCH
     this.pending = []
     this.chars = 0
     this.timer = null
@@ -319,7 +337,7 @@ export class CodexBatcher {
       const key = `i${++this.seq}`
       this.pending.push({ entry: { ...entry, key }, resolve: resolveEntry, reject: rejectEntry })
       this.chars += (entry.message || '').length
-      if (this.pending.length >= CODEX_BATCH || this.chars >= CODEX_CHARS) this.flush()
+      if (this.pending.length >= this.size || this.chars >= CODEX_CHARS) this.flush()
       else if (!this.timer) this.timer = setTimeout(() => this.flush(), 25)
     })
   }
@@ -334,21 +352,26 @@ export class CodexBatcher {
     const batch = this.pending
     this.pending = []
     this.chars = 0
-    const full = batch.length >= CODEX_BATCH
-    const slots = Math.max(1, CODEX_PARALLEL - this.active - this.queue.length)
-    const size = full ? batch.length : Math.max(25, Math.ceil(batch.length / slots))
+    const full = batch.length >= this.size
+    const idle = Math.max(1, CODEX_PARALLEL - slots.active - this.queue.length)
+    const size = full ? batch.length : Math.max(Math.min(25, this.size), Math.ceil(batch.length / idle))
     for (let i = 0; i < batch.length; i += size) this.queue.push(batch.slice(i, i + size))
     this.pump()
   }
   pump() {
-    while (this.active < CODEX_PARALLEL && this.queue.length) {
+    while (slots.active < CODEX_PARALLEL && this.queue.length) {
       const batch = this.queue.shift()
       this.active++
+      slots.active++
+      slots.batchers.add(this)
       this.run(batch).finally(() => {
         this.active--
-        this.pump()
+        slots.active--
+        if (!this.active && !this.queue.length) slots.batchers.delete(this)
+        pumpAll()
       })
     }
+    if (this.queue.length) slots.batchers.add(this)
   }
   async run(batch) {
     if (this.broken) return batch.forEach((b) => b.reject(this.broken))
