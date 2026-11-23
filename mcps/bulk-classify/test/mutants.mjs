@@ -32,7 +32,7 @@ const mutants = [
   ['harness registration check off', 'apps/zdr-agent/bin/zdr-harness', 'check_classifier_registration() {\n', 'check_classifier_registration() {\n  return 0\n'],
   ['global config not checked', 'apps/zdr-agent/bin/zdr-harness', 'if [[ -d "$GLOBAL_CONFIG_DIR" ]]; then', 'if false; then'],
   ['Codex process watch off', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "  const bad = []\n  for (const r of rows) {", "  const bad = []\n  return bad\n  for (const r of rows) {"],
-  ['allow list by basename', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "    if (!allow.has(path)) bad.push(path)", "    if (!allow.has(path) && !/\\/(git|codex)$/.test(path)) bad.push(path)"],
+  ['allow list by basename', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "    if (allow.has(path)) continue", "    if (allow.has(path) || /(^|\\/)(git|git-remote-https?|codex)$/.test(path)) continue"],
   ['orphans (process group) not watched', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "(tree.has(r.ppid) || r.pgid === pid)", "tree.has(r.ppid)"],
   ['watch only at fixed moments', 'mcps/bulk-classify/src/lib/codex-lockdown.mjs', "  const timer = setInterval(() => check(), intervalMs)", "  const timer = setTimeout(() => check(), 1500)"],
   ['no final check at exit', 'mcps/bulk-classify/src/lib/codex.mjs', "        if (watch && watch.check(true).length) {", "        if (false) {"],
