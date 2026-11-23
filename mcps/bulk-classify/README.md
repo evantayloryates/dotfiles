@@ -134,11 +134,29 @@ present:**
 | Signal | How it is detected |
 |---|---|
 | Harness scope | `CLASSIFIER_SCOPE=zdr` (launcher: `HOME` ends in `/.zdr-harness/home`), or `HOME` itself |
-| Harness environment | The launcher, before `env -i`, lists names (never values) of caller variables named `ZDR_*`, `*_ZDR_*` or `OPENCODE_*`, or whose value points into `~/.zdr-harness`, in `CLASSIFIER_ENV_SIGNALS`, and proves it ran with `CLASSIFIER_ENV_CHECKED=1` (missing under the launcher = PHI); node checks its own environment the same way |
-| Paths | Input file, output file, job directory, jobs store and working directory, resolved through symlinks (also for files not yet created), under `~/.zdr-harness` or any `/.zdr-harness/` directory; an unresolvable or relative path = PHI |
+| Harness environment | The launcher, first thing and before `env -i`, lists names (never values) of caller variables named `ZDR_*`, `*_ZDR_*` or `OPENCODE_*` in any case, whose value mentions `.zdr-harness`, or whose value is an existing path that resolves into it, in `CLASSIFIER_ENV_SIGNALS`, and proves it ran with `CLASSIFIER_ENV_CHECKED=1` (missing under the launcher = PHI); node checks its own environment the same way. The scope follows the resolved `HOME` (trailing slash, `..` or a symlink to the harness home is still the harness) |
+| Paths | Input file, output file, job directory, jobs and profiles stores, `HOME`, `TMPDIR` and working directory, resolved like the kernel (symlinks before `..`, dangling links followed, files not yet created), under `~/.zdr-harness` of the launcher's, the environment's or the account's own home, or any `.zdr-harness` directory; an unresolvable or relative path = PHI |
 | Process chain | One `ps` call; any ancestor run from `~/.zdr-harness`, the `zdr-harness` script, `apps/zdr-agent/` or `ZDR Harness.app`; `ps` failing or this process missing = PHI |
-| Records | A job created in the zdr scope, routed PHI, started with `phi`, or with no routing record; a profile whose `scopes` include `zdr` or `unknown` (profiles saved before routing have no `scopes` and so always use the API key) |
+| Records | A job created in the zdr scope, routed PHI, started with `phi`, or with no routing record; a profile whose `scopes` or one-way stamp file include `zdr` or `unknown` (see below) |
 | Explicit | `phi` / `zdr` on the call, `CLASSIFIER_PHI=1` |
+
+**Profile scopes.** A profile created in the zdr scope is ZDR-only; one
+created anywhere else is general. A general profile used or saved in the
+zdr scope becomes ZDR-only, one way: the zdr scope appends `zdr` to the
+profile's stamp file (`<profiles>/.scopes/<name>`, append-only, so the
+read-modify-write of the profile JSON by concurrent runs can never drop it)
+before any work starts, and a stamp that cannot be written stops the call.
+Routing reads the stamp fresh for every decision and before every Codex
+call, so a profile first used in the harness while a local job runs moves
+that job's remaining calls to the API key. A profile with no `scopes` (saved
+before routing) uses the API key. The 14 profiles that existed on
+2026-11-23 were scoped by Taylor (9 ZDR-only, 5 general).
+
+**Audit.** One line per `classify_texts` call and per finished job goes to
+`audit.jsonl` beside the scope's jobs (mode 600): engine, route, `phi`,
+reason codes (`scope_zdr`, `env_caller`, `path_harness`, `process_harness`,
+`record_profile_zdr`, ...), fallback kind and count, and call counts. Never
+text, labels, paths or env values.
 
 There is no path from the API key to the subscription: a job recorded as API
 stays API, and fallbacks only go subscription -> API. The Codex engine runs
@@ -147,9 +165,16 @@ anything is present, so it refuses PHI work even when called directly.
 
 With no PHI signal the subscription is used when `codex login status` says
 ChatGPT (an API-key login, or an unreadable status, means unavailable, and
-the API key is used). If Codex fails mid-run (not logged in, usage limit,
-unsupported model, a bad answer), the affected items go to the API engine,
-and a login or limit failure ends subscription use for that run. Every
+the API key is used; the status is cached five minutes on the monotonic
+clock). If Codex fails mid-run (not logged in, usage limit, unsupported
+model, CLI missing, a bad answer), the affected items go to the API engine.
+Failures are classified from the event stream and stderr with the CLI's own
+wording (`You've hit your usage limit`, `usage_limit_reached`,
+`*_credits_depleted`, exit 127); a login, limit, unsupported-model or
+missing-CLI failure ends subscription use for the rest of the run and its
+resumes and drops the cached login status. A Codex answer that repeats a
+label written into an injection-shaped text (or quotes a label identifier
+verbatim) is re-asked on the API engine (`subscription_recheck_items`). Every
 result line carries `engine` (`codex`, `decisions`, `chat`, `embeddings` for
 the vote, `cache`), every summary and `classify_results` names the route,
 its reasons and any fallback, and usage counts `decision_calls`,
@@ -270,7 +295,13 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
 
 ## Verification
 
-1. `node --test test/*.test.mjs`: `route.test.mjs` (every PHI signal forces
+1. `node --test test/*.test.mjs`: `hardening.test.mjs` (the real launcher
+   under `/bin/bash` against a fake home: HOME tricks, env names and values,
+   overrides a harness caller might pass, cwd and files through symlinks and
+   `..`, the harness's own `isolated_env`, the `_shared/bin/run`
+   registration, concurrent launches in both scopes, profile stamps and the
+   lost-update race, mid-job stamps, Codex failure wording, the audit line),
+   `route.test.mjs` (every PHI signal forces
    the API key and never probes Codex; the Codex engine refuses in the zdr
    scope even when called directly; its child environment), `engines.test.mjs`
    (Decisions request and answers, usage, 429s, two labels, refusals, long
