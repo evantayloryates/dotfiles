@@ -3,7 +3,11 @@
 Labels many texts with labels the caller chooses, as fast as the API allows:
 a quick call for up to 50 texts, background jobs for up to 200,000. One
 service in every harness: the ZDR harness, Claude Code, Codex, Cursor and the
-shell. It always runs on the Kickoff ZDR OpenAI key. It does no privacy
+shell. Stage two (the model) runs on one of two accounts, chosen per call
+(see [Engines and routing](#engines-and-routing)): anything from or tied to
+the ZDR harness, which is cleared for PHI, runs only on the Kickoff ZDR
+OpenAI key; everything else runs on Taylor's ChatGPT subscription through the
+Codex CLI, to save cost. Embeddings always use the API key. It does no privacy
 filtering of what it classifies; the calling environment owns that. Built
 2026-10-01; the design came out of four pressure-test rounds whose findings
 are summarised under [Why it is built this way](#why-it-is-built-this-way).
@@ -34,6 +38,9 @@ or `profile`; `examples` for this call only (`[{text, label}]`, never stored);
 `max_labels: 2` for a main plus an optional second label; `prefer: "accuracy"`
 to send every item to the model.
 
+`phi: true` (CLI `--phi`) marks client or patient data: the call then runs
+only on the API key. The ZDR harness scope always counts as PHI.
+
 Every item gets a `label` (one of the labels or `none`), a `confidence`
 (`high`: the vote alone was decisive, or the model agreed with it, or long
 items whose label several windows agreed on; `low`: the model contradicted a
@@ -51,9 +58,15 @@ normalise (repair broken characters, strip invisible ones, drop empties and "N/A
      (at most 40 per item), then the most frequent substantive label
   -> short item: embed (text-embedding-3-small, 512 dims) -> nearest-neighbour vote
        confident vote -> done
-       otherwise      -> the model (gpt-6-luna, reasoning none, priority tier),
-                         20 items per call, each with its nearest labelled examples
+       otherwise      -> the model, each item with its nearest labelled examples:
+                         API route: Decisions API, one request per item
+                           (CLASSIFIER_STAGE2=chat: gpt-6-luna chat, reasoning
+                           none, priority tier, 20 items per call)
+                         subscription route: codex exec, ~100 items per call
 ```
+
+"The model" above is the stage-two engine the route picked (see
+[Engines and routing](#engines-and-routing)); long items go to it too.
 
 - **The vote** compares each item with a bank of rows: one anchor per label
   (`"name: description"`), the profile's examples, the call's examples, a
@@ -102,6 +115,50 @@ normalise (repair broken characters, strip invisible ones, drop empties and "N/A
   fingerprint and scope, on the job retention window. The same text keeps
   its label across runs (the model alone changed 0.7-2% between identical
   runs), and repeats are free (5,000 items: 2.4 s first, 0.3 s again).
+
+## Engines and routing
+
+Stage two has three engines:
+
+| Engine | Account | Shape | When |
+|---|---|---|---|
+| `decisions` | Kickoff ZDR API key | `POST /v1/decisions` (`gpt-6-luna`), one request per text: one `choice` question (the labels plus `none`, defined in the developer turn), one `predicate` per label for a second label; the choice's `confidence` moves the vote-based confidence | API route (default) |
+| `chat` | Kickoff ZDR API key | chat completions, 20 items per call, strict schema (the engine before 2026-11) | API route with `CLASSIFIER_STAGE2=chat` (rollback) |
+| `codex` | ChatGPT subscription | `codex exec` (official CLI only), up to 100 items per call, 6 calls at once, `--output-schema`, `--ephemeral`, `-s read-only`, tools off, a scratch cwd outside any repo, only `HOME`/`PATH`/`TMPDIR`/`LANG` in its environment, text over stdin | subscription route |
+
+`src/lib/route.mjs` picks the route per call (and per job, recorded in the
+job and re-checked by its worker). **Any one PHI signal forces the API key;
+nothing overrides it, and a signal that cannot be evaluated counts as
+present:**
+
+| Signal | How it is detected |
+|---|---|
+| Harness scope | `CLASSIFIER_SCOPE=zdr` (launcher: `HOME` ends in `/.zdr-harness/home`), or `HOME` itself |
+| Harness environment | The launcher, before `env -i`, lists names (never values) of caller variables named `ZDR_*`, `*_ZDR_*` or `OPENCODE_*`, or whose value points into `~/.zdr-harness`, in `CLASSIFIER_ENV_SIGNALS`, and proves it ran with `CLASSIFIER_ENV_CHECKED=1` (missing under the launcher = PHI); node checks its own environment the same way |
+| Paths | Input file, output file, job directory, jobs store and working directory, resolved through symlinks (also for files not yet created), under `~/.zdr-harness` or any `/.zdr-harness/` directory; an unresolvable or relative path = PHI |
+| Process chain | One `ps` call; any ancestor run from `~/.zdr-harness`, the `zdr-harness` script, `apps/zdr-agent/` or `ZDR Harness.app`; `ps` failing or this process missing = PHI |
+| Records | A job created in the zdr scope, routed PHI, started with `phi`, or with no routing record; a profile whose `scopes` include `zdr` or `unknown` (profiles saved before routing have no `scopes` and so always use the API key) |
+| Explicit | `phi` / `zdr` on the call, `CLASSIFIER_PHI=1` |
+
+There is no path from the API key to the subscription: a job recorded as API
+stays API, and fallbacks only go subscription -> API. The Codex engine runs
+the same check again immediately before every `codex exec` and throws if
+anything is present, so it refuses PHI work even when called directly.
+
+With no PHI signal the subscription is used when `codex login status` says
+ChatGPT (an API-key login, or an unreadable status, means unavailable, and
+the API key is used). If Codex fails mid-run (not logged in, usage limit,
+unsupported model, a bad answer), the affected items go to the API engine,
+and a login or limit failure ends subscription use for that run. Every
+result line carries `engine` (`codex`, `decisions`, `chat`, `embeddings` for
+the vote, `cache`), every summary and `classify_results` names the route,
+its reasons and any fallback, and usage counts `decision_calls`,
+`codex_calls`, `codex_input_tokens` (the subscription's limits, no dollar
+cost) and `subscription_fallback_items`. `classifier route [--phi] [--input
+f] [--json]` shows what a call from the current shell would use.
+
+Codex never reads `~/.codex/auth.json` through this service, and the service
+never calls a ChatGPT endpoint; it only runs the CLI.
 
 ## Key, scope and storage
 
@@ -195,6 +252,13 @@ Unexpected errors return only an error code, never a path.
 
 ## Tuning knobs
 
+Routing and engines: `CLASSIFIER_ROUTE` (`auto`, the default, or `api` to
+keep everything on the key), `CLASSIFIER_STAGE2=chat` (API engine rollback),
+`CLASSIFIER_SUB_STAGE1=skip` (subscription route without embeddings),
+`CLASSIFIER_PHI=1`, `CLASSIFIER_CODEX_MODEL` (`gpt-6-luna`; the subscription
+refuses `gpt-6.2-luna`), `CLASSIFIER_CODEX_EFFORT` (`low`; `none` is
+refused), `CLASSIFIER_CODEX_BATCH` (100), `CLASSIFIER_CODEX_PARALLEL` (6).
+
 Environment variables the launcher passes through, for experiments only:
 `CLASSIFIER_BATCH` (items per model call, 20), `CLASSIFIER_CANDIDATES`
 (shortlist size above 25 labels, 8), `CLASSIFIER_HINTS` (nearest examples per
@@ -206,7 +270,12 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
 
 ## Verification
 
-1. `node --test test/unit.test.mjs` (offline: normalisation, injection
+1. `node --test test/*.test.mjs`: `route.test.mjs` (every PHI signal forces
+   the API key and never probes Codex; the Codex engine refuses in the zdr
+   scope even when called directly; its child environment), `engines.test.mjs`
+   (Decisions request and answers, usage, 429s, two labels, refusals, long
+   items, Codex schema and parsing, the subscription -> API fallback and no
+   reverse path, all against a mocked fetch) and `unit.test.mjs` (offline: normalisation, injection
    detector, identifiers, label validation, file formats and filters, the
    path policy including symlinks, torn results, the profile guard, the kNN
    scan). `test/guard.online.mjs` re-measures the profile guard with the
@@ -222,6 +291,32 @@ item, 8), `CLASSIFIER_NO_CACHE` (skip the result cache, for measuring),
    round.
 
 ## Why it is built this way
+
+Engines, measured 2026-11-22 (384 synthetic grocery-support messages, 18
+labels with descriptions plus 40 that fit none; no real data):
+
+| Engine | Accuracy | Per stage-two call p50 / p95 | Items per call | Errors, 429s | Cost per 1,000 |
+|---|---|---|---|---|---|
+| chat (cascade) | 97.9% | 1.2 / 1.5 s | 19 | 0, 0 | $0.033 |
+| decisions (cascade) | 97.1% | 0.40 / 0.61 s | 1 | 0, 0 | $0.096 |
+| codex, embeddings kept | 97.7% | 21 / 22 s | 69 | 0, 0 | $0.0004 (embeddings) + ~270 subscription tokens per item |
+| codex, no embeddings | 97.7% | 21 / 21 s | 64 | 0, 0 | ~$0 + ~320 subscription tokens per item |
+
+- Decisions burst: 3,072 requests in 4.1 s, no 429s (the key allows 30,000
+  requests and 180M tokens a minute); p50 rose to 1.6 s under that load.
+- Decisions costs about 3x chat here: one ~1,000-token request per text
+  against chat's shared, cached prompt for 20. Label descriptions on the
+  choices instead of the developer turn lost 1.1 points; a bare prompt cost
+  1.1 points too. With two labels the per-label predicates make it $0.42 per
+  1,000 (chat $0.06). Long items (16, up to 38k characters): 100% on every
+  engine; Decisions $0.0003 per item against chat's $0.0008.
+- Codex: ~3 s and ~18k subscription tokens per call whatever its size, plus
+  ~0.18 s per item. 25 / 50 / 100 / 200 items per call took 7.6 / 12 / 23 /
+  39 s with the same accuracy; 100 is the default, and partial batches are
+  split across idle slots (50 texts answer in ~8 s instead of ~12 s).
+- Codex with embeddings kept matched no-embeddings accuracy, used 16% fewer
+  subscription tokens (the vote answers some items) and keeps graded
+  confidence, so the subscription route keeps stage one.
 
 Measured 2026-10-01 (four explorers, $7.75 of API spend, plus the build runs;
 raw findings in the session scratchpad `bc-lab/findings/`):
