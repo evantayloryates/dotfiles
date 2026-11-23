@@ -42,7 +42,7 @@ const RETRY_DELAY_MS = Number(process.env.CLASSIFIER_CODEX_RETRY_MS) || 5000
 const TIMEOUT_MS = Number(process.env.CLASSIFIER_CODEX_TIMEOUT_MS) || 180_000
 // Tool features off: classification needs no tools, and each one adds prompt
 // overhead (and a way to act). The sandbox is read-only regardless.
-const DISABLED_FEATURES = ['shell_snapshot', 'apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool']
+export const DISABLED_FEATURES = ['shell_snapshot', 'apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool']
 
 const realHome = () => process.env.CLASSIFIER_REAL_HOME || homedir()
 export const codexBin = () => process.env.CLASSIFIER_CODEX_BIN || join(realHome(), '.local', 'bin', 'codex')

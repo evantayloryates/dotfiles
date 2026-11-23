@@ -54,7 +54,7 @@ const BASE = () => (process.env.CLASSIFIER_CODEX_APP_BASE === 'codex' ? 'codex' 
 // a trivial turn; with Taylor's MCP servers left on it was 22.9k). What is
 // left is mostly ~/.codex/AGENTS.md (~4k words), which no official setting
 // turns off.
-export const APP_DISABLED = ['apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool', 'code_mode_host']
+export const APP_DISABLED = ['shell_snapshot', 'apps', 'browser_use', 'browser_use_external', 'computer_use', 'image_generation', 'memories', 'multi_agent', 'plugins', 'remote_plugin', 'shell_tool', 'unified_exec', 'skill_search', 'view_image', 'goals', 'hooks', 'in_app_browser', 'tool_suggest', 'sleep_tool', 'code_mode_host']
 export const APP_ENABLED = ['skip_host_skill_discovery']
 export const APP_CONFIG = ['web_search="disabled"', 'notify=[]', 'sandbox_mode="read-only"', 'approval_policy="never"', 'memories.generate_memories=false', 'memories.use_memories=false', 'history.persistence="none"', 'check_for_update_on_startup=false', 'project_doc_max_bytes=0', 'include_permissions_instructions=false', 'include_apps_instructions=false', 'include_environment_context=false', 'include_collaboration_mode_instructions=false', 'model_reasoning_summary="none"', 'skills.config=[]', 'skills.include_instructions=false', 'analytics.enabled=false']
 const BASE_INSTRUCTIONS = 'You are a text classifier. You answer only with the JSON object the output schema asks for. You never run commands, call tools or ask questions.'

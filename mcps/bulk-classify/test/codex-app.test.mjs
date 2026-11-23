@@ -212,6 +212,12 @@ test('ladder tiers reach the app-server: model, effort and the stated-confidence
   assert.equal(b.get('i1'), 'billing')
 })
 
+test('the app-server disables every Codex feature exec disables (shell_snapshot ran /bin/zsh and uname under the server, 2026-11-23)', async () => {
+  const { APP_DISABLED } = await import('../src/lib/codex-app.mjs')
+  const { DISABLED_FEATURES } = await import('../src/lib/codex.mjs')
+  for (const f of DISABLED_FEATURES) assert.ok(APP_DISABLED.includes(f), `app-server leaves ${f} on`)
+})
+
 test('kinds from codexErrorInfo, including the object-shaped ones', () => {
   assert.equal(kindFromTurnError({ codexErrorInfo: 'usageLimitExceeded' }), 'rate_limited')
   assert.equal(kindFromTurnError({ codexErrorInfo: 'rateLimitExceeded' }), 'throttled')
